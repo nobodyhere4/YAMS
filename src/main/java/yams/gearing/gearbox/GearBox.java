@@ -44,7 +44,7 @@ public abstract class GearBox
    */
   public double getInputToOutputConversionFactor()
   {
-    return 1 / gearReductionRatio;
+    return 1.0 / gearReductionRatio;
   }
 
   /**

@@ -44,7 +44,7 @@ public class Sprocket
    */
   public double getInputToOutputConversionFactor()
   {
-    return 1 / sprocketReductionRatio;
+    return 1.0 / sprocketReductionRatio;
   }
 
   /**
