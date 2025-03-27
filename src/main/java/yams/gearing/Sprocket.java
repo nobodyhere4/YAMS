@@ -15,7 +15,7 @@ public class Sprocket
   /**
    * The input to output conversion factor.
    */
-  private final double   conversionFactor;
+  private final double   sprocketReductionRatio;
 
   /**
    * Create the sprocket given the teeth of each sprocket in the chain.
@@ -34,7 +34,7 @@ public class Sprocket
     {
       sprocketRatio *= reductionStages[i];
     }
-    conversionFactor = sprocketRatio;
+    sprocketReductionRatio = sprocketRatio;
   }
 
   /**
@@ -44,7 +44,7 @@ public class Sprocket
    */
   public double getInputToOutputConversionFactor()
   {
-    return 1/ conversionFactor;
+    return 1 / sprocketReductionRatio;
   }
 
   /**
@@ -54,7 +54,7 @@ public class Sprocket
    */
   public double getOutputToInputConversionFactor()
   {
-    return conversionFactor;
+    return sprocketReductionRatio;
   }
 
 
