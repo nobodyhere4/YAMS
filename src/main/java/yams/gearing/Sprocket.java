@@ -11,32 +11,28 @@ public class Sprocket
   /**
    * Stages in the Sprocket chain.
    */
-  private final double[] stages;
+  private final double[] reductionStages;
   /**
    * The input to output conversion factor.
    */
-  private       double   conversionFactor;
+  private final double   conversionFactor;
 
   /**
    * Create the sprocket given the teeth of each sprocket in the chain.
    *
-   * @param sprocketTeeth Sprocket teeth.
+   * @param sprocketReductionStage Sprocket teeth.
    */
-  public Sprocket(double[] sprocketTeeth)
+  public Sprocket(double[] sprocketReductionStage)
   {
-    stages = sprocketTeeth;
-    if (stages.length == 0)
+    reductionStages = sprocketReductionStage;
+    if (reductionStages.length == 0)
     {
       throw new NoStagesGivenException();
     }
-    if (stages.length % 2 != 0)
+    double sprocketRatio = reductionStages[0];
+    for (int i = 1; i < reductionStages.length; i++)
     {
-      throw new RuntimeException("Not enough stages given, must be a multiple of 2!");
-    }
-    double sprocketRatio = stages[0] / stages[1]; // input / output
-    for (int i = 2; i < stages.length; i += 2)
-    {
-      sprocketRatio *= stages[i] / stages[i + 1];
+      sprocketRatio *= reductionStages[i];
     }
     conversionFactor = sprocketRatio;
   }
@@ -48,7 +44,7 @@ public class Sprocket
    */
   public double getInputToOutputConversionFactor()
   {
-    return conversionFactor;
+    return 1/ conversionFactor;
   }
 
   /**
@@ -58,7 +54,7 @@ public class Sprocket
    */
   public double getOutputToInputConversionFactor()
   {
-    return 1 / conversionFactor;
+    return conversionFactor;
   }
 
 

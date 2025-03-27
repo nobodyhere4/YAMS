@@ -45,7 +45,7 @@ public class MechanismGearing
    *
    * @return OUT:IN or OUT/IN ratio to use for sensor to mechanism calculations.
    */
-  public double getSensorToMechanismRatio()
+  public double getRotorToMechanismRatio()
   {
     double ratio = gearBox.getInputToOutputConversionFactor();
     if (sprockets.isPresent())
@@ -60,7 +60,7 @@ public class MechanismGearing
    *
    * @return IN:OUT or IN/OUT to use for mechanism to sensor calculations.
    */
-  public double getMechanismToSensorRatio()
+  public double getMechanismToRotorRatio()
   {
     double ratio = gearBox.getOutputToInputConversionFactor();
     if (sprockets.isPresent())

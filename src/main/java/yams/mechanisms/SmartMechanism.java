@@ -53,32 +53,32 @@ public abstract class SmartMechanism
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.
    *
-   * @param sprockets Teeth of each sprocket in the chain, must be at 2 sprocket teeth defined.
-   * @return {@link Sprocket} representing the sprockets given.
+   * @param sprocketReductionStages Teeth of each sprocket in the chain.
+   * @return {@link Sprocket} representing the sprocketReductionStages given.
    */
-  protected Sprocket sprocket(double... sprockets)
+  protected Sprocket sprocket(double... sprocketReductionStages)
   {
-    return new Sprocket(sprockets);
+    return new Sprocket(sprocketReductionStages);
   }
 
   /**
    * Create the {@link GearBox} for {@link MechanismGearing}
    *
-   * @param type   {@link GearBox.Type} to create.
-   * @param stages Stages in the gear box.
+   * @param type            {@link GearBox.Type} to create.
+   * @param reductionStages Reduction stages in the gear box.
    * @return {@link GearBox} for use in {@link MechanismGearing};
    */
-  protected GearBox gearbox(GearBox.Type type, double... stages)
+  protected GearBox gearbox(GearBox.Type type, double... reductionStages)
   {
     switch (type)
     {
       case MAX_PLANETARY ->
       {
-        return new MAXPlanetaryGearbox(stages);
+        return new MAXPlanetaryGearbox(reductionStages);
       }
       case VERSA_PLANETARY ->
       {
-        return new VersaPlanetaryGearBox(stages);
+        return new VersaPlanetaryGearBox(reductionStages);
       }
     }
     throw new IllegalArgumentException("Unknown GearBox type: " + type);

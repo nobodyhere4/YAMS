@@ -12,27 +12,27 @@ public abstract class GearBox
   /**
    * Stages in the gear box
    */
-  private final double[] stages;
+  private final double[] reductionStages;
   /**
    * Conversion factor of the gearbox from input to output.
    */
   private final double   conversionFactor;
   /**
-   * Construct the {@link GearBox} with the stages given.
+   * Construct the {@link GearBox} with the reduction stages given.
    *
-   * @param stage List of stages in the gearbox.
+   * @param reductionStage List of  reduction stages in the gearbox.
    */
-  public GearBox(double[] stage)
+  public GearBox(double[] reductionStage)
   {
-    this.stages = stage;
-    if (stages.length == 0)
+    this.reductionStages = reductionStage;
+    if (reductionStages.length == 0)
     {
       throw new NoStagesGivenException();
     }
-    double gearBox = stages[0];
-    for (int i = 1; i < stages.length; i++)
+    double gearBox = reductionStages[0];
+    for (int i = 1; i < reductionStages.length; i++)
     {
-      gearBox *= stages[i];
+      gearBox *= reductionStages[i];
     }
     conversionFactor = gearBox;
   }
