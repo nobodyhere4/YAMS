@@ -7,19 +7,6 @@ public interface SmartMotorController
 {
 
   /**
-   * Get the {@link DCMotor} modeling the motor controlled by the motor controller.
-   *
-   * @return {@link DCMotor} of the controlled motor.
-   */
-  public DCMotor getDCMotor();
-
-  /**
-   * Get the rotations of the motor with the relative encoder since the motor controller powered on scaled to the mechanism rotations.
-   * @return {@link Angle} of the relative encoder in the motor scaled to mechanism rotations.
-   */
-  public Angle getPosition();
-
-  /**
    * Create a {@link SmartMotorController} wrapper from the provided motor controller object.
    *
    * @param motorController Motor controller object.
@@ -30,5 +17,20 @@ public interface SmartMotorController
   {
     return new TalonFXSWrapper();
   }
+
+  /**
+   * Get the {@link DCMotor} modeling the motor controlled by the motor controller.
+   *
+   * @return {@link DCMotor} of the controlled motor.
+   */
+  public DCMotor getDCMotor();
+
+  /**
+   * Get the rotations of the motor with the relative encoder since the motor controller powered on scaled to the
+   * mechanism rotations.
+   *
+   * @return {@link Angle} of the relative encoder in the motor scaled to mechanism rotations.
+   */
+  public Angle getPosition();
 
 }

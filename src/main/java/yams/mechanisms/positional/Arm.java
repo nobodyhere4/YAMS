@@ -3,7 +3,6 @@ package yams.mechanisms.positional;
 import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.Optional;
@@ -39,16 +38,16 @@ public class Arm extends SmartPositionalMechanism
    */
   public void updateTelemetry()
   {
-    if(m_name.isPresent())
+    if (m_name.isPresent())
     {
       m_setpointPublisher.set(m_setpointAngle.in(Degrees));
-      m_positionPublisher.set(getPosition());
+      m_positionPublisher.set(getPosition().in(Degrees));
     }
   }
 
   public Angle getPosition()
   {
-    if(m_motor.isPresent())
+    if (m_motor.isPresent())
     {
       return m_motor.get().getPosition();
     }

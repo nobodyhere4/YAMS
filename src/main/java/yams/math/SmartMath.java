@@ -1,12 +1,14 @@
 package yams.math;
 
 import yams.exceptions.NoStagesGivenException;
+import yams.gearing.gearbox.GearBox;
 
 public class SmartMath
 {
 
   /**
    * Create the sensor to mechanism ratio.
+   *
    * @param stages
    * @return
    */
@@ -31,7 +33,7 @@ public class SmartMath
    * @return rotor rotations to mechanism ratio in the form of MECHANISM_ROTATIONS/ROTOR_ROTATIONS or
    * ROTOR_ROTATIONS:MECHANISM_ROTATIONS
    */
-  public static double gearBox(double... stages)
+  public static double gearBox(GearBox.Type type, double... stages)
   {
     if (stages.length == 0)
     {

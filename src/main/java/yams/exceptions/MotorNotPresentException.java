@@ -1,7 +1,5 @@
 package yams.exceptions;
 
-import java.util.Optional;
-
 /**
  * Custom exception for when there is no motor in the mechanism.
  */
@@ -15,6 +13,7 @@ public class MotorNotPresentException extends RuntimeException
    */
   public MotorNotPresentException(String mechanismType)
   {
-    super(mechanismType + " primary motor not present! Please set one using `setMotor(SmartMotorController.create(MOTOR_CONTROLLER, DCMotor.getNEO(1))`");
+    super(mechanismType +
+          " primary motor not present! Please set one using `setMotor(SmartMotorController.create(MOTOR_CONTROLLER, DCMotor.getNEO(1))`");
   }
 }
