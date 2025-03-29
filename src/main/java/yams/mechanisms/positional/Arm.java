@@ -49,7 +49,7 @@ public class Arm extends SmartPositionalMechanism
   {
     if (m_motor.isPresent())
     {
-      return m_motor.get().getPosition();
+//      return m_motor.get().getPosition();
     }
     throw new MotorNotPresentException("Arm");
   }
