@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import yams.gearing.MechanismGearing;
 
@@ -29,6 +30,10 @@ import yams.gearing.MechanismGearing;
 public class SmartMotorControllerConfig
 {
 
+  /**
+   * Subsystem that the {@link SmartMotorController} controls.
+   */
+  private Subsystem subsystem;
   /**
    * External encoder.
    */
@@ -113,6 +118,17 @@ public class SmartMotorControllerConfig
    * Telemetry verbosity setting.
    */
   private TelemetryVerbosity               verbosity;
+
+  /**
+   * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
+   *
+   * @param subsystem {@link Subsystem} to use.
+   */
+  public SmartMotorControllerConfig(Subsystem subsystem)
+  {
+    this.subsystem = subsystem;
+  }
+
 
   /**
    * Set the telemetry for the {@link SmartMotorController}
@@ -606,6 +622,36 @@ public class SmartMotorControllerConfig
   public double getClosedLoopRampRate()
   {
     return closeLoopRampRate;
+  }
+
+  /**
+   * Get Telemetry verbosity.
+   *
+   * @return Verbosity for telemetry.
+   */
+  public TelemetryVerbosity getVerbosity()
+  {
+    return verbosity;
+  }
+
+  /**
+   * Telemetry name.
+   *
+   * @return Telemetry name for NetworkTables.
+   */
+  public String getTelemetryName()
+  {
+    return telemetryName;
+  }
+
+  /**
+   * Get the subsystem controlled by the {@link SmartMotorController}
+   *
+   * @return {@link Subsystem} controlled.
+   */
+  public Subsystem getSubsystem()
+  {
+    return subsystem;
   }
 
   /**
