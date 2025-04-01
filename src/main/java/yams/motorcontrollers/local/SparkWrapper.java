@@ -28,6 +28,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -76,7 +77,7 @@ public class SparkWrapper implements SmartMotorController
   /**
    * Spark simulation.
    */
-  private       SparkSim                          sparkSim;
+  private Optional<SparkSim>        sparkSim             = Optional.empty();
   /**
    * Spark relative encoder sim object.
    */
@@ -88,7 +89,7 @@ public class SparkWrapper implements SmartMotorController
   /**
    * Spark absolute encoder.
    */
-  private       Optional<AbsoluteEncoder>         sparkAbsoluteEncoder;
+  private Optional<AbsoluteEncoder> sparkAbsoluteEncoder = Optional.empty();
   /**
    * Spark absolute encoder sim object
    */
@@ -112,11 +113,11 @@ public class SparkWrapper implements SmartMotorController
   /**
    * Setpoint position
    */
-  private       Optional<Angle>                   setpointPosition;
+  private Optional<Angle>           setpointPosition     = Optional.empty();
   /**
    * Setpoint velocity.
    */
-  private       Optional<AngularVelocity>         setpointVelocity;
+  private Optional<AngularVelocity> setpointVelocity     = Optional.empty();
   /**
    * Telemetry.
    */
@@ -128,13 +129,20 @@ public class SparkWrapper implements SmartMotorController
   /**
    * Parent table for telemetry.
    */
-  private Optional<NetworkTable> parentTable    = Optional.empty();
+  private Optional<NetworkTable>    parentTable          = Optional.empty();
   /**
    * {@link SmartMotorController} telemetry table.
    */
-  private Optional<NetworkTable> telemetryTable = Optional.empty();
+  private Optional<NetworkTable>    telemetryTable       = Optional.empty();
 
 
+  /**
+   * Create a {@link SmartMotorController} from {@link SparkMax} or {@link SparkFlex}
+   *
+   * @param controller {@link SparkMax} or {@link SparkFlex}
+   * @param motor      {@link DCMotor} controller by the {@link SparkFlex} or {@link SparkMax}. Must be a brushless
+   *                   motor.
+   */
   public SparkWrapper(SparkBase controller, DCMotor motor)
   {
     if (controller instanceof SparkMax)
@@ -181,7 +189,7 @@ public class SparkWrapper implements SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
-      sparkSim = new SparkSim(spark, motor);
+      sparkSim = Optional.of(new SparkSim(spark, motor));
       if (spark instanceof SparkMax)
       {
         sparkRelativeEncoderSim = Optional.of(new SparkRelativeEncoderSim((SparkMax) spark));
@@ -198,13 +206,22 @@ public class SparkWrapper implements SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
-      sparkSim.iterate(mechanismVelocity.in(RotationsPerSecond),
-                       RoboRioSim.getVInVoltage(),
-                       config.getClosedLoopControlPeriod().in(Second));
+      sparkSim.ifPresent(sim -> sim.iterate(mechanismVelocity.in(RotationsPerSecond),
+                                            RoboRioSim.getVInVoltage(),
+                                            config.getClosedLoopControlPeriod().in(Second)));
       sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(mechanismVelocity.in(RotationsPerSecond),
                                                            config.getClosedLoopControlPeriod().in(Seconds)));
       sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.iterate(mechanismVelocity.in(
           RotationsPerSecond), config.getClosedLoopControlPeriod().in(Seconds)));
+    }
+  }
+
+  @Override
+  public void simIterate()
+  {
+    if (RobotBase.isSimulation() && setpointVelocity.isPresent())
+    {
+      simIterate(setpointVelocity.get());
     }
   }
 
@@ -271,6 +288,8 @@ public class SparkWrapper implements SmartMotorController
 
     this.config = config;
     pidController = config.getClosedLoopController();
+
+    // Handle simple pid vs profile pid controller.
     if (pidController.isEmpty())
     {
       simplePidController = config.getSimpleClosedLoopController();
@@ -278,60 +297,9 @@ public class SparkWrapper implements SmartMotorController
       {
         throw new IllegalArgumentException("closed-loop controller must not be empty");
       }
-
-      if (config.getWrappingMin().isPresent() && config.getWrappingMax().isPresent())
-      {
-        if (config.getMechanismCircumference().isPresent())
-        {
-          throw new IllegalArgumentException("Mechanism circumference must be empty when wrapping is enabled.");
-        }
-        simplePidController.ifPresent(controller -> controller.enableContinuousInput(config.getWrappingMin().get()
-                                                                                           .in(Rotations),
-                                                                                     config.getWrappingMax().get()
-                                                                                           .in(Rotations)));
-      }
-      if (config.getClosedLoopTolerance().isPresent())
-      {
-        if (config.getMechanismCircumference().isPresent())
-        {
-          simplePidController.ifPresent(controller -> controller.setTolerance(config.convertFromMechanism(config.getClosedLoopTolerance()
-                                                                                                                .get())
-                                                                                    .in(Meters)));
-        } else
-        {
-          simplePidController.ifPresent(controller -> controller.setTolerance(config.getClosedLoopTolerance().get()
-                                                                                    .in(Rotations)));
-        }
-
-      }
-    } else
-    {
-      if (config.getWrappingMin().isPresent() && config.getWrappingMax().isPresent())
-      {
-        if (config.getMechanismCircumference().isPresent())
-        {
-          throw new IllegalArgumentException("Mechanism circumference must be empty when wrapping is enabled.");
-        }
-        pidController.ifPresent(controller -> controller.enableContinuousInput(config.getWrappingMin().get()
-                                                                                     .in(Rotations),
-                                                                               config.getWrappingMax().get()
-                                                                                     .in(Rotations)));
-      }
-      if (config.getClosedLoopTolerance().isPresent())
-      {
-        if (config.getMechanismCircumference().isPresent())
-        {
-          pidController.ifPresent(controller -> controller.setTolerance(config.convertFromMechanism(config.getClosedLoopTolerance()
-                                                                                                          .get())
-                                                                              .in(Meters)));
-        } else
-        {
-          pidController.ifPresent(controller -> controller.setTolerance(config.getClosedLoopTolerance().get()
-                                                                              .in(Rotations)));
-        }
-      }
-
     }
+
+    // Handle closed loop controller thread
     if (closedLoopControllerThread == null)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
@@ -346,35 +314,43 @@ public class SparkWrapper implements SmartMotorController
     }
     closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
 
+    // Calculate Spark conversion factors
     double positionConversionFactor = config.getGearing().getRotorToMechanismRatio();
     double velocityConversionFactor = config.getGearing().getRotorToMechanismRatio() / 60.0;
 
+    // Set base config options
     sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate());
     sparkBaseConfig.closedLoopRampRate(config.getClosedLoopRampRate());
     sparkBaseConfig.inverted(config.getMotorInverted());
     sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
     sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
     sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
+    // Throw warning about supply stator limits on Spark's
     if (config.getSupplyStallCurrentLimit().isPresent())
     {
       DriverStation.reportError("[WARNING] Supply stall currently not supported on Spark", true);
     }
+    // Handle stator current limit.
     if (config.getStatorStallCurrentLimit().isPresent())
     {
       sparkBaseConfig.smartCurrentLimit(config.getStatorStallCurrentLimit().getAsInt());
     }
+    // Handle voltage compensation.
     if (config.getVoltageCompensation().isPresent())
     {
       sparkBaseConfig.voltageCompensation(config.getVoltageCompensation().getAsDouble());
     }
+    // Setup idle mode.
     if (config.getIdleMode().isPresent())
     {
       sparkBaseConfig.idleMode(config.getIdleMode().get() == MotorMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
     }
+    // Setup starting position
     if (config.getStartingPosition().isPresent())
     {
       sparkRelativeEncoder.setPosition(config.getStartingPosition().get().in(Rotations));
     }
+    // Setup external encoder.
     if (config.getExternalEncoder().isPresent())
     {
       Object externalEncoder = config.getExternalEncoder().get();
@@ -399,14 +375,43 @@ public class SparkWrapper implements SmartMotorController
             sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setPosition(config.getStartingPosition().get().in(Rotations)));
           }
         }
-        if (config.getStartingPosition().isEmpty())
-        {
-          sparkRelativeEncoder.setPosition(sparkAbsoluteEncoder.get().getPosition());
-        }
-
+      } else
+      {
+        throw new IllegalArgumentException(
+            "[ERROR] Unsupported external encoder: " + externalEncoder.getClass().getSimpleName());
       }
-      throw new IllegalArgumentException(
-          "[ERROR] Unsupported external encoder: " + externalEncoder.getClass().getSimpleName());
+
+      // Set starting position if external encoder is empty.
+      if (config.getStartingPosition().isEmpty())
+      {
+        sparkRelativeEncoder.setPosition(sparkAbsoluteEncoder.get().getPosition());
+      }
+    }
+
+    // Configure follower motors
+    if (config.getFollowers().isPresent())
+    {
+      for (Pair<Object, Boolean> follower : config.getFollowers().get())
+      {
+        if (follower.getFirst() instanceof SparkMax)
+        {
+          ((SparkMax) follower.getFirst()).configure(new SparkMaxConfig().follow(spark, follower.getSecond()),
+                                                     ResetMode.kNoResetSafeParameters,
+                                                     PersistMode.kPersistParameters);
+
+        } else if (follower.getFirst() instanceof SparkFlex)
+        {
+          ((SparkFlex) follower.getFirst()).configure(new SparkFlexConfig().follow(spark, follower.getSecond()),
+                                                      ResetMode.kNoResetSafeParameters,
+                                                      PersistMode.kPersistParameters);
+
+        } else
+        {
+          throw new IllegalArgumentException(
+              "Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
+        }
+      }
+      config.clearFollowers();
     }
 
     return configureSpark(() -> spark.configure(sparkBaseConfig,

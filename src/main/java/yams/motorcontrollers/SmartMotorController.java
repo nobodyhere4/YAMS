@@ -37,6 +37,11 @@ public interface SmartMotorController
   public void simIterate(AngularVelocity mechanismVelocity);
 
   /**
+   * Simulation iteration using existing mechanism velocity.
+   */
+  public void simIterate();
+
+  /**
    * Set the encoder velocity
    *
    * @param velocity {@link AngularVelocity} of the Mechanism.

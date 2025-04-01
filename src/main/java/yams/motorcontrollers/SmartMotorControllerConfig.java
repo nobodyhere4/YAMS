@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -41,127 +42,115 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private Subsystem                        subsystem;
+  private Subsystem                         subsystem;
   /**
    * External encoder.
    */
-  private Optional<Object>                 externalEncoder                    = Optional.empty();
+  private Optional<Object>                  externalEncoder                    = Optional.empty();
   /**
-   * Follower motors
+   * Follower motors and inversion.
    */
-  private Optional<Object[]>               followers                          = Optional.empty();
+  private Optional<Pair<Object, Boolean>[]> followers                          = Optional.empty();
   /**
    * Simple feedforward for the motor controller.
    */
-  private Optional<SimpleMotorFeedforward> simpleFeedforward                  = Optional.empty();
+  private Optional<SimpleMotorFeedforward>  simpleFeedforward                  = Optional.empty();
   /**
    * Elevator feedforward for the motor controller.
    */
-  private Optional<ElevatorFeedforward>    elevatorFeedforward                = Optional.empty();
+  private Optional<ElevatorFeedforward>     elevatorFeedforward                = Optional.empty();
   /**
    * Arm feedforward for the motor controller.
    */
-  private Optional<ArmFeedforward>         armFeedforward                     = Optional.empty();
+  private Optional<ArmFeedforward>          armFeedforward                     = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private Optional<ProfiledPIDController>  controller                         = Optional.empty();
+  private Optional<ProfiledPIDController>   controller                         = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private Optional<PIDController>          simpleController                   = Optional.empty();
+  private Optional<PIDController>           simpleController                   = Optional.empty();
   /**
    * Gearing for the {@link SmartMotorController}.
    */
-  private MechanismGearing                 gearing;
+  private MechanismGearing                  gearing;
   /**
    * Mechanism Circumference for distance calculations.
    */
-  private Optional<Distance>               mechanismCircumference             = Optional.empty();
+  private Optional<Distance>                mechanismCircumference             = Optional.empty();
   /**
    * PID Controller period for robot controller based PIDs
    */
-  private Time                             controlPeriod                      = Milliseconds.of(20);
+  private Time                              controlPeriod                      = Milliseconds.of(20);
   /**
    * Open loop ramp rate.
    */
-  private double                           openLoopRampRate                   = 1.0;
+  private double                            openLoopRampRate                   = 1.0;
   /**
    * Closed loop ramp rate.
    */
-  private double                           closeLoopRampRate                  = 1.0;
+  private double                            closeLoopRampRate                  = 1.0;
   /**
    * Set the stator current limit in Amps for the {@link SmartMotorController}
    */
-  private OptionalInt                      statorStallCurrentLimit            = OptionalInt.empty();
+  private OptionalInt                       statorStallCurrentLimit            = OptionalInt.empty();
   /**
    * The supply current limit in Amps for the {@link SmartMotorController}
    */
-  private OptionalInt                      supplyStallCurrentLimit            = OptionalInt.empty();
+  private OptionalInt                       supplyStallCurrentLimit            = OptionalInt.empty();
   /**
    * The voltage compensation.
    */
-  private OptionalDouble                   voltageCompensation                = OptionalDouble.empty();
+  private OptionalDouble                    voltageCompensation                = OptionalDouble.empty();
   /**
    * Set the {@link MotorMode} for the {@link SmartMotorController}.
    */
-  private Optional<MotorMode>              idleMode                           = Optional.empty();
+  private Optional<MotorMode>               idleMode                           = Optional.empty();
   /**
    * Mechanism lower limit to prevent movement below.
    */
-  private Optional<Angle>                  mechanismLowerLimit                = Optional.empty();
+  private Optional<Angle>                   mechanismLowerLimit                = Optional.empty();
   /**
    * High distance soft limit to prevent movement above.
    */
-  private Optional<Angle>                  mechanismUpperLimit                = Optional.empty();
+  private Optional<Angle>                   mechanismUpperLimit                = Optional.empty();
   /**
    * Name for the {@link SmartMotorController} telemetry.
    */
-  private Optional<String>                 telemetryName                      = Optional.empty();
+  private Optional<String>                  telemetryName                      = Optional.empty();
   /**
    * Telemetry verbosity setting.
    */
-  private Optional<TelemetryVerbosity>     verbosity                          = Optional.empty();
-  /**
-   * Closed loop controller tolerance.
-   */
-  private Optional<Angle>                  closedLoopTolerance                = Optional.empty();
-  /**
-   * Continuous wrapping minimum boundary.
-   */
-  private Optional<Angle>                  wrappingMin                        = Optional.empty();
-  /**
-   * Continuous wrapping maximum boundary.
-   */
-  private Optional<Angle>                  wrappingMax                        = Optional.empty();
+  private Optional<TelemetryVerbosity>      verbosity                          = Optional.empty();
   /**
    * Zero offset of the {@link SmartMotorController}
    */
-  private Optional<Angle>                  zeroOffset                         = Optional.empty();
+  private Optional<Angle>                   zeroOffset                         = Optional.empty();
   /**
    * Temperature cutoff for the {@link SmartMotorController} to prevent running if above.
    */
-  private Optional<Temperature>            temperatureCutoff                  = Optional.empty();
+  private Optional<Temperature>             temperatureCutoff                  = Optional.empty();
   /**
    * The encoder readings are inverted.
    */
-  private boolean                          encoderInverted                    = false;
+  private boolean                           encoderInverted                    = false;
   /**
    * The motor is inverted.
    */
-  private boolean                          motorInverted                      = false;
+  private boolean                           motorInverted                      = false;
   /**
    * Use the provided external encoder if set.
    */
-  private boolean                          useExternalEncoder                 = true;
+  private boolean                           useExternalEncoder                 = true;
   /**
    * {@link SmartMotorController} starting angle.
    */
-  private Optional<Angle>                  startingPosition                   = Optional.empty();
+  private Optional<Angle>                   startingPosition                   = Optional.empty();
   /**
    * Maximum voltage output for the motor controller while using the closed loop controller.
    */
-  private Optional<Voltage>                closedLoopControllerMaximumVoltage = Optional.empty();
+  private Optional<Voltage>                 closedLoopControllerMaximumVoltage = Optional.empty();
 
   /**
    * Set the closed loop maximum voltage output.
@@ -293,8 +282,14 @@ public class SmartMotorControllerConfig
       throw new IllegalArgumentException(
           "Mechanism circumference set while attempting to use continuous wrapping. This could break the mechanism!");
     }
-    wrappingMax = top == null ? Optional.empty() : Optional.of(top);
-    wrappingMin = bottom == null ? Optional.empty() : Optional.of(bottom);
+    simpleController.ifPresent(pidController -> pidController.enableContinuousInput(bottom.in(Rotations),
+                                                                                    top.in(Rotations)));
+    controller.ifPresent(profiledPIDController -> profiledPIDController.enableContinuousInput(bottom.in(Rotations),
+                                                                                              top.in(Rotations)));
+    if (simpleController.isEmpty() && controller.isEmpty())
+    {
+      throw new IllegalArgumentException("Wrapping set without PID controller!");
+    }
 
     return this;
   }
@@ -307,12 +302,14 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopTolerance(Angle tolerance)
   {
-    if (tolerance == null)
+    if (tolerance != null)
     {
-      closedLoopTolerance = Optional.empty();
-    } else
-    {
-      closedLoopTolerance = Optional.of(tolerance);
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(tolerance.in(Rotations)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+      if (controller.isEmpty() && simpleController.isEmpty())
+      {
+        throw new IllegalArgumentException("Closed loop tolerance set without PID controller!");
+      }
     }
     return this;
   }
@@ -329,12 +326,14 @@ public class SmartMotorControllerConfig
     {
       throw new MechanismDistanceException();
     }
-    if (tolerance == null)
+    if (tolerance != null)
     {
-      closedLoopTolerance = Optional.empty();
-    } else
-    {
-      closedLoopTolerance = Optional.of(Rotations.of(tolerance.in(Meters) / mechanismCircumference.get().in(Meters)));
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(tolerance.in(Meters)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Meters)));
+      if (controller.isEmpty() && simpleController.isEmpty())
+      {
+        throw new IllegalArgumentException("Closed loop tolerance set without PID controller!");
+      }
     }
     return this;
   }
@@ -502,13 +501,22 @@ public class SmartMotorControllerConfig
    * Set the follower motors of the {@link SmartMotorController}
    *
    * @param followers Base motor types (NOT {@link SmartMotorController}!) to configure as followers, must be same brand
-   *                  as the {@link SmartMotorController}.
+   *                  as the {@link SmartMotorController} with inversion..
    * @return {@link SmartMotorControllerConfig} for chaining
    */
-  public SmartMotorControllerConfig withFollowers(Object... followers)
+  @SafeVarargs
+  public final SmartMotorControllerConfig withFollowers(Pair<Object, Boolean>... followers)
   {
     this.followers = followers == null ? Optional.empty() : Optional.of(followers);
     return this;
+  }
+
+  /**
+   * Clear the follower motors so they are not reapplied
+   */
+  public void clearFollowers()
+  {
+    this.followers = Optional.empty();
   }
 
   /**
@@ -580,7 +588,7 @@ public class SmartMotorControllerConfig
    *
    * @return Follower motor list.
    */
-  public Optional<Object[]> getFollowers()
+  public Optional<Pair<Object, Boolean>[]> getFollowers()
   {
     return followers;
   }
@@ -927,35 +935,6 @@ public class SmartMotorControllerConfig
     return subsystem;
   }
 
-  /**
-   * Get the closed loop controller tolerance.
-   *
-   * @return Closed loop controller tolerance.
-   */
-  public Optional<Angle> getClosedLoopTolerance()
-  {
-    return closedLoopTolerance;
-  }
-
-  /**
-   * Continuous wrapping minimum boundary.
-   *
-   * @return Wrapping minimum boundary.
-   */
-  public Optional<Angle> getWrappingMin()
-  {
-    return wrappingMin;
-  }
-
-  /**
-   * Continuous wrapping maximum boundary.
-   *
-   * @return Wrapping maximum boundary.
-   */
-  public Optional<Angle> getWrappingMax()
-  {
-    return wrappingMax;
-  }
 
   /**
    * Convert {@link LinearVelocity} to {@link AngularVelocity} using the
