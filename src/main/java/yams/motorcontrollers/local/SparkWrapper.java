@@ -539,8 +539,13 @@ public abstract class SparkWrapper implements SmartMotorController
   @Override
   public Angle getMechanismPosition()
   {
-    return sparkAbsoluteEncoder.map(absoluteEncoder -> Rotations.of(absoluteEncoder.getPosition()))
+    Angle pos = sparkAbsoluteEncoder.map(absoluteEncoder -> Rotations.of(absoluteEncoder.getPosition()))
                                .orElseGet(() -> Rotations.of(sparkRelativeEncoder.getPosition()));
+    if (config.getZeroOffset().isPresent())
+    {
+      pos = pos.minus(config.getZeroOffset().get());
+    }
+    return pos;
   }
 
   @Override
