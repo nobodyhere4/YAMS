@@ -64,6 +64,20 @@ public interface SmartMotorController
   public void setPosition(Distance distance);
 
   /**
+   * Set the voltage output of the motor controller. Useful for Sysid.
+   *
+   * @param voltage Voltage to set the motor controller output to.
+   */
+  public void setVoltage(Voltage voltage);
+
+  /**
+   * Set the dutycycle output of the motor controller.
+   *
+   * @param dutyCycle Value between [-1,1]
+   */
+  public void setDutyCycle(double dutyCycle);
+
+  /**
    * Run the  {@link edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine} which runs to the maximum MEASUREMENT at the
    * step voltage then down to the minimum MEASUREMENT with the step voltage then up to the maximum MEASUREMENT
    * increasing each second by the step voltage generated via the {@link SmartMotorControllerConfig}.

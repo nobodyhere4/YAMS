@@ -47,6 +47,18 @@ public class TalonFXSWrapper implements SmartMotorController
   }
 
   @Override
+  public void setVoltage(Voltage voltage)
+  {
+
+  }
+
+  @Override
+  public void setDutyCycle(double dutyCycle)
+  {
+
+  }
+
+  @Override
   public Command sysId(VoltageUnit maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration)
   {
     return null;
