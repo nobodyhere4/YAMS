@@ -36,32 +36,60 @@ public interface SmartMotorController
   public void simIterate(AngularVelocity mechanismVelocity);
 
   /**
-   * Set the Mechanism {@link AngularVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
+   * Set the encoder velocity
    *
    * @param velocity {@link AngularVelocity} of the Mechanism.
    */
-  public void setVelocity(AngularVelocity velocity);
+  public void setEncoderVelocity(AngularVelocity velocity);
 
   /**
-   * Set the Measurement {@link LinearVelocity} using the PID and configuration form {@link SmartMotorControllerConfig}
+   * Set the encoder velocity.
    *
    * @param velocity Measurement {@link LinearVelocity}
    */
-  public void setVelocity(LinearVelocity velocity);
+  public void setEncoderVelocity(LinearVelocity velocity);
 
   /**
-   * Set the Mechanism {@link Angle} using the PID and feedforward from {@link SmartMotorControllerConfig}
+   * Set the encoder position
    *
    * @param angle Mechanism {@link Angle} to reach.
+   */
+  public void setEncoderPosition(Angle angle);
+
+  /**
+   * Set the encoder position.
+   *
+   * @param distance Measurement {@link Distance} to reach.
+   */
+  public void setEncoderPosition(Distance distance);
+
+  /**
+   * Set the Mechanism {@link Angle} using the PID and feedforward from {@link SmartMotorControllerConfig}.
+   *
+   * @param angle Mechanism angle to set.
    */
   public void setPosition(Angle angle);
 
   /**
-   * Set the Measurement {@link Distance} using the PID and feedforward from {@link SmartMotorControllerConfig}
+   * Set the Mechanism {@link Distance} using the PID and feedforward from {@link SmartMotorControllerConfig}.
    *
-   * @param distance Measurement {@link Distance} to reach.
+   * @param distance Mechanism {@link Distance} to set.
    */
   public void setPosition(Distance distance);
+
+  /**
+   * Set the Mechanism {@link LinearVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
+   *
+   * @param velocity Mechanism {@link LinearVelocity} to target.
+   */
+  public void setVelocity(LinearVelocity velocity);
+
+  /**
+   * Set the Mechanism {@link AngularVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
+   *
+   * @param angle Mechanism {@link AngularVelocity} to target.
+   */
+  public void setVelocity(AngularVelocity angle);
 
   /**
    * Set the voltage output of the motor controller. Useful for Sysid.

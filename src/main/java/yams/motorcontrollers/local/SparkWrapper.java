@@ -52,7 +52,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerTelemetry;
 
-public abstract class SparkWrapper implements SmartMotorController
+public class SparkWrapper implements SmartMotorController
 {
 
   /**
@@ -301,13 +301,13 @@ public abstract class SparkWrapper implements SmartMotorController
   }
 
   @Override
-  public void setVelocity(LinearVelocity velocity)
+  public void setEncoderVelocity(LinearVelocity velocity)
   {
-    setVelocity(config.convertToMechanism(velocity));
+    setEncoderVelocity(config.convertToMechanism(velocity));
   }
 
   @Override
-  public void setPosition(Angle angle)
+  public void setEncoderPosition(Angle angle)
   {
     if (sparkAbsoluteEncoder.isPresent())
     {
@@ -319,7 +319,7 @@ public abstract class SparkWrapper implements SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity velocity)
+  public void setEncoderVelocity(AngularVelocity velocity)
   {
     sparkRelativeEncoderSim.ifPresent(relativeEncoderSim -> relativeEncoderSim.setVelocity(velocity.in(
         RotationsPerSecond)));
@@ -328,9 +328,33 @@ public abstract class SparkWrapper implements SmartMotorController
   }
 
   @Override
+  public void setEncoderPosition(Distance distance)
+  {
+    setEncoderPosition(config.convertToMechanism(distance));
+  }
+
+  @Override
+  public void setPosition(Angle angle)
+  {
+    setpointPosition = angle == null ? Optional.empty() : Optional.of(angle);
+  }
+
+  @Override
   public void setPosition(Distance distance)
   {
     setPosition(config.convertToMechanism(distance));
+  }
+
+  @Override
+  public void setVelocity(LinearVelocity velocity)
+  {
+    setVelocity(config.convertToMechanism(velocity));
+  }
+
+  @Override
+  public void setVelocity(AngularVelocity angle)
+  {
+    setpointVelocity = angle == null ? Optional.empty() : Optional.of(angle);
   }
 
   @Override

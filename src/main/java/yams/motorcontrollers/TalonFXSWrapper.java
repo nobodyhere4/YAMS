@@ -23,25 +23,25 @@ public class TalonFXSWrapper implements SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity velocity)
+  public void setEncoderVelocity(AngularVelocity velocity)
   {
 
   }
 
   @Override
-  public void setVelocity(LinearVelocity velocity)
+  public void setEncoderVelocity(LinearVelocity velocity)
   {
 
   }
 
   @Override
-  public void setPosition(Angle angle)
+  public void setEncoderPosition(Angle angle)
   {
 
   }
 
   @Override
-  public void setPosition(Distance distance)
+  public void setEncoderPosition(Distance distance)
   {
 
   }
