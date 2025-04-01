@@ -125,6 +125,15 @@ public class SparkWrapper implements SmartMotorController
    * Thread of the closed loop controller.
    */
   private       Notifier                          closedLoopControllerThread = null;
+  /**
+   * Parent table for telemetry.
+   */
+  private Optional<NetworkTable> parentTable    = Optional.empty();
+  /**
+   * {@link SmartMotorController} telemetry table.
+   */
+  private Optional<NetworkTable> telemetryTable = Optional.empty();
+
 
   public SparkWrapper(SparkBase controller, DCMotor motor)
   {
@@ -183,8 +192,6 @@ public class SparkWrapper implements SmartMotorController
     }
   }
 
-  private Optional<NetworkTable> parentTable    = Optional.empty();
-
 
   @Override
   public void simIterate(AngularVelocity mechanismVelocity)
@@ -197,9 +204,7 @@ public class SparkWrapper implements SmartMotorController
       sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(mechanismVelocity.in(RotationsPerSecond),
                                                            config.getClosedLoopControlPeriod().in(Seconds)));
       sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.iterate(mechanismVelocity.in(
-                                                                                             RotationsPerSecond),
-                                                                                         config.getClosedLoopControlPeriod()
-                                                                                               .in(Seconds)));
+          RotationsPerSecond), config.getClosedLoopControlPeriod().in(Seconds)));
     }
   }
 
@@ -506,7 +511,7 @@ public class SparkWrapper implements SmartMotorController
   {
     return Rotations.of(getMechanismPosition().in(Rotations) * config.getGearing().getRotorToMechanismRatio());
   }
-  private Optional<NetworkTable> telemetryTable = Optional.empty();
+
 
   /**
    * Iterate the closed loop controller. Feedforward are only applied with profiled pid controllers.
@@ -556,9 +561,7 @@ public class SparkWrapper implements SmartMotorController
       {
         telemetry.simpleFeedforward = true;
         feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
-                                                                                      RotationsPerSecond),
-                                                                                  pidController.get()
-                                                                                               .getSetpoint().velocity);
+            RotationsPerSecond), pidController.get().getSetpoint().velocity);
 
       }
       telemetry.setpointPosition = pidController.get().getSetpoint().position;
