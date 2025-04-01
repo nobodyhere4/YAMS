@@ -149,6 +149,50 @@ public class SmartMotorControllerConfig
    * The motor is inverted.
    */
   private boolean                          motorInverted           = false;
+  /**
+   * Use the provided external encoder if set.
+   */
+  private boolean         useExternalEncoder = true;
+  /**
+   * {@link SmartMotorController} starting angle.
+   */
+  private Optional<Angle> startingPosition   = Optional.empty();
+
+  /**
+   * Set the starting angle of the {@link SmartMotorController}
+   *
+   * @param startingAngle Starting Mechanism Angle.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withStartingPosition(Angle startingAngle)
+  {
+    this.startingPosition = startingAngle == null ? Optional.empty() : Optional.of(startingAngle);
+    return this;
+  }
+
+  /**
+   * Set the starting angle of the {@link SmartMotorController}
+   *
+   * @param startingAngle Starting Mechanism Distance.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withStartingPosition(Distance startingAngle)
+  {
+    this.startingPosition = startingAngle == null ? Optional.empty() : Optional.of(convertToMechanism(startingAngle));
+    return this;
+  }
+
+  /**
+   * Set the external encoder to be the primary feedback device for the PID controller.
+   *
+   * @param useExternalEncoder External encoder as primary feedback device for the PID controller.
+   * @return {@link SmartMotorControllerConfig} for chaining
+   */
+  public SmartMotorControllerConfig withUseExternalFeedbackEncoder(boolean useExternalEncoder)
+  {
+    this.useExternalEncoder = useExternalEncoder;
+    return this;
+  }
 
   /**
    * Set the encoder inversion state.
@@ -1032,6 +1076,26 @@ public class SmartMotorControllerConfig
   public boolean getMotorInverted()
   {
     return motorInverted;
+  }
+
+  /**
+   * Use the external feedback sensor.
+   *
+   * @return Use the attached absolute encoder.
+   */
+  public boolean getUseExternalFeedback()
+  {
+    return useExternalEncoder;
+  }
+
+  /**
+   * Get the starting mechanism position of the {@link SmartMotorController}
+   *
+   * @return Starting Mechanism position.
+   */
+  public Optional<Angle> getStartingPosition()
+  {
+    return startingPosition;
   }
 
   /**

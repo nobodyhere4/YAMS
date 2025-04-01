@@ -418,6 +418,9 @@ public abstract class SparkWrapper implements SmartMotorController
     sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate());
     sparkBaseConfig.closedLoopRampRate(config.getClosedLoopRampRate());
     sparkBaseConfig.inverted(config.getMotorInverted());
+    sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
+    sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
+    sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
     if (config.getSupplyStallCurrentLimit().isPresent())
     {
       DriverStation.reportError("[WARNING] Supply stall currently not supported on Spark", true);
@@ -430,6 +433,14 @@ public abstract class SparkWrapper implements SmartMotorController
     {
       sparkBaseConfig.voltageCompensation(config.getVoltageCompensation().getAsDouble());
     }
+    if (config.getIdleMode().isPresent())
+    {
+      sparkBaseConfig.idleMode(config.getIdleMode().get() == MotorMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
+    }
+    if (config.getStartingPosition().isPresent())
+    {
+      sparkRelativeEncoder.setPosition(config.getStartingPosition().get().in(Rotations));
+    }
     if (config.getExternalEncoder().isPresent())
     {
       Object externalEncoder = config.getExternalEncoder().get();
@@ -439,6 +450,7 @@ public abstract class SparkWrapper implements SmartMotorController
         sparkBaseConfig.absoluteEncoder.positionConversionFactor(positionConversionFactor);
         sparkBaseConfig.absoluteEncoder.velocityConversionFactor(velocityConversionFactor);
         sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
+
         if (RobotBase.isSimulation())
         {
           if (spark instanceof SparkMax)
@@ -448,19 +460,19 @@ public abstract class SparkWrapper implements SmartMotorController
           {
             sparkAbsoluteEncoderSim = Optional.of(new SparkAbsoluteEncoderSim((SparkFlex) spark));
           }
+          if (config.getStartingPosition().isPresent())
+          {
+            sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setPosition(config.getStartingPosition().get().in(Rotations)));
+          }
         }
+        if (config.getStartingPosition().isEmpty())
+        {
+          sparkRelativeEncoder.setPosition(sparkAbsoluteEncoder.get().getPosition());
+        }
+
       }
       throw new IllegalArgumentException(
           "[ERROR] Unsupported external encoder: " + externalEncoder.getClass().getSimpleName());
-    } else
-    {
-      sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
-      sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
-      sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
-    }
-    if (config.getIdleMode().isPresent())
-    {
-      sparkBaseConfig.idleMode(config.getIdleMode().get() == MotorMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
     }
 
     return configureSpark(() -> spark.configure(sparkBaseConfig,
@@ -532,15 +544,21 @@ public abstract class SparkWrapper implements SmartMotorController
   @Override
   public AngularVelocity getMechanismVelocity()
   {
-    return sparkAbsoluteEncoder.map(absoluteEncoder -> RotationsPerSecond.of(absoluteEncoder.getVelocity()))
-                               .orElseGet(() -> RotationsPerSecond.of(sparkRelativeEncoder.getVelocity()));
+    if (sparkAbsoluteEncoder.isPresent() && config.getUseExternalFeedback())
+    {
+      return RotationsPerSecond.of(sparkAbsoluteEncoder.get().getVelocity());
+    }
+    return RotationsPerSecond.of(sparkRelativeEncoder.getVelocity());
   }
 
   @Override
   public Angle getMechanismPosition()
   {
-    Angle pos = sparkAbsoluteEncoder.map(absoluteEncoder -> Rotations.of(absoluteEncoder.getPosition()))
-                               .orElseGet(() -> Rotations.of(sparkRelativeEncoder.getPosition()));
+    Angle pos = Rotations.of(sparkRelativeEncoder.getPosition());
+    if (sparkAbsoluteEncoder.isPresent() && config.getUseExternalFeedback())
+    {
+      pos = Rotations.of(sparkAbsoluteEncoder.get().getPosition());
+    }
     if (config.getZeroOffset().isPresent())
     {
       pos = pos.minus(config.getZeroOffset().get());
