@@ -1,6 +1,7 @@
 package yams.motorcontrollers;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
@@ -209,5 +210,18 @@ public interface SmartMotorController
    * @return {@link Angle} of the relative encoder in the motor.
    */
   public Angle getRotorPosition();
+
+  /**
+   * Update the telemetry under the motor name under the given {@link NetworkTable}
+   *
+   * @param table {@link NetworkTable} to create the {@link SmartMotorControllerTelemetry} subtable under based off of
+   *              {@link SmartMotorControllerConfig#getTelemetryName()}.
+   */
+  public void updateTelemetry(NetworkTable table);
+
+  /**
+   * Update the telemetry under the motor name under the given {@link NetworkTable}
+   */
+  public void updateTelemetry();
 
 }

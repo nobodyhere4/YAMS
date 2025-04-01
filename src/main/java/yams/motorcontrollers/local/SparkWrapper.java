@@ -27,9 +27,11 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
@@ -181,106 +183,7 @@ public class SparkWrapper implements SmartMotorController
     }
   }
 
-  /**
-   * Iterate the closed loop controller. Feedforward are only applied with profiled pid controllers.
-   */
-  public void iterateClosedLoopController()
-  {
-    double pidOutputVoltage = 0;
-    double feedforward      = 0.0;
-    telemetry.setpointPosition = 0;
-    telemetry.setpointVelocity = 0;
-    telemetry.velocityControl = false;
-    telemetry.motionProfile = false;
-    telemetry.statorCurrent = spark.getOutputCurrent();
-    telemetry.mechanismPosition = getMechanismPosition();
-    telemetry.mechanismVelocity = getMechanismVelocity();
-    telemetry.rotorPosition = getRotorPosition();
-    telemetry.rotorVelocity = getRotorVelocity();
-
-    if (pidController.isPresent() && setpointPosition.isPresent())
-    {
-      telemetry.motionProfile = true;
-      telemetry.armFeedforward = false;
-      telemetry.elevatorFeedforward = false;
-      telemetry.simpleFeedforward = false;
-      if (config.getArmFeedforward().isPresent())
-      {
-        telemetry.armFeedforward = true;
-        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                         setpointPosition.get().in(Rotations));
-        feedforward = config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
-                                                                               getMechanismVelocity().in(
-                                                                                   RotationsPerSecond),
-                                                                               pidController.get()
-                                                                                            .getSetpoint().velocity);
-      } else if (config.getElevatorFeedforward().isPresent())
-      {
-        telemetry.elevatorFeedforward = true;
-        telemetry.distance = getMeasurementPosition();
-        telemetry.linearVelocity = getMeasurementVelocity();
-        pidOutputVoltage = pidController.get().calculate(getMeasurementPosition().in(Meters),
-                                                         config.convertFromMechanism(setpointPosition.get())
-                                                               .in(Meters));
-        feedforward = config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
-            MetersPerSecond), pidController.get().getSetpoint().velocity);
-
-      } else if (config.getSimpleFeedforward().isPresent())
-      {
-        telemetry.simpleFeedforward = true;
-        feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
-                                                                                      RotationsPerSecond),
-                                                                                  pidController.get()
-                                                                                               .getSetpoint().velocity);
-
-      }
-      telemetry.setpointPosition = pidController.get().getSetpoint().position;
-      telemetry.setpointVelocity = pidController.get().getSetpoint().velocity;
-
-    } else if (simplePidController.isPresent())
-    {
-      if (setpointPosition.isPresent())
-      {
-        telemetry.setpointPosition = setpointPosition.get().in(Rotations);
-        pidOutputVoltage = simplePidController.get().calculate(setpointPosition.get().in(Rotations),
-                                                               setpointPosition.get().in(Rotations));
-      } else if (setpointVelocity.isPresent())
-      {
-        telemetry.velocityControl = true;
-        telemetry.setpointVelocity = setpointVelocity.get().in(RotationsPerSecond);
-        pidOutputVoltage = simplePidController.get().calculate(setpointVelocity.get().in(RotationsPerSecond));
-      }
-    }
-    if (config.getMechanismUpperLimit().isPresent())
-    {
-      telemetry.mechanismUpperLimit = getMechanismPosition().gt(config.getMechanismUpperLimit().get());
-      if (telemetry.mechanismUpperLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    if (config.getMechanismLowerLimit().isPresent())
-    {
-      telemetry.mechanismLowerLimit = getMechanismPosition().lt(config.getMechanismLowerLimit().get());
-      if (telemetry.mechanismLowerLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    if (config.getTemperatureCutoff().isPresent())
-    {
-      telemetry.temperature = Celsius.of(spark.getMotorTemperature());
-      telemetry.temperatureLimit = telemetry.temperature.gte(config.getTemperatureCutoff().get());
-      if (telemetry.temperatureLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    telemetry.pidOutputVoltage = pidOutputVoltage;
-    telemetry.feedforwardVoltage = feedforward;
-    telemetry.outputVoltage = pidOutputVoltage + feedforward;
-    spark.setVoltage(pidOutputVoltage + feedforward);
-  }
+  private Optional<NetworkTable> parentTable    = Optional.empty();
 
 
   @Override
@@ -602,5 +505,136 @@ public class SparkWrapper implements SmartMotorController
   public Angle getRotorPosition()
   {
     return Rotations.of(getMechanismPosition().in(Rotations) * config.getGearing().getRotorToMechanismRatio());
+  }
+  private Optional<NetworkTable> telemetryTable = Optional.empty();
+
+  /**
+   * Iterate the closed loop controller. Feedforward are only applied with profiled pid controllers.
+   */
+  public void iterateClosedLoopController()
+  {
+    double pidOutputVoltage = 0;
+    double feedforward      = 0.0;
+    telemetry.setpointPosition = 0;
+    telemetry.setpointVelocity = 0;
+    telemetry.velocityControl = false;
+    telemetry.motionProfile = false;
+    telemetry.statorCurrent = spark.getOutputCurrent();
+    telemetry.mechanismPosition = getMechanismPosition();
+    telemetry.mechanismVelocity = getMechanismVelocity();
+    telemetry.rotorPosition = getRotorPosition();
+    telemetry.rotorVelocity = getRotorVelocity();
+
+    if (pidController.isPresent() && setpointPosition.isPresent())
+    {
+      telemetry.motionProfile = true;
+      telemetry.armFeedforward = false;
+      telemetry.elevatorFeedforward = false;
+      telemetry.simpleFeedforward = false;
+      if (config.getArmFeedforward().isPresent())
+      {
+        telemetry.armFeedforward = true;
+        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                         setpointPosition.get().in(Rotations));
+        feedforward = config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+                                                                               getMechanismVelocity().in(
+                                                                                   RotationsPerSecond),
+                                                                               pidController.get()
+                                                                                            .getSetpoint().velocity);
+      } else if (config.getElevatorFeedforward().isPresent())
+      {
+        telemetry.elevatorFeedforward = true;
+        telemetry.distance = getMeasurementPosition();
+        telemetry.linearVelocity = getMeasurementVelocity();
+        pidOutputVoltage = pidController.get().calculate(getMeasurementPosition().in(Meters),
+                                                         config.convertFromMechanism(setpointPosition.get())
+                                                               .in(Meters));
+        feedforward = config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
+            MetersPerSecond), pidController.get().getSetpoint().velocity);
+
+      } else if (config.getSimpleFeedforward().isPresent())
+      {
+        telemetry.simpleFeedforward = true;
+        feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
+                                                                                      RotationsPerSecond),
+                                                                                  pidController.get()
+                                                                                               .getSetpoint().velocity);
+
+      }
+      telemetry.setpointPosition = pidController.get().getSetpoint().position;
+      telemetry.setpointVelocity = pidController.get().getSetpoint().velocity;
+
+    } else if (simplePidController.isPresent())
+    {
+      if (setpointPosition.isPresent())
+      {
+        telemetry.setpointPosition = setpointPosition.get().in(Rotations);
+        pidOutputVoltage = simplePidController.get().calculate(setpointPosition.get().in(Rotations),
+                                                               setpointPosition.get().in(Rotations));
+      } else if (setpointVelocity.isPresent())
+      {
+        telemetry.velocityControl = true;
+        telemetry.setpointVelocity = setpointVelocity.get().in(RotationsPerSecond);
+        pidOutputVoltage = simplePidController.get().calculate(setpointVelocity.get().in(RotationsPerSecond));
+      }
+    }
+    if (config.getMechanismUpperLimit().isPresent())
+    {
+      telemetry.mechanismUpperLimit = getMechanismPosition().gt(config.getMechanismUpperLimit().get());
+      if (telemetry.mechanismUpperLimit)
+      {
+        pidOutputVoltage = feedforward = 0;
+      }
+    }
+    if (config.getMechanismLowerLimit().isPresent())
+    {
+      telemetry.mechanismLowerLimit = getMechanismPosition().lt(config.getMechanismLowerLimit().get());
+      if (telemetry.mechanismLowerLimit)
+      {
+        pidOutputVoltage = feedforward = 0;
+      }
+    }
+    if (config.getTemperatureCutoff().isPresent())
+    {
+      telemetry.temperature = Celsius.of(spark.getMotorTemperature());
+      telemetry.temperatureLimit = telemetry.temperature.gte(config.getTemperatureCutoff().get());
+      if (telemetry.temperatureLimit)
+      {
+        pidOutputVoltage = feedforward = 0;
+      }
+    }
+    telemetry.pidOutputVoltage = pidOutputVoltage;
+    telemetry.feedforwardVoltage = feedforward;
+    telemetry.outputVoltage = pidOutputVoltage + feedforward;
+    if (config.getClosedLoopControllerMaximumVoltage().isPresent())
+    {
+      double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
+      telemetry.outputVoltage = MathUtil.clamp(telemetry.outputVoltage, -maximumVoltage, maximumVoltage);
+    }
+
+    setVoltage(Volts.of(telemetry.outputVoltage));
+  }
+
+  @Override
+  public void updateTelemetry(NetworkTable table)
+  {
+    if (parentTable.isEmpty())
+    {
+      parentTable = Optional.of(table);
+      if (config.getTelemetryName().isPresent())
+      {
+        telemetryTable = Optional.of(table.getSubTable(config.getTelemetryName().get()));
+        updateTelemetry();
+      }
+    }
+  }
+
+  @Override
+  public void updateTelemetry()
+  {
+    if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
+    {
+      telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
+    }
   }
 }

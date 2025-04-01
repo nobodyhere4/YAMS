@@ -1,7 +1,6 @@
-package yams.motorcontrollers;
+package yams.motorcontrollers.local;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
@@ -12,10 +11,11 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig;
 
-public class TalonFXSWrapper implements SmartMotorController
+public class NovaWrapper implements SmartMotorController
 {
-
 
   @Override
   public void simIterate(AngularVelocity mechanismVelocity)
@@ -72,18 +72,6 @@ public class TalonFXSWrapper implements SmartMotorController
   }
 
   @Override
-  public void setVoltage(Voltage voltage)
-  {
-
-  }
-
-  @Override
-  public void setDutyCycle(double dutyCycle)
-  {
-
-  }
-
-  @Override
   public Command sysId(VoltageUnit maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration)
   {
     return null;
@@ -99,6 +87,12 @@ public class TalonFXSWrapper implements SmartMotorController
   public double getDutyCycle()
   {
     return 0;
+  }
+
+  @Override
+  public void setDutyCycle(double dutyCycle)
+  {
+
   }
 
   @Override
@@ -120,9 +114,15 @@ public class TalonFXSWrapper implements SmartMotorController
   }
 
   @Override
+  public void setVoltage(Voltage voltage)
+  {
+
+  }
+
+  @Override
   public DCMotor getDCMotor()
   {
-    return DCMotor.getNEO(1);
+    return null;
   }
 
   @Override
@@ -159,17 +159,5 @@ public class TalonFXSWrapper implements SmartMotorController
   public Angle getRotorPosition()
   {
     return null;
-  }
-
-  @Override
-  public void updateTelemetry(NetworkTable table)
-  {
-
-  }
-
-  @Override
-  public void updateTelemetry()
-  {
-
   }
 }
