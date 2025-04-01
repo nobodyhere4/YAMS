@@ -303,7 +303,6 @@ public abstract class SparkWrapper implements SmartMotorController
   @Override
   public void setVelocity(LinearVelocity velocity)
   {
-
     setVelocity(config.convertToMechanism(velocity));
   }
 
@@ -322,7 +321,10 @@ public abstract class SparkWrapper implements SmartMotorController
   @Override
   public void setVelocity(AngularVelocity velocity)
   {
-
+    sparkRelativeEncoderSim.ifPresent(relativeEncoderSim -> relativeEncoderSim.setVelocity(velocity.in(
+        RotationsPerSecond)));
+    sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.setVelocity(velocity.in(
+        RotationsPerSecond)));
   }
 
   @Override
