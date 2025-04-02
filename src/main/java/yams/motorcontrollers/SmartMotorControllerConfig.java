@@ -151,6 +151,28 @@ public class SmartMotorControllerConfig
    * Maximum voltage output for the motor controller while using the closed loop controller.
    */
   private Optional<Voltage>                 closedLoopControllerMaximumVoltage = Optional.empty();
+  /**
+   * Feedback synchronization threshhold.
+   */
+  private Optional<Angle> feedbackSynchronizationThreshold = Optional.empty();
+
+  /**
+   * Set the feedback synchronization threshhold so the relative encoder synchronizes with the absolute encoder at this
+   * point.
+   *
+   * @param angle {@link Angle} to exceed.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withFeedbackSynchronizationThreshold(Angle angle)
+  {
+    if (mechanismCircumference.isPresent())
+    {
+      throw new IllegalArgumentException(
+          "Cannot auto-synchronize the absolute encoder and relative encoder where the mechanism is distance based.");
+    }
+    feedbackSynchronizationThreshold = angle == null ? Optional.empty() : Optional.of(angle);
+    return this;
+  }
 
   /**
    * Set the closed loop maximum voltage output.
@@ -1101,6 +1123,11 @@ public class SmartMotorControllerConfig
   public Optional<Voltage> getClosedLoopControllerMaximumVoltage()
   {
     return closedLoopControllerMaximumVoltage;
+  }
+
+  public Optional<Angle> getFeedbackSynchronizationThreshold()
+  {
+    return feedbackSynchronizationThreshold;
   }
 
 

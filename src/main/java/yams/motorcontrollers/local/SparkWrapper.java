@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
@@ -204,6 +203,17 @@ public class SparkWrapper implements SmartMotorController
     }
   }
 
+
+  @Override
+  public void seedRelativeEncoder()
+  {
+    if (sparkAbsoluteEncoder.isPresent())
+    {
+      sparkRelativeEncoder.setPosition(sparkAbsoluteEncoder.get().getPosition());
+      sparkRelativeEncoderSim.ifPresent(sparkRelativeEncoderSim -> sparkRelativeEncoderSim.setPosition(
+          sparkAbsoluteEncoder.get().getPosition()));
+    }
+  }
 
   @Override
   public void simIterate(AngularVelocity mechanismVelocity)
@@ -430,7 +440,7 @@ public class SparkWrapper implements SmartMotorController
   }
 
   @Override
-  public Command sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
+  public SysIdRoutine sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
     SysIdRoutine sysIdRoutine;
     if (config.getMechanismCircumference().isPresent())
@@ -566,6 +576,20 @@ public class SparkWrapper implements SmartMotorController
     telemetry.mechanismVelocity = getMechanismVelocity();
     telemetry.rotorPosition = getRotorPosition();
     telemetry.rotorVelocity = getRotorVelocity();
+
+    if (config.getFeedbackSynchronizationThreshold().isPresent())
+    {
+      if (sparkAbsoluteEncoder.isPresent())
+      {
+        if (!Rotations.of(sparkRelativeEncoder.getPosition()).isNear(Rotations.of(sparkAbsoluteEncoder.get()
+                                                                                                      .getPosition()),
+                                                                     config.getFeedbackSynchronizationThreshold()
+                                                                           .get()))
+        {
+          seedRelativeEncoder();
+        }
+      }
+    }
 
     if (pidController.isPresent() && setpointPosition.isPresent())
     {

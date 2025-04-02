@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.Optional;
 import yams.telemetry.SmartMotorControllerTelemetry;
 
@@ -23,13 +23,18 @@ public interface SmartMotorController
    *
    * @param motorController Motor controller object.
    * @param motorSim        {@link DCMotor} which the motor controller is connected too.
+   * @param cfg             {@link SmartMotorControllerConfig} for the {@link SmartMotorController}
    * @return {@link SmartMotorController}.
    */
-  public static SmartMotorController create(Object motorController, DCMotor motorSim)
+  public static SmartMotorController create(Object motorController, DCMotor motorSim, SmartMotorControllerConfig cfg)
   {
     return new TalonFXSWrapper();
   }
 
+  /**
+   * Seed the relative encoder with the position from the absolute encoder.
+   */
+  public void seedRelativeEncoder();
 
   /**
    * Simulation iteration.
@@ -125,7 +130,7 @@ public interface SmartMotorController
    * @return Sequential command group of {@link edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine} running all required
    * tests to the configured MINIMUM and MAXIMUM MEASUREMENTS.
    */
-  public Command sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration);
+  public SysIdRoutine sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration);
 
   /**
    * Apply the {@link SmartMotorControllerConfig} to the {@link SmartMotorController}.
