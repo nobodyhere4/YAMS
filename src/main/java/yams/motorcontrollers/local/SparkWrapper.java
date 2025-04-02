@@ -33,14 +33,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.units.TimeUnit;
-import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -48,12 +48,14 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
 import java.util.function.Supplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerTelemetry;
+import yams.telemetry.SmartMotorControllerTelemetry;
 
 public class SparkWrapper implements SmartMotorController
 {
@@ -142,8 +144,9 @@ public class SparkWrapper implements SmartMotorController
    * @param controller {@link SparkMax} or {@link SparkFlex}
    * @param motor      {@link DCMotor} controller by the {@link SparkFlex} or {@link SparkMax}. Must be a brushless
    *                   motor.
+   * @param config     {@link SmartMotorControllerConfig} to apply.
    */
-  public SparkWrapper(SparkBase controller, DCMotor motor)
+  public SparkWrapper(SparkBase controller, DCMotor motor, SmartMotorControllerConfig config)
   {
     if (controller instanceof SparkMax)
     {
@@ -159,6 +162,7 @@ public class SparkWrapper implements SmartMotorController
     this.motor = motor;
     spark = controller;
     sparkRelativeEncoder = controller.getEncoder();
+    applyConfig(config);
     setupSimulation();
 
   }
@@ -426,8 +430,36 @@ public class SparkWrapper implements SmartMotorController
   }
 
   @Override
-  public Command sysId(VoltageUnit maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration)
+  public Command sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
+    SysIdRoutine sysIdRoutine;
+    if (config.getMechanismCircumference().isPresent())
+    {
+      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
+                                      new SysIdRoutine.Mechanism(
+                                          this::setVoltage,
+                                          log -> {
+                                            log.motor(config.getTelemetryName().get())
+                                               .voltage(
+                                                   getVoltage())
+                                               .linearVelocity(getMeasurementVelocity())
+                                               .linearPosition(getMeasurementPosition());
+                                          },
+                                          config.getSubsystem()));
+    } else
+    {
+      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
+                                      new SysIdRoutine.Mechanism(
+                                          this::setVoltage,
+                                          log -> {
+                                            log.motor(config.getTelemetryName().get())
+                                               .voltage(
+                                                   getVoltage())
+                                               .angularPosition(getMechanismPosition())
+                                               .angularVelocity(getMechanismVelocity());
+                                          },
+                                          config.getSubsystem()));
+    }
     return null;
   }
 
@@ -644,5 +676,17 @@ public class SparkWrapper implements SmartMotorController
     {
       telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
     }
+  }
+
+  @Override
+  public SmartMotorControllerConfig getConfig()
+  {
+    return config;
+  }
+
+  @Override
+  public Optional<Angle> getMechanismSetpoint()
+  {
+    return setpointPosition;
   }
 }

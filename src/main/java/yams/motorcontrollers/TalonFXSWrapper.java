@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.Optional;
 
 public class TalonFXSWrapper implements SmartMotorController
 {
@@ -19,6 +20,12 @@ public class TalonFXSWrapper implements SmartMotorController
 
   @Override
   public void simIterate(AngularVelocity mechanismVelocity)
+  {
+
+  }
+
+  @Override
+  public void simIterate()
   {
 
   }
@@ -84,7 +91,7 @@ public class TalonFXSWrapper implements SmartMotorController
   }
 
   @Override
-  public Command sysId(VoltageUnit maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration)
+  public Command sysId(Voltage maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration)
   {
     return null;
   }
@@ -171,5 +178,17 @@ public class TalonFXSWrapper implements SmartMotorController
   public void updateTelemetry()
   {
 
+  }
+
+  @Override
+  public SmartMotorControllerConfig getConfig()
+  {
+    return null;
+  }
+
+  @Override
+  public Optional<Angle> getMechanismSetpoint()
+  {
+    return Optional.empty();
   }
 }

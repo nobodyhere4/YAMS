@@ -2,16 +2,18 @@ package yams.motorcontrollers;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.units.TimeUnit;
-import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.Optional;
+import yams.telemetry.SmartMotorControllerTelemetry;
 
 public interface SmartMotorController
 {
@@ -123,7 +125,7 @@ public interface SmartMotorController
    * @return Sequential command group of {@link edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine} running all required
    * tests to the configured MINIMUM and MAXIMUM MEASUREMENTS.
    */
-  public Command sysId(VoltageUnit maxVoltage, VelocityUnit<VoltageUnit> stepVoltage, TimeUnit testDuration);
+  public Command sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration);
 
   /**
    * Apply the {@link SmartMotorControllerConfig} to the {@link SmartMotorController}.
@@ -229,4 +231,17 @@ public interface SmartMotorController
    */
   public void updateTelemetry();
 
+  /**
+   * Get the {@link SmartMotorControllerConfig} for the {@link SmartMotorController}
+   *
+   * @return {@link SmartMotorControllerConfig} used.
+   */
+  public SmartMotorControllerConfig getConfig();
+
+  /**
+   * Get the Mechanism setpoint.
+   *
+   * @return Mechanism Setpoint.
+   */
+  Optional<Angle> getMechanismSetpoint();
 }

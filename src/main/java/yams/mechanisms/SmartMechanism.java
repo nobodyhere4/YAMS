@@ -1,11 +1,6 @@
 package yams.mechanisms;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.Optional;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
 import yams.gearing.gearbox.GearBox;
@@ -13,6 +8,7 @@ import yams.gearing.gearbox.GearBox.Type;
 import yams.gearing.gearbox.MAXPlanetaryGearbox;
 import yams.gearing.gearbox.VersaPlanetaryGearBox;
 import yams.motorcontrollers.SmartMotorController;
+import yams.telemetry.MechanismTelemetry;
 
 /**
  * Generic implementation of a mechanism with advanced telemetry.
@@ -21,34 +17,14 @@ public abstract class SmartMechanism
 {
 
   /**
-   * SysId routine to tune the mechanism.
+   * Subsystem for the Mechanism.
    */
-  protected Optional<SysIdRoutine>          m_sysIdRoutine  = Optional.empty();
+  protected Subsystem            m_subsystem;
   /**
-   * Motor controller for the primary motor in the mechanism.
+   * Motor for the subsystem.
    */
-  protected Optional<SmartMotorController>  m_motor         = Optional.empty();
-  /**
-   * {@link MechanismGearing} for the mechanism.
-   */
-  protected Optional<MechanismGearing>      m_gearing       = Optional.empty();
-  /**
-   * Name of the mechanism for command decoration and telemetry.
-   */
-  protected Optional<String>                m_name          = Optional.empty();
-  /**
-   * PID controller for the mechanism.
-   */
-  protected Optional<ProfiledPIDController> m_pidController = Optional.empty();
-  /**
-   * Mechanism {@link NetworkTable}
-   */
-  protected NetworkTable                    m_networkTable  = NetworkTableInstance.getDefault().getTable(
-      "SmartDashboard");
-  /**
-   * Boolean publisher that is true when the {@link SmartMotorController} is experiencing problems or does not exist.
-   */
-  protected BooleanPublisher                m_motorError;
+  protected SmartMotorController m_motor;
+  protected MechanismTelemetry   m_telemetry = new MechanismTelemetry();
 
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.
@@ -56,7 +32,7 @@ public abstract class SmartMechanism
    * @param sprocketReductionStages Teeth of each sprocket in the chain.
    * @return {@link Sprocket} representing the sprocketReductionStages given.
    */
-  protected Sprocket sprocket(double... sprocketReductionStages)
+  public static Sprocket sprocket(double... sprocketReductionStages)
   {
     return new Sprocket(sprocketReductionStages);
   }
@@ -68,7 +44,7 @@ public abstract class SmartMechanism
    * @param reductionStages Reduction stages in the gear box.
    * @return {@link GearBox} for use in {@link MechanismGearing};
    */
-  protected GearBox gearbox(GearBox.Type type, double... reductionStages)
+  public static GearBox gearbox(GearBox.Type type, double... reductionStages)
   {
     switch (type)
     {
@@ -91,10 +67,9 @@ public abstract class SmartMechanism
    * @param sprocket {@link Sprocket} created using {@link SmartMechanism#sprocket(double...)}.
    * @return {@link MechanismGearing} with the {@link GearBox} and {@link Sprocket}.
    */
-  protected MechanismGearing gearing(GearBox gearBox, Sprocket sprocket)
+  public static MechanismGearing gearing(GearBox gearBox, Sprocket sprocket)
   {
-    m_gearing = Optional.of(new MechanismGearing(gearBox, sprocket));
-    return m_gearing.get();
+    return new MechanismGearing(gearBox, sprocket);
   }
 
   /**
@@ -103,9 +78,8 @@ public abstract class SmartMechanism
    * @param gearBox {@link GearBox} created using {@link SmartMechanism#gearbox(Type, double...)}.
    * @return {@link MechanismGearing} with the {@link GearBox}.
    */
-  protected MechanismGearing gearing(GearBox gearBox)
+  public static MechanismGearing gearing(GearBox gearBox)
   {
-    m_gearing = Optional.of(new MechanismGearing(gearBox));
-    return m_gearing.get();
+    return new MechanismGearing(gearBox);
   }
 }

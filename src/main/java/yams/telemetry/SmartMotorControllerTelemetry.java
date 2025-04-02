@@ -1,4 +1,4 @@
-package yams.motorcontrollers;
+package yams.telemetry;
 
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Meters;
@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
+import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class SmartMotorControllerTelemetry
