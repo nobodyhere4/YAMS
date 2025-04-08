@@ -17,7 +17,6 @@ public abstract class GearBox
    * Conversion factor of the gearbox from input to output.
    */
   private final double   gearReductionRatio;
-
   /**
    * Construct the {@link GearBox} with the reduction stages given.
    *
@@ -45,7 +44,7 @@ public abstract class GearBox
    */
   public double getInputToOutputConversionFactor()
   {
-    return gearReductionRatio;
+    return 1.0 / gearReductionRatio;
   }
 
   /**
@@ -55,7 +54,7 @@ public abstract class GearBox
    */
   public double getOutputToInputConversionFactor()
   {
-    return 1.0 / gearReductionRatio;
+    return gearReductionRatio;
   }
 
   /**

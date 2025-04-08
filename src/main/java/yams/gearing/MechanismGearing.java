@@ -56,7 +56,7 @@ public class MechanismGearing
   }
 
   /**
-   * Get the mechanism rotation to sensor rotation ratio for the mechanism.
+   * Get the mechanism rotation to sensor rotation ratio for the mechanism. AKA THE REDUCTION!
    *
    * @return IN:OUT or IN/OUT to use for mechanism to sensor calculations.
    */

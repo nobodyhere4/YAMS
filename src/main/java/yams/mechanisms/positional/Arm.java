@@ -89,7 +89,7 @@ public class Arm extends SmartPositionalMechanism
         throw new IllegalArgumentException("Arm starting angle is empty. Cannot create simulation.");
       }
       m_sim = Optional.of(new SingleJointedArmSim(motor.getDCMotor(),
-                                                  motor.getConfig().getGearing().getRotorToMechanismRatio(),
+                                                  motor.getConfig().getGearing().getMechanismToRotorRatio(),
                                                   config.getMOI(),
                                                   config.getLength().get().in(Meters),
                                                   config.getLowerHardLimit().get().in(Radians),

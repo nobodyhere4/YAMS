@@ -330,8 +330,8 @@ public class SparkWrapper implements SmartMotorController
       closedLoopControllerThread.stop();
     }
     // Calculate Spark conversion factors
-    double positionConversionFactor = config.getGearing().getMechanismToRotorRatio();
-    double velocityConversionFactor = config.getGearing().getMechanismToRotorRatio() / 60.0;
+    double positionConversionFactor = config.getGearing().getRotorToMechanismRatio();
+    double velocityConversionFactor = config.getGearing().getRotorToMechanismRatio() / 60.0;
 
     // Set base config options
     sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate());
