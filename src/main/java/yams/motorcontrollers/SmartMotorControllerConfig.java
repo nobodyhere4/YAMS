@@ -154,6 +154,22 @@ public class SmartMotorControllerConfig
    * Feedback synchronization threshhold.
    */
   private Optional<Angle>   feedbackSynchronizationThreshold = Optional.empty();
+  /**
+   * The motor controller mode.
+   */
+  private ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
+
+  /**
+   * Set the control mode for the {@link SmartMotorController}
+   *
+   * @param controlMode {@link ControlMode} to apply.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withControlMode(ControlMode controlMode)
+  {
+    this.motorControllerMode = controlMode;
+    return this;
+  }
 
   /**
    * Set the feedback synchronization threshhold so the relative encoder synchronizes with the absolute encoder at this
@@ -1129,6 +1145,16 @@ public class SmartMotorControllerConfig
     return feedbackSynchronizationThreshold;
   }
 
+  /**
+   * Get the motor controller mdoe to use.
+   *
+   * @return {@link ControlMode} to use.
+   */
+  public ControlMode getMotorControllerMode()
+  {
+    return motorControllerMode;
+  }
+
 
   /**
    * Telemetry verbosity for the {@link SmartMotorController}
@@ -1151,5 +1177,20 @@ public class SmartMotorControllerConfig
      * Coast mode.
      */
     COAST
+  }
+
+  /**
+   * Control mode for a motor controller.
+   */
+  public enum ControlMode
+  {
+    /**
+     * Open loop control mode. Does not use the PID controller.
+     */
+    OPEN_LOOP,
+    /**
+     * Use the PID controller.
+     */
+    CLOSED_LOOP,
   }
 }

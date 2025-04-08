@@ -16,7 +16,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.gearbox.GearBox.Type;
@@ -24,6 +23,7 @@ import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
@@ -44,7 +44,8 @@ public class ArmSubsystem extends SubsystemBase
       .withMotorInverted(false)
       .withClosedLoopRampRate(0.25)
       .withOpenLoopRampRate(0.25)
-      .withFeedforward(new ArmFeedforward(0, 0, 0, 0));
+      .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
+      .withControlMode(ControlMode.OPEN_LOOP);
   private SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
   private ArmConfig                  m_config    = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
@@ -57,7 +58,6 @@ public class ArmSubsystem extends SubsystemBase
 
   public ArmSubsystem()
   {
-    RoboRioSim.setVInVoltage(12);
   }
 
   public void periodic()

@@ -54,6 +54,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.telemetry.SmartMotorControllerTelemetry;
 
@@ -321,8 +322,13 @@ public class SparkWrapper implements SmartMotorController
     {
       closedLoopControllerThread.setName(config.getTelemetryName().get());
     }
-    closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
-
+    if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+    {
+      closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
+    } else
+    {
+      closedLoopControllerThread.stop();
+    }
     // Calculate Spark conversion factors
     double positionConversionFactor = config.getGearing().getMechanismToRotorRatio();
     double velocityConversionFactor = config.getGearing().getMechanismToRotorRatio() / 60.0;
@@ -679,10 +685,7 @@ public class SparkWrapper implements SmartMotorController
       double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
       telemetry.outputVoltage = MathUtil.clamp(telemetry.outputVoltage, -maximumVoltage, maximumVoltage);
     }
-    if (telemetry.outputVoltage != 0)
-    {
-      setVoltage(Volts.of(telemetry.outputVoltage));
-    }
+    setVoltage(Volts.of(telemetry.outputVoltage));
   }
 
   @Override
