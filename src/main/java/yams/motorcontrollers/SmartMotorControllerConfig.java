@@ -28,7 +28,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import yams.exceptions.MechanismDistanceException;
 import yams.gearing.MechanismGearing;
@@ -102,7 +101,7 @@ public class SmartMotorControllerConfig
   /**
    * The voltage compensation.
    */
-  private OptionalDouble                    voltageCompensation                = OptionalDouble.empty();
+  private Optional<Voltage> voltageCompensation              = Optional.empty();
   /**
    * Set the {@link MotorMode} for the {@link SmartMotorController}.
    */
@@ -154,7 +153,7 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private Optional<Angle> feedbackSynchronizationThreshold = Optional.empty();
+  private Optional<Angle>   feedbackSynchronizationThreshold = Optional.empty();
 
   /**
    * Set the feedback synchronization threshhold so the relative encoder synchronizes with the absolute encoder at this
@@ -458,7 +457,7 @@ public class SmartMotorControllerConfig
    *
    * @return Ideal voltage
    */
-  public OptionalDouble getVoltageCompensation()
+  public Optional<Voltage> getVoltageCompensation()
   {
     return voltageCompensation;
   }
@@ -512,10 +511,10 @@ public class SmartMotorControllerConfig
    * @param voltageCompensation Ideal voltage value.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withVoltageCompensation(double voltageCompensation)
+  public SmartMotorControllerConfig withVoltageCompensation(Voltage voltageCompensation)
   {
     this.voltageCompensation =
-        voltageCompensation == 0 ? OptionalDouble.empty() : OptionalDouble.of(voltageCompensation);
+        voltageCompensation == null ? Optional.empty() : Optional.of(voltageCompensation);
     return this;
   }
 

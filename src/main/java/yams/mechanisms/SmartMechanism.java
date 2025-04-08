@@ -1,5 +1,6 @@
 package yams.mechanisms;
 
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
@@ -24,7 +25,14 @@ public abstract class SmartMechanism
    * Motor for the subsystem.
    */
   protected SmartMotorController m_motor;
-  protected MechanismTelemetry   m_telemetry = new MechanismTelemetry();
+  /**
+   * Mechanism telemetry.
+   */
+  protected MechanismTelemetry m_telemetry = new MechanismTelemetry();
+  /**
+   * Mechanism Window.
+   */
+  protected Mechanism2d        mechanismWindow;
 
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.

@@ -1,6 +1,7 @@
 package yams.telemetry;
 
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Fahrenheit;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -171,7 +172,7 @@ public class SmartMotorControllerTelemetry
   /**
    * Motor temperature.
    */
-  public Temperature temperature;
+  public Temperature temperature = Fahrenheit.of(72);
 
   /**
    * Mechanism distance.

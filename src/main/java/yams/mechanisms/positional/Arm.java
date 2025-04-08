@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -13,7 +14,12 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -89,6 +95,18 @@ public class Arm extends SmartPositionalMechanism
                                                   config.getStartingAngle().get().in(Radians),
                                                   0.02 / 4096.0,
                                                   0.0));// Add noise with a std-dev of 1 tick
+
+      mechanismWindow = new Mechanism2d(config.getLength().get().in(Meters) * 2,
+                                        config.getLength().get().in(Meters) * 2);
+      mechanismRoot = mechanismWindow.getRoot(
+          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "Root" : "ArmRoot",
+          0, config.getLength().get().in(Meters));
+      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(
+          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
+          config.getLength().get().in(Meters),
+          config.getStartingAngle().get().in(Degrees), 6, config.getSimColor()));
+      SmartDashboard.putData(config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
+                             mechanismWindow);
     }
   }
 
@@ -107,8 +125,16 @@ public class Arm extends SmartPositionalMechanism
    */
   public void simIterate()
   {
-    m_sim.ifPresent(singleJointedArmSim -> m_motor.simIterate(RadiansPerSecond.of(singleJointedArmSim.getVelocityRadPerSec())));
-    // TODO: Move ligament to angle in arm.
+    if (m_sim.isPresent())
+    {
+      m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
+
+      m_motor.simIterate(RadiansPerSecond.of(m_sim.get().getVelocityRadPerSec()));
+
+      RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
+      mechanismLigament.setAngle(getAngle().in(Degrees));
+    }
   }
 
   /**

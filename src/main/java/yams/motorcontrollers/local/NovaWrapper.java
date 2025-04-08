@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -185,6 +186,12 @@ public class NovaWrapper implements SmartMotorController
   public void updateTelemetry()
   {
 
+  }
+
+  @Override
+  public Temperature getTemperature()
+  {
+    return null;
   }
 
   @Override

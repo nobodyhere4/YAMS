@@ -39,6 +39,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -338,7 +339,7 @@ public class SparkWrapper implements SmartMotorController
     sparkBaseConfig.inverted(config.getMotorInverted());
     sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
     sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
-    sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
+//    sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
     // Throw warning about supply stator limits on Spark's
     if (config.getSupplyStallCurrentLimit().isPresent())
     {
@@ -352,7 +353,7 @@ public class SparkWrapper implements SmartMotorController
     // Handle voltage compensation.
     if (config.getVoltageCompensation().isPresent())
     {
-      sparkBaseConfig.voltageCompensation(config.getVoltageCompensation().getAsDouble());
+      sparkBaseConfig.voltageCompensation(config.getVoltageCompensation().get().in(Volts));
     }
     // Setup idle mode.
     if (config.getIdleMode().isPresent())
@@ -373,7 +374,7 @@ public class SparkWrapper implements SmartMotorController
         sparkAbsoluteEncoder = Optional.of((SparkAbsoluteEncoder) externalEncoder);
         sparkBaseConfig.absoluteEncoder.positionConversionFactor(positionConversionFactor);
         sparkBaseConfig.absoluteEncoder.velocityConversionFactor(velocityConversionFactor);
-        sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
+//        sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
 
         if (RobotBase.isSimulation())
         {
@@ -436,7 +437,7 @@ public class SparkWrapper implements SmartMotorController
   @Override
   public double getDutyCycle()
   {
-    return spark.get();
+    return spark.getAppliedOutput();
   }
 
   @Override
@@ -660,7 +661,7 @@ public class SparkWrapper implements SmartMotorController
     }
     if (config.getTemperatureCutoff().isPresent())
     {
-      telemetry.temperature = Celsius.of(spark.getMotorTemperature());
+      telemetry.temperature = getTemperature();
       telemetry.temperatureLimit = telemetry.temperature.gte(config.getTemperatureCutoff().get());
       if (telemetry.temperatureLimit)
       {
@@ -694,10 +695,31 @@ public class SparkWrapper implements SmartMotorController
   }
 
   @Override
+  public Temperature getTemperature()
+  {
+    return Celsius.of(spark.getMotorTemperature());
+  }
+
+  @Override
   public void updateTelemetry()
   {
     if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
     {
+      telemetry.temperature = getTemperature();
+      telemetry.mechanismLowerLimit = false;
+      telemetry.mechanismUpperLimit = false;
+      telemetry.temperatureLimit = false;
+      telemetry.statorCurrent = spark.getOutputCurrent();
+      telemetry.mechanismPosition = getMechanismPosition();
+      telemetry.mechanismVelocity = getMechanismVelocity();
+      telemetry.rotorPosition = getRotorPosition();
+      telemetry.rotorVelocity = getRotorVelocity();
+      config.getMechanismLowerLimit().ifPresent(limit ->
+                                                    telemetry.mechanismLowerLimit = getMechanismPosition().lte(limit));
+      config.getMechanismUpperLimit().ifPresent(limit ->
+                                                    telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
+      config.getTemperatureCutoff().ifPresent(limit ->
+                                                  telemetry.temperatureLimit = getTemperature().gte(limit));
       telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
     }
   }

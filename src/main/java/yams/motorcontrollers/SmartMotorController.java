@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -235,6 +236,13 @@ public interface SmartMotorController
    * Update the telemetry under the motor name under the given {@link NetworkTable}
    */
   public void updateTelemetry();
+
+  /**
+   * Get the {@link SmartMotorController} temperature.
+   *
+   * @return {@link Temperature}
+   */
+  public Temperature getTemperature();
 
   /**
    * Get the {@link SmartMotorControllerConfig} for the {@link SmartMotorController}

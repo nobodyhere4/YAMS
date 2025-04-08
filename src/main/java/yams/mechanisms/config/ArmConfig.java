@@ -5,6 +5,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import yams.motorcontrollers.SmartMotorController;
@@ -46,6 +48,22 @@ public class ArmConfig
    * {@link yams.mechanisms.positional.Arm} MOI from CAD software. If not given estimated with length and weight.
    */
   private OptionalDouble               moi                = OptionalDouble.empty();
+  /**
+   * Sim color value
+   */
+  private Color8Bit simColor = new Color8Bit(Color.kOrange);
+
+  /**
+   * Publish the color in sim as this.
+   *
+   * @param simColor {@link Color8Bit} to show.
+   * @return {@link ArmConfig} for chaining.
+   */
+  public ArmConfig withSimColor(final Color8Bit simColor)
+  {
+    this.simColor = simColor;
+    return this;
+  }
 
   /**
    * Arm Configuration class
@@ -269,5 +287,10 @@ public class ArmConfig
   public SmartMotorController getMotor()
   {
     return motor;
+  }
+
+  public Color8Bit getSimColor()
+  {
+    return simColor;
   }
 }
