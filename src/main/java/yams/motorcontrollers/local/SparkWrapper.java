@@ -194,13 +194,7 @@ public class SparkWrapper implements SmartMotorController
     if (RobotBase.isSimulation())
     {
       sparkSim = Optional.of(new SparkSim(spark, motor));
-      if (spark instanceof SparkMax)
-      {
-        sparkRelativeEncoderSim = Optional.of(new SparkRelativeEncoderSim((SparkMax) spark));
-      } else if (spark instanceof SparkFlex)
-      {
-        sparkRelativeEncoderSim = Optional.of(new SparkRelativeEncoderSim((SparkFlex) spark));
-      }
+      sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
     }
   }
 
@@ -437,7 +431,7 @@ public class SparkWrapper implements SmartMotorController
   @Override
   public double getDutyCycle()
   {
-    return spark.getAppliedOutput();
+    return sparkSim.map(SparkSim::getAppliedOutput).orElseGet(spark::getAppliedOutput);
   }
 
   @Override
@@ -478,6 +472,7 @@ public class SparkWrapper implements SmartMotorController
   public void setDutyCycle(double dutyCycle)
   {
     spark.set(dutyCycle);
+    sparkSim.ifPresent(sparkSim1 -> sparkSim1.setAppliedOutput(dutyCycle));
   }
 
   @Override
@@ -490,7 +485,7 @@ public class SparkWrapper implements SmartMotorController
   @Override
   public Current getStatorCurrent()
   {
-    return Amps.of(spark.getOutputCurrent());
+    return sparkSim.map(sim -> Amps.of(sim.getMotorCurrent())).orElseGet(() -> Amps.of(spark.getOutputCurrent()));
   }
 
   @Override
@@ -705,21 +700,21 @@ public class SparkWrapper implements SmartMotorController
   {
     if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
     {
-      telemetry.temperature = getTemperature();
-      telemetry.mechanismLowerLimit = false;
-      telemetry.mechanismUpperLimit = false;
-      telemetry.temperatureLimit = false;
+//      telemetry.temperature = getTemperature();
+//      telemetry.mechanismLowerLimit = false;
+//      telemetry.mechanismUpperLimit = false;
+//      telemetry.temperatureLimit = false;
       telemetry.statorCurrent = spark.getOutputCurrent();
       telemetry.mechanismPosition = getMechanismPosition();
       telemetry.mechanismVelocity = getMechanismVelocity();
       telemetry.rotorPosition = getRotorPosition();
       telemetry.rotorVelocity = getRotorVelocity();
-      config.getMechanismLowerLimit().ifPresent(limit ->
-                                                    telemetry.mechanismLowerLimit = getMechanismPosition().lte(limit));
-      config.getMechanismUpperLimit().ifPresent(limit ->
-                                                    telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
-      config.getTemperatureCutoff().ifPresent(limit ->
-                                                  telemetry.temperatureLimit = getTemperature().gte(limit));
+//      config.getMechanismLowerLimit().ifPresent(limit ->
+//                                                    telemetry.mechanismLowerLimit = getMechanismPosition().lte(limit));
+//      config.getMechanismUpperLimit().ifPresent(limit ->
+//                                                    telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
+//      config.getTemperatureCutoff().ifPresent(limit ->
+//                                                  telemetry.temperatureLimit = getTemperature().gte(limit));
       telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
     }
   }

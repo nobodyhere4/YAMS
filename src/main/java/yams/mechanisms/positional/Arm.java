@@ -1,6 +1,7 @@
 package yams.mechanisms.positional;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -20,6 +21,8 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -100,12 +103,23 @@ public class Arm extends SmartPositionalMechanism
                                         config.getLength().get().in(Meters) * 2);
       mechanismRoot = mechanismWindow.getRoot(
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "Root" : "ArmRoot",
-          0, config.getLength().get().in(Meters));
+          config.getLength().get().in(Meters), config.getLength().get().in(Meters));
       mechanismLigament = mechanismRoot.append(new MechanismLigament2d(
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
           config.getLength().get().in(Meters),
           config.getStartingAngle().get().in(Degrees), 6, config.getSimColor()));
-      SmartDashboard.putData(config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
+      MechanismLigament2d maxLigament = mechanismRoot.append(new MechanismLigament2d("Max",
+                                                                                     Inch.of(3).in(Meters),
+                                                                                     config.getUpperHardLimit().get()
+                                                                                           .in(Degrees),
+                                                                                     4,
+                                                                                     new Color8Bit(Color.kLimeGreen)));
+      MechanismLigament2d minLigament = mechanismRoot.append(new MechanismLigament2d("Min", Inch.of(3).in(Meters),
+                                                                                     config.getLowerHardLimit().get()
+                                                                                           .in(Degrees),
+                                                                                     4, new Color8Bit(Color.kRed)));
+      SmartDashboard.putData(
+          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "/mechanism" : "Arm/mechanism",
                              mechanismWindow);
     }
   }

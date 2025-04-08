@@ -26,6 +26,9 @@ public class RobotContainer
 
   private void configureBindings()
   {
+    xboxController.button(1).onTrue(Commands.print("IAM HERE"));
+    xboxController.button(2).onTrue(Commands.print("IAM HERE FUCKER"));
+
     xboxController.button(1).whileTrue(arm.armCmd(0.5));
     xboxController.button(2).whileTrue(arm.armCmd(-0.5));
   }

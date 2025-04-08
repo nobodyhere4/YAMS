@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.gearbox.GearBox.Type;
@@ -34,7 +35,7 @@ public class ArmSubsystem extends SubsystemBase
       .withClosedLoopController(0.1, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
       .withSoftLimit(Degrees.of(-30), Degrees.of(100))
       .withGearing(gearing(gearbox(Type.MAX_PLANETARY, 3, 4)))
-      .withExternalEncoder(armMotor.getAbsoluteEncoder())
+//      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
       .withStatorCurrentLimit(Amps.of(40))
@@ -45,17 +46,17 @@ public class ArmSubsystem extends SubsystemBase
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0));
   private SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
   private ArmConfig                  m_config    = new ArmConfig(motor)
-      .withLength(Meters.of(0.87))
+      .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
       .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
-      .withMass(Pounds.of(130))
+      .withMass(Pounds.of(1))
       .withStartingPosition(Degrees.of(0))
       .withHorizontalZero(Degrees.of(0));
   private Arm                        arm         = new Arm(m_config);
 
   public ArmSubsystem()
   {
-
+    RoboRioSim.setVInVoltage(12);
   }
 
   public void periodic()
