@@ -2,8 +2,6 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -27,38 +25,28 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
 import java.util.function.Supplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.telemetry.SmartMotorControllerTelemetry;
 
-public class SparkWrapper implements SmartMotorController
+public class SparkWrapper extends SmartMotorController
 {
 
   /**
@@ -101,42 +89,7 @@ public class SparkWrapper implements SmartMotorController
    * Motor type.
    */
   private final DCMotor                           motor;
-  /**
-   * {@link SmartMotorControllerConfig} for the motor.
-   */
-  private       SmartMotorControllerConfig        config;
-  /**
-   * Profiled PID controller for the motor controller.
-   */
-  private       Optional<ProfiledPIDController>   pidController              = Optional.empty();
-  /**
-   * Simple PID controller for the motor controller.
-   */
-  private       Optional<PIDController>           simplePidController        = Optional.empty();
-  /**
-   * Setpoint position
-   */
-  private Optional<Angle>           setpointPosition     = Optional.empty();
-  /**
-   * Setpoint velocity.
-   */
-  private Optional<AngularVelocity> setpointVelocity     = Optional.empty();
-  /**
-   * Telemetry.
-   */
-  private       SmartMotorControllerTelemetry     telemetry                  = new SmartMotorControllerTelemetry();
-  /**
-   * Thread of the closed loop controller.
-   */
-  private       Notifier                          closedLoopControllerThread = null;
-  /**
-   * Parent table for telemetry.
-   */
-  private Optional<NetworkTable>    parentTable          = Optional.empty();
-  /**
-   * {@link SmartMotorController} telemetry table.
-   */
-  private Optional<NetworkTable>    telemetryTable       = Optional.empty();
+
 
 
   /**
@@ -187,9 +140,7 @@ public class SparkWrapper implements SmartMotorController
     return false;
   }
 
-  /**
-   * Setup the simulation for the {@link SparkBase} wrapper.
-   */
+  @Override
   public void setupSimulation()
   {
     if (RobotBase.isSimulation())
@@ -208,6 +159,24 @@ public class SparkWrapper implements SmartMotorController
       sparkRelativeEncoder.setPosition(sparkAbsoluteEncoder.get().getPosition());
       sparkRelativeEncoderSim.ifPresent(sparkRelativeEncoderSim -> sparkRelativeEncoderSim.setPosition(
           sparkAbsoluteEncoder.get().getPosition()));
+    }
+  }
+
+  @Override
+  public void synchronizeRelativeEncoder()
+  {
+    if (config.getFeedbackSynchronizationThreshold().isPresent())
+    {
+      if (sparkAbsoluteEncoder.isPresent())
+      {
+        if (!Rotations.of(sparkRelativeEncoder.getPosition()).isNear(Rotations.of(sparkAbsoluteEncoder.get()
+                                                                                                      .getPosition()),
+                                                                     config.getFeedbackSynchronizationThreshold()
+                                                                           .get()))
+        {
+          seedRelativeEncoder();
+        }
+      }
     }
   }
 
@@ -444,44 +413,6 @@ public class SparkWrapper implements SmartMotorController
   }
 
   @Override
-  public SysIdRoutine sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
-  {
-    SysIdRoutine sysIdRoutine = null;
-    if (config.getTelemetryName().isEmpty())
-    {
-      throw new IllegalArgumentException("[ERROR] Missing SmartMotorController telemetry name");
-    }
-    if (config.getMechanismCircumference().isPresent())
-    {
-      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
-                                      new SysIdRoutine.Mechanism(
-                                          this::setVoltage,
-                                          log -> {
-                                            log.motor(config.getTelemetryName().get())
-                                               .voltage(
-                                                   getVoltage())
-                                               .linearVelocity(getMeasurementVelocity())
-                                               .linearPosition(getMeasurementPosition());
-                                          },
-                                          config.getSubsystem()));
-    } else
-    {
-      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
-                                      new SysIdRoutine.Mechanism(
-                                          this::setVoltage,
-                                          log -> {
-                                            log.motor(config.getTelemetryName().get())
-                                               .voltage(
-                                                   getVoltage())
-                                               .angularPosition(getMechanismPosition())
-                                               .angularVelocity(getMechanismVelocity());
-                                          },
-                                          config.getSubsystem()));
-    }
-    return sysIdRoutine;
-  }
-
-  @Override
   public void setDutyCycle(double dutyCycle)
   {
     spark.set(dutyCycle);
@@ -565,170 +496,13 @@ public class SparkWrapper implements SmartMotorController
   @Override
   public Angle getRotorPosition()
   {
-    return Rotations.of(getMechanismPosition().in(Rotations) * config.getGearing().getRotorToMechanismRatio());
-  }
-
-
-  /**
-   * Iterate the closed loop controller. Feedforward are only applied with profiled pid controllers.
-   */
-  public void iterateClosedLoopController()
-  {
-    double pidOutputVoltage = 0;
-    double feedforward      = 0.0;
-    telemetry.setpointPosition = 0;
-    telemetry.setpointVelocity = 0;
-    telemetry.velocityControl = false;
-    telemetry.motionProfile = false;
-    telemetry.statorCurrent = spark.getOutputCurrent();
-    telemetry.mechanismPosition = getMechanismPosition();
-    telemetry.mechanismVelocity = getMechanismVelocity();
-    telemetry.rotorPosition = getRotorPosition();
-    telemetry.rotorVelocity = getRotorVelocity();
-
-    if (config.getFeedbackSynchronizationThreshold().isPresent())
-    {
-      if (sparkAbsoluteEncoder.isPresent())
-      {
-        if (!Rotations.of(sparkRelativeEncoder.getPosition()).isNear(Rotations.of(sparkAbsoluteEncoder.get()
-                                                                                                      .getPosition()),
-                                                                     config.getFeedbackSynchronizationThreshold()
-                                                                           .get()))
-        {
-          seedRelativeEncoder();
-        }
-      }
-    }
-
-    if (pidController.isPresent() && setpointPosition.isPresent())
-    {
-      telemetry.motionProfile = true;
-      telemetry.armFeedforward = false;
-      telemetry.elevatorFeedforward = false;
-      telemetry.simpleFeedforward = false;
-      if (config.getArmFeedforward().isPresent())
-      {
-        telemetry.armFeedforward = true;
-        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                         setpointPosition.get().in(Rotations));
-        feedforward = config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
-                                                                               getMechanismVelocity().in(
-                                                                                   RotationsPerSecond),
-                                                                               pidController.get()
-                                                                                            .getSetpoint().velocity);
-      } else if (config.getElevatorFeedforward().isPresent())
-      {
-        telemetry.elevatorFeedforward = true;
-        telemetry.distance = getMeasurementPosition();
-        telemetry.linearVelocity = getMeasurementVelocity();
-        pidOutputVoltage = pidController.get().calculate(getMeasurementPosition().in(Meters),
-                                                         config.convertFromMechanism(setpointPosition.get())
-                                                               .in(Meters));
-        feedforward = config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
-            MetersPerSecond), pidController.get().getSetpoint().velocity);
-
-      } else if (config.getSimpleFeedforward().isPresent())
-      {
-        telemetry.simpleFeedforward = true;
-        feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
-            RotationsPerSecond), pidController.get().getSetpoint().velocity);
-
-      }
-      telemetry.setpointPosition = pidController.get().getSetpoint().position;
-      telemetry.setpointVelocity = pidController.get().getSetpoint().velocity;
-
-    } else if (simplePidController.isPresent())
-    {
-      if (setpointPosition.isPresent())
-      {
-        telemetry.setpointPosition = setpointPosition.get().in(Rotations);
-        pidOutputVoltage = simplePidController.get().calculate(setpointPosition.get().in(Rotations),
-                                                               setpointPosition.get().in(Rotations));
-      } else if (setpointVelocity.isPresent())
-      {
-        telemetry.velocityControl = true;
-        telemetry.setpointVelocity = setpointVelocity.get().in(RotationsPerSecond);
-        pidOutputVoltage = simplePidController.get().calculate(setpointVelocity.get().in(RotationsPerSecond));
-      }
-    }
-    if (config.getMechanismUpperLimit().isPresent())
-    {
-      telemetry.mechanismUpperLimit = getMechanismPosition().gt(config.getMechanismUpperLimit().get());
-      if (telemetry.mechanismUpperLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    if (config.getMechanismLowerLimit().isPresent())
-    {
-      telemetry.mechanismLowerLimit = getMechanismPosition().lt(config.getMechanismLowerLimit().get());
-      if (telemetry.mechanismLowerLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    if (config.getTemperatureCutoff().isPresent())
-    {
-      telemetry.temperature = getTemperature();
-      telemetry.temperatureLimit = telemetry.temperature.gte(config.getTemperatureCutoff().get());
-      if (telemetry.temperatureLimit)
-      {
-        pidOutputVoltage = feedforward = 0;
-      }
-    }
-    telemetry.pidOutputVoltage = pidOutputVoltage;
-    telemetry.feedforwardVoltage = feedforward;
-    telemetry.outputVoltage = pidOutputVoltage + feedforward;
-    if (config.getClosedLoopControllerMaximumVoltage().isPresent())
-    {
-      double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
-      telemetry.outputVoltage = MathUtil.clamp(telemetry.outputVoltage, -maximumVoltage, maximumVoltage);
-    }
-    setVoltage(Volts.of(telemetry.outputVoltage));
-  }
-
-  @Override
-  public void updateTelemetry(NetworkTable table)
-  {
-    if (parentTable.isEmpty())
-    {
-      parentTable = Optional.of(table);
-      if (config.getTelemetryName().isPresent())
-      {
-        telemetryTable = Optional.of(table.getSubTable(config.getTelemetryName().get()));
-        updateTelemetry();
-      }
-    }
+    return Rotations.of(getMechanismPosition().in(Rotations) * config.getGearing().getMechanismToRotorRatio());
   }
 
   @Override
   public Temperature getTemperature()
   {
     return Celsius.of(spark.getMotorTemperature());
-  }
-
-  @Override
-  public void updateTelemetry()
-  {
-    if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
-    {
-//      telemetry.temperature = getTemperature();
-//      telemetry.mechanismLowerLimit = false;
-//      telemetry.mechanismUpperLimit = false;
-//      telemetry.temperatureLimit = false;
-      telemetry.statorCurrent = spark.getOutputCurrent();
-      telemetry.mechanismPosition = getMechanismPosition();
-      telemetry.mechanismVelocity = getMechanismVelocity();
-      telemetry.rotorPosition = getRotorPosition();
-      telemetry.rotorVelocity = getRotorVelocity();
-//      config.getMechanismLowerLimit().ifPresent(limit ->
-//                                                    telemetry.mechanismLowerLimit = getMechanismPosition().lte(limit));
-//      config.getMechanismUpperLimit().ifPresent(limit ->
-//                                                    telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
-//      config.getTemperatureCutoff().ifPresent(limit ->
-//                                                  telemetry.temperatureLimit = getTemperature().gte(limit));
-      telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
-    }
   }
 
   @Override

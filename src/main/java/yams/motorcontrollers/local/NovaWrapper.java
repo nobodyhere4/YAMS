@@ -17,11 +17,23 @@ import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 
-public class NovaWrapper implements SmartMotorController
+public class NovaWrapper extends SmartMotorController
 {
 
   @Override
+  public void setupSimulation()
+  {
+
+  }
+
+  @Override
   public void seedRelativeEncoder()
+  {
+
+  }
+
+  @Override
+  public void synchronizeRelativeEncoder()
   {
 
   }
