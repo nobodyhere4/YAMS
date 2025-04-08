@@ -324,8 +324,8 @@ public class SparkWrapper implements SmartMotorController
     closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
 
     // Calculate Spark conversion factors
-    double positionConversionFactor = config.getGearing().getRotorToMechanismRatio();
-    double velocityConversionFactor = config.getGearing().getRotorToMechanismRatio() / 60.0;
+    double positionConversionFactor = config.getGearing().getMechanismToRotorRatio();
+    double velocityConversionFactor = config.getGearing().getMechanismToRotorRatio() / 60.0;
 
     // Set base config options
     sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate());
@@ -334,6 +334,10 @@ public class SparkWrapper implements SmartMotorController
     sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
     sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
 //    sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
+    if (config.getEncoderInverted())
+    {
+      throw new IllegalArgumentException("[ERROR] Spark relative encoder cannot be inverted!");
+    }
     // Throw warning about supply stator limits on Spark's
     if (config.getSupplyStallCurrentLimit().isPresent())
     {
@@ -368,7 +372,7 @@ public class SparkWrapper implements SmartMotorController
         sparkAbsoluteEncoder = Optional.of((SparkAbsoluteEncoder) externalEncoder);
         sparkBaseConfig.absoluteEncoder.positionConversionFactor(positionConversionFactor);
         sparkBaseConfig.absoluteEncoder.velocityConversionFactor(velocityConversionFactor);
-//        sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
+        sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
 
         if (RobotBase.isSimulation())
         {
@@ -437,7 +441,11 @@ public class SparkWrapper implements SmartMotorController
   @Override
   public SysIdRoutine sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
-    SysIdRoutine sysIdRoutine;
+    SysIdRoutine sysIdRoutine = null;
+    if (config.getTelemetryName().isEmpty())
+    {
+      throw new IllegalArgumentException("[ERROR] Missing SmartMotorController telemetry name");
+    }
     if (config.getMechanismCircumference().isPresent())
     {
       sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
@@ -465,7 +473,7 @@ public class SparkWrapper implements SmartMotorController
                                           },
                                           config.getSubsystem()));
     }
-    return null;
+    return sysIdRoutine;
   }
 
   @Override
@@ -671,8 +679,10 @@ public class SparkWrapper implements SmartMotorController
       double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
       telemetry.outputVoltage = MathUtil.clamp(telemetry.outputVoltage, -maximumVoltage, maximumVoltage);
     }
-
-    setVoltage(Volts.of(telemetry.outputVoltage));
+    if (telemetry.outputVoltage != 0)
+    {
+      setVoltage(Volts.of(telemetry.outputVoltage));
+    }
   }
 
   @Override
