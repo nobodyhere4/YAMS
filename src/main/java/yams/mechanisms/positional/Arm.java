@@ -108,19 +108,33 @@ public class Arm extends SmartPositionalMechanism
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
           config.getLength().get().in(Meters),
           config.getStartingAngle().get().in(Degrees), 6, config.getSimColor()));
-      MechanismLigament2d maxLigament = mechanismRoot.append(new MechanismLigament2d("Max",
-                                                                                     Inch.of(3).in(Meters),
-                                                                                     config.getUpperHardLimit().get()
-                                                                                           .in(Degrees),
-                                                                                     4,
-                                                                                     new Color8Bit(Color.kLimeGreen)));
-      MechanismLigament2d minLigament = mechanismRoot.append(new MechanismLigament2d("Min", Inch.of(3).in(Meters),
-                                                                                     config.getLowerHardLimit().get()
-                                                                                           .in(Degrees),
-                                                                                     4, new Color8Bit(Color.kRed)));
+      mechanismRoot.append(new MechanismLigament2d("MaxHard",
+                                                   Inch.of(3).in(Meters),
+                                                   config.getUpperHardLimit().get()
+                                                         .in(Degrees),
+                                                   4,
+                                                   new Color8Bit(Color.kLimeGreen)));
+      mechanismRoot.append(new MechanismLigament2d("MinHard", Inch.of(3).in(Meters),
+                                                   config.getLowerHardLimit().get()
+                                                         .in(Degrees),
+                                                   4, new Color8Bit(Color.kRed)));
+      if (motor.getConfig().getMechanismLowerLimit().isPresent() &&
+          motor.getConfig().getMechanismUpperLimit().isPresent())
+      {
+        mechanismRoot.append(new MechanismLigament2d("MaxSoft",
+                                                     Inch.of(3).in(Meters),
+                                                     motor.getConfig().getMechanismUpperLimit().get()
+                                                          .in(Degrees),
+                                                     4,
+                                                     new Color8Bit(Color.kHotPink)));
+        mechanismRoot.append(new MechanismLigament2d("MinSoft", Inch.of(3).in(Meters),
+                                                     motor.getConfig().getMechanismLowerLimit().get()
+                                                          .in(Degrees),
+                                                     4, new Color8Bit(Color.kYellow)));
+      }
       SmartDashboard.putData(
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "/mechanism" : "Arm/mechanism",
-                             mechanismWindow);
+          mechanismWindow);
     }
   }
 
