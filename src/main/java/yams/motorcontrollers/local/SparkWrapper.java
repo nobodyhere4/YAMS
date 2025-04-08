@@ -163,8 +163,8 @@ public class SparkWrapper implements SmartMotorController
     this.motor = motor;
     spark = controller;
     sparkRelativeEncoder = controller.getEncoder();
-    applyConfig(config);
     setupSimulation();
+    applyConfig(config);
 
   }
 
@@ -339,7 +339,6 @@ public class SparkWrapper implements SmartMotorController
     sparkBaseConfig.inverted(config.getMotorInverted());
     sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
     sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
-//    sparkBaseConfig.encoder.inverted(config.getEncoderInverted());
     if (config.getEncoderInverted())
     {
       throw new IllegalArgumentException("[ERROR] Spark relative encoder cannot be inverted!");
