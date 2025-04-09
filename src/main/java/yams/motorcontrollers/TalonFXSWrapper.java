@@ -112,6 +112,7 @@ public class TalonFXSWrapper extends SmartMotorController
     applyConfig(smartConfig);
   }
 
+  @Override
   public void setupSimulation()
   {
     if (RobotBase.isSimulation())
@@ -133,7 +134,19 @@ public class TalonFXSWrapper extends SmartMotorController
   @Override
   public void synchronizeRelativeEncoder()
   {
-
+    if (config.getFeedbackSynchronizationThreshold().isPresent())
+    {
+//      if (sparkAbsoluteEncoder.isPresent())
+//      {
+//        if (!Rotations.of(sparkRelativeEncoder.getPosition()).isNear(Rotations.of(sparkAbsoluteEncoder.get()
+//                                                                                                      .getPosition()),
+//                                                                     config.getFeedbackSynchronizationThreshold()
+//                                                                           .get()))
+//        {
+//          seedRelativeEncoder();
+//        }
+//      }
+    }
   }
 
   @Override

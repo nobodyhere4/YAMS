@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -101,6 +102,32 @@ public abstract class SmartMotorController
     telemetry.rotorVelocity = getRotorVelocity();
     synchronizeRelativeEncoder();
 
+    if (setpointPosition.isPresent())
+    {
+      if (config.getMechanismLowerLimit().isPresent())
+      {
+        if (setpointPosition.get().lt(config.getMechanismLowerLimit().get()))
+        {
+          DriverStation.reportWarning("[WARNING] Setpoint is lower than Mechanism " +
+                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                                                             : "Unnamed smart motor") +
+                                      " lower limit, changing setpoint to lower limit.", false);
+          setpointPosition = config.getMechanismLowerLimit();
+        }
+      }
+      if (config.getMechanismUpperLimit().isPresent())
+      {
+        if (setpointPosition.get().gt(config.getMechanismUpperLimit().get()))
+        {
+          DriverStation.reportWarning("[WARNING] Setpoint is higher than Mechanism " +
+                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                                                             : "Unnamed smart motor") +
+                                      " upper limit, changing setpoint to upper limit.", false);
+          setpointPosition = config.getMechanismUpperLimit();
+        }
+      }
+    }
+
     if (pidController.isPresent() && setpointPosition.isPresent())
     {
       telemetry.motionProfile = true;
@@ -155,7 +182,7 @@ public abstract class SmartMotorController
     if (config.getMechanismUpperLimit().isPresent())
     {
       telemetry.mechanismUpperLimit = getMechanismPosition().gt(config.getMechanismUpperLimit().get());
-      if (telemetry.mechanismUpperLimit)
+      if (telemetry.mechanismUpperLimit && (pidOutputVoltage + feedforward) > 0)
       {
         pidOutputVoltage = feedforward = 0;
       }
@@ -163,7 +190,7 @@ public abstract class SmartMotorController
     if (config.getMechanismLowerLimit().isPresent())
     {
       telemetry.mechanismLowerLimit = getMechanismPosition().lt(config.getMechanismLowerLimit().get());
-      if (telemetry.mechanismLowerLimit)
+      if (telemetry.mechanismLowerLimit && (pidOutputVoltage + feedforward) < 0)
       {
         pidOutputVoltage = feedforward = 0;
       }
