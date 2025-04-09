@@ -42,7 +42,7 @@ public class Arm extends SmartPositionalMechanism
   /**
    * Arm config.
    */
-  private ArmConfig                     config;
+  private ArmConfig m_config;
 
   /**
    * Constructor for the Arm mechanism.
@@ -51,7 +51,7 @@ public class Arm extends SmartPositionalMechanism
    */
   public Arm(ArmConfig config)
   {
-    this.config = config;
+    this.m_config = config;
     m_motor = config.getMotor();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     // Seed the relative encoder
@@ -231,9 +231,9 @@ public class Arm extends SmartPositionalMechanism
     {
       return new Trigger(gte(m_motor.getConfig().getMechanismUpperLimit().get()));
     }
-    if (config.getUpperHardLimit().isEmpty())
+    if (m_config.getUpperHardLimit().isEmpty())
     {
-      return gte(config.getUpperHardLimit().get());
+      return gte(m_config.getUpperHardLimit().get());
     }
     throw new IllegalArgumentException("Upper soft and hard limit is empty. Cannot create maximum trigger.");
   }
@@ -249,9 +249,9 @@ public class Arm extends SmartPositionalMechanism
     {
       return new Trigger(gte(m_motor.getConfig().getMechanismLowerLimit().get()));
     }
-    if (config.getLowerHardLimit().isEmpty())
+    if (m_config.getLowerHardLimit().isEmpty())
     {
-      return gte(config.getLowerHardLimit().get());
+      return gte(m_config.getLowerHardLimit().get());
     }
     throw new IllegalArgumentException("Lower soft and hard limit is empty. Cannot create maximum trigger.");
   }
@@ -275,9 +275,9 @@ public class Arm extends SmartPositionalMechanism
     if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
     {
       max = m_motor.getConfig().getMechanismUpperLimit().get().minus(Degrees.of(1));
-    } else if (config.getUpperHardLimit().isPresent())
+    } else if (m_config.getUpperHardLimit().isPresent())
     {
-      max = config.getUpperHardLimit().get().minus(Degrees.of(1));
+      max = m_config.getUpperHardLimit().get().minus(Degrees.of(1));
     } else
     {
       throw new IllegalArgumentException("No upper soft or hard limit is set. Cannot create SysId command.");
@@ -285,9 +285,9 @@ public class Arm extends SmartPositionalMechanism
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
     {
       min = m_motor.getConfig().getMechanismLowerLimit().get().plus(Degrees.of(1));
-    } else if (config.getLowerHardLimit().isPresent())
+    } else if (m_config.getLowerHardLimit().isPresent())
     {
-      min = config.getLowerHardLimit().get().plus(Degrees.of(1));
+      min = m_config.getLowerHardLimit().get().plus(Degrees.of(1));
     } else
     {
       throw new IllegalArgumentException("No lower soft or hard limit is set. Cannot create SysId command.");
@@ -299,9 +299,9 @@ public class Arm extends SmartPositionalMechanism
                            .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
                            .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger));
-    if (config.getTelemetryName().isPresent())
+    if (m_config.getTelemetryName().isPresent())
     {
-      group = group.andThen(Commands.print(config.getTelemetryName().get() + " SysId test done."));
+      group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
     }
     return group;
   }
