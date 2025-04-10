@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
+import yams.exceptions.MechanismDistanceException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -258,7 +259,7 @@ public class ElevatorConfig
   {
     if (motor.getConfig().getMechanismCircumference().isEmpty())
     {
-      throw new IllegalArgumentException("[ERROR] Mechanism circumference or Elevator dum radius is empty!");
+      throw new MechanismDistanceException();
     }
     return motor.getConfig().getMechanismCircumference().get().div(2 * Math.PI);
   }

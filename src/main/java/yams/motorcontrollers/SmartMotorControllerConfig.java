@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import java.util.OptionalInt;
 import yams.exceptions.MechanismDistanceException;
+import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 
 /**
@@ -193,8 +194,10 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isPresent())
     {
-      throw new IllegalArgumentException(
-          "Cannot auto-synchronize the absolute encoder and relative encoder where the mechanism is distance based.");
+      throw new SmartMotorControllerConfigurationException(
+          "Auto-synchronization is unavailable when using distance based mechanisms",
+          "Cannot set synchronization threshold.",
+          "withMechanismCircumference(Distance) should be removed.");
     }
     feedbackSynchronizationThreshold = angle == null ? Optional.empty() : Optional.of(angle);
     return this;
@@ -322,13 +325,15 @@ public class SmartMotorControllerConfig
   {
     if (mechanismUpperLimit.isPresent() || mechanismLowerLimit.isPresent())
     {
-      throw new IllegalArgumentException(
-          "Soft limits set while attempting to use continuous wrapping. Limits would be ignored!");
+      throw new SmartMotorControllerConfigurationException("Soft limits set while configuring continuous wrapping",
+                                                           "Cannot set continuous wrapping",
+                                                           "withSoftLimit(Angle,Angle) should be removed");
     }
     if (mechanismCircumference.isPresent())
     {
-      throw new IllegalArgumentException(
-          "Mechanism circumference set while attempting to use continuous wrapping. This could break the mechanism!");
+      throw new SmartMotorControllerConfigurationException("Distance based mechanism used with continuous wrapping",
+                                                           "Cannot set continuous wrapping",
+                                                           "withMechanismCircumference(Distance) should be removed");
     }
     simpleController.ifPresent(pidController -> pidController.enableContinuousInput(bottom.in(Rotations),
                                                                                     top.in(Rotations)));
@@ -336,7 +341,9 @@ public class SmartMotorControllerConfig
                                                                                               top.in(Rotations)));
     if (simpleController.isEmpty() && controller.isEmpty())
     {
-      throw new IllegalArgumentException("Wrapping set without PID controller!");
+      throw new SmartMotorControllerConfigurationException("No PID controller used",
+                                                           "Cannot set continuous wrapping!",
+                                                           "withClosedLoopController()");
     }
 
     return this;
@@ -356,7 +363,9 @@ public class SmartMotorControllerConfig
       simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
-        throw new IllegalArgumentException("Closed loop tolerance set without PID controller!");
+        throw new SmartMotorControllerConfigurationException("No PID controller used",
+                                                             "Cannot set tolerance!",
+                                                             "withClosedLoopController()");
       }
     }
     return this;
@@ -380,7 +389,9 @@ public class SmartMotorControllerConfig
       simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Meters)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
-        throw new IllegalArgumentException("Closed loop tolerance set without PID controller!");
+        throw new SmartMotorControllerConfigurationException("No PID controller used",
+                                                             "Cannot set tolerance!",
+                                                             "withClosedLoopController()");
       }
     }
     return this;
@@ -583,8 +594,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to
-   * full power in the motor controller while using PID.
+   * Set the closed loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to full power in
+   * the motor controller while using PID.
    *
    * @param rate time to go from 0 to full throttle.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -596,8 +607,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the open loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to full
-   * power in the motor controller while not using PID.
+   * Set the open loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to full power in
+   * the motor controller while not using PID.
    *
    * @param rate time to go from 0 to full throttle.
    * @return {@link SmartMotorControllerConfig} for chaining.

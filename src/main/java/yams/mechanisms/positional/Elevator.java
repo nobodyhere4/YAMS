@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import yams.exceptions.ElevatorConfigurationException;
 import yams.mechanisms.config.ElevatorConfig;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -73,19 +74,27 @@ public class Elevator extends SmartPositionalMechanism
       SmartMotorController motor = config.getMotor();
       if (config.getCarriageMass().isEmpty())
       {
-        throw new IllegalArgumentException("Carriage mass cannot be empty");
+        throw new ElevatorConfigurationException("Mass is not configured!",
+                                                 "Cannot create simulator",
+                                                 "withMass(Mass)");
       }
       if (config.getMinimumHeight().isEmpty())
       {
-        throw new IllegalArgumentException("Minimum height cannot be empty");
+        throw new ElevatorConfigurationException("Minimum height is not configured!",
+                                                 "Cannot create simulator",
+                                                 "withHardLimits(Distance,Distance)");
       }
       if (config.getMaximumHeight().isEmpty())
       {
-        throw new IllegalArgumentException("Maximum height cannot be empty");
+        throw new ElevatorConfigurationException("Maximum height is not configured!",
+                                                 "Cannot create simulator",
+                                                 "withHardLimits(Distance,Distance)");
       }
       if (config.getStartingHeight().isEmpty())
       {
-        throw new IllegalArgumentException("Starting height cannot be empty");
+        throw new ElevatorConfigurationException("Starting height is not configured!",
+                                                 "Cannot create simulator",
+                                                 "withStartingHeight(Distance)");
       }
       m_sim = Optional.of(new ElevatorSim(motor.getDCMotor(),
                                           motor.getConfig().getGearing().getMechanismToRotorRatio(),
@@ -281,7 +290,9 @@ public class Elevator extends SmartPositionalMechanism
     {
       return gte(m_config.getMaximumHeight().get());
     }
-    throw new IllegalArgumentException("Upper soft and hard limit is empty. Cannot create maximum trigger.");
+    throw new ElevatorConfigurationException("Maximum height is not configured!",
+                                             "Cannot create max trigger.",
+                                             "withHardLimits(Distance,Distance)");
   }
 
   /**
@@ -300,7 +311,9 @@ public class Elevator extends SmartPositionalMechanism
     {
       return gte(m_config.getMinimumHeight().get());
     }
-    throw new IllegalArgumentException("Lower soft and hard limit is empty. Cannot create maximum trigger.");
+    throw new ElevatorConfigurationException("Minimum height is not configured!",
+                                             "Cannot create min trigger.",
+                                             "withHardLimits(Distance,Distance)");
   }
 
 
@@ -364,7 +377,10 @@ public class Elevator extends SmartPositionalMechanism
       max = m_config.getMaximumHeight().get().minus(Centimeters.of(1));
     } else
     {
-      throw new IllegalArgumentException("No upper soft or hard limit is set. Cannot create SysId command.");
+      throw new ElevatorConfigurationException("Maximum height is not configured!",
+                                               "Cannot create SysIdRoutine!",
+                                               "withHardLimits(Distance,Distance)");
+
     }
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
     {
@@ -375,7 +391,9 @@ public class Elevator extends SmartPositionalMechanism
       min = m_config.getMinimumHeight().get().plus(Centimeters.of(1));
     } else
     {
-      throw new IllegalArgumentException("No lower soft or hard limit is set. Cannot create SysId command.");
+      throw new ElevatorConfigurationException("Minimum height is not configured!",
+                                               "Cannot create SysIdRoutine!",
+                                               "withHardLimits(Distance,Distance)");
     }
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);

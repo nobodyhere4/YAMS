@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import yams.exceptions.ArmConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -226,7 +227,9 @@ public class ArmConfig
     {
       return SingleJointedArmSim.estimateMOI(length.get().in(Units.Meters), weight.get().in(Units.Kilograms));
     }
-    throw new IllegalArgumentException("Arm length and weight or MOI must be set!");
+    throw new ArmConfigurationException("Arm length and weight or MOI must be set!",
+                                        "Cannot get the MOI!",
+                                        "withLength(Distance).withMass(Mass) OR ArmConfig.withMOI()");
   }
 
   /**

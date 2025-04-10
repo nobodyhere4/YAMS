@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import yams.exceptions.ArmConfigurationException;
 import yams.mechanisms.config.ArmConfig;
 import yams.motorcontrollers.SmartMotorController;
 
@@ -74,19 +75,25 @@ public class Arm extends SmartPositionalMechanism
       SmartMotorController motor = config.getMotor();
       if (config.getLength().isEmpty())
       {
-        throw new IllegalArgumentException("Arm length is empty. Cannot create simulation.");
+        throw new ArmConfigurationException("Arm Length is empty", "Cannot create simulation.", "withLength(Distance)");
       }
       if (config.getLowerHardLimit().isEmpty())
       {
-        throw new IllegalArgumentException("Arm lower hard limit is empty. Cannot create simulation.");
+        throw new ArmConfigurationException("Arm lower hard limit is empty",
+                                            "Cannot create simulation.",
+                                            "withHardLimit(Angle,Angle)");
       }
       if (config.getUpperHardLimit().isEmpty())
       {
-        throw new IllegalArgumentException("Arm upper hard limit is empty. Cannot create simulation.");
+        throw new ArmConfigurationException("Arm upper hard limit is empty",
+                                            "Cannot create simulation.",
+                                            "withHardLimit(Angle,Angle)");
       }
       if (config.getStartingAngle().isEmpty())
       {
-        throw new IllegalArgumentException("Arm starting angle is empty. Cannot create simulation.");
+        throw new ArmConfigurationException("Arm starting angle is empty",
+                                            "Cannot create simulation.",
+                                            "withStartingPosition(Angle)");
       }
       m_sim = Optional.of(new SingleJointedArmSim(motor.getDCMotor(),
                                                   motor.getConfig().getGearing().getMechanismToRotorRatio(),
@@ -235,7 +242,9 @@ public class Arm extends SmartPositionalMechanism
     {
       return gte(m_config.getUpperHardLimit().get());
     }
-    throw new IllegalArgumentException("Upper soft and hard limit is empty. Cannot create maximum trigger.");
+    throw new ArmConfigurationException("Arm upper hard and motor controller soft limit is empty",
+                                        "Cannot create max trigger.",
+                                        "withHardLimit(Angle,Angle)");
   }
 
   /**
@@ -253,7 +262,9 @@ public class Arm extends SmartPositionalMechanism
     {
       return gte(m_config.getLowerHardLimit().get());
     }
-    throw new IllegalArgumentException("Lower soft and hard limit is empty. Cannot create maximum trigger.");
+    throw new ArmConfigurationException("Arm lower hard and motor controller soft limit is empty",
+                                        "Cannot create min trigger.",
+                                        "withHardLimit(Angle,Angle)");
   }
 
   /**
@@ -280,7 +291,9 @@ public class Arm extends SmartPositionalMechanism
       max = m_config.getUpperHardLimit().get().minus(Degrees.of(1));
     } else
     {
-      throw new IllegalArgumentException("No upper soft or hard limit is set. Cannot create SysId command.");
+      throw new ArmConfigurationException("Arm upper hard and motor controller soft limit is empty",
+                                          "Cannot create SysIdRoutine.",
+                                          "withHardLimit(Angle,Angle)");
     }
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
     {
@@ -290,7 +303,9 @@ public class Arm extends SmartPositionalMechanism
       min = m_config.getLowerHardLimit().get().plus(Degrees.of(1));
     } else
     {
-      throw new IllegalArgumentException("No lower soft or hard limit is set. Cannot create SysId command.");
+      throw new ArmConfigurationException("Arm lower hard and motor controller soft limit is empty",
+                                          "Cannot create SysIdRoutine.",
+                                          "withHardLimit(Angle,Angle)");
     }
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);

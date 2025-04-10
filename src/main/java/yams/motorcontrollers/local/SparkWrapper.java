@@ -109,7 +109,8 @@ public class SparkWrapper extends SmartMotorController
       sparkBaseConfig = new SparkFlexConfig();
     } else
     {
-      throw new IllegalArgumentException("Unsupported controller type: " + controller.getClass().getSimpleName());
+      throw new IllegalArgumentException(
+          "[ERROR] Unsupported controller type: " + controller.getClass().getSimpleName());
     }
 
     this.motor = motor;
@@ -273,7 +274,7 @@ public class SparkWrapper extends SmartMotorController
       simplePidController = config.getSimpleClosedLoopController();
       if (simplePidController.isEmpty())
       {
-        throw new IllegalArgumentException("closed-loop controller must not be empty");
+        throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
       }
     }
 
@@ -394,7 +395,7 @@ public class SparkWrapper extends SmartMotorController
         } else
         {
           throw new IllegalArgumentException(
-              "Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
+              "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
         }
       }
       config.clearFollowers();

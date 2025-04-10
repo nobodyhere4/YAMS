@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
+import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.telemetry.SmartMotorControllerTelemetry;
 
@@ -314,7 +315,9 @@ public abstract class SmartMotorController
     SysIdRoutine sysIdRoutine = null;
     if (config.getTelemetryName().isEmpty())
     {
-      throw new IllegalArgumentException("[ERROR] Missing SmartMotorController telemetry name");
+      throw new SmartMotorControllerConfigurationException("Telemetry is undefined",
+                                                           "Cannot create SysIdRoutine",
+                                                           "withTelemetry(String,TelemetryVerbosity)");
     }
     if (config.getMechanismCircumference().isPresent())
     {

@@ -69,7 +69,7 @@ public abstract class SmartMechanism
   }
 
   /**
-   * Create and set the {@link SmartMechanism#m_gearing} attribute with the given {@link GearBox} and {@link Sprocket}
+   * Create {@link MechanismGearing} with the given {@link GearBox} and {@link Sprocket}
    *
    * @param gearBox  {@link GearBox} created using {@link SmartMechanism#gearbox(Type, double...)}.
    * @param sprocket {@link Sprocket} created using {@link SmartMechanism#sprocket(double...)}.
@@ -81,7 +81,7 @@ public abstract class SmartMechanism
   }
 
   /**
-   * Create and set the {@link SmartMechanism#m_gearing} attribute with the given {@link GearBox}.
+   * Create {@link MechanismGearing} with the given {@link GearBox}.
    *
    * @param gearBox {@link GearBox} created using {@link SmartMechanism#gearbox(Type, double...)}.
    * @return {@link MechanismGearing} with the {@link GearBox}.
