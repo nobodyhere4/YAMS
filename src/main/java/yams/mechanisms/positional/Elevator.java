@@ -2,6 +2,7 @@ package yams.mechanisms.positional;
 
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -23,6 +24,8 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -96,6 +99,55 @@ public class Elevator extends SmartPositionalMechanism
 
       mechanismWindow = new Mechanism2d(config.getMaximumHeight().get().in(Meters) * 2,
                                         config.getMaximumHeight().get().in(Meters) * 2);
+
+      if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
+      {
+        mechanismWindow.getRoot(
+                           "MinSoft",
+                           config.getMaximumHeight().get().minus(Inches.of(6)).in(Meters), 0)
+                       .append(new MechanismLigament2d(
+                           "Limit",
+                           m_motor.getConfig().convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())
+                                  .in(Meters),
+                           config.getAngle().in(Degrees),
+                           3,
+                           new Color8Bit(Color.kYellow)
+                       ));
+      }
+      if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
+      {
+        mechanismWindow.getRoot(
+                           "MaxSoft",
+                           config.getMaximumHeight().get().plus(Inches.of(6)).in(Meters), 0)
+                       .append(new MechanismLigament2d(
+                           "Limit",
+                           m_motor.getConfig().convertFromMechanism(m_motor.getConfig().getMechanismUpperLimit().get())
+                                  .in(Meters),
+                           config.getAngle().in(Degrees),
+                           3,
+                           new Color8Bit(Color.kHotPink)
+                       ));
+      }
+      mechanismWindow.getRoot(
+                         "MinHard",
+                         config.getMaximumHeight().get().minus(Inches.of(8)).in(Meters), 0)
+                     .append(new MechanismLigament2d(
+                         "Limit",
+                         config.getMinimumHeight().get().in(Meters),
+                         config.getAngle().in(Degrees),
+                         3,
+                         new Color8Bit(Color.kRed)
+                     ));
+      mechanismWindow.getRoot(
+                         "MaxHard",
+                         config.getMaximumHeight().get().plus(Inches.of(8)).in(Meters), 0)
+                     .append(new MechanismLigament2d(
+                         "Limit",
+                         config.getMaximumHeight().get().in(Meters),
+                         config.getAngle().in(Degrees),
+                         3,
+                         new Color8Bit(Color.kLimeGreen)
+                     ));
       mechanismRoot = mechanismWindow.getRoot(
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "Root" : "ElevatorRoot",
           config.getMaximumHeight().get().in(Meters), 0);
