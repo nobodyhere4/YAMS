@@ -1,6 +1,9 @@
 package yams.mechanisms;
 
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
@@ -90,4 +93,38 @@ public abstract class SmartMechanism
   {
     return new MechanismGearing(gearBox);
   }
+
+  /**
+   * Set the DutyCycle of the {@link yams.motorcontrollers.SmartMotorController}.
+   *
+   * @param dutycycle [-1,1] to set.
+   * @return {@link Command}
+   */
+  public Command set(double dutycycle)
+  {
+    return Commands.run(() -> m_motor.setDutyCycle(dutycycle), m_subsystem);
+  }
+
+  ;
+
+  /**
+   * Set the voltage of the {@link yams.motorcontrollers.SmartMotorController}.
+   *
+   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set.
+   * @return {@link Command}
+   */
+  public Command setVoltage(Voltage volts)
+  {
+    return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem);
+  }
+
+  /**
+   * Iterate sim
+   */
+  public abstract void simIterate();
+
+  /**
+   * Update the mechanism's telemetry.
+   */
+  public abstract void updateTelemetry();
 }

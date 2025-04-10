@@ -74,7 +74,15 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * Velocity control request
    */
-  private final VelocityVoltage        m_velocityReq     = new VelocityVoltage(0).withSlot(0);
+  private final VelocityVoltage               m_velocityReq     = new VelocityVoltage(0).withSlot(0);
+  /**
+   * Position with trapazoidal profiling request.
+   */
+  private final MotionMagicVoltage            m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
+  /**
+   * Position with exponential profiling request.
+   */
+  private final MotionMagicExpoVoltage        m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
   /**
    * Configuration of the motor
    */
@@ -116,25 +124,17 @@ public class TalonFXSWrapper extends SmartMotorController
    */
   private       StatusSignal<Temperature>     m_deviceTemperature;
   /**
-   * Position with trapazoidal profiling request.
-   */
-  private final MotionMagicVoltage     m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
-  /**
-   * Position with exponential profiling request.
-   */
-  private final MotionMagicExpoVoltage m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
-  /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
-  private       Optional<DCMotorSim>   m_dcmotorSim      = Optional.empty();
+  private       Optional<DCMotorSim>          m_dcmotorSim      = Optional.empty();
   /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private       Optional<CANcoder>     m_cancoder        = Optional.empty();
+  private       Optional<CANcoder>            m_cancoder        = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private       Optional<CANdi>        m_candi           = Optional.empty();
+  private       Optional<CANdi>               m_candi           = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper

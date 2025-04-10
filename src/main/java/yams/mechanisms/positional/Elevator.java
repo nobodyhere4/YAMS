@@ -170,9 +170,7 @@ public class Elevator extends SmartPositionalMechanism
     }
   }
 
-  /**
-   * Update the mechanism's telemetry.
-   */
+  @Override
   public void updateTelemetry()
   {
     m_telemetry.positionPublisher.set(m_motor.getMeasurementPosition().in(Meters));
@@ -183,9 +181,7 @@ public class Elevator extends SmartPositionalMechanism
     m_motor.updateTelemetry();
   }
 
-  /**
-   * Iterate sim
-   */
+  @Override
   public void simIterate()
   {
     if (m_sim.isPresent())
@@ -219,27 +215,6 @@ public class Elevator extends SmartPositionalMechanism
     return Commands.run(() -> m_motor.setPosition(height), m_subsystem);
   }
 
-  /**
-   * Set the dutycycle of the elevator motor.
-   *
-   * @param dutycycle [-1,1] to set.
-   * @return {@link Command}
-   */
-  public Command set(double dutycycle)
-  {
-    return Commands.run(() -> m_motor.setDutyCycle(dutycycle), m_subsystem);
-  }
-
-  /**
-   * Set the voltage of the elevator.
-   *
-   * @param volts {@link Voltage} of the Elevator to set.
-   * @return {@link Command}
-   */
-  public Command setVoltage(Voltage volts)
-  {
-    return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem);
-  }
 
   /**
    * Get the Height of the Elevator.
@@ -274,11 +249,7 @@ public class Elevator extends SmartPositionalMechanism
     return new Trigger(() -> getHeight().isNear(height, within));
   }
 
-  /**
-   * Elevator is at max, defined by the soft limit or hard limit on the elevator.
-   *
-   * @return Maximum height for the elevator.
-   */
+  @Override
   public Trigger max()
   {
     if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
@@ -295,11 +266,7 @@ public class Elevator extends SmartPositionalMechanism
                                              "withHardLimits(Distance,Distance)");
   }
 
-  /**
-   * Minimum height of the elevator given by the soft limit or hard limit of the elevator.
-   *
-   * @return {@link Trigger} on minimum of the elevator.
-   */
+  @Override
   public Trigger min()
   {
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
@@ -351,17 +318,7 @@ public class Elevator extends SmartPositionalMechanism
     return new Trigger(() -> getHeight().gte(height));
   }
 
-  /**
-   * Create the SysId routine and commands to run the SysId tests. The SysId test will run the mechanism up then down at
-   * a constant speed, then run the mechanism up at an increasing speed and down at an increasing speed. Requires the
-   * maximum and minimum limit to be set. Runs the mechanism within 1 degree of the maximum and minimum.
-   *
-   * @param maximumVoltage Maximum {@link Voltage} to give to the elevator, is the voltage given to run the elevator up
-   *                       at a static speed.
-   * @param step           Step {@link Voltage} to give to the elevator.
-   * @param duration       SysId test duration.
-   * @return {@link edu.wpi.first.wpilibj2.command.SequentialCommandGroup} running the SysId commands.
-   */
+  @Override
   public Command sysId(Voltage maximumVoltage, Velocity<VoltageUnit> step, Time duration)
   {
     SysIdRoutine               routine     = m_motor.sysId(maximumVoltage, step, duration);

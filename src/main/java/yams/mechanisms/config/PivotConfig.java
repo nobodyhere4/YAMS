@@ -1,10 +1,6 @@
 package yams.mechanisms.config;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
@@ -37,14 +33,6 @@ public class PivotConfig
    * Upper hard limit for the {@link yams.mechanisms.positional.Pivot} representing in simulation.
    */
   private Optional<Angle>              upperHardLimit     = Optional.empty();
-  /**
-   * {@link yams.mechanisms.positional.Pivot} length for simulation.
-   */
-  private Optional<Distance>           length             = Optional.empty();
-  /**
-   * {@link yams.mechanisms.positional.Pivot} mass for simulation.
-   */
-  private Optional<Mass>               weight             = Optional.empty();
   /**
    * {@link yams.mechanisms.positional.Pivot} MOI from CAD software. If not given estimated with length and weight.
    */
@@ -90,30 +78,6 @@ public class PivotConfig
   }
 
   /**
-   * Configure the {@link yams.mechanisms.positional.Pivot}s length for simulation.
-   *
-   * @param distance Length of the {@link yams.mechanisms.positional.Pivot}.
-   * @return {@link PivotConfig} for chaining.
-   */
-  public PivotConfig withLength(Distance distance)
-  {
-    this.length = distance == null ? Optional.empty() : Optional.of(distance);
-    return this;
-  }
-
-  /**
-   * Configure the {@link yams.mechanisms.positional.Pivot}s {@link Mass} for simulation.
-   *
-   * @param mass {@link Mass} of the {@link yams.mechanisms.positional.Pivot}
-   * @return {@link PivotConfig} for chaining.
-   */
-  public PivotConfig withMass(Mass mass)
-  {
-    this.weight = mass == null ? Optional.empty() : Optional.of(mass);
-    return this;
-  }
-
-  /**
    * Configure telemetry for the {@link yams.mechanisms.positional.Pivot} mechanism.
    *
    * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
@@ -124,18 +88,6 @@ public class PivotConfig
   {
     this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
     this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
-    return this;
-  }
-
-  /**
-   * Set the horizontal zero of the pivot.
-   *
-   * @param horizontalZero Offset of the pivot that will make the pivot read 0 when horizontal.
-   * @return {@link PivotConfig} for chaining.
-   */
-  public PivotConfig withHorizontalZero(Angle horizontalZero)
-  {
-    motor.getConfig().withZeroOffset(horizontalZero);
     return this;
   }
 
@@ -202,15 +154,6 @@ public class PivotConfig
     return motor.applyConfig(motor.getConfig());
   }
 
-  /**
-   * Get the Length of the {@link yams.mechanisms.positional.Pivot}
-   *
-   * @return {@link Distance} of the Pivot.
-   */
-  public Optional<Distance> getLength()
-  {
-    return length;
-  }
 
   /**
    * Get the moment of inertia for the {@link yams.mechanisms.positional.Pivot} simulation.
@@ -223,11 +166,7 @@ public class PivotConfig
     {
       return moi.getAsDouble();
     }
-    if (length.isPresent() && weight.isPresent())
-    {
-      return SingleJointedArmSim.estimateMOI(length.get().in(Units.Meters), weight.get().in(Units.Kilograms));
-    }
-    throw new PivotConfigurationException("Pivot length and weight or MOI must be set!",
+    throw new PivotConfigurationException("Pivot MOI must be set!",
                                           "Cannot get the MOI!",
                                           "withLength(Distance).withMass(Mass) OR PivotConfig.withMOI()");
   }

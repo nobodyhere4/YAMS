@@ -145,9 +145,7 @@ public class Arm extends SmartPositionalMechanism
     }
   }
 
-  /**
-   * Update the mechanism's telemetry.
-   */
+  @Override
   public void updateTelemetry()
   {
     m_telemetry.positionPublisher.set(m_motor.getMechanismPosition().in(Degrees));
@@ -155,9 +153,7 @@ public class Arm extends SmartPositionalMechanism
     m_motor.updateTelemetry();
   }
 
-  /**
-   * Iterate sim
-   */
+  @Override
   public void simIterate()
   {
     if (m_sim.isPresent())
@@ -194,28 +190,6 @@ public class Arm extends SmartPositionalMechanism
   }
 
   /**
-   * Set the voltage of the arm.
-   *
-   * @param volts {@link Voltage} of the Arm to set.
-   * @return {@link Command}
-   */
-  public Command setVoltage(Voltage volts)
-  {
-    return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem);
-  }
-
-  /**
-   * Set the dutycycle of the arm motor.
-   *
-   * @param dutycycle [-1,1] to set.
-   * @return {@link Command}
-   */
-  public Command set(double dutycycle)
-  {
-    return Commands.run(() -> m_motor.setDutyCycle(dutycycle), m_subsystem);
-  }
-
-  /**
    * Arm is near an angle.
    *
    * @param angle  {@link Angle} to be near.
@@ -227,11 +201,7 @@ public class Arm extends SmartPositionalMechanism
     return new Trigger(() -> getAngle().isNear(angle, within));
   }
 
-  /**
-   * Arm is at max, defined by the soft limit or hard limit on the arm.
-   *
-   * @return Maximum angle for the arm.
-   */
+  @Override
   public Trigger max()
   {
     if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
@@ -247,11 +217,7 @@ public class Arm extends SmartPositionalMechanism
                                         "withHardLimit(Angle,Angle)");
   }
 
-  /**
-   * Minimum angle of the arm given by the soft limit or hard limit of the arm.
-   *
-   * @return {@link Trigger} on minimum of the arm.
-   */
+  @Override
   public Trigger min()
   {
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
@@ -267,17 +233,7 @@ public class Arm extends SmartPositionalMechanism
                                         "withHardLimit(Angle,Angle)");
   }
 
-  /**
-   * Create the SysId routine and commands to run the SysId tests. The SysId test will run the mechanism up then down at
-   * a constant speed, then run the mechanism up at an increasing speed and down at an increasing speed. Requires the
-   * maximum and minimum limit to be set. Runs the mechanism within 1 degree of the maximum and minimum.
-   *
-   * @param maximumVoltage Maximum {@link Voltage} to give to the arm, is the voltage given to run the arm up at a
-   *                       static speed.
-   * @param step           Step {@link Voltage} to give to the arm.
-   * @param duration       SysId test duration.
-   * @return {@link edu.wpi.first.wpilibj2.command.SequentialCommandGroup} running the SysId commands.
-   */
+  @Override
   public Command sysId(Voltage maximumVoltage, Velocity<VoltageUnit> step, Time duration)
   {
     SysIdRoutine routine = m_motor.sysId(maximumVoltage, step, duration);
