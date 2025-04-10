@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
+import yams.gearing.gearbox.MAXPlanetaryGearbox;
 
 /**
  * Smart motor controller config.
@@ -47,6 +48,10 @@ public class SmartMotorControllerConfig
    * External encoder.
    */
   private Optional<Object>                  externalEncoder                    = Optional.empty();
+  /**
+   * External encoder inversion state.
+   */
+  private boolean           externalEncoderInverted          = false;
   /**
    * Follower motors and inversion.
    */
@@ -75,6 +80,11 @@ public class SmartMotorControllerConfig
    * Gearing for the {@link SmartMotorController}.
    */
   private MechanismGearing                  gearing;
+  /**
+   * External encoder gearing, defaults to 1:1.
+   */
+  private MechanismGearing  externalEncoderGearing           = new MechanismGearing(new MAXPlanetaryGearbox(
+      new double[]{1.0}));
   /**
    * Mechanism Circumference for distance calculations.
    */
@@ -159,6 +169,14 @@ public class SmartMotorControllerConfig
    * The motor controller mode.
    */
   private ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
+  /**
+   * Encoder discontinuity point.
+   */
+  private Optional<Angle>   maxDiscontinuityPoint            = Optional.empty();
+  /**
+   * Encoder discontinuity point.
+   */
+  private Optional<Angle>   minDiscontinuityPoint            = Optional.empty();
 
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
@@ -168,6 +186,18 @@ public class SmartMotorControllerConfig
   public SmartMotorControllerConfig(Subsystem subsystem)
   {
     this.subsystem = subsystem;
+  }
+
+  /**
+   * Set the external encoder inversion state.
+   *
+   * @param externalEncoderInverted External encoder inversion state.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withExternalEncoderInverted(boolean externalEncoderInverted)
+  {
+    this.externalEncoderInverted = externalEncoderInverted;
+    return this;
   }
 
   /**
@@ -347,6 +377,8 @@ public class SmartMotorControllerConfig
                                                            "withClosedLoopController()");
     }
 
+    maxDiscontinuityPoint = Optional.of(top);
+    minDiscontinuityPoint = Optional.of(bottom);
     return this;
   }
 
@@ -1187,6 +1219,59 @@ public class SmartMotorControllerConfig
   public ControlMode getMotorControllerMode()
   {
     return motorControllerMode;
+  }
+
+  /**
+   * Get the external encoder gearing, default is 1:1 on a MAXPlanetary.
+   *
+   * @return External encoder gearing.
+   */
+  public MechanismGearing getExternalEncoderGearing()
+  {
+    return externalEncoderGearing;
+  }
+
+  /**
+   * Set the external encoder gearing. Default is a 1:1 with MAX Planetary.
+   *
+   * @param externalEncoderGearing External encoder gearing.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withExternalGearing(MechanismGearing externalEncoderGearing)
+  {
+    this.externalEncoderGearing = externalEncoderGearing;
+    return this;
+  }
+
+  /**
+   * Get the discontinuity point for the {@link SmartMotorController} encoder.
+   *
+   * @return {@link Angle} where the encoder wraps around.
+   */
+  public Optional<Angle> getDiscontinuityPoint()
+  {
+    if (maxDiscontinuityPoint.isPresent() && minDiscontinuityPoint.isPresent() && !minDiscontinuityPoint.get().equals(
+        Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)))
+    {
+      throw new SmartMotorControllerConfigurationException("Bounds are not correct!",
+                                                           "Cannot get the discontinuity point.",
+                                                           "withContinuousWrapping(Rotations.of(" +
+                                                           Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)
+                                                                    .in(Rotations) + "),Rotations.of(" +
+                                                           maxDiscontinuityPoint.get().in(Rotations) + ")) instead ");
+    }
+    return maxDiscontinuityPoint;
+
+  }
+
+  /**
+   * Get whether or not the external encoder is inverted.
+   *
+   * @return External encoder inversion state
+   */
+  public boolean getExternalEncoderInverted()
+  {
+    return externalEncoderInverted;
   }
 
 

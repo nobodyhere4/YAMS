@@ -343,10 +343,11 @@ public class SparkWrapper extends SmartMotorController
       Object externalEncoder = config.getExternalEncoder().get();
       if (externalEncoder instanceof SparkAbsoluteEncoder)
       {
+        double absoluteEncoderConversionFactor = config.getExternalEncoderGearing().getRotorToMechanismRatio();
         sparkAbsoluteEncoder = Optional.of((SparkAbsoluteEncoder) externalEncoder);
-        sparkBaseConfig.absoluteEncoder.positionConversionFactor(positionConversionFactor);
-        sparkBaseConfig.absoluteEncoder.velocityConversionFactor(velocityConversionFactor);
-        sparkBaseConfig.absoluteEncoder.inverted(config.getEncoderInverted());
+        sparkBaseConfig.absoluteEncoder.positionConversionFactor(absoluteEncoderConversionFactor);
+        sparkBaseConfig.absoluteEncoder.velocityConversionFactor(absoluteEncoderConversionFactor / 60);
+        sparkBaseConfig.absoluteEncoder.inverted(config.getExternalEncoderInverted());
 
         if (RobotBase.isSimulation())
         {
