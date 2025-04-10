@@ -645,9 +645,9 @@ public class TalonFXSWrapper extends SmartMotorController
       // Zero offset.
       if (config.getZeroOffset().isPresent())
       {
-        m_talonConfig.ExternalFeedback.withAbsoluteSensorOffset(m_talonfxs.getPosition().getValue()
-                                                                          .plus(Rotations.of(m_talonConfig.ExternalFeedback.AbsoluteSensorOffset))
-                                                                          .minus(config.getZeroOffset().get()));
+        DriverStation.reportWarning(
+            "[WARNING] Zero offset is not supported in TalonFXSWrapper without external encoder.",
+            false);
       }
       // Starting position
       if (config.getStartingPosition().isPresent())
