@@ -213,6 +213,18 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
+  public Object getMotorController()
+  {
+    return null;
+  }
+
+  @Override
+  public Object getMotorControllerConfig()
+  {
+    return null;
+  }
+
+  @Override
   public Optional<Angle> getMechanismSetpoint()
   {
     return Optional.empty();

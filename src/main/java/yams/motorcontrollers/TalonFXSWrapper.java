@@ -310,6 +310,18 @@ public class TalonFXSWrapper extends SmartMotorController
   }
 
   @Override
+  public Object getMotorController()
+  {
+    return talonfxs;
+  }
+
+  @Override
+  public Object getMotorControllerConfig()
+  {
+    return talonfxConfig;
+  }
+
+  @Override
   public Optional<Angle> getMechanismSetpoint()
   {
     return setpointPosition;
