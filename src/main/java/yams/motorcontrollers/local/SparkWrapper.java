@@ -302,8 +302,8 @@ public class SparkWrapper extends SmartMotorController
     double velocityConversionFactor = config.getGearing().getRotorToMechanismRatio() / 60.0;
 
     // Set base config options
-    sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate());
-    sparkBaseConfig.closedLoopRampRate(config.getClosedLoopRampRate());
+    sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate().in(Seconds));
+    sparkBaseConfig.closedLoopRampRate(config.getClosedLoopRampRate().in(Seconds));
     sparkBaseConfig.inverted(config.getMotorInverted());
     sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
     sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);

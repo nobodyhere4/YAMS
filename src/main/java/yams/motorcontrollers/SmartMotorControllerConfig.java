@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -83,13 +84,13 @@ public class SmartMotorControllerConfig
    */
   private Time                              controlPeriod                      = Milliseconds.of(20);
   /**
-   * Open loop ramp rate.
+   * Open loop ramp rate, amount of time to go from 0 to 100 speed..
    */
-  private double                            openLoopRampRate                   = 1.0;
+  private Time              openLoopRampRate                 = Seconds.of(0);
   /**
-   * Closed loop ramp rate.
+   * Closed loop ramp rate, amount of time to go from 0 to 100 speed.
    */
-  private double                            closeLoopRampRate                  = 1.0;
+  private Time              closeLoopRampRate                = Seconds.of(0);
   /**
    * Set the stator current limit in Amps for the {@link SmartMotorController}
    */
@@ -582,26 +583,26 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop ramp rate. The ramp rate is the minimum time in seconds it should take to go from 0 power to
+   * Set the closed loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to
    * full power in the motor controller while using PID.
    *
-   * @param rate closed loop ramp rate.
+   * @param rate time to go from 0 to full throttle.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withClosedLoopRampRate(double rate)
+  public SmartMotorControllerConfig withClosedLoopRampRate(Time rate)
   {
     this.closeLoopRampRate = rate;
     return this;
   }
 
   /**
-   * Set the open loop ramp rate. The ramp rate is the minimum time in seconds it should take to go from 0 power to full
+   * Set the open loop ramp rate. The ramp rate is the minimum time it should take to go from 0 power to full
    * power in the motor controller while not using PID.
    *
-   * @param rate open loop ramp rate.
+   * @param rate time to go from 0 to full throttle.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withOpenLoopRampRate(double rate)
+  public SmartMotorControllerConfig withOpenLoopRampRate(Time rate)
   {
     this.openLoopRampRate = rate;
     return this;
@@ -926,7 +927,7 @@ public class SmartMotorControllerConfig
    *
    * @return Open loop ramp rate.
    */
-  public double getOpenLoopRampRate()
+  public Time getOpenLoopRampRate()
   {
     return openLoopRampRate;
   }
@@ -936,7 +937,7 @@ public class SmartMotorControllerConfig
    *
    * @return Closed loop ramp.
    */
-  public double getClosedLoopRampRate()
+  public Time getClosedLoopRampRate()
   {
     return closeLoopRampRate;
   }
