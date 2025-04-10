@@ -536,7 +536,9 @@ public class TalonFXSWrapper extends SmartMotorController
                                     " because an external encoder is used!", false);
       }
       // Set the gear ratio for external encoders.
-      m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;
+      m_talonConfig.ExternalFeedback.RotorToSensorRatio =
+          config.getExternalEncoderGearing().getMechanismToRotorRatio() *
+          config.getGearing().getMechanismToRotorRatio();
       m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getExternalEncoderGearing()
                                                                     .getRotorToMechanismRatio();
       if (config.getExternalEncoder().get() instanceof CANcoder)
@@ -646,7 +648,8 @@ public class TalonFXSWrapper extends SmartMotorController
       if (config.getZeroOffset().isPresent())
       {
         DriverStation.reportWarning(
-            "[WARNING] Zero offset is not supported in TalonFXSWrapper without external encoder.",
+            "[WARNING] Zero offset is not supported in TalonFXS(" + m_talonfxs.getDeviceID() +
+            ") without external encoder.",
             false);
       }
       // Starting position
