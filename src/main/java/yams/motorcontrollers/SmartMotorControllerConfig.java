@@ -30,7 +30,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import java.util.OptionalInt;
-import yams.exceptions.MechanismDistanceException;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 
@@ -296,7 +295,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot set zero offset.",
+                                                           "withMechanismCircumference(Distance)");
     }
     zeroOffset = distance == null ? Optional.empty() : Optional.of(convertToMechanism(distance));
     return this;
@@ -381,7 +382,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Closed loop tolerance cannot be set.",
+                                                           "withMechanismCircumference(Distance)");
     }
     if (tolerance != null)
     {
@@ -445,7 +448,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot set soft limits.",
+                                                           "withMechanismCircumference(Distance)");
     }
     mechanismLowerLimit = low == null ? Optional.empty() : Optional.of(Rotations.of(
         low.in(Meters) / mechanismCircumference.get().in(Meters)));
@@ -791,7 +796,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Closed loop controller cannot be created.",
+                                                           "withMechanismCircumference(Distance)");
     }
     this.controller = Optional.empty();
     this.simpleController = Optional.of(new PIDController(kP, kI, kD));
@@ -827,7 +834,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Closed loop controller cannot be created.",
+                                                           "withMechanismCircumference(Distance)");
     }
     this.simpleController = Optional.empty();
     this.controller = Optional.of(new ProfiledPIDController(kP,
@@ -995,7 +1004,10 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert LinearVelocity to AngularVelocity.",
+                                                           "withMechanismCircumference(Distance)");
+
     }
 
     return RotationsPerSecond.of(velocity.in(MetersPerSecond) / mechanismCircumference.get().in(Meters));
@@ -1012,7 +1024,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert LinearAcceleration to AngularAcceleration.",
+                                                           "withMechanismCircumference(Distance)");
     }
 
     return RotationsPerSecondPerSecond.of(
@@ -1029,7 +1043,10 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert Distance to Angle.",
+                                                           "withMechanismCircumference(Distance)");
+
     }
     return Rotations.of(distance.in(Meters) / (mechanismCircumference.get().in(Meters)));
   }
@@ -1044,7 +1061,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert Angle to Distance.",
+                                                           "withMechanismCircumference(Distance)");
     }
     return Meters.of(rotations.in(Rotations) * mechanismCircumference.get().in(Meters));
   }
@@ -1059,7 +1078,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert AngularVelocity to LinearVelocity.",
+                                                           "withMechanismCircumference(Distance)");
     }
     return MetersPerSecond.of(velocity.in(RotationsPerSecond) * mechanismCircumference.get().in(Meters));
   }
@@ -1075,7 +1096,9 @@ public class SmartMotorControllerConfig
   {
     if (mechanismCircumference.isEmpty())
     {
-      throw new MechanismDistanceException();
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Cannot convert AngularAcceleration to LinearAcceleration.",
+                                                           "withMechanismCircumference(Distance)");
     }
     return MetersPerSecondPerSecond.of(
         acceleration.in(RotationsPerSecondPerSecond) * mechanismCircumference.get().in(Meters));
