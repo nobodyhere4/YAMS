@@ -185,24 +185,7 @@ public class TalonFXSWrapper extends SmartMotorController
 
     setupSimulation();
     applyConfig(smartConfig);
-  }
-
-  /**
-   * Compare {@link DCMotor}s to identify the given motor.
-   *
-   * @param a {@link DCMotor} a
-   * @param b {@link DCMotor} b
-   * @return True if same DC motor.
-   */
-  public boolean isMotor(DCMotor a, DCMotor b)
-  {
-    return a.stallTorqueNewtonMeters == b.stallTorqueNewtonMeters &&
-           a.stallCurrentAmps == b.stallCurrentAmps &&
-           a.freeCurrentAmps == b.freeCurrentAmps &&
-           a.freeSpeedRadPerSec == b.freeSpeedRadPerSec &&
-           a.KtNMPerAmp == b.KtNMPerAmp &&
-           a.KvRadPerSecPerVolt == b.KvRadPerSecPerVolt &&
-           a.nominalVoltageVolts == b.nominalVoltageVolts;
+    checkConfigSafety();
   }
 
   @Override

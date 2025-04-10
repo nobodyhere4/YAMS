@@ -86,6 +86,63 @@ public abstract class SmartMotorController
   }
 
   /**
+   * Compare {@link DCMotor}s to identify the given motor.
+   *
+   * @param a {@link DCMotor} a
+   * @param b {@link DCMotor} b
+   * @return True if same DC motor.
+   */
+  public boolean isMotor(DCMotor a, DCMotor b)
+  {
+    return a.stallTorqueNewtonMeters == b.stallTorqueNewtonMeters &&
+           a.stallCurrentAmps == b.stallCurrentAmps &&
+           a.freeCurrentAmps == b.freeCurrentAmps &&
+           a.freeSpeedRadPerSec == b.freeSpeedRadPerSec &&
+           a.KtNMPerAmp == b.KtNMPerAmp &&
+           a.KvRadPerSecPerVolt == b.KvRadPerSecPerVolt &&
+           a.nominalVoltageVolts == b.nominalVoltageVolts;
+  }
+
+  /**
+   * Check config for safe values.
+   */
+  public void checkConfigSafety()
+  {
+    if (isMotor(getDCMotor(), DCMotor.getNeo550(1)))
+    {
+      if (config.getStatorStallCurrentLimit().isEmpty())
+      {
+        throw new SmartMotorControllerConfigurationException("Stator current limit is not defined for NEO550!",
+                                                             "Safety check failed.",
+                                                             "withStatorCurrentLimit(Current)");
+      } else if (config.getStatorStallCurrentLimit().getAsInt() > 40)
+      {
+        throw new SmartMotorControllerConfigurationException("Stator current limit is too high for NEO550!",
+                                                             "Safety check failed.",
+                                                             "withStatorCurrentLimit(Current) where the Current is under 40A");
+
+      }
+
+    }
+    if (isMotor(getDCMotor(), DCMotor.getNEO(1)))
+    {
+      if (config.getStatorStallCurrentLimit().isEmpty())
+      {
+        throw new SmartMotorControllerConfigurationException("Stator current limit is not defined for NEO!",
+                                                             "Safety check failed.",
+                                                             "withStatorCurrentLimit(Current)");
+      } else if (config.getStatorStallCurrentLimit().getAsInt() > 60)
+      {
+        throw new SmartMotorControllerConfigurationException("Stator current limit is too high for NEO!",
+                                                             "Safety check failed.",
+                                                             "withStatorCurrentLimit(Current) where the Current is under 60A");
+
+      }
+
+    }
+  }
+
+  /**
    * Iterate the closed loop controller. Feedforward are only applied with profiled pid controllers.
    */
   public void iterateClosedLoopController()

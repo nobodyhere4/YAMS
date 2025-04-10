@@ -118,6 +118,7 @@ public class SparkWrapper extends SmartMotorController
     sparkRelativeEncoder = controller.getEncoder();
     setupSimulation();
     applyConfig(config);
+    checkConfigSafety();
 
   }
 
