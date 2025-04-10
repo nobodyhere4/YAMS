@@ -549,6 +549,11 @@ public abstract class SmartMotorController
                                                     telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
       config.getTemperatureCutoff().ifPresent(limit ->
                                                   telemetry.temperatureLimit = getTemperature().gte(limit));
+      if (config.getMechanismCircumference().isPresent())
+      {
+        telemetry.distance = getMeasurementPosition();
+        telemetry.linearVelocity = getMeasurementVelocity();
+      }
       telemetry.publish(telemetryTable.get(), config.getVerbosity().get());
     }
   }
