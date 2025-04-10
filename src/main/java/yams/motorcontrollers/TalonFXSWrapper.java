@@ -2,12 +2,12 @@ package yams.motorcontrollers;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -16,8 +16,13 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfigurator;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -26,6 +31,7 @@ import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.SensorPhaseValue;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -61,9 +67,9 @@ public class TalonFXSWrapper extends SmartMotorController
    */
   private final TalonFXSConfigurator          m_configurator;
   /**
-   * {@link DCMotorSim} for the {@link TalonFXS}.
+   * Velocity control request
    */
-  private       Optional<DCMotorSim>          m_dcmotorSim = Optional.empty();
+  private final VelocityVoltage        m_velocityReq     = new VelocityVoltage(0).withSlot(0);
   /**
    * Configuration of the motor
    */
@@ -105,13 +111,25 @@ public class TalonFXSWrapper extends SmartMotorController
    */
   private       StatusSignal<Temperature>     m_deviceTemperature;
   /**
+   * Position with trapazoidal profiling request.
+   */
+  private final MotionMagicVoltage     m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
+  /**
+   * Position with exponential profiling request.
+   */
+  private final MotionMagicExpoVoltage m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
+  /**
+   * {@link DCMotorSim} for the {@link TalonFXS}.
+   */
+  private       Optional<DCMotorSim>   m_dcmotorSim      = Optional.empty();
+  /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private       Optional<CANcoder>            m_cancoder   = Optional.empty();
+  private       Optional<CANcoder>     m_cancoder        = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private       Optional<CANdi>               m_candi      = Optional.empty();
+  private       Optional<CANdi>        m_candi           = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper
@@ -137,6 +155,7 @@ public class TalonFXSWrapper extends SmartMotorController
     m_rotorPosition = m_talonfxs.getRotorPosition();
     m_rotorVelocity = m_talonfxs.getRotorVelocity();
     m_deviceTemperature = m_talonfxs.getDeviceTemp();
+
     setupSimulation();
     applyConfig(smartConfig);
   }
@@ -356,6 +375,7 @@ public class TalonFXSWrapper extends SmartMotorController
   public void setPosition(Angle angle)
   {
     setpointPosition = angle == null ? Optional.empty() : Optional.of(angle);
+    m_talonfxs.setControl(m_trapPositionReq.withPosition(angle));
   }
 
   @Override
@@ -374,6 +394,7 @@ public class TalonFXSWrapper extends SmartMotorController
   public void setVelocity(AngularVelocity angle)
   {
     setpointVelocity = angle == null ? Optional.empty() : Optional.of(angle);
+    m_talonfxs.setControl(m_velocityReq.withVelocity(angle));
   }
 
   @Override
@@ -673,6 +694,36 @@ public class TalonFXSWrapper extends SmartMotorController
           config.getEncoderInverted() ? SensorPhaseValue.Opposed : SensorPhaseValue.Aligned);
     }
 
+    // Control loop frequency.
+    m_velocityReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
+    m_trapPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
+    m_expoPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
+
+    // Configure follower motors
+    if (config.getFollowers().isPresent())
+    {
+      for (Pair<Object, Boolean> follower : config.getFollowers().get())
+      {
+        if (follower.getFirst() instanceof TalonFXS)
+        {
+          ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
+                                                                   follower.getSecond()).withUpdateFreqHz(config.getClosedLoopControlPeriod()
+                                                                                                                .in(Second)));
+
+        } else if (follower.getFirst() instanceof TalonFX)
+        {
+          ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
+                                                                  follower.getSecond()).withUpdateFreqHz(config.getClosedLoopControlPeriod()
+                                                                                                               .in(Second)));
+        } else
+        {
+          throw new IllegalArgumentException(
+              "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
+        }
+      }
+      config.clearFollowers();
+    }
+
     // Unsupported options.
     if (config.getTemperatureCutoff().isPresent())
     {
@@ -686,11 +737,7 @@ public class TalonFXSWrapper extends SmartMotorController
     {
       throw new IllegalArgumentException("[ERROR] VoltageCompensation is not supported");
     }
-    if (!config.getClosedLoopControlPeriod().equals(Milliseconds.of(20)) && !config.getClosedLoopControlPeriod().equals(
-        Milliseconds.of(1)))
-    {
-      throw new IllegalArgumentException("[ERROR] ClosedLoopControllerPeriod is not supported");
-    }
+
     return m_configurator.apply(m_talonConfig).isOK();
   }
 
