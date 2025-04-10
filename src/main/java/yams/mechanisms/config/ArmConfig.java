@@ -54,6 +54,16 @@ public class ArmConfig
   private Color8Bit simColor = new Color8Bit(Color.kOrange);
 
   /**
+   * Arm Configuration class
+   *
+   * @param motorController Primary {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
+   */
+  public ArmConfig(SmartMotorController motorController)
+  {
+    motor = motorController;
+  }
+
+  /**
    * Publish the color in sim as this.
    *
    * @param simColor {@link Color8Bit} to show.
@@ -63,16 +73,6 @@ public class ArmConfig
   {
     this.simColor = simColor;
     return this;
-  }
-
-  /**
-   * Arm Configuration class
-   *
-   * @param motorController Primary {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
-   */
-  public ArmConfig(SmartMotorController motorController)
-  {
-    motor = motorController;
   }
 
   /**

@@ -160,6 +160,16 @@ public class SmartMotorControllerConfig
   private ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
 
   /**
+   * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
+   *
+   * @param subsystem {@link Subsystem} to use.
+   */
+  public SmartMotorControllerConfig(Subsystem subsystem)
+  {
+    this.subsystem = subsystem;
+  }
+
+  /**
    * Set the control mode for the {@link SmartMotorController}
    *
    * @param controlMode {@link ControlMode} to apply.
@@ -374,17 +384,6 @@ public class SmartMotorControllerConfig
     }
     return this;
   }
-
-  /**
-   * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
-   *
-   * @param subsystem {@link Subsystem} to use.
-   */
-  public SmartMotorControllerConfig(Subsystem subsystem)
-  {
-    this.subsystem = subsystem;
-  }
-
 
   /**
    * Set the telemetry for the {@link SmartMotorController}

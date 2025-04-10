@@ -52,15 +52,19 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark configuration retry count.
    */
-  private final int                               CONFIG_RETRIES             = 4;
+  private final int                               CONFIG_RETRIES          = 4;
   /**
    * Spark configuration retry delay.
    */
-  private final double                            CONFIG_RETRY_DELAY         = Milliseconds.of(5).in(Seconds);
+  private final double                            CONFIG_RETRY_DELAY      = Milliseconds.of(5).in(Seconds);
   /**
    * Spark motor controller
    */
   private final SparkBase                         spark;
+  /**
+   * Motor type.
+   */
+  private final DCMotor                           motor;
   /**
    * Spark base configuration.
    */
@@ -68,11 +72,11 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark simulation.
    */
-  private Optional<SparkSim>        sparkSim             = Optional.empty();
+  private       Optional<SparkSim>                sparkSim                = Optional.empty();
   /**
    * Spark relative encoder sim object.
    */
-  private       Optional<SparkRelativeEncoderSim> sparkRelativeEncoderSim    = Optional.empty();
+  private       Optional<SparkRelativeEncoderSim> sparkRelativeEncoderSim = Optional.empty();
   /**
    * Spark relative encoder.
    */
@@ -80,16 +84,11 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark absolute encoder.
    */
-  private Optional<AbsoluteEncoder> sparkAbsoluteEncoder = Optional.empty();
+  private       Optional<AbsoluteEncoder>         sparkAbsoluteEncoder    = Optional.empty();
   /**
    * Spark absolute encoder sim object
    */
-  private       Optional<SparkAbsoluteEncoderSim> sparkAbsoluteEncoderSim    = Optional.empty();
-  /**
-   * Motor type.
-   */
-  private final DCMotor                           motor;
-
+  private       Optional<SparkAbsoluteEncoderSim> sparkAbsoluteEncoderSim = Optional.empty();
 
 
   /**
