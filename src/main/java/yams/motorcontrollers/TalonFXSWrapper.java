@@ -2,6 +2,7 @@ package yams.motorcontrollers;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -24,10 +25,12 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MagnetHealthValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.SensorPhaseValue;
@@ -156,8 +159,50 @@ public class TalonFXSWrapper extends SmartMotorController
     m_rotorVelocity = m_talonfxs.getRotorVelocity();
     m_deviceTemperature = m_talonfxs.getDeviceTemp();
 
+    DCMotor minion = new DCMotor(12, 3.1, 200.46, 1.43, RPM.of(7200).in(RadiansPerSecond), 1);
+    if (isMotor(motor, minion))
+    {
+      m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Enabled);
+      m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.Minion_JST);
+    } else
+    {
+      m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Disabled);
+      if (isMotor(motor, DCMotor.getNEO(1)))
+      {
+        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
+      } else if (isMotor(motor, DCMotor.getNeo550(1)))
+      {
+        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO550_JST);
+      } else if (isMotor(motor, DCMotor.getNeoVortex(1)))
+      {
+        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
+      } else
+      {
+        throw new IllegalArgumentException("Unknown motor for TalonFXS(" + m_talonfxs.getDeviceID() + "): " + motor);
+      }
+    }
+    m_configurator.apply(m_talonConfig);
+
     setupSimulation();
     applyConfig(smartConfig);
+  }
+
+  /**
+   * Compare {@link DCMotor}s to identify the given motor.
+   *
+   * @param a {@link DCMotor} a
+   * @param b {@link DCMotor} b
+   * @return True if same DC motor.
+   */
+  public boolean isMotor(DCMotor a, DCMotor b)
+  {
+    return a.stallTorqueNewtonMeters == b.stallTorqueNewtonMeters &&
+           a.stallCurrentAmps == b.stallCurrentAmps &&
+           a.freeCurrentAmps == b.freeCurrentAmps &&
+           a.freeSpeedRadPerSec == b.freeSpeedRadPerSec &&
+           a.KtNMPerAmp == b.KtNMPerAmp &&
+           a.KvRadPerSecPerVolt == b.KvRadPerSecPerVolt &&
+           a.nominalVoltageVolts == b.nominalVoltageVolts;
   }
 
   @Override
