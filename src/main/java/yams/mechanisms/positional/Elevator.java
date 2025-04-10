@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -90,8 +92,7 @@ public class Elevator extends SmartPositionalMechanism
                                           config.getMaximumHeight().get().in(Meters),
                                           true,
                                           config.getStartingHeight().get().in(Meters),
-                                          0.1,
-                                          4096));
+                                          0.01 / 4096, 0.01 / 4096));
 
       mechanismWindow = new Mechanism2d(config.getMaximumHeight().get().in(Meters) * 2,
                                         config.getMaximumHeight().get().in(Meters) * 2);
@@ -100,8 +101,11 @@ public class Elevator extends SmartPositionalMechanism
           config.getMaximumHeight().get().in(Meters), 0);
       mechanismLigament = mechanismRoot.append(new MechanismLigament2d(
           config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Elevator",
-          0,
+          config.getStartingHeight().get().in(Meters),
           config.getAngle().in(Degrees), 6, config.getSimColor()));
+      SmartDashboard.putData(
+          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "/mechanism" : "Elevator/mechanism",
+          mechanismWindow);
     }
   }
 
@@ -130,8 +134,15 @@ public class Elevator extends SmartPositionalMechanism
 
       m_motor.simIterate(m_motor.getConfig()
                                 .convertToMechanism(MetersPerSecond.of(m_sim.get().getVelocityMetersPerSecond())));
-
-      RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
+      // It is impossible for an elevator to go bellow the minimum height, it would break...
+      if (m_config.getMinimumHeight().isPresent() && getHeight().lt(m_config.getMinimumHeight().get()))
+      {
+        m_motor.simIterate(RotationsPerSecond.of(0));
+        m_motor.setEncoderPosition(m_config.getMinimumHeight().get());
+      } else
+      {
+        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
+      }
       mechanismLigament.setLength(getHeight().in(Meters));
     }
   }
