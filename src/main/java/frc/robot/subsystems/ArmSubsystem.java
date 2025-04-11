@@ -13,8 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -28,12 +27,12 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.SparkWrapper;
+import yams.motorcontrollers.remote.TalonFXSWrapper;
 
 public class ArmSubsystem extends SubsystemBase
 {
 
-  private SparkMax                   armMotor    = new SparkMax(1, MotorType.kBrushless);
+  private TalonFXS                   armMotor    = new TalonFXS(1);//, MotorType.kBrushless);
   private SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
       .withSoftLimit(Degrees.of(-30), Degrees.of(100))
@@ -42,13 +41,13 @@ public class ArmSubsystem extends SubsystemBase
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
       .withStatorCurrentLimit(Amps.of(40))
-      .withVoltageCompensation(Volts.of(12))
+//      .withVoltageCompensation(Volts.of(12))
       .withMotorInverted(false)
       .withClosedLoopRampRate(Seconds.of(0.25))
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
+  private SmartMotorController       motor       = new TalonFXSWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
   private ArmConfig                  m_config    = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
@@ -79,7 +78,7 @@ public class ArmSubsystem extends SubsystemBase
 
   public Command sysId()
   {
-    return arm.sysId(Volts.of(12), Volts.of(12).per(Second), Second.of(30));
+    return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30));
   }
 
   public Command setAngle(Angle angle)

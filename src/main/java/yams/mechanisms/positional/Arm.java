@@ -103,7 +103,7 @@ public class Arm extends SmartPositionalMechanism
                                                   config.getUpperHardLimit().get().in(Radians),
                                                   true,
                                                   config.getStartingAngle().get().in(Radians),
-                                                  0.02 / 4096.0,
+                                                  0.002 / 4096.0,
                                                   0.0));// Add noise with a std-dev of 1 tick
 
       mechanismWindow = new Mechanism2d(config.getLength().get().in(Meters) * 2,
@@ -162,7 +162,20 @@ public class Arm extends SmartPositionalMechanism
       m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
 
       m_motor.simIterate(RadiansPerSecond.of(m_sim.get().getVelocityRadPerSec()));
-
+//      if (m_config.getLowerHardLimit().isPresent())
+//      {
+//        if (m_motor.getMechanismPosition().lt(m_config.getLowerHardLimit().get()))
+//        {
+//          m_motor.setEncoderPosition(m_config.getLowerHardLimit().get());
+//        }
+//      }
+//      if (m_config.getUpperHardLimit().isPresent())
+//      {
+//        if (m_motor.getMechanismPosition().gt(m_config.getUpperHardLimit().get()))
+//        {
+//          m_motor.setEncoderPosition(m_config.getUpperHardLimit().get());
+//        }
+//      }
       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
       mechanismLigament.setAngle(getAngle().in(Degrees));
     }

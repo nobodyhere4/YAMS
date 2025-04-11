@@ -215,7 +215,8 @@ public class TalonFXWrapper extends SmartMotorController
 
       // use the motor voltage to calculate new position and velocity
       // using WPILib's DCMotorSim class for physics simulation
-      m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
+      // m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
+      m_dcmotorSim.get().setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
       m_dcmotorSim.get().update(config.getClosedLoopControlPeriod().in(Seconds));
 
       // apply the new rotor position and velocity to the TalonFX;
@@ -560,11 +561,11 @@ public class TalonFXWrapper extends SmartMotorController
                                     " because an external encoder is used!", false);
       }
       // Set the gear ratio for external encoders.
-      m_talonConfig.Feedback.RotorToSensorRatio =
-          config.getExternalEncoderGearing().getMechanismToRotorRatio() *
-          config.getGearing().getMechanismToRotorRatio();
+      m_talonConfig.Feedback.RotorToSensorRatio = 1.0;
+//          config.getExternalEncoderGearing().getMechanismToRotorRatio() *
+//          config.getGearing().getMechanismToRotorRatio();
       m_talonConfig.Feedback.SensorToMechanismRatio = config.getExternalEncoderGearing()
-                                                            .getRotorToMechanismRatio();
+                                                            .getMechanismToRotorRatio();
       if (config.getExternalEncoder().get() instanceof CANcoder)
       {
         CANcoder encoder      = (CANcoder) config.getExternalEncoder().get();
@@ -667,7 +668,7 @@ public class TalonFXWrapper extends SmartMotorController
     } else
     {
       m_talonConfig.Feedback.RotorToSensorRatio = 1.0;
-      m_talonConfig.Feedback.SensorToMechanismRatio = config.getGearing().getRotorToMechanismRatio();
+      m_talonConfig.Feedback.SensorToMechanismRatio = config.getGearing().getMechanismToRotorRatio();
 
       // Starting position
       if (config.getStartingPosition().isPresent())

@@ -242,7 +242,8 @@ public class TalonFXSWrapper extends SmartMotorController
 
       // use the motor voltage to calculate new position and velocity
       // using WPILib's DCMotorSim class for physics simulation
-      m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
+      // m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
+      m_dcmotorSim.get().setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
       m_dcmotorSim.get().update(config.getClosedLoopControlPeriod().in(Seconds));
 
       // apply the new rotor position and velocity to the TalonFX;
@@ -595,11 +596,11 @@ public class TalonFXSWrapper extends SmartMotorController
                                     " because an external encoder is used!", false);
       }
       // Set the gear ratio for external encoders.
-      m_talonConfig.ExternalFeedback.RotorToSensorRatio =
-          config.getExternalEncoderGearing().getMechanismToRotorRatio() *
-          config.getGearing().getMechanismToRotorRatio();
+      m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;
+//          config.getExternalEncoderGearing().getMechanismToRotorRatio() *
+//          config.getGearing().getMechanismToRotorRatio();
       m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getExternalEncoderGearing()
-                                                                    .getRotorToMechanismRatio();
+                                                                    .getMechanismToRotorRatio();
       if (config.getExternalEncoder().get() instanceof CANcoder)
       {
         CANcoder encoder      = (CANcoder) config.getExternalEncoder().get();
@@ -701,8 +702,8 @@ public class TalonFXSWrapper extends SmartMotorController
       }
     } else
     {
-      m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;
-      m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getGearing().getRotorToMechanismRatio();
+      m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;//config.getGearing().getRotorToMechanismRatio();
+      m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getGearing().getMechanismToRotorRatio();
       // Zero offset.
       if (config.getZeroOffset().isPresent())
       {
