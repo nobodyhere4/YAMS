@@ -162,20 +162,16 @@ public class Arm extends SmartPositionalMechanism
       m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
 
       m_motor.simIterate(RadiansPerSecond.of(m_sim.get().getVelocityRadPerSec()));
-//      if (m_config.getLowerHardLimit().isPresent())
-//      {
-//        if (m_motor.getMechanismPosition().lt(m_config.getLowerHardLimit().get()))
-//        {
-//          m_motor.setEncoderPosition(m_config.getLowerHardLimit().get());
-//        }
-//      }
-//      if (m_config.getUpperHardLimit().isPresent())
-//      {
-//        if (m_motor.getMechanismPosition().gt(m_config.getUpperHardLimit().get()))
-//        {
-//          m_motor.setEncoderPosition(m_config.getUpperHardLimit().get());
-//        }
-//      }
+      if (m_config.getLowerHardLimit().isPresent() && m_sim.get().getVelocityRadPerSec() < 0 &&
+          m_motor.getMechanismPosition().lt(m_config.getLowerHardLimit().get()))
+      {
+        m_motor.setEncoderPosition(m_config.getLowerHardLimit().get());
+      }
+      if (m_config.getUpperHardLimit().isPresent() && m_sim.get().getVelocityRadPerSec() > 0 &&
+          m_motor.getMechanismPosition().gt(m_config.getUpperHardLimit().get()))
+      {
+        m_motor.setEncoderPosition(m_config.getUpperHardLimit().get());
+      }
       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
       mechanismLigament.setAngle(getAngle().in(Degrees));
     }
