@@ -12,11 +12,11 @@ public class MechanismGearing
   /**
    * Mechanism gearbox attached to the motor.
    */
-  private GearBox            gearBox;
+  private final GearBox            gearBox;
   /**
    * Mechanism sprockets attached to the gearbox.
    */
-  private Optional<Sprocket> sprockets = Optional.empty();
+  private       Optional<Sprocket> sprockets = Optional.empty();
 
   /**
    * Initialize the {@link MechanismGearing} with only a {@link GearBox} attached to the mechanism motor.

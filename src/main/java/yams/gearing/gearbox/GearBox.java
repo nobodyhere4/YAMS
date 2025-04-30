@@ -1,6 +1,7 @@
 package yams.gearing.gearbox;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import yams.exceptions.InvalidStageGivenException;
 import yams.exceptions.NoStagesGivenException;
 
 /**
@@ -12,28 +13,63 @@ public abstract class GearBox
   /**
    * Stages in the gear box
    */
-  private final double[] reductionStages;
+  private double[] reductionStages;
   /**
    * Conversion factor of the gearbox from input to output.
    */
-  private final double   gearReductionRatio;
+  private double   gearReductionRatio;
 
   /**
    * Construct the {@link GearBox} with the reduction stages given.
    *
-   * @param reductionStage List of  reduction stages in the gearbox.
+   * @param reductionStage Reduction stages where the number is > 0 to indicate a reduction.
    */
   public GearBox(double[] reductionStage)
+  {
+    setupGearBox(reductionStage);
+  }
+
+
+  /**
+   * Construct the {@link GearBox} with the reduction stages given.
+   *
+   * @param reductionStage List of stages in the format of "IN:OUT".
+   */
+  public GearBox(String[] reductionStage)
+  {
+    double[] stages = new double[reductionStage.length];
+    for (int i = 0; i < reductionStage.length; i++)
+    {
+      String stage = reductionStage[i];
+      if (!stage.contains(":"))
+      {
+        throw new InvalidStageGivenException(stage);
+      }
+      String[] parts = stage.split(":");
+      double   in    = Double.parseDouble(parts[0]);
+      double   out   = Double.parseDouble(parts[1]);
+      stages[i] = in / out;
+    }
+    setupGearBox(stages);
+  }
+
+
+  /**
+   * Sets the stages and calculates the reduction for the {@link GearBox}
+   *
+   * @param reductionStage Reduction stages where the number is > 0 to indicate a reduction.
+   */
+  private void setupGearBox(double[] reductionStage)
   {
     this.reductionStages = reductionStage;
     if (reductionStages.length == 0)
     {
       throw new NoStagesGivenException();
     }
-    double gearBox = reductionStages[0];
+    double gearBox = 1 / reductionStages[0];
     for (int i = 1; i < reductionStages.length; i++)
     {
-      gearBox *= reductionStages[i];
+      gearBox *= (1 / reductionStages[i]);
     }
     gearReductionRatio = gearBox;
   }
@@ -73,6 +109,10 @@ public abstract class GearBox
    */
   public enum Type
   {
+    /**
+     * Custom gearbox with unknown properties.
+     */
+    CUSTOM,
     /**
      * MAXPlanetary gearbox
      */

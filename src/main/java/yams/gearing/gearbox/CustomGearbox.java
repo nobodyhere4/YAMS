@@ -3,9 +3,9 @@ package yams.gearing.gearbox;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 /**
- * MAXPlanetary gearbox class
+ * Custom gearbox class
  */
-public class MAXPlanetaryGearbox extends GearBox
+public class CustomGearbox extends GearBox
 {
 
   /**
@@ -13,7 +13,7 @@ public class MAXPlanetaryGearbox extends GearBox
    *
    * @param stages Stages in the gear box.
    */
-  public MAXPlanetaryGearbox(double[] stages)
+  public CustomGearbox(double[] stages)
   {
     super(stages);
   }
@@ -23,7 +23,7 @@ public class MAXPlanetaryGearbox extends GearBox
    *
    * @param stages Stages in the gear box.
    */
-  public MAXPlanetaryGearbox(String[] stages)
+  public CustomGearbox(String[] stages)
   {
     super(stages);
   }
