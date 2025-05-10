@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
@@ -298,7 +299,13 @@ public abstract class SmartMotorController
   /**
    * Simulation iteration using existing mechanism velocity.
    */
-  public abstract void simIterate();
+  public void simIterate()
+  {
+    if (RobotBase.isSimulation() && setpointVelocity.isPresent())
+    {
+      simIterate(setpointVelocity.get());
+    }
+  }
 
   /**
    * Set the encoder velocity

@@ -216,8 +216,10 @@ public class TalonFXWrapper extends SmartMotorController
       // use the motor voltage to calculate new position and velocity
       // using WPILib's DCMotorSim class for physics simulation
       // m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
-      m_dcmotorSim.get().setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
-      m_dcmotorSim.get().update(config.getClosedLoopControlPeriod().in(Seconds));
+      m_dcmotorSim.ifPresent(sim -> {
+        sim.setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
+        sim.update(config.getClosedLoopControlPeriod().in(Seconds));
+      });
 
       // apply the new rotor position and velocity to the TalonFX;
       // note that this is rotor position/velocity (before gear ratio), but
@@ -302,15 +304,6 @@ public class TalonFXWrapper extends SmartMotorController
           "[ERROR] CANdi PWM2 has been configured but is not present in SmartMotorControllerConfig!");
     }
     return configured;
-  }
-
-  @Override
-  public void simIterate()
-  {
-    if (RobotBase.isSimulation() && setpointVelocity.isPresent())
-    {
-      simIterate(setpointVelocity.get());
-    }
   }
 
   @Override
