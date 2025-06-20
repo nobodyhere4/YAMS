@@ -214,18 +214,18 @@ public class SmartMotorControllerTelemetry
       simpleFeedforwardPublisher = table.getBooleanTopic("Simple Feedforward").publish();
       motionProfilePublisher = table.getBooleanTopic("Motion Profile").publish();
       setpointPositionPublisher = table.getDoubleTopic("Setpoint Position (Rotations)").publish();
-      setpointVelocityPublisher = table.getDoubleTopic("Setpoint Velocity (Rotations/Second)").publish();
+      setpointVelocityPublisher = table.getDoubleTopic("Setpoint Velocity (Rotations per Second)").publish();
       feedforwardVoltagePublisher = table.getDoubleTopic("Feedforward Voltage").publish();
       pidOutputVoltagePublisher = table.getDoubleTopic("PID Output (Voltage)").publish();
       outputVoltagePublisher = table.getDoubleTopic("Motor Output Voltage").publish();
       statorCurrentPublisher = table.getDoubleTopic("Stator Current (Amps)").publish();
       temperaturePublisher = table.getDoubleTopic("Temperature (Celsius)").publish();
       measurementPositionPublisher = table.getDoubleTopic("Measurement Position (Meters)").publish();
-      measurementVelocityPublisher = table.getDoubleTopic("Measurement Velocity (Meters/Second)").publish();
+      measurementVelocityPublisher = table.getDoubleTopic("Measurement Velocity (Meters per Second)").publish();
       mechanismPositionPublisher = table.getDoubleTopic("Mechanism Position (Rotations)").publish();
-      mechanismVelocityPublisher = table.getDoubleTopic("Mechanism Velocity (Rotations/Second)").publish();
+      mechanismVelocityPublisher = table.getDoubleTopic("Mechanism Velocity (Rotations per Second)").publish();
       rotorPositionPublisher = table.getDoubleTopic("Rotor Position (Rotations)").publish();
-      rotorVelocityPublisher = table.getDoubleTopic("Rotor Velocity (Rotations/Second)").publish();
+      rotorVelocityPublisher = table.getDoubleTopic("Rotor Velocity (Rotations per Second)").publish();
     }
     if (table != null)
     {
