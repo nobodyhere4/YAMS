@@ -61,7 +61,7 @@ public class Elevator extends SmartPositionalMechanism
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     if (config.getTelemetryName().isPresent())
     {
-      NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      NetworkTable table = NetworkTableInstance.getDefault().getTable("Tuning")
                                                .getSubTable(config.getTelemetryName().get());
       m_telemetry.setupTelemetry(table);
       m_telemetry.units.set("Meters");

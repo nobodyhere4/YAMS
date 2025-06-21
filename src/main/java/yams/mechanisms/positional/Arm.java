@@ -62,7 +62,7 @@ public class Arm extends SmartPositionalMechanism
     }
     if (config.getTelemetryName().isPresent())
     {
-      NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      NetworkTable table = NetworkTableInstance.getDefault().getTable("Tuning")
                                                .getSubTable(config.getTelemetryName().get());
       m_telemetry.setupTelemetry(table);
       m_telemetry.units.set("Degrees");

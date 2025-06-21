@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import java.util.OptionalInt;
 import yams.exceptions.SmartMotorControllerConfigurationException;
+import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 
 /**
@@ -82,7 +83,7 @@ public class SmartMotorControllerConfig
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private       MechanismGearing  externalEncoderGearing           = new MechanismGearing(new MAXPlanetaryGearbox(
+  private MechanismGearing externalEncoderGearing = new MechanismGearing(new GearBox(
       new double[]{1.0}));
   /**
    * Mechanism Circumference for distance calculations.
