@@ -1,13 +1,12 @@
-package yams.gearing.gearbox;
+package yams.gearing;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import yams.exceptions.InvalidStageGivenException;
 import yams.exceptions.NoStagesGivenException;
 
 /**
  * GearBox class to calculate input and output conversion factors and check if the current configuration is supported.
  */
-public abstract class GearBox
+public class GearBox
 {
 
   /**
@@ -94,32 +93,4 @@ public abstract class GearBox
     return gearReductionRatio;
   }
 
-  /**
-   * Check the gearbox limit against the current mechanism.
-   *
-   * @param outputConversionFactor Additional conversion factor to apply before checking the limit
-   * @param weight                 Weight of the mechanism.
-   * @param motorModel             Primary motor for the mechanism.
-   * @return Whether the configuration exceeds the limits of the MAXPlanetaryGearBox.
-   */
-  public abstract boolean checkGearBoxLimit(double outputConversionFactor, double weight, DCMotor motorModel);
-
-  /**
-   * Gear box types.
-   */
-  public enum Type
-  {
-    /**
-     * Custom gearbox with unknown properties.
-     */
-    CUSTOM,
-    /**
-     * MAXPlanetary gearbox
-     */
-    MAX_PLANETARY,
-    /**
-     * VersaPlanetary gearbox.
-     */
-    VERSA_PLANETARY
-  }
 }

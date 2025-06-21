@@ -19,7 +19,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import yams.gearing.gearbox.GearBox.Type;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import yams.motorcontrollers.SmartMotorController;
@@ -32,11 +31,11 @@ import yams.motorcontrollers.remote.TalonFXSWrapper;
 public class ArmSubsystem extends SubsystemBase
 {
 
-  private TalonFXS                   armMotor    = new TalonFXS(1);//, MotorType.kBrushless);
-  private SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
+  private final TalonFXS                   armMotor    = new TalonFXS(1);//, MotorType.kBrushless);
+  private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
       .withSoftLimit(Degrees.of(-30), Degrees.of(100))
-      .withGearing(gearing(gearbox(Type.MAX_PLANETARY, 3, 4)))
+      .withGearing(gearing(gearbox(1.0 / 3, 1.0 / 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
@@ -47,15 +46,15 @@ public class ArmSubsystem extends SubsystemBase
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private SmartMotorController       motor       = new TalonFXSWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
-  private ArmConfig                  m_config    = new ArmConfig(motor)
+  private final SmartMotorController       motor       = new TalonFXSWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
+  private final ArmConfig                  m_config    = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
       .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(1))
       .withStartingPosition(Degrees.of(0))
       .withHorizontalZero(Degrees.of(0));
-  private Arm                        arm         = new Arm(m_config);
+  private final Arm                        arm         = new Arm(m_config);
 
   public ArmSubsystem()
   {

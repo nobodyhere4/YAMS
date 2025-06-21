@@ -39,13 +39,13 @@ public class Pivot extends SmartPositionalMechanism
 {
 
   /**
-   * Simulation for the Pivot.
-   */
-  private Optional<FlywheelSim> m_sim = Optional.empty();
-  /**
    * Pivot config.
    */
-  private PivotConfig           m_config;
+  private final PivotConfig           m_config;
+  /**
+   * Simulation for the Pivot.
+   */
+  private       Optional<FlywheelSim> m_sim = Optional.empty();
 
   /**
    * Construct the Pivot class

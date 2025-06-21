@@ -64,23 +64,23 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Motor type.
    */
-  private final DCMotor                           motor;
+  private final DCMotor            motor;
   /**
    * Spark base configuration.
    */
-  private       SparkBaseConfig                   sparkBaseConfig;
+  private final SparkBaseConfig    sparkBaseConfig;
   /**
-   * Spark simulation.
+   * Spark relative encoder.
    */
-  private       Optional<SparkSim>                sparkSim                = Optional.empty();
+  private final RelativeEncoder    sparkRelativeEncoder;
   /**
    * Spark relative encoder sim object.
    */
   private       Optional<SparkRelativeEncoderSim> sparkRelativeEncoderSim = Optional.empty();
   /**
-   * Spark relative encoder.
+   * Spark simulation.
    */
-  private       RelativeEncoder                   sparkRelativeEncoder;
+  private       Optional<SparkSim> sparkSim = Optional.empty();
   /**
    * Spark absolute encoder.
    */

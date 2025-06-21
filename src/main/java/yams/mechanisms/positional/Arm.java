@@ -37,13 +37,13 @@ public class Arm extends SmartPositionalMechanism
 {
 
   /**
-   * Simulation for the arm.
-   */
-  private Optional<SingleJointedArmSim> m_sim = Optional.empty();
-  /**
    * Arm config.
    */
-  private ArmConfig m_config;
+  private final ArmConfig                     m_config;
+  /**
+   * Simulation for the arm.
+   */
+  private       Optional<SingleJointedArmSim> m_sim = Optional.empty();
 
   /**
    * Constructor for the Arm mechanism.

@@ -20,7 +20,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import yams.gearing.gearbox.GearBox.Type;
 import yams.mechanisms.config.ElevatorConfig;
 import yams.mechanisms.positional.Elevator;
 import yams.motorcontrollers.SmartMotorController;
@@ -33,12 +32,12 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class ElevatorSubsystem extends SubsystemBase
 {
 
-  private SparkMax                   elevatorMotor = new SparkMax(2, MotorType.kBrushless);
-  private SmartMotorControllerConfig motorConfig   = new SmartMotorControllerConfig(this)
+  private final SparkMax                   elevatorMotor = new SparkMax(2, MotorType.kBrushless);
+  private final SmartMotorControllerConfig motorConfig   = new SmartMotorControllerConfig(this)
       .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
       .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
       .withSoftLimit(Meters.of(0), Meters.of(2))
-      .withGearing(gearing(gearbox(Type.MAX_PLANETARY, 3, 4)))
+      .withGearing(gearing(gearbox(1.0 / 3, 1.0 / 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
@@ -49,13 +48,15 @@ public class ElevatorSubsystem extends SubsystemBase
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.OPEN_LOOP);
-  private SmartMotorController       motor         = new SparkWrapper(elevatorMotor, DCMotor.getNEO(1), motorConfig);
-  private ElevatorConfig             m_config      = new ElevatorConfig(motor)
+  private final SmartMotorController       motor         = new SparkWrapper(elevatorMotor,
+                                                                            DCMotor.getNEO(1),
+                                                                            motorConfig);
+  private final ElevatorConfig             m_config      = new ElevatorConfig(motor)
       .withStartingHeight(Meters.of(0.5))
       .withHardLimits(Meters.of(0), Meters.of(3))
       .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(16));
-  private Elevator                   elevator      = new Elevator(m_config);
+  private final Elevator                   elevator      = new Elevator(m_config);
 
   public ElevatorSubsystem()
   {

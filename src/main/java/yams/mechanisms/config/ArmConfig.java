@@ -20,11 +20,11 @@ public class ArmConfig
   /**
    * {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
    */
-  private SmartMotorController         motor;
+  private final SmartMotorController motor;
   /**
    * Telemetry name.
    */
-  private Optional<String>             telemetryName      = Optional.empty();
+  private       Optional<String>     telemetryName = Optional.empty();
   /**
    * Telemetry verbosity
    */
@@ -52,7 +52,7 @@ public class ArmConfig
   /**
    * Sim color value
    */
-  private Color8Bit simColor = new Color8Bit(Color.kOrange);
+  private       Color8Bit            simColor      = new Color8Bit(Color.kOrange);
 
   /**
    * Arm Configuration class

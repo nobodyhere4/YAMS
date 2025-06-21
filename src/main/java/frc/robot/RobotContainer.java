@@ -9,21 +9,21 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 
 public class RobotContainer
 {
 
-  TurretSubsystem       turret         = new TurretSubsystem();
-  //  ArmSubsystem          arm            = new ArmSubsystem();
+  //  TurretSubsystem       turret         = new TurretSubsystem();
+  ArmSubsystem arm = new ArmSubsystem();
   //  ElevatorSubsystem elevator = new ElevatorSubsystem();
   CommandXboxController xboxController = new CommandXboxController(0);
 
   public RobotContainer()
   {
     DriverStation.silenceJoystickConnectionWarning(true);
-    turret.setDefaultCommand(turret.turretCmd(0.0));
+//    turret.setDefaultCommand(turret.turretCmd(0.0));
 //    arm.setDefaultCommand(arm.armCmd(0));
 //    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
 //    elevator.setDefaultCommand(elevator.elevCmd(0));
@@ -37,16 +37,16 @@ public class RobotContainer
 //    xboxController.button(2).whileTrue(elevator.elevCmd(-0.5));
 //    xboxController.button(3).whileTrue(elevator.sysId());
 
-//    xboxController.button(1).whileTrue(arm.armCmd(0.5));
-//    xboxController.button(2).whileTrue(arm.armCmd(-0.5));
+    xboxController.button(1).whileTrue(arm.armCmd(0.5));
+    xboxController.button(2).whileTrue(arm.armCmd(-0.5));
 
 //    xboxController.button(1).whileTrue(arm.setAngle(Degrees.of(-30)));
 //    xboxController.button(2).whileTrue(arm.setAngle(Degrees.of(30)));
-//    xboxController.button(3).whileTrue(arm.sysId());
+    xboxController.button(3).whileTrue(arm.sysId());
 
-    xboxController.button(1).whileTrue(turret.turretCmd(0.2));
-    xboxController.button(2).whileTrue(turret.turretCmd(-0.2));
-    xboxController.button(3).whileTrue(turret.sysId());
+//    xboxController.button(1).whileTrue(turret.turretCmd(0.2));
+//    xboxController.button(2).whileTrue(turret.turretCmd(-0.2));
+//    xboxController.button(3).whileTrue(turret.sysId());
   }
 
 

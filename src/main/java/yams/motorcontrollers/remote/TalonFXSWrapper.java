@@ -86,43 +86,43 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * Configuration of the motor
    */
-  private       TalonFXSConfiguration         m_talonConfig;
+  private final TalonFXSConfiguration         m_talonConfig;
   /**
    * Mechanism position in rotations.
    */
-  private       StatusSignal<Angle>           m_mechanismPosition;
+  private final StatusSignal<Angle>           m_mechanismPosition;
   /**
    * Mechanism velocity in rotations per second.
    */
-  private       StatusSignal<AngularVelocity> m_mechanismVelocity;
+  private final StatusSignal<AngularVelocity> m_mechanismVelocity;
   /**
    * Supply current of the motor controller.
    */
-  private       StatusSignal<Current>         m_supplyCurrent;
+  private final StatusSignal<Current>         m_supplyCurrent;
   /**
    * Stator current of the motor controller.
    */
-  private       StatusSignal<Current>         m_statorCurrent;
+  private final StatusSignal<Current>         m_statorCurrent;
   /**
    * DutyCycle of the motor controller.
    */
-  private       StatusSignal<Double>          m_dutyCycle;
+  private final StatusSignal<Double>          m_dutyCycle;
   /**
    * The motor voltage.
    */
-  private       StatusSignal<Voltage>         m_outputVoltage;
+  private final StatusSignal<Voltage>         m_outputVoltage;
   /**
    * Rotor position.
    */
-  private       StatusSignal<Angle>           m_rotorPosition;
+  private final StatusSignal<Angle>           m_rotorPosition;
   /**
    * Rotor velocity.
    */
-  private       StatusSignal<AngularVelocity> m_rotorVelocity;
+  private final StatusSignal<AngularVelocity> m_rotorVelocity;
   /**
    * Temperature status
    */
-  private       StatusSignal<Temperature>     m_deviceTemperature;
+  private final StatusSignal<Temperature>     m_deviceTemperature;
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
@@ -130,11 +130,11 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private       Optional<CANcoder>            m_cancoder        = Optional.empty();
+  private final Optional<CANcoder>            m_cancoder        = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private       Optional<CANdi>               m_candi           = Optional.empty();
+  private final Optional<CANdi>               m_candi           = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper
@@ -592,9 +592,8 @@ public class TalonFXSWrapper extends SmartMotorController
 //          config.getGearing().getMechanismToRotorRatio();
       m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getExternalEncoderGearing()
                                                                     .getMechanismToRotorRatio();
-      if (config.getExternalEncoder().get() instanceof CANcoder)
+      if (config.getExternalEncoder().get() instanceof CANcoder encoder)
       {
-        CANcoder encoder      = (CANcoder) config.getExternalEncoder().get();
         var      configurator = encoder.getConfigurator();
         var      cfg          = new CANcoderConfiguration();
         configurator.refresh(cfg);
@@ -625,9 +624,8 @@ public class TalonFXSWrapper extends SmartMotorController
           cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
         }
         configurator.apply(cfg);
-      } else if (config.getExternalEncoder().get() instanceof CANdi)
+      } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
       {
-        CANdi encoder      = (CANdi) config.getExternalEncoder().get();
         var   configurator = encoder.getConfigurator();
         var   cfg          = new CANdiConfiguration();
         configurator.refresh(cfg);

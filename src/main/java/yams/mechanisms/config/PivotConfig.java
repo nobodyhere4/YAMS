@@ -16,11 +16,11 @@ public class PivotConfig
   /**
    * {@link SmartMotorController} for the {@link yams.mechanisms.positional.Pivot}
    */
-  private SmartMotorController         motor;
+  private final SmartMotorController motor;
   /**
    * Telemetry name.
    */
-  private Optional<String>             telemetryName      = Optional.empty();
+  private       Optional<String>     telemetryName = Optional.empty();
   /**
    * Telemetry verbosity
    */

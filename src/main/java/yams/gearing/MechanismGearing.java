@@ -1,7 +1,6 @@
 package yams.gearing;
 
 import java.util.Optional;
-import yams.gearing.gearbox.GearBox;
 
 /**
  * Mechanism gearing for conversions from the motor output to the mechanism output.

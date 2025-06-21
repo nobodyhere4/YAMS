@@ -41,13 +41,13 @@ public class Elevator extends SmartPositionalMechanism
 {
 
   /**
-   * Simulation for the elevator
-   */
-  private Optional<ElevatorSim> m_sim = Optional.empty();
-  /**
    * Config class for the elevator.
    */
-  private ElevatorConfig        m_config;
+  private final ElevatorConfig        m_config;
+  /**
+   * Simulation for the elevator
+   */
+  private       Optional<ElevatorSim> m_sim = Optional.empty();
 
   /**
    * Construct the {@link Elevator} class for easy manipulation of an elevator.

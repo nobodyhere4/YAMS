@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
-import yams.gearing.gearbox.MAXPlanetaryGearbox;
 
 /**
  * Smart motor controller config.
@@ -43,15 +42,15 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private Subsystem                         subsystem;
+  private final Subsystem         subsystem;
   /**
    * External encoder.
    */
-  private Optional<Object>                  externalEncoder                    = Optional.empty();
+  private       Optional<Object>  externalEncoder                  = Optional.empty();
   /**
    * External encoder inversion state.
    */
-  private boolean           externalEncoderInverted          = false;
+  private       boolean           externalEncoderInverted          = false;
   /**
    * Follower motors and inversion.
    */
@@ -83,7 +82,7 @@ public class SmartMotorControllerConfig
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private MechanismGearing  externalEncoderGearing           = new MechanismGearing(new MAXPlanetaryGearbox(
+  private       MechanismGearing  externalEncoderGearing           = new MechanismGearing(new MAXPlanetaryGearbox(
       new double[]{1.0}));
   /**
    * Mechanism Circumference for distance calculations.
@@ -96,11 +95,11 @@ public class SmartMotorControllerConfig
   /**
    * Open loop ramp rate, amount of time to go from 0 to 100 speed..
    */
-  private Time              openLoopRampRate                 = Seconds.of(0);
+  private       Time              openLoopRampRate                 = Seconds.of(0);
   /**
    * Closed loop ramp rate, amount of time to go from 0 to 100 speed.
    */
-  private Time              closeLoopRampRate                = Seconds.of(0);
+  private       Time              closeLoopRampRate                = Seconds.of(0);
   /**
    * Set the stator current limit in Amps for the {@link SmartMotorController}
    */
@@ -112,7 +111,7 @@ public class SmartMotorControllerConfig
   /**
    * The voltage compensation.
    */
-  private Optional<Voltage> voltageCompensation              = Optional.empty();
+  private       Optional<Voltage> voltageCompensation              = Optional.empty();
   /**
    * Set the {@link MotorMode} for the {@link SmartMotorController}.
    */
@@ -164,19 +163,19 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private Optional<Angle>   feedbackSynchronizationThreshold = Optional.empty();
+  private       Optional<Angle>   feedbackSynchronizationThreshold = Optional.empty();
   /**
    * The motor controller mode.
    */
-  private ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
+  private       ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
   /**
    * Encoder discontinuity point.
    */
-  private Optional<Angle>   maxDiscontinuityPoint            = Optional.empty();
+  private       Optional<Angle>   maxDiscontinuityPoint            = Optional.empty();
   /**
    * Encoder discontinuity point.
    */
-  private Optional<Angle>   minDiscontinuityPoint            = Optional.empty();
+  private       Optional<Angle>   minDiscontinuityPoint            = Optional.empty();
 
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
