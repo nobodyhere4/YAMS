@@ -37,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase
       .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
       .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
       .withSoftLimit(Meters.of(0), Meters.of(2))
-      .withGearing(gearing(gearbox(1.0 / 3, 1.0 / 4)))
+      .withGearing(gearing(gearbox(3, 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
