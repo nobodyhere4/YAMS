@@ -80,7 +80,7 @@ public class GearBox
    */
   public double getInputToOutputConversionFactor()
   {
-    return 1.0 / gearReductionRatio;
+    return gearReductionRatio;
   }
 
   /**
@@ -90,7 +90,7 @@ public class GearBox
    */
   public double getOutputToInputConversionFactor()
   {
-    return gearReductionRatio;
+    return 1.0 / gearReductionRatio;
   }
 
 }
