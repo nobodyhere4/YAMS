@@ -118,6 +118,11 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
+tasks.test {
+    // Disable test when running 'build' task, but enable when running 'test' task directly
+    enabled = !gradle.startParameter.taskNames.contains('build')
+}
+
 
 idea {
     project {
