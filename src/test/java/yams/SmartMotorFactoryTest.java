@@ -1,25 +1,25 @@
 package yams;
 
-import java.util.Optional;
-
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFXS;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.thethriftybot.ThriftyNova;
-
-import yams.motorcontrollers.SmartMotorController;
-import yams.motorcontrollers.SmartMotorFactory;
-import yams.motorcontrollers.SmartMotorControllerConfig;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.Test;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.thethriftybot.ThriftyNova;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+
+import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorFactory;
 
 public class SmartMotorFactoryTest {
 
@@ -66,7 +66,9 @@ public class SmartMotorFactoryTest {
   void testCreateSparkWrapper() {
     DCMotor mockMotor = createMockDCMotor();
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(new SparkMax(1, MotorType.kBrushed), mockMotor,
+    Optional<SmartMotorController> result = SmartMotorFactory.create(
+        new SparkMax(1, MotorType.kBrushed),
+        mockMotor,
         new SmartMotorControllerConfig(null));
 
     assertTrue(result.isPresent(), "Factory should create a Spark SmartMotorController");
@@ -96,10 +98,10 @@ public class SmartMotorFactoryTest {
   }
 
   private static DCMotor createMockDCMotor() {
-    return mock(DCMotor.class);
+    return DCMotor.getBag(1);
   }
 
   private static SmartMotorControllerConfig createMockSmartConfig() {
-    return mock(SmartMotorControllerConfig.class);
+    return new SmartMotorControllerConfig(null);
   }
 }
