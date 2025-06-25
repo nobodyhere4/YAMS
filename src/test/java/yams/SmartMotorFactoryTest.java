@@ -5,7 +5,10 @@ import java.util.Optional;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.thethriftybot.ThriftyNova;
+
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorFactory;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -28,7 +31,7 @@ public class SmartMotorFactoryTest {
         (params) -> mock(SmartMotorController.class));
     SmartMotorFactory.availableControllers.put("com.revrobotics.spark.SparkBase",
         (params) -> mock(SmartMotorController.class));
-    SmartMotorFactory.availableControllers.put("com.thriftybots.nova.ThriftyNova",
+    SmartMotorFactory.availableControllers.put("com.thethriftybot.ThriftyNova",
         (params) -> mock(SmartMotorController.class));
   }
 
@@ -43,8 +46,7 @@ public class SmartMotorFactoryTest {
     DCMotor mockMotor = createMockDCMotor();
     SmartMotorControllerConfig mockConfig = createMockSmartConfig();
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(TalonFX.class, mockController, mockMotor,
-        mockConfig);
+    Optional<SmartMotorController> result = SmartMotorFactory.create(mockController, mockMotor, mockConfig);
 
     assertTrue(result.isPresent(), "Factory should create a TalonFX SmartMotorController");
   }
@@ -55,20 +57,17 @@ public class SmartMotorFactoryTest {
     DCMotor mockMotor = createMockDCMotor();
     SmartMotorControllerConfig mockConfig = createMockSmartConfig();
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(TalonFXS.class, mockController, mockMotor,
-        mockConfig);
+    Optional<SmartMotorController> result = SmartMotorFactory.create(mockController, mockMotor, mockConfig);
 
     assertTrue(result.isPresent(), "Factory should create a TalonFXS SmartMotorController");
   }
 
   @Test
   void testCreateSparkWrapper() {
-    SparkBase mockController = mock(SparkBase.class);
     DCMotor mockMotor = createMockDCMotor();
-    SmartMotorControllerConfig mockConfig = createMockSmartConfig();
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(SparkBase.class, mockController, mockMotor,
-        mockConfig);
+    Optional<SmartMotorController> result = SmartMotorFactory.create(new SparkMax(1, MotorType.kBrushed), mockMotor,
+        new SmartMotorControllerConfig(null));
 
     assertTrue(result.isPresent(), "Factory should create a Spark SmartMotorController");
   }
@@ -79,8 +78,7 @@ public class SmartMotorFactoryTest {
     DCMotor mockMotor = createMockDCMotor();
     SmartMotorControllerConfig mockConfig = createMockSmartConfig();
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(ThriftyNova.class, mockController, mockMotor,
-        mockConfig);
+    Optional<SmartMotorController> result = SmartMotorFactory.create(mockController, mockMotor, mockConfig);
 
     assertTrue(result.isPresent(), "Factory should create a Nova SmartMotorController");
   }
@@ -90,18 +88,18 @@ public class SmartMotorFactoryTest {
     class DummyController {
     }
 
-    Optional<SmartMotorController> result = SmartMotorFactory.create(DummyController.class, new DummyController(), null,
-        null);
+    DummyController dummy = new DummyController();
+
+    Optional<SmartMotorController> result = SmartMotorFactory.create(dummy, null, null);
+
     assertFalse(result.isPresent(), "Factory should return empty for unsupported classes");
   }
 
   private static DCMotor createMockDCMotor() {
-    DCMotor motor = mock(DCMotor.class);
-    return motor;
+    return mock(DCMotor.class);
   }
 
   private static SmartMotorControllerConfig createMockSmartConfig() {
-    SmartMotorControllerConfig config = mock(SmartMotorControllerConfig.class);
-    return config;
+    return mock(SmartMotorControllerConfig.class);
   }
 }

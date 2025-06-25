@@ -1,74 +1,97 @@
 package yams.motorcontrollers;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import yams.motorcontrollers.remote.TalonFXWrapper;
-import yams.motorcontrollers.remote.TalonFXSWrapper;
-import yams.motorcontrollers.local.SparkWrapper;
-import yams.motorcontrollers.local.NovaWrapper;
-import edu.wpi.first.math.system.plant.DCMotor;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFXS;
-import com.revrobotics.spark.SparkBase;
-import com.thethriftybot.ThriftyNova;
 
 public class SmartMotorFactory {
   @FunctionalInterface
-  public static interface MotorControllerConstructor {
-    public SmartMotorController create(Object... params);
+  public interface MotorControllerConstructor {
+    SmartMotorController create(Object... params);
   }
 
   public static final Map<String, MotorControllerConstructor> availableControllers = new HashMap<>();
 
   static {
-    try {
-      Class.forName("com.ctre.phoenix6.hardware.TalonFX");
-      availableControllers.put("com.ctre.phoenix6.hardware.TalonFX", (Object... params) -> {
-        TalonFX controller = (TalonFX) params[0];
-        DCMotor motor = (DCMotor) params[1];
-        SmartMotorControllerConfig smartConfig = (SmartMotorControllerConfig) params[2];
-        return new TalonFXWrapper(controller, motor, smartConfig);
-      });
-    } catch (ClassNotFoundException ignored) {
-    }
+    register("com.ctre.phoenix6.hardware.TalonFX",
+        "yams.motorcontrollers.remote.TalonFXWrapper");
+    register("com.ctre.phoenix6.hardware.TalonFXS",
+        "yams.motorcontrollers.remote.TalonFXSWrapper");
+    register("com.revrobotics.spark.SparkBase",
+        "yams.motorcontrollers.local.SparkWrapper");
+    register("com.thethriftybot.ThriftyNova",
+        "yams.motorcontrollers.local.NovaWrapper");
+  }
 
+  private static void register(String motorControllerClassName, String wrapperClassName) {
     try {
-      Class.forName("com.ctre.phoenix6.hardware.TalonFXS");
-      availableControllers.put("com.ctre.phoenix6.hardware.TalonFXS", (Object... params) -> {
-        TalonFXS controller = (TalonFXS) params[0];
-        DCMotor motor = (DCMotor) params[1];
-        SmartMotorControllerConfig smartConfig = (SmartMotorControllerConfig) params[2];
-        return new TalonFXSWrapper(controller, motor, smartConfig);
-      });
-    } catch (ClassNotFoundException ignored) {
-    }
+      Class<?> wrapperClass = Class.forName(wrapperClassName);
 
-    try {
-      Class.forName("com.revrobotics.spark.SparkBase");
-      availableControllers.put("com.revrobotics.spark.SparkBase", (Object... params) -> {
-        SparkBase controller = (SparkBase) params[0];
-        DCMotor motor = (DCMotor) params[1];
-        SmartMotorControllerConfig smartConfig = (SmartMotorControllerConfig) params[2];
-        return new SparkWrapper(controller, motor, smartConfig);
-      });
-    } catch (ClassNotFoundException ignored) {
-    }
+      MotorControllerConstructor constructor = (params) -> {
+        try {
+          for (Constructor<?> ctor : wrapperClass.getConstructors()) {
+            if (ctor.getParameterCount() == params.length) {
+              Class<?>[] paramTypes = ctor.getParameterTypes();
+              boolean matches = true;
+              for (int i = 0; i < paramTypes.length; i++) {
+                if (!paramTypes[i].isAssignableFrom(params[i].getClass())) {
+                  matches = false;
+                  break;
+                }
+              }
+              if (matches) {
+                return (SmartMotorController) ctor.newInstance(params);
+              }
+            }
+          }
+          throw new RuntimeException("No matching constructor found in " + wrapperClassName);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      };
 
-    try {
-      Class.forName("com.thethriftybot.ThriftyNova");
-      availableControllers.put("com.thethriftybot.ThriftyNova", (Object... params) -> {
-        ThriftyNova controller = (ThriftyNova) params[0];
-        DCMotor motor = (DCMotor) params[1];
-        SmartMotorControllerConfig smartConfig = (SmartMotorControllerConfig) params[2];
-        return new NovaWrapper(controller, motor, smartConfig);
-      });
-    } catch (ClassNotFoundException ignored) {
+      availableControllers.put(motorControllerClassName, constructor);
+
+    } catch (ClassNotFoundException e) {
+      // Wrapper class not found, ignore registration
     }
   }
 
-  public static <T> Optional<SmartMotorController> create(Class<T> clazz, Object... params) {
-    MotorControllerConstructor constructor = availableControllers.get(clazz.getName());
-    return constructor != null ? Optional.of(constructor.create(params)) : Optional.empty();
+  public static Optional<SmartMotorController> create(Object controllerInstance, Object... extraParams) {
+    if (controllerInstance == null) {
+      return Optional.empty();
+    }
+
+    Class<?> clazz = controllerInstance.getClass();
+
+    while (clazz != null) {
+      String className = clazz.getName();
+      MotorControllerConstructor constructor = availableControllers.get(className);
+      if (constructor != null) {
+        return Optional.of(instantiateMotorController(constructor, controllerInstance, extraParams));
+      }
+
+      // Check interfaces implemented by this class
+      for (Class<?> iface : clazz.getInterfaces()) {
+        constructor = availableControllers.get(iface.getName());
+        if (constructor != null) {
+          return Optional.of(instantiateMotorController(constructor, controllerInstance, extraParams));
+        }
+      }
+
+      clazz = clazz.getSuperclass();
+    }
+
+    return Optional.empty();
+  }
+
+  private static SmartMotorController instantiateMotorController(MotorControllerConstructor constructor,
+      Object controllerInstance,
+      Object[] extraParams) {
+    Object[] params = new Object[extraParams.length + 1];
+    params[0] = controllerInstance;
+    System.arraycopy(extraParams, 0, params, 1, extraParams.length);
+    return constructor.create(params);
   }
 }
