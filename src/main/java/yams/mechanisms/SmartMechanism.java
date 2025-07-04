@@ -1,10 +1,12 @@
 package yams.mechanisms;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.Optional;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
@@ -123,6 +125,26 @@ public abstract class SmartMechanism
   public Command setVoltage(Voltage volts)
   {
     return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem);
+  }
+
+  /**
+   * Get the {@link SmartMotorController}
+   *
+   * @return {@link SmartMotorController} for the mechanism.
+   */
+  public SmartMotorController getMotorController()
+  {
+    return m_motor;
+  }
+
+  /**
+   * Get the {@link SmartMechanism}'s setpoint as an {@link Angle} if it exists.
+   *
+   * @return {@link Optional} setpoint {@link Angle} of the mechanism..
+   */
+  public Optional<Angle> getMechanismSetpoint()
+  {
+    return m_motor.getMechanismSetpoint();
   }
 
   /**

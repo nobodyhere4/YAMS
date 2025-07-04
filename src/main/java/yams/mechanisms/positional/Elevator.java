@@ -365,4 +365,14 @@ public class Elevator extends SmartPositionalMechanism
     }
     return group;
   }
+
+  /**
+   * Get the {@link ElevatorConfig} for this {@link Elevator}
+   *
+   * @return {@link ElevatorConfig} for this {@link Elevator}
+   */
+  public ElevatorConfig getConfig()
+  {
+    return m_config;
+  }
 }
