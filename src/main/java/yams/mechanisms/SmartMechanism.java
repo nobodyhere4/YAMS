@@ -144,7 +144,7 @@ public abstract class SmartMechanism
    */
   public Optional<Angle> getMechanismSetpoint()
   {
-    return m_motor.getMechanismSetpoint();
+    return m_motor.getMechanismPositionSetpoint();
   }
 
   /**

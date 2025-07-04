@@ -84,6 +84,14 @@ public class AdvantageData
       controllerInputs.ka = feedforward.getKa();
       //feedforward.getDt()
     }
+    if (smc.getMechanismPositionSetpoint().isPresent())
+    {
+      controllerInputs.positionSetpoint = smc.getMechanismPositionSetpoint().get();
+    }
+    if (smc.getMechanismSetpointVelocity().isPresent())
+    {
+      controllerInputs.velocitySetpoint = smc.getMechanismSetpointVelocity().get();
+    }
     Logger.processInputs(telemetryName, controllerInputs);
   }
 

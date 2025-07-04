@@ -527,10 +527,4 @@ public class SparkWrapper extends SmartMotorController
   {
     return sparkBaseConfig;
   }
-
-  @Override
-  public Optional<Angle> getMechanismSetpoint()
-  {
-    return setpointPosition;
-  }
 }

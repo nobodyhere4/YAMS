@@ -890,12 +890,6 @@ public class TalonFXSWrapper extends SmartMotorController
   }
 
   @Override
-  public Optional<Angle> getMechanismSetpoint()
-  {
-    return setpointPosition;
-  }
-
-  @Override
   public void updateTelemetry()
   {
     telemetry.outputVoltage = getVoltage().in(Volts);

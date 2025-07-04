@@ -37,6 +37,14 @@ public class SmartMotorControllerInputs implements LoggableInputs
    * Motor controller error derivative tolerance.
    */
   public Angle               errorDerivativeTolerance = Rotations.of(0);
+  /**
+   * Motor controller position setpoint.
+   */
+  public Angle           positionSetpoint = Rotations.of(0);
+  /**
+   * Motor controller velocity setpoint.
+   */
+  public AngularVelocity velocitySetpoint = RotationsPerSecond.of(0);
 
   @Override
   public void toLog(LogTable table)
@@ -52,6 +60,8 @@ public class SmartMotorControllerInputs implements LoggableInputs
     table.put("errorDerivativeTolerance", errorDerivativeTolerance);
     table.put("maxVelocity", maxVelocity);
     table.put("maxAcceleration", maxAcceleration);
+    table.put("velocitySetpoint", velocitySetpoint);
+    table.put("positionSetpoint", positionSetpoint);
   }
 
   @Override
@@ -68,5 +78,7 @@ public class SmartMotorControllerInputs implements LoggableInputs
     errorDerivativeTolerance = table.get("errorDerivativeTolerance", errorTolerance);
     maxVelocity = table.get("maxVelocity", maxVelocity);
     maxAcceleration = table.get("maxAcceleration", maxAcceleration);
+    positionSetpoint = table.get("positionSetpoint", positionSetpoint);
+    velocitySetpoint = table.get("velocitySetpoint", velocitySetpoint);
   }
 }

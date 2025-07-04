@@ -595,9 +595,22 @@ public abstract class SmartMotorController
   public abstract Object getMotorControllerConfig();
 
   /**
-   * Get the Mechanism setpoint.
+   * Get the Mechanism setpoint position.
    *
-   * @return Mechanism Setpoint.
+   * @return Mechanism Setpoint position.
    */
-  public abstract Optional<Angle> getMechanismSetpoint();
+  public Optional<Angle> getMechanismPositionSetpoint()
+  {
+    return setpointPosition;
+  }
+
+  /**
+   * Get the Mechanism velocity setpoint.
+   *
+   * @return Mechanism velocity setpoint.
+   */
+  public Optional<AngularVelocity> getMechanismSetpointVelocity()
+  {
+    return setpointVelocity;
+  }
 }

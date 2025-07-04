@@ -303,7 +303,8 @@ public class Pivot extends SmartPositionalMechanism
   public void updateTelemetry()
   {
     m_telemetry.positionPublisher.set(m_motor.getMechanismPosition().in(Degrees));
-    m_motor.getMechanismSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_setpoint.in(Degrees)));
+    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_setpoint.in(
+        Degrees)));
     m_motor.updateTelemetry();
   }
 }

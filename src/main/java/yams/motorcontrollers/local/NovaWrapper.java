@@ -442,10 +442,4 @@ public class NovaWrapper extends SmartMotorController
         true);
     return m_nova;
   }
-
-  @Override
-  public Optional<Angle> getMechanismSetpoint()
-  {
-    return setpointPosition;
-  }
 }

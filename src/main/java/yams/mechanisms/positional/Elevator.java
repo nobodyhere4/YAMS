@@ -174,10 +174,10 @@ public class Elevator extends SmartPositionalMechanism
   public void updateTelemetry()
   {
     m_telemetry.positionPublisher.set(m_motor.getMeasurementPosition().in(Meters));
-    m_motor.getMechanismSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_motor.getConfig()
-                                                                                                    .convertFromMechanism(
+    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_motor.getConfig()
+                                                                                                            .convertFromMechanism(
                                                                                                         m_setpoint)
-                                                                                                    .in(Meters)));
+                                                                                                            .in(Meters)));
     m_motor.updateTelemetry();
   }
 
