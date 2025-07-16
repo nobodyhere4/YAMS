@@ -28,6 +28,7 @@ public class ElevatorConfig
   /**
    * The network root of the mechanism (Optional).
    */
+  @Deprecated
   protected Optional<String> networkRoot = Optional.empty();
   /**
    * Telemetry verbosity
@@ -113,7 +114,7 @@ public class ElevatorConfig
    */
   public ElevatorConfig withMass(Mass mass)
   {
-    this.carriageWeight = mass == null ? Optional.empty() : Optional.of(mass);
+    this.carriageWeight = Optional.ofNullable(mass);
     return this;
   }
 
@@ -126,8 +127,8 @@ public class ElevatorConfig
    */
   public ElevatorConfig withTelemetry(String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
@@ -138,11 +139,12 @@ public class ElevatorConfig
    * @param telemetryVerbosity Telemetry verbosity to apply.
    * @return {@link ArmConfig} for chaining.
    */
+  @Deprecated
   public ElevatorConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
     this.networkRoot = Optional.ofNullable(networkRoot);
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
@@ -192,8 +194,8 @@ public class ElevatorConfig
    */
   public ElevatorConfig withHardLimits(Distance min, Distance max)
   {
-    lowerHardLimit = min == null ? Optional.empty() : Optional.of(min);
-    upperHardLimit = max == null ? Optional.empty() : Optional.of(max);
+    lowerHardLimit = Optional.ofNullable(min);
+    upperHardLimit = Optional.ofNullable(max);
     return this;
   }
 
@@ -327,6 +329,7 @@ public class ElevatorConfig
    * Get the network root of the mechanism.
    * @return Optional containing the network root if set, otherwise an empty Optional.
    */
+  @Deprecated
   public Optional<String> getNetworkRoot()
   {
     return networkRoot;

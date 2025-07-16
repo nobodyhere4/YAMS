@@ -26,6 +26,7 @@ public class PivotConfig
   /**
    * The network root of the mechanism (Optional).
    */
+  @Deprecated
   protected Optional<String> networkRoot = Optional.empty();
   /**
    * Telemetry verbosity
@@ -97,8 +98,8 @@ public class PivotConfig
    */
   public PivotConfig withTelemetry(String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
@@ -109,11 +110,12 @@ public class PivotConfig
    * @param telemetryVerbosity Telemetry verbosity to apply.
    * @return {@link ArmConfig} for chaining.
    */
+  @Deprecated
   public PivotConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
     this.networkRoot = Optional.ofNullable(networkRoot);
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
@@ -177,8 +179,8 @@ public class PivotConfig
    */
   public PivotConfig withHardLimit(Angle min, Angle max)
   {
-    lowerHardLimit = min == null ? Optional.empty() : Optional.of(min);
-    upperHardLimit = max == null ? Optional.empty() : Optional.of(max);
+    lowerHardLimit = Optional.ofNullable(min);
+    upperHardLimit = Optional.ofNullable(max);
     return this;
   }
 
@@ -289,6 +291,7 @@ public class PivotConfig
    * Get the network root of the mechanism.
    * @return Optional containing the network root if set, otherwise an empty Optional.
    */
+  @Deprecated
   public Optional<String> getNetworkRoot()
   {
     return networkRoot;

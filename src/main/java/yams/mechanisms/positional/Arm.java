@@ -66,11 +66,10 @@ public class Arm extends SmartPositionalMechanism
     }
     if (config.getTelemetryName().isPresent())
     {
-      NetworkTable table = NetworkTableInstance.getDefault().getTable(config.getNetworkRoot().orElse("Tuning"))
-                                               .getSubTable(config.getTelemetryName().get());
-      m_telemetry.setupTelemetry(table);
-      m_telemetry.units.set("Degrees");
-      m_motor.updateTelemetry(table);
+      // TODO: Add telemetry units to config.
+      m_telemetry.setupTelemetry(config.getTelemetryName().get(), m_motor, "Degrees",
+      config.getStartingAngle().get(), 
+      config.getStartingAngle().get());
     }
     config.applyConfig();
 
@@ -153,9 +152,8 @@ public class Arm extends SmartPositionalMechanism
   @Override
   public void updateTelemetry()
   {
-    m_telemetry.positionPublisher.set(m_motor.getMechanismPosition().in(Degrees));
-    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_setpoint.in(
-        Degrees)));
+    m_telemetry.updatePosition(getAngle());
+    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_motor.updateTelemetry();
   }
 

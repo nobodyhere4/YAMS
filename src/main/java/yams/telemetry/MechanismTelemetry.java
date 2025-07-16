@@ -6,13 +6,18 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StringSubscriber;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import java.util.List;
 import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class MechanismTelemetry
 {
@@ -28,23 +33,32 @@ public class MechanismTelemetry
   /**
    * Network Tables publisher for the units displayed by the positional mechanism.
    */
-  private StringPublisher      units;
+  private StringPublisher      unitsPublisher;
   /**
    * Units for the mechanism setpoint and position.
    */
   private String               unitsString;
+  /** Setpoint for tracking changes. */
+  private double setpoint;
   /**
    * Network Tables Publisher for the setpoint.
    */
-  private DoublePublisher      setpointPublisher;
+  private DoublePublisher      tunableSetpointPublisher;
+  /**
+   * Network Tables Subscriber for the setpoint.
+   */
+  private DoubleSubscriber tunableSetpointSubscriber;
   /**
    * Network Tables publisher for the position of the mechanism.
    */
   private DoublePublisher      positionPublisher;
+  /**
+   * Motor controller for the mechanism.
+   */
   private SmartMotorController motorController;
 
   /**
-   * Setup telemetry for the Mechanism
+   * Setup telemetry for the Mechanism and motor controller.
    *
    * @param mechanismTelemetryName Mechanism Telemetry Name.
    * @param motorController        {@link SmartMotorController} to setup telemetry for.
@@ -53,118 +67,124 @@ public class MechanismTelemetry
    * @param setpoint               Setpoint of the mechanism.
    */
   public void setupTelemetry(String mechanismTelemetryName, SmartMotorController motorController, String units,
-                             double setpoint, double position)
+                             Measure setpoint, Measure position)
   {
+    // TODO: AKit input mutation for setpoint, position, units
     tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning")
                                              .getSubTable(mechanismTelemetryName);
     networkTable = NetworkTableInstance.getDefault().getTable("Mechanisms")
                                        .getSubTable(mechanismTelemetryName);
     this.motorController = motorController;
-    this.unitsString = units;
-    this.units = tuningNetworkTable.getStringTopic("Units").publish();
-    setpointPublisher = tuningNetworkTable.getDoubleTopic("Setpoint").publish();
+    unitsString = units;
+
+    var tunableSetpointTopic = tuningNetworkTable.getDoubleTopic("Setpoint");
+    tunableSetpointPublisher = tunableSetpointTopic.publish();
+    tunableSetpointSubscriber = tunableSetpointTopic.subscribe(convertToNativeUnit(position), PubSubOption.keepDuplicates(true), PubSubOption.pollStorage(10));
+    unitsPublisher =  networkTable.getStringTopic("Units").publish();
     positionPublisher = networkTable.getDoubleTopic("Position").publish();
-    this.units.set(units);
-    this.setpointPublisher.set(setpoint);
-    this.positionPublisher.set(position);
+    
+    this.setpoint = convertToNativeUnit(setpoint);
+
+    this.unitsPublisher.set(units);
+    this.tunableSetpointPublisher.set(this.setpoint);
+    this.positionPublisher.set(convertToNativeUnit(position));
+    
+    motorController.updateTelemetry(networkTable);
   }
 
   /**
-   * Update the position of the mechanism using the Angle.
-   *
-   * @param position Angular position of the mechanism.
+   * Convert the given unit to the telemetry type.
+   * @param unit Measurable unit like {@link Meters} or {@link Radians}
+   * @return double representation of the measurable unit for telemetry.
    */
-  public void updatePosition(Angle position)
+  private double convertToNativeUnit(Measure unit)
   {
-    switch (unitsString)
-    {
+    switch (unitsString) {
       case "Degrees":
-        positionPublisher.set(position.in(Degrees));
-        break;
+        return ((Angle)unit).in(Degrees);    
       case "Radians":
-        positionPublisher.set(position.in(Radians));
-        break;
-      default:
-        throw new IllegalArgumentException(
-            positionPublisher.getTopic().toString() + ": Invalid units given to mechanism telemetry!");
+        return ((Angle)unit).in(Radians);    
+      case "Feet":
+        return ((Distance)unit).in(Feet);
+      case "Meters":
+        return ((Distance)unit).in(Meters);
     }
-    // TODO: AKit logging here.
-
+    throw new IllegalArgumentException("Cannot convert "+unit.toLongString()+" to double! Invalid unit given to mechanism telemetry!");
   }
 
   /**
-   * Update the position for distance based mechanisms.
-   *
-   * @param position Distance of the mechanism.
+   * Convert native units to units type expected.
+   * @param unit Native unit from telemetry.
+   * @return Unit representation.
    */
-  public void updatePosition(Distance position)
+  private Measure convertFromNativeUnit(double unit)
   {
-    switch (unitsString)
-    {
-      case "Meters":
-        positionPublisher.set(position.in(Meters));
-        break;
+    switch (unitsString) {
+      case "Degrees":
+        return Degrees.of(unit);
+      case "Radians":
+        return Radians.of(unit);
       case "Feet":
-        positionPublisher.set(position.in(Feet));
-        break;
-      default:
-        throw new IllegalArgumentException(
-            positionPublisher.getTopic().toString() + ": Invalid units given to mechanism telemetry!");
+        return Feet.of(unit);
+      case "Meters":
+        return Meters.of(unit);
     }
-    // TODO: AKit logging here.
+    throw new IllegalArgumentException("Cannot convert "+unit+" to "+unitsString+"! Invalid unit given to mechanism telemetry!");
+  }
 
+  /**
+   * Checks if the setpoint in NetworkTables is different from the setpoint in the class, if it is then the setpoint in NT has been updated and should be used instead of the requested setpoint.
+   * @return
+   */
+  public boolean setpointChanged()
+  {
+    return tunableSetpointSubscriber.get(setpoint) != setpoint;
+  }
+
+  /**
+   * Get the setpoint from the tunable setpoint.
+   * @return Tunable setpoint.
+   */
+  public Measure getSetpoint()
+  {
+    return convertFromNativeUnit(tunableSetpointSubscriber.get(setpoint));
+    // TODO: AKit logging here.
+  }
+
+  /**
+   * Update the position of the mechanism.
+   *
+   * @param position Position of the mechanism..
+   */
+  public void updatePosition(Measure position)
+  {
+    positionPublisher.set(convertToNativeUnit(position));
+    // TODO: AKit logging here.
   }
 
 
   /**
    * Update the setpoint telemetry for the mechanism.
    *
-   * @param setpoint Setpoint of the Mechanism in Distance.
+   * @param setpoint Setpoint of the Mechanism.
    */
-  public void updateSetpoint(Distance setpoint)
+  public void updateSetpoint(Measure setpoint)
   {
-    switch (unitsString)
-    {
-      case "Meters":
-        positionPublisher.set(setpoint.in(Meters));
-        break;
-      case "Feet":
-        positionPublisher.set(setpoint.in(Feet));
-        break;
-      default:
-        throw new IllegalArgumentException(
-            positionPublisher.getTopic().toString() + ": Invalid units given to mechanism telemetry!");
-    }
+    this.setpoint = convertToNativeUnit(setpoint);
+    tunableSetpointPublisher.set(this.setpoint);
   }
 
   /**
-   * Update the setpoint as an Angle.
-   *
-   * @param setpoint Setpoint of the mechanism as an Angle.
+   * Update the units of the telemetry to display. 
+   * @param units Unit to display, valid options are "Meters", "Feet", "Degrees", "Radians".
    */
-  public void updateSetpoint(Angle setpoint)
-  {
-    switch (unitsString)
-    {
-      case "Degrees":
-        positionPublisher.set(setpoint.in(Degrees));
-        break;
-      case "Radians":
-        positionPublisher.set(setpoint.in(Radians));
-        break;
-      default:
-        throw new IllegalArgumentException(
-            positionPublisher.getTopic().toString() + ": Invalid units given to mechanism telemetry!");
-    }
-  }
-
-
   public void updateUnits(String units)
   {
     if (!List.of("Meters", "Feet", "Degrees", "Radians").contains(units))
     {
       throw new IllegalArgumentException("Invalid units given to mechanism telemetry!");
     }
-    this.units.set(units);
+    this.unitsString = units;
+    unitsPublisher.set(units);
   }
 }

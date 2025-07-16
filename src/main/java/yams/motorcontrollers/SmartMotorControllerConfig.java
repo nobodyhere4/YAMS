@@ -233,7 +233,7 @@ public class SmartMotorControllerConfig
           "Cannot set synchronization threshold.",
           "withMechanismCircumference(Distance) should be removed.");
     }
-    feedbackSynchronizationThreshold = angle == null ? Optional.empty() : Optional.of(angle);
+    feedbackSynchronizationThreshold = Optional.ofNullable(angle);
     return this;
   }
 
@@ -245,7 +245,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopControllerMaximumVoltage(Voltage volts)
   {
-    closedLoopControllerMaximumVoltage = volts == null ? Optional.empty() : Optional.of(volts);
+    closedLoopControllerMaximumVoltage = Optional.ofNullable(volts);
     return this;
   }
 
@@ -257,7 +257,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withStartingPosition(Angle startingAngle)
   {
-    this.startingPosition = startingAngle == null ? Optional.empty() : Optional.of(startingAngle);
+    this.startingPosition = Optional.ofNullable(startingAngle);
     return this;
   }
 
@@ -316,7 +316,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withTemperatureCutoff(Temperature cutoff)
   {
-    temperatureCutoff = cutoff == null ? Optional.empty() : Optional.of(cutoff);
+    temperatureCutoff = Optional.ofNullable(cutoff);
     return this;
   }
 
@@ -334,7 +334,7 @@ public class SmartMotorControllerConfig
                                                            "Cannot set zero offset.",
                                                            "withMechanismCircumference(Distance)");
     }
-    zeroOffset = distance == null ? Optional.empty() : Optional.of(convertToMechanism(distance));
+    zeroOffset = Optional.ofNullable(convertToMechanism(distance));
     return this;
   }
 
@@ -346,7 +346,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withZeroOffset(Angle angle)
   {
-    zeroOffset = angle == null ? Optional.empty() : Optional.of(angle);
+    zeroOffset = Optional.ofNullable(angle);
     return this;
   }
 
@@ -446,8 +446,8 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withTelemetry(String telemetryName, TelemetryVerbosity verbosity)
   {
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.verbosity = verbosity == null ? Optional.empty() : Optional.of(verbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.verbosity = Optional.ofNullable(verbosity);
     return this;
   }
 
@@ -472,9 +472,9 @@ public class SmartMotorControllerConfig
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withSpecificTelemetry(String telemetryName, SmartMotorControllerTelemetryConfig telemetryConfig) {
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
+    this.telemetryName = Optional.ofNullable(telemetryName);
     this.verbosity = Optional.of(TelemetryVerbosity.HIGH);
-    this.specifiedTelemetryConfig = telemetryConfig == null ? Optional.empty() : Optional.of(telemetryConfig);
+    this.specifiedTelemetryConfig = Optional.ofNullable(telemetryConfig);
     return this;
   }
 
@@ -507,9 +507,9 @@ public class SmartMotorControllerConfig
                                                            "Cannot set soft limits.",
                                                            "withMechanismCircumference(Distance)");
     }
-    mechanismLowerLimit = low == null ? Optional.empty() : Optional.of(Rotations.of(
+    mechanismLowerLimit = Optional.ofNullable(Rotations.of(
         low.in(Meters) / mechanismCircumference.get().in(Meters)));
-    mechanismUpperLimit = high == null ? Optional.empty() : Optional.of(Rotations.of(
+    mechanismUpperLimit = Optional.ofNullable(Rotations.of(
         high.in(Meters) / mechanismCircumference.get().in(Meters)));
 
     return this;
@@ -524,8 +524,8 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withSoftLimit(Angle low, Angle high)
   {
-    mechanismLowerLimit = low == null ? Optional.empty() : Optional.of(low);
-    mechanismUpperLimit = high == null ? Optional.empty() : Optional.of(high);
+    mechanismLowerLimit = Optional.ofNullable(low);
+    mechanismUpperLimit = Optional.ofNullable(high);
     return this;
   }
 
@@ -588,7 +588,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withIdleMode(MotorMode idleMode)
   {
-    this.idleMode = idleMode == null ? Optional.empty() : Optional.of(idleMode);
+    this.idleMode = Optional.ofNullable(idleMode);
     return this;
   }
 
@@ -615,7 +615,7 @@ public class SmartMotorControllerConfig
   @SafeVarargs
   public final SmartMotorControllerConfig withFollowers(Pair<Object, Boolean>... followers)
   {
-    this.followers = followers == null ? Optional.empty() : Optional.of(followers);
+    this.followers = Optional.ofNullable(followers);
     return this;
   }
 
@@ -687,7 +687,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withExternalEncoder(Object externalEncoder)
   {
-    this.externalEncoder = externalEncoder == null ? Optional.empty() : Optional.of(externalEncoder);
+    this.externalEncoder = Optional.ofNullable(externalEncoder);
     return this;
   }
 
@@ -834,7 +834,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopController(ProfiledPIDController controller)
   {
-    this.controller = controller == null ? Optional.empty() : Optional.of(controller);
+    this.controller = Optional.ofNullable(controller);
     this.simpleController = Optional.empty();
     return this;
   }
@@ -869,7 +869,7 @@ public class SmartMotorControllerConfig
   public SmartMotorControllerConfig withClosedLoopController(PIDController controller)
   {
     this.controller = Optional.empty();
-    this.simpleController = controller == null ? Optional.empty() : Optional.of(controller);
+    this.simpleController = Optional.ofNullable(controller);
     return this;
   }
 

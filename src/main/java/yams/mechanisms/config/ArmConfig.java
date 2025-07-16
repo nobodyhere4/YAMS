@@ -29,7 +29,7 @@ public class ArmConfig
   /**
    * The network root of the mechanism (Optional).
    */
-  protected Optional<String> networkRoot = Optional.empty();
+  protected Optional<String> networkTableName = Optional.empty();
   /**
    * Telemetry verbosity
    */
@@ -106,7 +106,7 @@ public class ArmConfig
    */
   public ArmConfig withLength(Distance distance)
   {
-    this.length = distance == null ? Optional.empty() : Optional.of(distance);
+    this.length = Optional.ofNullable(distance);
     return this;
   }
 
@@ -118,7 +118,7 @@ public class ArmConfig
    */
   public ArmConfig withMass(Mass mass)
   {
-    this.weight = mass == null ? Optional.empty() : Optional.of(mass);
+    this.weight = Optional.ofNullable(mass);
     return this;
   }
 
@@ -131,23 +131,25 @@ public class ArmConfig
    */
   public ArmConfig withTelemetry(String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
   /**
    * Configure telemetry for the {@link yams.mechanisms.positional.Arm} mechanism.
    *
-   * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
+   * @param networkTableName   Telemetry NetworkTable
+   * @param telemetryName      Telemetry NetworkTable name to appear under {@value networkTableName}
    * @param telemetryVerbosity Telemetry verbosity to apply.
    * @return {@link ArmConfig} for chaining.
    */
+  @Deprecated
   public ArmConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
-    this.networkRoot = Optional.ofNullable(networkRoot);
-    this.telemetryName = telemetryName == null ? Optional.empty() : Optional.of(telemetryName);
-    this.telemetryVerbosity = telemetryVerbosity == null ? Optional.empty() : Optional.of(telemetryVerbosity);
+    this.networkTableName = Optional.ofNullable(networkRoot);
+    this.telemetryName = Optional.ofNullable(telemetryName);
+    this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
     return this;
   }
 
@@ -222,8 +224,8 @@ public class ArmConfig
    */
   public ArmConfig withHardLimit(Angle min, Angle max)
   {
-    lowerHardLimit = min == null ? Optional.empty() : Optional.of(min);
-    upperHardLimit = max == null ? Optional.empty() : Optional.of(max);
+    lowerHardLimit = Optional.ofNullable(min);
+    upperHardLimit = Optional.ofNullable(max);
     return this;
   }
 
@@ -343,11 +345,12 @@ public class ArmConfig
   } 
 
   /**
-   * Get the network root of the mechanism.
-   * @return Optional containing the network root if set, otherwise an empty Optional.
+   * Get the telemetry network subtable of the mechanism.
+   * @return Optional containing the telemetry network subtable if set, otherwise an empty Optional.
    */
-  public Optional<String> getNetworkRoot()
+  @Deprecated
+  public Optional<String> getTelemetryNetworkTableName()
   {
-    return networkRoot;
+    return networkTableName;
   }
 }

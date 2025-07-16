@@ -131,7 +131,7 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setPosition(Angle angle)
   {
-    setpointPosition = angle == null ? Optional.empty() : Optional.of(angle);
+    setpointPosition = Optional.ofNullable(angle);
   }
 
   @Override
@@ -149,7 +149,7 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setVelocity(AngularVelocity angle)
   {
-    setpointVelocity = angle == null ? Optional.empty() : Optional.of(angle);
+    setpointVelocity = Optional.ofNullable(angle);
   }
 
   @Override

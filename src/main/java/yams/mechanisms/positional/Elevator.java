@@ -65,11 +65,8 @@ public class Elevator extends SmartPositionalMechanism
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     if (config.getTelemetryName().isPresent())
     {
-      NetworkTable table = NetworkTableInstance.getDefault().getTable(config.getNetworkRoot().orElse("Tuning"))
-                                               .getSubTable(config.getTelemetryName().get());
-      m_telemetry.setupTelemetry(table);
-      m_telemetry.units.set("Meters");
-      m_motor.updateTelemetry(table);
+      // TODO: Add telemetry units to config.
+      m_telemetry.setupTelemetry(config.getTelemetryName().get(), m_motor, "Meters",config.getStartingHeight().get(), config.getStartingHeight().get());
     }
     config.applyConfig();
 
@@ -177,11 +174,8 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public void updateTelemetry()
   {
-    m_telemetry.positionPublisher.set(m_motor.getMeasurementPosition().in(Meters));
-    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.setpointPublisher.set(m_motor.getConfig()
-                                                                                                            .convertFromMechanism(
-                                                                                                        m_setpoint)
-                                                                                                            .in(Meters)));
+    m_telemetry.updatePosition(getHeight());
+    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_motor.updateTelemetry();
   }
 
