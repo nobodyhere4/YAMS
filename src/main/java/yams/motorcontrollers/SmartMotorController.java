@@ -318,6 +318,7 @@ public abstract class SmartMotorController
    * @param velocity {@link AngularVelocity} of the Mechanism.
    */
   public abstract void setEncoderVelocity(AngularVelocity velocity);
+  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder velocity.
@@ -325,6 +326,7 @@ public abstract class SmartMotorController
    * @param velocity Measurement {@link LinearVelocity}
    */
   public abstract void setEncoderVelocity(LinearVelocity velocity);
+  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder position
@@ -332,6 +334,7 @@ public abstract class SmartMotorController
    * @param angle Mechanism {@link Angle} to reach.
    */
   public abstract void setEncoderPosition(Angle angle);
+  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder position.
@@ -339,6 +342,7 @@ public abstract class SmartMotorController
    * @param distance Measurement {@link Distance} to reach.
    */
   public abstract void setEncoderPosition(Distance distance);
+  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the Mechanism {@link Angle} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -346,6 +350,7 @@ public abstract class SmartMotorController
    * @param angle Mechanism angle to set.
    */
   public abstract void setPosition(Angle angle);
+  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link Distance} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -353,6 +358,7 @@ public abstract class SmartMotorController
    * @param distance Mechanism {@link Distance} to set.
    */
   public abstract void setPosition(Distance distance);
+  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link LinearVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -360,6 +366,7 @@ public abstract class SmartMotorController
    * @param velocity Mechanism {@link LinearVelocity} to target.
    */
   public abstract void setVelocity(LinearVelocity velocity);
+  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link AngularVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -367,6 +374,7 @@ public abstract class SmartMotorController
    * @param angle Mechanism {@link AngularVelocity} to target.
    */
   public abstract void setVelocity(AngularVelocity angle);
+  // TODO: Make an AKit input mutator
 
   /**
    * Run the  {@link SysIdRoutine} which runs to the maximum MEASUREMENT at the step voltage then down to the minimum
@@ -425,6 +433,7 @@ public abstract class SmartMotorController
    * @return Successful Application of the configuration.
    */
   public abstract boolean applyConfig(SmartMotorControllerConfig config);
+  // TODO: Make an AKit input mutator
 
   /**
    * Get the duty cycle output of the motor controller.
@@ -531,6 +540,7 @@ public abstract class SmartMotorController
    */
   public void updateTelemetry(NetworkTable table)
   {
+    // TODO: Accept and store tuning network table
     if (parentTable.isEmpty())
     {
       parentTable = Optional.of(table);
@@ -571,6 +581,8 @@ public abstract class SmartMotorController
                       telemetry.publishFromConfig(telemetryTable.get(), ((SmartMotorControllerTelemetryConfig) telemetryConfig)),
               () -> telemetry.publish(telemetryTable.get(), config.getVerbosity().get()));
     }
+    // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
+    // TODO: cont, make updates with AKit input mutators.
   }
 
   /**
