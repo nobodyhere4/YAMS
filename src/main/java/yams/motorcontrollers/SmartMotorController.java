@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
 
@@ -543,6 +544,7 @@ public abstract class SmartMotorController
       {
         telemetryTable = Optional.of(telemetry.getSubTable(config.getTelemetryName().get()));
         tuningTable = Optional.of(tuning.getSubTable(config.getTelemetryName().get()));
+        this.telemetry.setupTelemetry(telemetry, tuning, TelemetryVerbosity.HIGH);
         updateTelemetry();
       }
     }
@@ -561,7 +563,7 @@ public abstract class SmartMotorController
       config.getSmartControllerTelemetryConfig().ifPresentOrElse(
               telemetryConfig ->
                       telemetry.publishFromConfig(telemetryTable.get(), ((SmartMotorControllerTelemetryConfig) telemetryConfig)),
-              () -> telemetry.publish(telemetryTable.get(), config.getVerbosity().get()));
+              () -> telemetry.publish());
       
     }
     // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion

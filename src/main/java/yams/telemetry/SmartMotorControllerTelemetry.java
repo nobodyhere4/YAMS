@@ -1,7 +1,9 @@
 package yams.telemetry;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.*;
 import yams.motorcontrollers.SmartMotorController;
@@ -13,6 +15,148 @@ import static edu.wpi.first.units.Units.*;
 import java.util.Optional;
 
 public class SmartMotorControllerTelemetry {
+
+  // TODO: Add docs.
+  protected enum BooleanTelemetryField {
+    MechanismUpperLimit("limits/Mechanism Upper Limit", false),
+    MechanismLowerLimit("limits/Mechanism Lower Limit", false),
+    TemperatureLimit("limits/Temperature Limit", false),
+    VelocityControl("control/Velocity Control", false),
+    ElevatorFeedForward("control/Elevator Feedforward", false),
+    ArmFeedForward("control/Arm Feedforward", false),
+    SimpleMotorFeedForward("control/Simple Motor Feedforward", false),
+    MotionProfile("control/Motion Profile", false);
+
+    private BooleanPublisher publisher = null;
+    private Optional<BooleanSubscriber> subscriber = Optional.empty();
+    private boolean currentValue;
+    private String key;
+    BooleanTelemetryField(String fieldName, Boolean defaultValue)
+    {
+        key = fieldName;
+        currentValue = defaultValue;
+    }
+
+    public void create(NetworkTable dataTable, NetworkTable tuningTable)
+    {
+      var topic = dataTable.getBooleanTopic(key);
+      publisher = topic.publish();
+      publisher.setDefault(currentValue);
+      if(tuningTable != null)
+      {
+        subscriber = Optional.of(topic.subscribe(currentValue));
+      }
+    }
+
+    public void create(NetworkTable dataTable)
+    {
+      create(dataTable,null);
+    }
+
+    /**
+     * Set the value of the publisher, checking to see if the value is the same as the subscriber.
+     * @param value Value to set.
+     * @return True if value was able to be set.
+     */
+    public boolean set(boolean value)
+    {
+      if(subscriber.isPresent())
+      {
+        boolean tuningValue = subscriber.get().get(currentValue);
+        if( tuningValue != value)
+        {
+          value = tuningValue;
+          publisher.set(value);
+          return false;
+        }
+      }
+      publisher.accept(value);
+      return true;
+    }
+
+    public boolean get()
+    {
+      if(subscriber.isPresent())
+      {
+        return subscriber.get().get(currentValue);
+      }
+      throw new RuntimeException("Tuning table not configured for "+key+"!");
+    }
+  }
+
+protected enum DoubleTelemetryField {
+    SetpointPosition("Setpoint Position", 0),
+    SetpointVelocity("Setpoint Velocity", 0),
+    FeedforwardVoltage("Feedforward voltage", 0),
+    PIDOutputVoltage("PID Output voltage", 0),
+    OutputVoltage("Output Voltage", 0),
+    StatorCurrent("Stator Current", 0),
+    SupplyCurrent("Supply Current", 0),
+    MotorTemperature("Motor Temperature", 0),
+    MeasurementPosition("Measurement Position", 0),
+    MeasurementVelocity("Measurement Velocity", 0),
+    MechanismPosition("Mechanism Position", 0),
+    MechanismVelocity("Mechanism Velocity", 0),
+    RotorPosition("Rotor Position", 0),
+    RotorVelocity("Rotor Velocity", 0);
+  
+    private DoublePublisher publisher = null;
+    private Optional<DoubleSubscriber> subscriber = Optional.empty();
+    private double currentValue;
+    private String key;
+    DoubleTelemetryField(String fieldName, double defaultValue)
+    {
+      key = fieldName;
+      currentValue = defaultValue;
+  }
+
+  public void create(NetworkTable dataTable, NetworkTable tuningTable)
+  {
+    var topic = dataTable.getDoubleTopic(key);
+    publisher = topic.publish();
+    publisher.setDefault(currentValue);
+    if(tuningTable != null)
+    {
+      subscriber = Optional.of(topic.subscribe(currentValue));
+    }
+  }
+
+  public void create(NetworkTable dataTable)
+  {
+    create(dataTable,null);
+  }
+
+  /**
+     * Set the value of the publisher, checking to see if the value is the same as the subscriber.
+     * @param value Value to set.
+     * @return True if value was able to be set.
+     */
+    public boolean set(double value)
+    {
+      if(subscriber.isPresent())
+      {
+        double tuningValue = subscriber.get().get(currentValue);
+        if( tuningValue != value)
+        {
+          value = tuningValue;
+          publisher.set(value);
+          return false;
+        }
+      }
+      publisher.accept(value);
+      return true;
+    }
+
+    public double get()
+    {
+      if(subscriber.isPresent())
+      {
+        return subscriber.get().get(currentValue);
+      }
+      throw new RuntimeException("Tuning table not configured for "+key+"!");
+    }
+
+}
 
   /**
    * Mechanism lower limit reached.
@@ -101,7 +245,11 @@ public class SmartMotorControllerTelemetry {
   /**
    * Network table to publish to.
    */
-  private NetworkTable     table;
+  private NetworkTable     dataNetworkTable;
+  /**
+   * Network table for tuning.
+   */
+  private NetworkTable tuningNetworkTable;
   /**
    * Mechanism lower limit boolean publisher
    */
@@ -189,8 +337,122 @@ public class SmartMotorControllerTelemetry {
   /**
    * Telemetry config
    */
-  private Optional<SmartMotorControllerTelemetryConfig> config = Optional.empty();
+  private SmartMotorControllerTelemetryConfig config = new SmartMotorControllerTelemetryConfig();
+  /**
+   * {@link TelemetryVerbosity} for the {@link SmartMotorController}
+   */
+  private TelemetryVerbosity verbosity = TelemetryVerbosity.HIGH;
 
+  /**
+   * Setup Telemetry Pub/Sub fields.
+   * @param publishTable {@link NetworkTable} that holds all of the output fields.
+   * @param tuningTable {@link NetworkTable} that holds all of the tuning fields.
+   * @param verbosity {@link TelemetryVerbosity} to apply.
+   */
+  public void setupTelemetry(NetworkTable publishTable, NetworkTable tuningTable, TelemetryVerbosity verbosity)
+  {
+    if (!publishTable.equals(this.dataNetworkTable)) {
+      config = new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(verbosity);;
+      dataNetworkTable = publishTable;
+      mechanismLowerLimitPublisher = dataNetworkTable.getBooleanTopic("Mechanism Lower Limit").publish();
+      mechanismUpperLimitPublisher = dataNetworkTable.getBooleanTopic("Mechanism Upper Limit").publish();
+      temperatureLimitPublisher = dataNetworkTable.getBooleanTopic("Temperature Limit").publish();
+      velocityControlPublisher = dataNetworkTable.getBooleanTopic("Velocity Control").publish();
+      elevatorFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Elevator Feedforward").publish();
+      armFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Arm Feedforward").publish();
+      simpleFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Simple Feedforward").publish();
+      motionProfilePublisher = dataNetworkTable.getBooleanTopic("Motion Profile").publish();
+      setpointPositionPublisher = dataNetworkTable.getDoubleTopic("Setpoint Position (Rotations)").publish();
+      setpointVelocityPublisher = dataNetworkTable.getDoubleTopic("Setpoint Velocity (Rotations per Second)").publish();
+      feedforwardVoltagePublisher = dataNetworkTable.getDoubleTopic("Feedforward Voltage").publish();
+      pidOutputVoltagePublisher = dataNetworkTable.getDoubleTopic("PID Output (Voltage)").publish();
+      outputVoltagePublisher = dataNetworkTable.getDoubleTopic("Motor Output Voltage").publish();
+      statorCurrentPublisher = dataNetworkTable.getDoubleTopic("Stator Current (Amps)").publish();
+      temperaturePublisher = dataNetworkTable.getDoubleTopic("Temperature (Celsius)").publish();
+      measurementPositionPublisher = dataNetworkTable.getDoubleTopic("Measurement Position (Meters)").publish();
+      measurementVelocityPublisher = dataNetworkTable.getDoubleTopic("Measurement Velocity (Meters per Second)").publish();
+      mechanismPositionPublisher = dataNetworkTable.getDoubleTopic("Mechanism Position (Rotations)").publish();
+      mechanismVelocityPublisher = dataNetworkTable.getDoubleTopic("Mechanism Velocity (Rotations per Second)").publish();
+      rotorPositionPublisher = dataNetworkTable.getDoubleTopic("Rotor Position (Rotations)").publish();
+      rotorVelocityPublisher = dataNetworkTable.getDoubleTopic("Rotor Velocity (Rotations per Second)").publish();
+  }
+  }
+/**
+   * Setup Telemetry Pub/Sub fields.
+   * @param publishTable {@link NetworkTable} that holds all of the output fields.
+   * @param tuningTable {@link NetworkTable} that holds all of the tuning fields.
+   * @param config {@link SmartMotorControllerTelemetryConfig} to apply.
+   */
+  public void setupTelemetry(NetworkTable publishTable, NetworkTable tuningTable, SmartMotorControllerTelemetryConfig config)
+  {
+    if (!publishTable.equals(this.dataNetworkTable)) {
+      this.config = config;
+      dataNetworkTable = publishTable;
+      if (config.mechanismLowerLimitEnabled) {
+        mechanismLowerLimitPublisher = dataNetworkTable.getBooleanTopic("Mechanism Lower Limit").publish();
+      }
+      if (config.mechanismUpperLimitEnabled) {
+        mechanismUpperLimitPublisher = dataNetworkTable.getBooleanTopic("Mechanism Upper Limit").publish();
+      }
+      if (config.temperatureLimitEnabled) {
+        temperatureLimitPublisher = dataNetworkTable.getBooleanTopic("Temperature Limit").publish();
+      }
+      if (config.velocityControlEnabled) {
+        velocityControlPublisher = dataNetworkTable.getBooleanTopic("Velocity Control").publish();
+      }
+      if (config.elevatorFeedforwardEnabled) {
+        elevatorFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Elevator Feedforward").publish();
+      }
+      if (config.armFeedforwardEnabled) {
+        armFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Arm Feedforward").publish();
+      }
+      if (config.simpleFeedforwardEnabled) {
+        simpleFeedforwardPublisher = dataNetworkTable.getBooleanTopic("Simple Feedforward").publish();
+      }
+      if (config.motionProfileEnabled) {
+        motionProfilePublisher = dataNetworkTable.getBooleanTopic("Motion Profile").publish();
+      }
+      if (config.setpointPositionEnabled) {
+        setpointPositionPublisher = dataNetworkTable.getDoubleTopic("Setpoint Position (Rotations)").publish();
+      }
+      if (config.setpointVelocityEnabled) {
+        setpointVelocityPublisher = dataNetworkTable.getDoubleTopic("Setpoint Velocity (Rotations per Second)").publish();
+      }
+      if (config.feedforwardVoltageEnabled) {
+        feedforwardVoltagePublisher = dataNetworkTable.getDoubleTopic("Feedforward Voltage").publish();
+      }
+      if (config.pidOutputVoltageEnabled) {
+        pidOutputVoltagePublisher = dataNetworkTable.getDoubleTopic("PID Output (Voltage)").publish();
+      }
+      if (config.outputVoltageEnabled) {
+        outputVoltagePublisher = dataNetworkTable.getDoubleTopic("Motor Output Voltage").publish();
+      }
+      if (config.statorCurrentEnabled) {
+        statorCurrentPublisher = dataNetworkTable.getDoubleTopic("Stator Current (Amps)").publish();
+      }
+      if (config.temperatureEnabled) {
+        temperaturePublisher = dataNetworkTable.getDoubleTopic("Temperature (Celsius)").publish();
+      }
+      if (config.distanceEnabled) {
+        measurementPositionPublisher = dataNetworkTable.getDoubleTopic("Measurement Position (Meters)").publish();
+      }
+      if (config.linearVelocityEnabled) {
+        measurementVelocityPublisher = dataNetworkTable.getDoubleTopic("Measurement Velocity (Meters per Second)").publish();
+      }
+      if (config.mechanismPositionEnabled) {
+        mechanismPositionPublisher = dataNetworkTable.getDoubleTopic("Mechanism Position (Rotations)").publish();
+      }
+      if (config.mechanismVelocityEnabled) {
+        mechanismVelocityPublisher = dataNetworkTable.getDoubleTopic("Mechanism Velocity (Rotations per Second)").publish();
+      }
+      if (config.rotorPositionEnabled) {
+        rotorPositionPublisher = dataNetworkTable.getDoubleTopic("Rotor Position (Rotations)").publish();
+      }
+      if (config.rotorVelocityEnabled) {
+        rotorVelocityPublisher = dataNetworkTable.getDoubleTopic("Rotor Velocity (Rotations per Second)").publish();
+      }
+  }
+  }
 
     /**
      * Publish {@link SmartMotorController} telemetry to {@link NetworkTable}
@@ -198,32 +460,9 @@ public class SmartMotorControllerTelemetry {
      * @param publishTable {@link NetworkTable} to publish to.
      * @param verbosity    {@link TelemetryVerbosity} to publish.
      */
-    public void publish(NetworkTable publishTable, TelemetryVerbosity verbosity) {
-        if (!publishTable.equals(this.table)) {
-            table = publishTable;
-            mechanismLowerLimitPublisher = table.getBooleanTopic("Mechanism Lower Limit").publish();
-            mechanismUpperLimitPublisher = table.getBooleanTopic("Mechanism Upper Limit").publish();
-            temperatureLimitPublisher = table.getBooleanTopic("Temperature Limit").publish();
-            velocityControlPublisher = table.getBooleanTopic("Velocity Control").publish();
-            elevatorFeedforwardPublisher = table.getBooleanTopic("Elevator Feedforward").publish();
-            armFeedforwardPublisher = table.getBooleanTopic("Arm Feedforward").publish();
-            simpleFeedforwardPublisher = table.getBooleanTopic("Simple Feedforward").publish();
-            motionProfilePublisher = table.getBooleanTopic("Motion Profile").publish();
-            setpointPositionPublisher = table.getDoubleTopic("Setpoint Position (Rotations)").publish();
-            setpointVelocityPublisher = table.getDoubleTopic("Setpoint Velocity (Rotations per Second)").publish();
-            feedforwardVoltagePublisher = table.getDoubleTopic("Feedforward Voltage").publish();
-            pidOutputVoltagePublisher = table.getDoubleTopic("PID Output (Voltage)").publish();
-            outputVoltagePublisher = table.getDoubleTopic("Motor Output Voltage").publish();
-            statorCurrentPublisher = table.getDoubleTopic("Stator Current (Amps)").publish();
-            temperaturePublisher = table.getDoubleTopic("Temperature (Celsius)").publish();
-            measurementPositionPublisher = table.getDoubleTopic("Measurement Position (Meters)").publish();
-            measurementVelocityPublisher = table.getDoubleTopic("Measurement Velocity (Meters per Second)").publish();
-            mechanismPositionPublisher = table.getDoubleTopic("Mechanism Position (Rotations)").publish();
-            mechanismVelocityPublisher = table.getDoubleTopic("Mechanism Velocity (Rotations per Second)").publish();
-            rotorPositionPublisher = table.getDoubleTopic("Rotor Position (Rotations)").publish();
-            rotorVelocityPublisher = table.getDoubleTopic("Rotor Velocity (Rotations per Second)").publish();
-        }
-        if (table != null) {
+    public void publish() {
+        
+        if (dataNetworkTable != null) {
             mechanismLowerLimitPublisher.set(mechanismLowerLimit);
             mechanismUpperLimitPublisher.set(mechanismUpperLimit);
             temperatureLimitPublisher.set(temperatureLimit);
@@ -255,74 +494,8 @@ public class SmartMotorControllerTelemetry {
      * @param config       {@link SmartMotorControllerTelemetryConfig} to publish from.
      */
     public void publishFromConfig(NetworkTable publishTable, SmartMotorControllerTelemetryConfig config) {
-        if (!publishTable.equals(this.table)) {
-            this.config = Optional.of(config);
-            table = publishTable;
-            if (config.mechanismLowerLimitEnabled) {
-              mechanismLowerLimitPublisher = table.getBooleanTopic("Mechanism Lower Limit").publish();
-            }
-            if (config.mechanismUpperLimitEnabled) {
-              mechanismUpperLimitPublisher = table.getBooleanTopic("Mechanism Upper Limit").publish();
-            }
-            if (config.temperatureLimitEnabled) {
-              temperatureLimitPublisher = table.getBooleanTopic("Temperature Limit").publish();
-            }
-            if (config.velocityControlEnabled) {
-              velocityControlPublisher = table.getBooleanTopic("Velocity Control").publish();
-            }
-            if (config.elevatorFeedforwardEnabled) {
-              elevatorFeedforwardPublisher = table.getBooleanTopic("Elevator Feedforward").publish();
-            }
-            if (config.armFeedforwardEnabled) {
-              armFeedforwardPublisher = table.getBooleanTopic("Arm Feedforward").publish();
-            }
-            if (config.simpleFeedforwardEnabled) {
-              simpleFeedforwardPublisher = table.getBooleanTopic("Simple Feedforward").publish();
-            }
-            if (config.motionProfileEnabled) {
-              motionProfilePublisher = table.getBooleanTopic("Motion Profile").publish();
-            }
-            if (config.setpointPositionEnabled) {
-              setpointPositionPublisher = table.getDoubleTopic("Setpoint Position (Rotations)").publish();
-            }
-            if (config.setpointVelocityEnabled) {
-              setpointVelocityPublisher = table.getDoubleTopic("Setpoint Velocity (Rotations per Second)").publish();
-            }
-            if (config.feedforwardVoltageEnabled) {
-              feedforwardVoltagePublisher = table.getDoubleTopic("Feedforward Voltage").publish();
-            }
-            if (config.pidOutputVoltageEnabled) {
-              pidOutputVoltagePublisher = table.getDoubleTopic("PID Output (Voltage)").publish();
-            }
-            if (config.outputVoltageEnabled) {
-              outputVoltagePublisher = table.getDoubleTopic("Motor Output Voltage").publish();
-            }
-            if (config.statorCurrentEnabled) {
-              statorCurrentPublisher = table.getDoubleTopic("Stator Current (Amps)").publish();
-            }
-            if (config.temperatureEnabled) {
-              temperaturePublisher = table.getDoubleTopic("Temperature (Celsius)").publish();
-            }
-            if (config.distanceEnabled) {
-              measurementPositionPublisher = table.getDoubleTopic("Measurement Position (Meters)").publish();
-            }
-            if (config.linearVelocityEnabled) {
-              measurementVelocityPublisher = table.getDoubleTopic("Measurement Velocity (Meters per Second)").publish();
-            }
-            if (config.mechanismPositionEnabled) {
-              mechanismPositionPublisher = table.getDoubleTopic("Mechanism Position (Rotations)").publish();
-            }
-            if (config.mechanismVelocityEnabled) {
-              mechanismVelocityPublisher = table.getDoubleTopic("Mechanism Velocity (Rotations per Second)").publish();
-            }
-            if (config.rotorPositionEnabled) {
-              rotorPositionPublisher = table.getDoubleTopic("Rotor Position (Rotations)").publish();
-            }
-            if (config.rotorVelocityEnabled) {
-              rotorVelocityPublisher = table.getDoubleTopic("Rotor Velocity (Rotations per Second)").publish();
-            }
-        }
-        if (table != null) {
+        
+        if (dataNetworkTable != null) {
             if (config.mechanismLowerLimitEnabled) {
                 mechanismLowerLimitPublisher.set(mechanismLowerLimit);
             }

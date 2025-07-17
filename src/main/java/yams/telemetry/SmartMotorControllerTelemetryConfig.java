@@ -1,92 +1,128 @@
 package yams.telemetry;
 
 import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class SmartMotorControllerTelemetryConfig {
     /**
      * Mechanism lower limit reached.
      */
-    public boolean mechanismLowerLimitEnabled = false;
+    protected boolean mechanismLowerLimitEnabled = false;
     /**
      * Mechanism upper limit reached.
      */
-    public boolean mechanismUpperLimitEnabled = false;
+    protected boolean mechanismUpperLimitEnabled = false;
     /**
      * Motor temperature cutoff reached.
      */
-    public boolean temperatureLimitEnabled = false;
+    protected boolean temperatureLimitEnabled = false;
     /**
      * Velocity PID controller used.
      */
-    public boolean velocityControlEnabled = false;
+    protected boolean velocityControlEnabled = false;
     /**
      * Elevator feedforward used.
      */
-    public boolean elevatorFeedforwardEnabled = false;
+    protected boolean elevatorFeedforwardEnabled = false;
     /**
      * Arm feedforward used.
      */
-    public boolean armFeedforwardEnabled = false;
+    protected boolean armFeedforwardEnabled = false;
     /**
      * Simple feedforward used.
      */
-    public boolean simpleFeedforwardEnabled = false;
+    protected boolean simpleFeedforwardEnabled = false;
     /**
      * Motion profiling used.
      */
-    public boolean motionProfileEnabled = false;
+    protected boolean motionProfileEnabled = false;
     /**
      * Setpoint position given.
      */
-    public boolean setpointPositionEnabled = false;
+    protected boolean setpointPositionEnabled = false;
     /**
      * Setpoint velocity given.
      */
-    public boolean setpointVelocityEnabled = false;
+    protected boolean setpointVelocityEnabled = false;
     /**
      * Feedforward voltage supplied to the {@link SmartMotorController}
      */
-    public boolean feedforwardVoltageEnabled = false;
+    protected boolean feedforwardVoltageEnabled = false;
     /**
      * PID Output voltage supplied to the {@link SmartMotorController}
      */
-    public boolean pidOutputVoltageEnabled = false;
+    protected boolean pidOutputVoltageEnabled = false;
     /**
      * Output voltage to the {@link SmartMotorController}
      */
-    public boolean outputVoltageEnabled = false;
+    protected boolean outputVoltageEnabled = false;
     /**
      * Stator current (motor controller output current) to the Motor.
      */
-    public boolean statorCurrentEnabled = false;
+    protected boolean statorCurrentEnabled = false;
     /**
      * Motor temperature.
      */
-    public boolean temperatureEnabled = false;
+    protected boolean temperatureEnabled = false;
     /**
      * Mechanism distance.
      */
-    public boolean distanceEnabled = false;
+    protected boolean distanceEnabled = false;
     /**
      * Mechanism linear velocity.
      */
-    public boolean linearVelocityEnabled = false;
+    protected boolean linearVelocityEnabled = false;
     /**
      * Mechanism position.
      */
-    public boolean mechanismPositionEnabled = false;
+    protected boolean mechanismPositionEnabled = false;
     /**
      * Mechanism velocity.
      */
-    public boolean mechanismVelocityEnabled = false;
+    protected boolean mechanismVelocityEnabled = false;
     /**
      * Rotor position.
      */
-    public boolean rotorPositionEnabled = false;
+    protected boolean rotorPositionEnabled = false;
     /**
      * Rotor velocity.
      */
-    public boolean rotorVelocityEnabled = false;
+    protected boolean rotorVelocityEnabled = false;
+
+    /**
+     * Setup with {@link TelemetryVerbosity}
+     * @param verbosity {@link TelemetryVerbosity} to use.
+     */
+    public SmartMotorControllerTelemetryConfig withTelemetryVerbosity(TelemetryVerbosity verbosity)
+    {
+        switch (verbosity) {
+            case HIGH:
+                mechanismLowerLimitEnabled = true;
+                mechanismUpperLimitEnabled = true;
+                temperatureLimitEnabled = true;
+                velocityControlEnabled = true;
+                elevatorFeedforwardEnabled = true;
+                armFeedforwardEnabled = true;
+                simpleFeedforwardEnabled = true;
+                motionProfileEnabled = true;
+                setpointPositionEnabled = true;
+                setpointVelocityEnabled = true;
+                feedforwardVoltageEnabled = true;
+                pidOutputVoltageEnabled = true;
+                outputVoltageEnabled = true;
+                statorCurrentEnabled = true;
+                temperatureEnabled = true;
+            case MID:
+            case LOW:
+                distanceEnabled = true;
+                linearVelocityEnabled = true;
+                mechanismPositionEnabled = true;
+                mechanismVelocityEnabled = true;
+                rotorPositionEnabled = true;
+                rotorVelocityEnabled = true;
+        }
+        return this;
+    }
 
     /**
      * Enables the mechanism lower limit logging if available.
