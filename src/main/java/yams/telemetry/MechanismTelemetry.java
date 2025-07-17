@@ -69,7 +69,6 @@ public class MechanismTelemetry
   public void setupTelemetry(String mechanismTelemetryName, SmartMotorController motorController, String units,
                              Measure setpoint, Measure position)
   {
-    // TODO: AKit input mutation for setpoint, position, units
     tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning")
                                              .getSubTable(mechanismTelemetryName);
     networkTable = NetworkTableInstance.getDefault().getTable("Mechanisms")
@@ -88,8 +87,7 @@ public class MechanismTelemetry
     this.unitsPublisher.set(units);
     this.tunableSetpointPublisher.set(this.setpoint);
     this.positionPublisher.set(convertToNativeUnit(position));
-     // TODO: Pass in tuning network table.
-    motorController.updateTelemetry(networkTable);
+    motorController.updateTelemetry(networkTable, tuningNetworkTable);
   }
 
   /**
@@ -148,7 +146,6 @@ public class MechanismTelemetry
   public Measure getSetpoint()
   {
     return convertFromNativeUnit(tunableSetpointSubscriber.get(setpoint));
-    // TODO: AKit logging here.
   }
 
   /**
@@ -159,7 +156,6 @@ public class MechanismTelemetry
   public void updatePosition(Measure position)
   {
     positionPublisher.set(convertToNativeUnit(position));
-    // TODO: AKit logging here.
   }
 
 

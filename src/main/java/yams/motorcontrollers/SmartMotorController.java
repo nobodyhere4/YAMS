@@ -73,6 +73,10 @@ public abstract class SmartMotorController
    */
   protected Optional<NetworkTable>                        telemetryTable             = Optional.empty();
   /**
+   * {@link SmartMotorController} tuning table.
+   */
+  protected Optional<NetworkTable>                        tuningTable             = Optional.empty();
+  /**
    * Config for publishing specific telemetry.
    */
   protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig            = Optional.empty();
@@ -318,7 +322,6 @@ public abstract class SmartMotorController
    * @param velocity {@link AngularVelocity} of the Mechanism.
    */
   public abstract void setEncoderVelocity(AngularVelocity velocity);
-  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder velocity.
@@ -326,7 +329,6 @@ public abstract class SmartMotorController
    * @param velocity Measurement {@link LinearVelocity}
    */
   public abstract void setEncoderVelocity(LinearVelocity velocity);
-  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder position
@@ -334,7 +336,6 @@ public abstract class SmartMotorController
    * @param angle Mechanism {@link Angle} to reach.
    */
   public abstract void setEncoderPosition(Angle angle);
-  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the encoder position.
@@ -342,7 +343,6 @@ public abstract class SmartMotorController
    * @param distance Measurement {@link Distance} to reach.
    */
   public abstract void setEncoderPosition(Distance distance);
-  // TODO: Rename and make an AKit input mutator
 
   /**
    * Set the Mechanism {@link Angle} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -350,7 +350,6 @@ public abstract class SmartMotorController
    * @param angle Mechanism angle to set.
    */
   public abstract void setPosition(Angle angle);
-  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link Distance} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -358,7 +357,6 @@ public abstract class SmartMotorController
    * @param distance Mechanism {@link Distance} to set.
    */
   public abstract void setPosition(Distance distance);
-  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link LinearVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -366,7 +364,6 @@ public abstract class SmartMotorController
    * @param velocity Mechanism {@link LinearVelocity} to target.
    */
   public abstract void setVelocity(LinearVelocity velocity);
-  // TODO: Make an AKit input mutator
 
   /**
    * Set the Mechanism {@link AngularVelocity} using the PID and feedforward from {@link SmartMotorControllerConfig}.
@@ -374,7 +371,6 @@ public abstract class SmartMotorController
    * @param angle Mechanism {@link AngularVelocity} to target.
    */
   public abstract void setVelocity(AngularVelocity angle);
-  // TODO: Make an AKit input mutator
 
   /**
    * Run the  {@link SysIdRoutine} which runs to the maximum MEASUREMENT at the step voltage then down to the minimum
@@ -433,7 +429,6 @@ public abstract class SmartMotorController
    * @return Successful Application of the configuration.
    */
   public abstract boolean applyConfig(SmartMotorControllerConfig config);
-  // TODO: Make an AKit input mutator
 
   /**
    * Get the duty cycle output of the motor controller.
@@ -535,18 +530,19 @@ public abstract class SmartMotorController
   /**
    * Update the telemetry under the motor name under the given {@link NetworkTable}
    *
-   * @param table {@link NetworkTable} to create the {@link SmartMotorControllerTelemetry} subtable under based off of
+   * @param telemetry {@link NetworkTable} to create the {@link SmartMotorControllerTelemetry} subtable under based off of
    *              {@link SmartMotorControllerConfig#getTelemetryName()}.
+   * @param tuning {@link NetworkTable} to create the tunable telemetry from {@link SmartMotorControllerTelemetry} subtable under. Based off of {@link SmartMotorControllerConfig#getTelemetryName()}.
    */
-  public void updateTelemetry(NetworkTable table)
+  public void updateTelemetry(NetworkTable telemetry, NetworkTable tuning)
   {
-    // TODO: Accept and store tuning network table
     if (parentTable.isEmpty())
     {
-      parentTable = Optional.of(table);
+      parentTable = Optional.of(telemetry);
       if (config.getTelemetryName().isPresent())
       {
-        telemetryTable = Optional.of(table.getSubTable(config.getTelemetryName().get()));
+        telemetryTable = Optional.of(telemetry.getSubTable(config.getTelemetryName().get()));
+        tuningTable = Optional.of(tuning.getSubTable(config.getTelemetryName().get()));
         updateTelemetry();
       }
     }
@@ -559,30 +555,16 @@ public abstract class SmartMotorController
   {
     if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
     {
-      telemetry.temperature = getTemperature();
-      telemetry.statorCurrent = getStatorCurrent().in(Amps);
-      telemetry.mechanismPosition = getMechanismPosition();
-      telemetry.mechanismVelocity = getMechanismVelocity();
-      telemetry.rotorPosition = getRotorPosition();
-      telemetry.rotorVelocity = getRotorVelocity();
-      config.getMechanismLowerLimit().ifPresent(limit ->
-                                                    telemetry.mechanismLowerLimit = getMechanismPosition().lte(limit));
-      config.getMechanismUpperLimit().ifPresent(limit ->
-                                                    telemetry.mechanismUpperLimit = getMechanismPosition().gte(limit));
-      config.getTemperatureCutoff().ifPresent(limit ->
-                                                  telemetry.temperatureLimit = getTemperature().gte(limit));
-      if (config.getMechanismCircumference().isPresent())
-      {
-        telemetry.distance = getMeasurementPosition();
-        telemetry.linearVelocity = getMeasurementVelocity();
-      }
+      telemetry.refresh(this);
+      // if(tuningTable.isPresent())
+      //   telemetry.applyChanges(this);
       config.getSmartControllerTelemetryConfig().ifPresentOrElse(
               telemetryConfig ->
                       telemetry.publishFromConfig(telemetryTable.get(), ((SmartMotorControllerTelemetryConfig) telemetryConfig)),
               () -> telemetry.publish(telemetryTable.get(), config.getVerbosity().get()));
+      
     }
     // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
-    // TODO: cont, make updates with AKit input mutators.
   }
 
   /**

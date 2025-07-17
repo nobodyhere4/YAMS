@@ -62,7 +62,7 @@ public class ArmSubsystem extends SubsystemBase
   private final ArmConfig                  m_config    = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
-      .withTelemetry("Arm","ArmExample", TelemetryVerbosity.HIGH)
+      .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(1))
       .withStartingPosition(Degrees.of(0))
       .withHorizontalZero(Degrees.of(0))

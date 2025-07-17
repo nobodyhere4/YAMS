@@ -5,9 +5,12 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.*;
 import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 import static edu.wpi.first.units.Units.*;
+
+import java.util.Optional;
 
 public class SmartMotorControllerTelemetry {
 
@@ -183,6 +186,11 @@ public class SmartMotorControllerTelemetry {
    * Rotor velocity.
    */
   private DoublePublisher  rotorVelocityPublisher;
+  /**
+   * Telemetry config
+   */
+  private Optional<SmartMotorControllerTelemetryConfig> config = Optional.empty();
+
 
     /**
      * Publish {@link SmartMotorController} telemetry to {@link NetworkTable}
@@ -248,6 +256,7 @@ public class SmartMotorControllerTelemetry {
      */
     public void publishFromConfig(NetworkTable publishTable, SmartMotorControllerTelemetryConfig config) {
         if (!publishTable.equals(this.table)) {
+            this.config = Optional.of(config);
             table = publishTable;
             if (config.mechanismLowerLimitEnabled) {
               mechanismLowerLimitPublisher = table.getBooleanTopic("Mechanism Lower Limit").publish();
@@ -378,5 +387,26 @@ public class SmartMotorControllerTelemetry {
                 rotorVelocityPublisher.set(rotorVelocity.in(RotationsPerSecond));
             }
         }
+    }
+
+    /**
+     * Refresh the telemetry with data from the {@link SmartMotorController}. {@link #mechanismLowerLimit} {@link #mechanismUpperLimit} {@link #temperatureLimit} {@link #distance} and {@link #linearVelocity} are updated when appropriate {@link SmartMotorControllerConfig} options are set.
+     * @param smartMotorController The {@link SmartMotorController} to get data from.
+     */
+    public void refresh(SmartMotorController smartMotorController) {
+        SmartMotorControllerConfig cfg = smartMotorController.getConfig();
+        temperature = smartMotorController.getTemperature();
+        statorCurrent = smartMotorController.getStatorCurrent().in(Amps);
+        mechanismPosition = smartMotorController.getMechanismPosition();
+        mechanismVelocity = smartMotorController.getMechanismVelocity();
+        rotorPosition = smartMotorController.getRotorPosition();
+        rotorVelocity = smartMotorController.getRotorVelocity();
+        cfg.getMechanismLowerLimit().ifPresent(limit -> mechanismLowerLimit = mechanismPosition.lte(limit));
+        cfg.getMechanismUpperLimit().ifPresent(limit -> mechanismUpperLimit = mechanismPosition.gte(limit));
+        cfg.getTemperatureCutoff().ifPresent(limit -> temperatureLimit = temperature.gte(limit));
+        cfg.getMechanismCircumference().ifPresent(cricumference -> {
+          distance = smartMotorController.getMeasurementPosition();
+          linearVelocity = smartMotorController.getMeasurementVelocity();
+        });
     }
 }
