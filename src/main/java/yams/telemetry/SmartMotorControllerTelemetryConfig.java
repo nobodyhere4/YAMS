@@ -2,8 +2,10 @@ package yams.telemetry;
 
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 public class SmartMotorControllerTelemetryConfig {
+
     /**
      * Mechanism lower limit reached.
      */

@@ -16,6 +16,8 @@ import java.util.Optional;
 
 public class SmartMotorControllerTelemetry {
 
+  
+
   // TODO: Add docs.
   protected enum BooleanTelemetryField {
     MechanismUpperLimit("limits/Mechanism Upper Limit", false),
@@ -27,8 +29,6 @@ public class SmartMotorControllerTelemetry {
     SimpleMotorFeedForward("control/Simple Motor Feedforward", false),
     MotionProfile("control/Motion Profile", false);
 
-    private BooleanPublisher publisher = null;
-    private Optional<BooleanSubscriber> subscriber = Optional.empty();
     private boolean currentValue;
     private String key;
     BooleanTelemetryField(String fieldName, Boolean defaultValue)
@@ -37,51 +37,12 @@ public class SmartMotorControllerTelemetry {
         currentValue = defaultValue;
     }
 
-    public void create(NetworkTable dataTable, NetworkTable tuningTable)
+    public BooleanTelemetry create()
     {
-      var topic = dataTable.getBooleanTopic(key);
-      publisher = topic.publish();
-      publisher.setDefault(currentValue);
-      if(tuningTable != null)
-      {
-        subscriber = Optional.of(topic.subscribe(currentValue));
-      }
+      return new BooleanTelemetry(key, currentValue);
     }
 
-    public void create(NetworkTable dataTable)
-    {
-      create(dataTable,null);
-    }
-
-    /**
-     * Set the value of the publisher, checking to see if the value is the same as the subscriber.
-     * @param value Value to set.
-     * @return True if value was able to be set.
-     */
-    public boolean set(boolean value)
-    {
-      if(subscriber.isPresent())
-      {
-        boolean tuningValue = subscriber.get().get(currentValue);
-        if( tuningValue != value)
-        {
-          value = tuningValue;
-          publisher.set(value);
-          return false;
-        }
-      }
-      publisher.accept(value);
-      return true;
-    }
-
-    public boolean get()
-    {
-      if(subscriber.isPresent())
-      {
-        return subscriber.get().get(currentValue);
-      }
-      throw new RuntimeException("Tuning table not configured for "+key+"!");
-    }
+    
   }
 
 protected enum DoubleTelemetryField {
@@ -110,50 +71,9 @@ protected enum DoubleTelemetryField {
       currentValue = defaultValue;
   }
 
-  public void create(NetworkTable dataTable, NetworkTable tuningTable)
-  {
-    var topic = dataTable.getDoubleTopic(key);
-    publisher = topic.publish();
-    publisher.setDefault(currentValue);
-    if(tuningTable != null)
+  public DoubleTelemetry create()
     {
-      subscriber = Optional.of(topic.subscribe(currentValue));
-    }
-  }
-
-  public void create(NetworkTable dataTable)
-  {
-    create(dataTable,null);
-  }
-
-  /**
-     * Set the value of the publisher, checking to see if the value is the same as the subscriber.
-     * @param value Value to set.
-     * @return True if value was able to be set.
-     */
-    public boolean set(double value)
-    {
-      if(subscriber.isPresent())
-      {
-        double tuningValue = subscriber.get().get(currentValue);
-        if( tuningValue != value)
-        {
-          value = tuningValue;
-          publisher.set(value);
-          return false;
-        }
-      }
-      publisher.accept(value);
-      return true;
-    }
-
-    public double get()
-    {
-      if(subscriber.isPresent())
-      {
-        return subscriber.get().get(currentValue);
-      }
-      throw new RuntimeException("Tuning table not configured for "+key+"!");
+      return new DoubleTelemetry(key, currentValue);
     }
 
 }
