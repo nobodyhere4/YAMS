@@ -23,6 +23,8 @@ public class MechanismPositionConfig {
    * The height of the robot in meters.
    */
   protected Optional<Distance>      maxRobotHeight;
+  // TODO: Add soft limits display config.
+  // TODO: Add hard limits display config.
 
   /**
    * The planes that the mechanism could be on, used for position calculations.
