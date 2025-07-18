@@ -1,95 +1,28 @@
 package yams.telemetry;
 
-import yams.motorcontrollers.SmartMotorController;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 public class SmartMotorControllerTelemetryConfig
 {
 
   /**
-   * Mechanism lower limit reached.
+   * {@link BooleanTelemetryField}s to enable or disable.
    */
-  protected boolean mechanismLowerLimitEnabled = false;
+  private final Map<BooleanTelemetryField, BooleanTelemetry> boolFields   = Arrays.stream(BooleanTelemetryField.values())
+                                                                                  .collect(
+                                                                                      Collectors.toMap(e -> e,
+                                                                                                       BooleanTelemetryField::create));
   /**
-   * Mechanism upper limit reached.
+   * {@link DoubleTelemetryField} to enable or disable.
    */
-  protected boolean mechanismUpperLimitEnabled = false;
-  /**
-   * Motor temperature cutoff reached.
-   */
-  protected boolean temperatureLimitEnabled    = false;
-  /**
-   * Velocity PID controller used.
-   */
-  protected boolean velocityControlEnabled     = false;
-  /**
-   * Elevator feedforward used.
-   */
-  protected boolean elevatorFeedforwardEnabled = false;
-  /**
-   * Arm feedforward used.
-   */
-  protected boolean armFeedforwardEnabled      = false;
-  /**
-   * Simple feedforward used.
-   */
-  protected boolean simpleFeedforwardEnabled   = false;
-  /**
-   * Motion profiling used.
-   */
-  protected boolean motionProfileEnabled       = false;
-  /**
-   * Setpoint position given.
-   */
-  protected boolean setpointPositionEnabled    = false;
-  /**
-   * Setpoint velocity given.
-   */
-  protected boolean setpointVelocityEnabled    = false;
-  /**
-   * Feedforward voltage supplied to the {@link SmartMotorController}
-   */
-  protected boolean feedforwardVoltageEnabled  = false;
-  /**
-   * PID Output voltage supplied to the {@link SmartMotorController}
-   */
-  protected boolean pidOutputVoltageEnabled    = false;
-  /**
-   * Output voltage to the {@link SmartMotorController}
-   */
-  protected boolean outputVoltageEnabled       = false;
-  /**
-   * Stator current (motor controller output current) to the Motor.
-   */
-  protected boolean statorCurrentEnabled       = false;
-  /**
-   * Motor temperature.
-   */
-  protected boolean temperatureEnabled         = false;
-  /**
-   * Mechanism distance.
-   */
-  protected boolean distanceEnabled            = false;
-  /**
-   * Mechanism linear velocity.
-   */
-  protected boolean linearVelocityEnabled      = false;
-  /**
-   * Mechanism position.
-   */
-  protected boolean mechanismPositionEnabled   = false;
-  /**
-   * Mechanism velocity.
-   */
-  protected boolean mechanismVelocityEnabled   = false;
-  /**
-   * Rotor position.
-   */
-  protected boolean rotorPositionEnabled       = false;
-  /**
-   * Rotor velocity.
-   */
-  protected boolean rotorVelocityEnabled       = false;
+  private final Map<DoubleTelemetryField, DoubleTelemetry>   doubleFields = Arrays.stream(DoubleTelemetryField.values())
+                                                                                  .collect(Collectors.toMap(e -> e,
+                                                                                                            DoubleTelemetryField::create));
 
   /**
    * Setup with {@link TelemetryVerbosity}
@@ -101,31 +34,52 @@ public class SmartMotorControllerTelemetryConfig
     switch (verbosity)
     {
       case HIGH:
-        mechanismLowerLimitEnabled = true;
-        mechanismUpperLimitEnabled = true;
-        temperatureLimitEnabled = true;
-        velocityControlEnabled = true;
-        elevatorFeedforwardEnabled = true;
-        armFeedforwardEnabled = true;
-        simpleFeedforwardEnabled = true;
-        motionProfileEnabled = true;
-        setpointPositionEnabled = true;
-        setpointVelocityEnabled = true;
-        feedforwardVoltageEnabled = true;
-        pidOutputVoltageEnabled = true;
-        outputVoltageEnabled = true;
-        statorCurrentEnabled = true;
-        temperatureEnabled = true;
+        boolFields.get(BooleanTelemetryField.MechanismLowerLimit).enable();
+        boolFields.get(BooleanTelemetryField.MechanismUpperLimit).enable();
+
+        boolFields.get(BooleanTelemetryField.TemperatureLimit).enable();
+        boolFields.get(BooleanTelemetryField.VelocityControl).enable();
+        boolFields.get(BooleanTelemetryField.ElevatorFeedForward).enable();
+        boolFields.get(BooleanTelemetryField.ArmFeedForward).enable();
+        boolFields.get(BooleanTelemetryField.SimpleMotorFeedForward).enable();
+        boolFields.get(BooleanTelemetryField.MotionProfile).enable();
+        doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
+        doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.FeedforwardVoltage).enable();
+        doubleFields.get(DoubleTelemetryField.PIDOutputVoltage).enable();
+        doubleFields.get(DoubleTelemetryField.StatorCurrent).enable();
+        doubleFields.get(DoubleTelemetryField.SupplyCurrent).enable();
+        doubleFields.get(DoubleTelemetryField.MotorTemperature).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementPosition).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismPosition).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.RotorPosition).enable();
+        doubleFields.get(DoubleTelemetryField.RotorVelocity).enable();
       case MID:
       case LOW:
-        distanceEnabled = true;
-        linearVelocityEnabled = true;
-        mechanismPositionEnabled = true;
-        mechanismVelocityEnabled = true;
-        rotorPositionEnabled = true;
-        rotorVelocityEnabled = true;
     }
     return this;
+  }
+
+  /**
+   * Get the configured double fields.
+   *
+   * @return Configured {@link DoubleTelemetry} for each {@link DoubleTelemetryField}
+   */
+  public Map<DoubleTelemetryField, DoubleTelemetry> getDoubleFields()
+  {
+    return doubleFields;
+  }
+
+  /**
+   * Get the configured bool fields.
+   *
+   * @return Configured {@link BooleanTelemetry} for each {@link BooleanTelemetryField}.
+   */
+  public Map<BooleanTelemetryField, BooleanTelemetry> getBoolFields()
+  {
+    return boolFields;
   }
 
   /**
@@ -135,7 +89,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withMechanismLowerLimit()
   {
-    mechanismLowerLimitEnabled = true;
+    boolFields.get(BooleanTelemetryField.MechanismLowerLimit).enable();
     return this;
   }
 
@@ -146,7 +100,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withMechanismUpperLimit()
   {
-    mechanismUpperLimitEnabled = true;
+    boolFields.get(BooleanTelemetryField.MechanismUpperLimit).enable();
     return this;
   }
 
@@ -157,7 +111,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withTemperatureLimit()
   {
-    temperatureLimitEnabled = true;
+    boolFields.get(BooleanTelemetryField.TemperatureLimit).enable();
     return this;
   }
 
@@ -168,7 +122,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withVelocityControl()
   {
-    velocityControlEnabled = true;
+    boolFields.get(BooleanTelemetryField.VelocityControl).enable();
     return this;
   }
 
@@ -179,7 +133,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withElevatorFeedforward()
   {
-    elevatorFeedforwardEnabled = true;
+    boolFields.get(BooleanTelemetryField.ElevatorFeedForward).enable();
     return this;
   }
 
@@ -190,7 +144,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withArmFeedforward()
   {
-    armFeedforwardEnabled = true;
+    boolFields.get(BooleanTelemetryField.ArmFeedForward).enable();
     return this;
   }
 
@@ -201,7 +155,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSimpleFeedforward()
   {
-    simpleFeedforwardEnabled = true;
+    boolFields.get(BooleanTelemetryField.SimpleMotorFeedForward).enable();
     return this;
   }
 
@@ -212,7 +166,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withMotionProfile()
   {
-    motionProfileEnabled = true;
+    boolFields.get(BooleanTelemetryField.MotionProfile).enable();
     return this;
   }
 
@@ -223,7 +177,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointPosition()
   {
-    setpointPositionEnabled = true;
+    doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
     return this;
   }
 
@@ -234,7 +188,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointVelocity()
   {
-    setpointVelocityEnabled = true;
+    doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
     return this;
   }
 
@@ -243,9 +197,9 @@ public class SmartMotorControllerTelemetryConfig
    *
    * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
    */
-  public SmartMotorControllerTelemetryConfig withFeedbackVoltage()
+  public SmartMotorControllerTelemetryConfig withFeedforwardVoltage()
   {
-    feedforwardVoltageEnabled = true;
+    doubleFields.get(DoubleTelemetryField.FeedforwardVoltage).enable();
     return this;
   }
 
@@ -256,7 +210,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withPidOutputVoltage()
   {
-    pidOutputVoltageEnabled = true;
+    doubleFields.get(DoubleTelemetryField.PIDOutputVoltage).enable();
     return this;
   }
 
@@ -267,7 +221,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withOutputVoltage()
   {
-    outputVoltageEnabled = true;
+    doubleFields.get(DoubleTelemetryField.OutputVoltage).enable();
     return this;
   }
 
@@ -278,7 +232,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withStatorCurrent()
   {
-    statorCurrentEnabled = true;
+    doubleFields.get(DoubleTelemetryField.StatorCurrent).enable();
     return this;
   }
 
@@ -289,7 +243,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withTemperature()
   {
-    temperatureEnabled = true;
+    doubleFields.get(DoubleTelemetryField.MotorTemperature).enable();
     return this;
   }
 
@@ -298,9 +252,9 @@ public class SmartMotorControllerTelemetryConfig
    *
    * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
    */
-  public SmartMotorControllerTelemetryConfig withDistance()
+  public SmartMotorControllerTelemetryConfig withMeasurementPosition()
   {
-    distanceEnabled = true;
+    doubleFields.get(DoubleTelemetryField.MeasurementPosition).enable();
     return this;
   }
 
@@ -309,9 +263,9 @@ public class SmartMotorControllerTelemetryConfig
    *
    * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
    */
-  public SmartMotorControllerTelemetryConfig withLinearVelocity()
+  public SmartMotorControllerTelemetryConfig withMeasurementVelocity()
   {
-    linearVelocityEnabled = true;
+    doubleFields.get(DoubleTelemetryField.MeasurementVelocity).enable();
     return this;
   }
 
@@ -322,7 +276,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withMechanismPosition()
   {
-    mechanismPositionEnabled = true;
+    doubleFields.get(DoubleTelemetryField.MechanismPosition).enable();
     return this;
   }
 
@@ -333,7 +287,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withMechanismVelocity()
   {
-    mechanismVelocityEnabled = true;
+    doubleFields.get(DoubleTelemetryField.MechanismVelocity).enable();
     return this;
   }
 
@@ -344,7 +298,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withRotorPosition()
   {
-    rotorPositionEnabled = true;
+    doubleFields.get(DoubleTelemetryField.RotorPosition).enable();
     return this;
   }
 
@@ -355,7 +309,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withRotorVelocity()
   {
-    rotorVelocityEnabled = true;
+    doubleFields.get(DoubleTelemetryField.RotorVelocity).enable();
     return this;
   }
 }

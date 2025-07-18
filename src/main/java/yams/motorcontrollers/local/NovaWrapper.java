@@ -305,13 +305,13 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
-  public Current getSupplyCurrent()
+  public Optional<Current> getSupplyCurrent()
   {
     if (m_sim.isPresent())
     {
-      return Amps.of(RoboRioSim.getVInCurrent());
+      return Optional.of(Amps.of(RoboRioSim.getVInCurrent()));
     }
-    return Amps.of(m_nova.getSupplyCurrent());
+    return Optional.of(Amps.of(m_nova.getSupplyCurrent()));
   }
 
   @Override

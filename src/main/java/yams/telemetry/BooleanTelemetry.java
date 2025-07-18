@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import java.util.Optional;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 
 /**
  * Add your docs here.
@@ -15,17 +16,22 @@ import java.util.Optional;
 public class BooleanTelemetry
 {
 
+  private final BooleanTelemetryField field;
   private final String                      key;
   private final boolean                     defaultValue;
+  private final boolean               tunable;
   private       boolean                     enabled    = false;
   private       BooleanPublisher            publisher  = null;
   private       Optional<BooleanSubscriber> subscriber = Optional.empty();
 
 
-  public BooleanTelemetry(String keyString, boolean defaultVal)
+  public BooleanTelemetry(String keyString, boolean defaultVal, BooleanTelemetryField field, boolean tunable)
   {
     key = keyString;
     defaultValue = defaultVal;
+    this.field = field;
+    this.tunable = tunable;
+
   }
 
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
@@ -33,7 +39,7 @@ public class BooleanTelemetry
     var topic = dataTable.getBooleanTopic(key);
     publisher = topic.publish();
     publisher.setDefault(defaultValue);
-    if (tuningTable != null)
+    if (tuningTable != null && tunable)
     {
       subscriber = Optional.of(topic.subscribe(defaultValue));
     }
@@ -62,7 +68,10 @@ public class BooleanTelemetry
         return false;
       }
     }
-    publisher.accept(value);
+    if (publisher != null)
+    {
+      publisher.accept(value);
+    }
     return true;
   }
 
@@ -77,7 +86,7 @@ public class BooleanTelemetry
 
   public boolean tunable()
   {
-    return subscriber.isPresent();
+    return subscriber.isPresent() && tunable;
   }
 
   public void enable()
@@ -93,5 +102,10 @@ public class BooleanTelemetry
   public void display(boolean state)
   {
     enabled = state;
+  }
+
+  public BooleanTelemetryField getField()
+  {
+    return field;
   }
 }

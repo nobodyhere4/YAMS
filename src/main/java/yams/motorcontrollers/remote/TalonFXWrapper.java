@@ -744,9 +744,9 @@ public class TalonFXWrapper extends SmartMotorController
   }
 
   @Override
-  public Current getSupplyCurrent()
+  public Optional<Current> getSupplyCurrent()
   {
-    return m_supplyCurrent.refresh().getValue();
+    return Optional.of(m_supplyCurrent.refresh().getValue());
   }
 
   @Override
@@ -861,19 +861,5 @@ public class TalonFXWrapper extends SmartMotorController
   public Object getMotorControllerConfig()
   {
     return m_talonConfig;
-  }
-
-  @Override
-  public void updateTelemetry()
-  {
-    telemetry.outputVoltage = getVoltage().in(Volts);
-    telemetry.feedforwardVoltage = 0;
-    telemetry.pidOutputVoltage = 0;
-    telemetry.velocityControl = setpointVelocity.isPresent();
-    telemetry.motionProfile = config.getClosedLoopController().isPresent();
-    telemetry.armFeedforward = false;
-    telemetry.elevatorFeedforward = false;
-    telemetry.simpleFeedforward = false;
-    super.updateTelemetry();
   }
 }

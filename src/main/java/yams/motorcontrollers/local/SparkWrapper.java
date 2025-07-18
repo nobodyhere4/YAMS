@@ -425,10 +425,11 @@ public class SparkWrapper extends SmartMotorController
   }
 
   @Override
-  public Current getSupplyCurrent()
+  public Optional<Current> getSupplyCurrent()
   {
-    DriverStation.reportError("[WARNING] Supply currently not supported on Spark", true);
-    return null;
+    return Optional.empty();
+//    DriverStation.reportError("[WARNING] Supply currently not supported on Spark", true);
+//    return null;
   }
 
   @Override

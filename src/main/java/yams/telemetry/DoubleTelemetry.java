@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import java.util.Optional;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Add your docs here.
@@ -15,17 +16,21 @@ import java.util.Optional;
 public class DoubleTelemetry
 {
 
+  private final DoubleTelemetryField field;
   private final String                     key;
   private final double                     defaultValue;
+  private final boolean              tunable;
   private       boolean                    enabled    = false;
   private       DoublePublisher            publisher  = null;
   private       Optional<DoubleSubscriber> subscriber = Optional.empty();
 
 
-  public DoubleTelemetry(String keyString, double defaultVal)
+  public DoubleTelemetry(String keyString, double defaultVal, DoubleTelemetryField field, boolean tunable)
   {
     key = keyString;
     defaultValue = defaultVal;
+    this.field = field;
+    this.tunable = tunable;
   }
 
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
@@ -62,7 +67,10 @@ public class DoubleTelemetry
         return false;
       }
     }
-    publisher.accept(value);
+    if (publisher != null)
+    {
+      publisher.accept(value);
+    }
     return true;
   }
 
@@ -77,7 +85,7 @@ public class DoubleTelemetry
 
   public boolean tunable()
   {
-    return subscriber.isPresent();
+    return subscriber.isPresent() && tunable;
   }
 
   public void enable()
@@ -93,5 +101,10 @@ public class DoubleTelemetry
   public void display(boolean state)
   {
     enabled = state;
+  }
+
+  public DoubleTelemetryField getField()
+  {
+    return field;
   }
 }

@@ -399,7 +399,6 @@ public class TalonFXSWrapper extends SmartMotorController
     setpointPosition = Optional.ofNullable(angle);
     if (angle != null)
     {
-      telemetry.setpointPosition = angle.in(Rotations);
       m_talonfxs.setControl(m_trapPositionReq.withPosition(angle));
     }
   }
@@ -422,7 +421,6 @@ public class TalonFXSWrapper extends SmartMotorController
     setpointVelocity = Optional.ofNullable(angle);
     if (angle != null)
     {
-      telemetry.setpointVelocity = angle.in(RotationsPerSecond);
       m_talonfxs.setControl(m_velocityReq.withVelocity(angle));
     }
   }
@@ -770,9 +768,9 @@ public class TalonFXSWrapper extends SmartMotorController
   }
 
   @Override
-  public Current getSupplyCurrent()
+  public Optional<Current> getSupplyCurrent()
   {
-    return m_supplyCurrent.refresh().getValue();
+    return Optional.of(m_supplyCurrent.refresh().getValue());
   }
 
   @Override
@@ -887,19 +885,5 @@ public class TalonFXSWrapper extends SmartMotorController
   public Object getMotorControllerConfig()
   {
     return m_talonConfig;
-  }
-
-  @Override
-  public void updateTelemetry()
-  {
-    telemetry.outputVoltage = getVoltage().in(Volts);
-    telemetry.feedforwardVoltage = 0;
-    telemetry.pidOutputVoltage = 0;
-    telemetry.velocityControl = setpointVelocity.isPresent();
-    telemetry.motionProfile = config.getClosedLoopController().isPresent();
-    telemetry.armFeedforward = false;
-    telemetry.elevatorFeedforward = false;
-    telemetry.simpleFeedforward = false;
-    super.updateTelemetry();
   }
 }
