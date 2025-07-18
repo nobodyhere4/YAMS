@@ -76,7 +76,7 @@ public abstract class SmartMotorController
   /**
    * {@link SmartMotorController} tuning table.
    */
-  protected Optional<NetworkTable>                        tuningTable             = Optional.empty();
+  protected Optional<NetworkTable> tuningTable = Optional.empty();
   /**
    * Config for publishing specific telemetry.
    */
@@ -531,9 +531,10 @@ public abstract class SmartMotorController
   /**
    * Update the telemetry under the motor name under the given {@link NetworkTable}
    *
-   * @param telemetry {@link NetworkTable} to create the {@link SmartMotorControllerTelemetry} subtable under based off of
-   *              {@link SmartMotorControllerConfig#getTelemetryName()}.
-   * @param tuning {@link NetworkTable} to create the tunable telemetry from {@link SmartMotorControllerTelemetry} subtable under. Based off of {@link SmartMotorControllerConfig#getTelemetryName()}.
+   * @param telemetry {@link NetworkTable} to create the {@link SmartMotorControllerTelemetry} subtable under based off
+   *                  of {@link SmartMotorControllerConfig#getTelemetryName()}.
+   * @param tuning    {@link NetworkTable} to create the tunable telemetry from {@link SmartMotorControllerTelemetry}
+   *                  subtable under. Based off of {@link SmartMotorControllerConfig#getTelemetryName()}.
    */
   public void updateTelemetry(NetworkTable telemetry, NetworkTable tuning)
   {
@@ -561,10 +562,11 @@ public abstract class SmartMotorController
       // if(tuningTable.isPresent())
       //   telemetry.applyChanges(this);
       config.getSmartControllerTelemetryConfig().ifPresentOrElse(
-              telemetryConfig ->
-                      telemetry.publishFromConfig(telemetryTable.get(), ((SmartMotorControllerTelemetryConfig) telemetryConfig)),
-              () -> telemetry.publish());
-      
+          telemetryConfig ->
+              telemetry.publishFromConfig(telemetryTable.get(),
+                                          ((SmartMotorControllerTelemetryConfig) telemetryConfig)),
+          () -> telemetry.publish());
+
     }
     // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
   }

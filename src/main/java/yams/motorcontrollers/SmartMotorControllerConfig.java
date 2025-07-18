@@ -44,144 +44,144 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private final Subsystem         subsystem;
+  private final Subsystem                         subsystem;
   /**
    * External encoder.
    */
-  private       Optional<Object>  externalEncoder                  = Optional.empty();
+  private       Optional<Object>                  externalEncoder                    = Optional.empty();
   /**
    * External encoder inversion state.
    */
-  private       boolean           externalEncoderInverted          = false;
+  private       boolean                           externalEncoderInverted            = false;
   /**
    * Follower motors and inversion.
    */
-  private Optional<Pair<Object, Boolean>[]> followers                          = Optional.empty();
+  private       Optional<Pair<Object, Boolean>[]> followers                          = Optional.empty();
   /**
    * Simple feedforward for the motor controller.
    */
-  private Optional<SimpleMotorFeedforward>  simpleFeedforward                  = Optional.empty();
+  private       Optional<SimpleMotorFeedforward>  simpleFeedforward                  = Optional.empty();
   /**
    * Elevator feedforward for the motor controller.
    */
-  private Optional<ElevatorFeedforward>     elevatorFeedforward                = Optional.empty();
+  private       Optional<ElevatorFeedforward>     elevatorFeedforward                = Optional.empty();
   /**
    * Arm feedforward for the motor controller.
    */
-  private Optional<ArmFeedforward>          armFeedforward                     = Optional.empty();
+  private       Optional<ArmFeedforward>          armFeedforward                     = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private Optional<ProfiledPIDController>   controller                         = Optional.empty();
+  private       Optional<ProfiledPIDController>   controller                         = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private Optional<PIDController>           simpleController                   = Optional.empty();
+  private       Optional<PIDController>           simpleController                   = Optional.empty();
   /**
    * Gearing for the {@link SmartMotorController}.
    */
-  private MechanismGearing                  gearing;
+  private       MechanismGearing                  gearing;
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private MechanismGearing externalEncoderGearing = new MechanismGearing(new GearBox(
+  private       MechanismGearing                  externalEncoderGearing             = new MechanismGearing(new GearBox(
       new double[]{1.0}));
   /**
    * Mechanism Circumference for distance calculations.
    */
-  private Optional<Distance>                mechanismCircumference             = Optional.empty();
+  private       Optional<Distance>                mechanismCircumference             = Optional.empty();
   /**
    * PID Controller period for robot controller based PIDs
    */
-  private Time                              controlPeriod                      = Milliseconds.of(20);
+  private       Time                              controlPeriod                      = Milliseconds.of(20);
   /**
    * Open loop ramp rate, amount of time to go from 0 to 100 speed..
    */
-  private       Time              openLoopRampRate                 = Seconds.of(0);
+  private       Time                              openLoopRampRate                   = Seconds.of(0);
   /**
    * Closed loop ramp rate, amount of time to go from 0 to 100 speed.
    */
-  private       Time              closeLoopRampRate                = Seconds.of(0);
+  private       Time                              closeLoopRampRate                  = Seconds.of(0);
   /**
    * Set the stator current limit in Amps for the {@link SmartMotorController}
    */
-  private OptionalInt                       statorStallCurrentLimit            = OptionalInt.empty();
+  private       OptionalInt                       statorStallCurrentLimit            = OptionalInt.empty();
   /**
    * The supply current limit in Amps for the {@link SmartMotorController}
    */
-  private OptionalInt                       supplyStallCurrentLimit            = OptionalInt.empty();
+  private       OptionalInt                       supplyStallCurrentLimit            = OptionalInt.empty();
   /**
    * The voltage compensation.
    */
-  private       Optional<Voltage> voltageCompensation              = Optional.empty();
+  private       Optional<Voltage>                 voltageCompensation                = Optional.empty();
   /**
    * Set the {@link MotorMode} for the {@link SmartMotorController}.
    */
-  private Optional<MotorMode>               idleMode                           = Optional.empty();
+  private       Optional<MotorMode>               idleMode                           = Optional.empty();
   /**
    * Mechanism lower limit to prevent movement below.
    */
-  private Optional<Angle>                   mechanismLowerLimit                = Optional.empty();
+  private       Optional<Angle>                   mechanismLowerLimit                = Optional.empty();
   /**
    * High distance soft limit to prevent movement above.
    */
-  private Optional<Angle>                   mechanismUpperLimit                = Optional.empty();
+  private       Optional<Angle>                   mechanismUpperLimit                = Optional.empty();
   /**
    * Name for the {@link SmartMotorController} telemetry.
    */
-  private Optional<String>                  telemetryName                      = Optional.empty();
+  private       Optional<String>                  telemetryName                      = Optional.empty();
   /**
    * Telemetry verbosity setting.
    */
-  private Optional<TelemetryVerbosity>      verbosity                          = Optional.empty();
+  private       Optional<TelemetryVerbosity>      verbosity                          = Optional.empty();
   /**
    * Optional config for custom telemetry setup.
    */
-  private Optional<Object>                  specifiedTelemetryConfig           = Optional.empty();
+  private       Optional<Object>                  specifiedTelemetryConfig           = Optional.empty();
   /**
    * Zero offset of the {@link SmartMotorController}
    */
-  private Optional<Angle>                   zeroOffset                         = Optional.empty();
+  private       Optional<Angle>                   zeroOffset                         = Optional.empty();
   /**
    * Temperature cutoff for the {@link SmartMotorController} to prevent running if above.
    */
-  private Optional<Temperature>             temperatureCutoff                  = Optional.empty();
+  private       Optional<Temperature>             temperatureCutoff                  = Optional.empty();
   /**
    * The encoder readings are inverted.
    */
-  private boolean                           encoderInverted                    = false;
+  private       boolean                           encoderInverted                    = false;
   /**
    * The motor is inverted.
    */
-  private boolean                           motorInverted                      = false;
+  private       boolean                           motorInverted                      = false;
   /**
    * Use the provided external encoder if set.
    */
-  private boolean                           useExternalEncoder                 = true;
+  private       boolean                           useExternalEncoder                 = true;
   /**
    * {@link SmartMotorController} starting angle.
    */
-  private Optional<Angle>                   startingPosition                   = Optional.empty();
+  private       Optional<Angle>                   startingPosition                   = Optional.empty();
   /**
    * Maximum voltage output for the motor controller while using the closed loop controller.
    */
-  private Optional<Voltage>                 closedLoopControllerMaximumVoltage = Optional.empty();
+  private       Optional<Voltage>                 closedLoopControllerMaximumVoltage = Optional.empty();
   /**
    * Feedback synchronization threshhold.
    */
-  private       Optional<Angle>   feedbackSynchronizationThreshold = Optional.empty();
+  private       Optional<Angle>                   feedbackSynchronizationThreshold   = Optional.empty();
   /**
    * The motor controller mode.
    */
-  private       ControlMode       motorControllerMode              = ControlMode.CLOSED_LOOP;
+  private       ControlMode                       motorControllerMode                = ControlMode.CLOSED_LOOP;
   /**
    * Encoder discontinuity point.
    */
-  private       Optional<Angle>   maxDiscontinuityPoint            = Optional.empty();
+  private       Optional<Angle>                   maxDiscontinuityPoint              = Optional.empty();
   /**
    * Encoder discontinuity point.
    */
-  private       Optional<Angle>   minDiscontinuityPoint            = Optional.empty();
+  private       Optional<Angle>                   minDiscontinuityPoint              = Optional.empty();
 
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
@@ -467,18 +467,21 @@ public class SmartMotorControllerConfig
   /**
    * Set the telemetry for the {@link SmartMotorController} with a {@link SmartMotorControllerTelemetryConfig}
    *
-   * @param telemetryName Name for the {@link SmartMotorController}
+   * @param telemetryName   Name for the {@link SmartMotorController}
    * @param telemetryConfig Config that specifies what to log.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withSpecificTelemetry(String telemetryName, SmartMotorControllerTelemetryConfig telemetryConfig) {
+  public SmartMotorControllerConfig withSpecificTelemetry(String telemetryName,
+                                                          SmartMotorControllerTelemetryConfig telemetryConfig)
+  {
     this.telemetryName = Optional.ofNullable(telemetryName);
     this.verbosity = Optional.of(TelemetryVerbosity.HIGH);
     this.specifiedTelemetryConfig = Optional.ofNullable(telemetryConfig);
     return this;
   }
 
-  public Optional<Object> getSmartControllerTelemetryConfig() {
+  public Optional<Object> getSmartControllerTelemetryConfig()
+  {
     return specifiedTelemetryConfig;
   }
 

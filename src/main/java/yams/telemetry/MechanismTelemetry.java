@@ -11,13 +11,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import java.util.List;
 import yams.motorcontrollers.SmartMotorController;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class MechanismTelemetry
 {
@@ -38,8 +34,10 @@ public class MechanismTelemetry
    * Units for the mechanism setpoint and position.
    */
   private String               unitsString;
-  /** Setpoint for tracking changes. */
-  private double setpoint;
+  /**
+   * Setpoint for tracking changes.
+   */
+  private double           setpoint;
   /**
    * Network Tables Publisher for the setpoint.
    */
@@ -78,10 +76,12 @@ public class MechanismTelemetry
 
     var tunableSetpointTopic = tuningNetworkTable.getDoubleTopic("Setpoint");
     tunableSetpointPublisher = tunableSetpointTopic.publish();
-    tunableSetpointSubscriber = tunableSetpointTopic.subscribe(convertToNativeUnit(position), PubSubOption.keepDuplicates(true), PubSubOption.pollStorage(10));
-    unitsPublisher =  networkTable.getStringTopic("Units").publish();
+    tunableSetpointSubscriber = tunableSetpointTopic.subscribe(convertToNativeUnit(position),
+                                                               PubSubOption.keepDuplicates(true),
+                                                               PubSubOption.pollStorage(10));
+    unitsPublisher = networkTable.getStringTopic("Units").publish();
     positionPublisher = networkTable.getDoubleTopic("Position").publish();
-    
+
     this.setpoint = convertToNativeUnit(setpoint);
 
     this.unitsPublisher.set(units);
@@ -92,32 +92,37 @@ public class MechanismTelemetry
 
   /**
    * Convert the given unit to the telemetry type.
+   *
    * @param unit Measurable unit like {@link Meters} or {@link Radians}
    * @return double representation of the measurable unit for telemetry.
    */
   private double convertToNativeUnit(Measure unit)
   {
-    switch (unitsString) {
+    switch (unitsString)
+    {
       case "Degrees":
-        return ((Angle)unit).in(Degrees);    
+        return unit.in(Degrees);
       case "Radians":
-        return ((Angle)unit).in(Radians);    
+        return unit.in(Radians);
       case "Feet":
-        return ((Distance)unit).in(Feet);
+        return unit.in(Feet);
       case "Meters":
-        return ((Distance)unit).in(Meters);
+        return unit.in(Meters);
     }
-    throw new IllegalArgumentException("Cannot convert "+unit.toLongString()+" to double! Invalid unit given to mechanism telemetry!");
+    throw new IllegalArgumentException(
+        "Cannot convert " + unit.toLongString() + " to double! Invalid unit given to mechanism telemetry!");
   }
 
   /**
    * Convert native units to units type expected.
+   *
    * @param unit Native unit from telemetry.
    * @return Unit representation.
    */
   private Measure convertFromNativeUnit(double unit)
   {
-    switch (unitsString) {
+    switch (unitsString)
+    {
       case "Degrees":
         return Degrees.of(unit);
       case "Radians":
@@ -127,11 +132,14 @@ public class MechanismTelemetry
       case "Meters":
         return Meters.of(unit);
     }
-    throw new IllegalArgumentException("Cannot convert "+unit+" to "+unitsString+"! Invalid unit given to mechanism telemetry!");
+    throw new IllegalArgumentException(
+        "Cannot convert " + unit + " to " + unitsString + "! Invalid unit given to mechanism telemetry!");
   }
 
   /**
-   * Checks if the setpoint in NetworkTables is different from the setpoint in the class, if it is then the setpoint in NT has been updated and should be used instead of the requested setpoint.
+   * Checks if the setpoint in NetworkTables is different from the setpoint in the class, if it is then the setpoint in
+   * NT has been updated and should be used instead of the requested setpoint.
+   *
    * @return
    */
   public boolean setpointChanged()
@@ -141,6 +149,7 @@ public class MechanismTelemetry
 
   /**
    * Get the setpoint from the tunable setpoint.
+   *
    * @return Tunable setpoint.
    */
   public Measure getSetpoint()
@@ -171,7 +180,8 @@ public class MechanismTelemetry
   }
 
   /**
-   * Update the units of the telemetry to display. 
+   * Update the units of the telemetry to display.
+   *
    * @param units Unit to display, valid options are "Meters", "Feet", "Degrees", "Radians".
    */
   public void updateUnits(String units)

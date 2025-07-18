@@ -1,8 +1,5 @@
 package yams.mechanisms.config;
 
-import java.util.Optional;
-import java.util.OptionalDouble;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -10,6 +7,8 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import yams.exceptions.ArmConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -21,48 +20,48 @@ public class ArmConfig
   /**
    * {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
    */
-  private final SmartMotorController motor;
-  /**
-   * Telemetry name.
-   */
-  private       Optional<String>     telemetryName = Optional.empty();
+  private final SmartMotorController         motor;
   /**
    * The network root of the mechanism (Optional).
    */
-  protected Optional<String> networkTableName = Optional.empty();
+  protected     Optional<String>             networkTableName        = Optional.empty();
+  /**
+   * Telemetry name.
+   */
+  private       Optional<String>             telemetryName           = Optional.empty();
   /**
    * Telemetry verbosity
    */
-  private Optional<TelemetryVerbosity> telemetryVerbosity = Optional.empty();
+  private       Optional<TelemetryVerbosity> telemetryVerbosity      = Optional.empty();
   /**
    * Lower Hard Limit for the {@link yams.mechanisms.positional.Arm} to be representing in simulation.
    */
-  private Optional<Angle>              lowerHardLimit     = Optional.empty();
+  private       Optional<Angle>              lowerHardLimit          = Optional.empty();
   /**
    * Upper hard limit for the {@link yams.mechanisms.positional.Arm} representing in simulation.
    */
-  private Optional<Angle>              upperHardLimit     = Optional.empty();
+  private       Optional<Angle>              upperHardLimit          = Optional.empty();
   /**
    * {@link yams.mechanisms.positional.Arm} length for simulation.
    */
-  private Optional<Distance>           length             = Optional.empty();
+  private       Optional<Distance>           length                  = Optional.empty();
   /**
    * {@link yams.mechanisms.positional.Arm} mass for simulation.
    */
-  private Optional<Mass>               weight             = Optional.empty();
+  private       Optional<Mass>               weight                  = Optional.empty();
   /**
    * {@link yams.mechanisms.positional.Arm} MOI from CAD software. If not given estimated with length and weight.
    */
-  private OptionalDouble               moi                = OptionalDouble.empty();
+  private       OptionalDouble               moi                     = OptionalDouble.empty();
   /**
    * Sim color value
    */
-  private       Color8Bit            simColor      = new Color8Bit(Color.kOrange);
+  private       Color8Bit                    simColor                = new Color8Bit(Color.kOrange);
   /**
    * Mechanism position configuration for the {@link yams.mechanisms.positional.Pivot} (Optional).
    */
-  private MechanismPositionConfig mechanismPositionConfig = new MechanismPositionConfig();
-  
+  private       MechanismPositionConfig      mechanismPositionConfig = new MechanismPositionConfig();
+
   /**
    * Arm Configuration class
    *
@@ -155,7 +154,7 @@ public class ArmConfig
 
   /**
    * Set the elevator mechnism position configuration.
-   * 
+   *
    * @param mechanismPositionConfig {@link MechanismPositionConfig} for the {@link yams.mechanisms.positional.Elevator}
    * @return {@link PivotConfig} for chaining
    */
@@ -164,6 +163,7 @@ public class ArmConfig
     this.mechanismPositionConfig = mechanismPositionConfig;
     return this;
   }
+
   /**
    * Set the horizontal zero of the arm.
    *
@@ -337,15 +337,17 @@ public class ArmConfig
   /**
    * Get the {@link MechanismPositionConfig} associated with this {@link ArmConfig}.
    *
-   * @return An {@link Optional} containing the {@link MechanismPositionConfig} if present, otherwise an empty {@link Optional}.
+   * @return An {@link Optional} containing the {@link MechanismPositionConfig} if present, otherwise an empty
+   * {@link Optional}.
    */
   public MechanismPositionConfig getMechanismPositionConfig()
   {
     return mechanismPositionConfig;
-  } 
+  }
 
   /**
    * Get the telemetry network subtable of the mechanism.
+   *
    * @return Optional containing the telemetry network subtable if set, otherwise an empty Optional.
    */
   @Deprecated

@@ -124,10 +124,6 @@ public class TalonFXSWrapper extends SmartMotorController
    */
   private final StatusSignal<Temperature>     m_deviceTemperature;
   /**
-   * {@link DCMotorSim} for the {@link TalonFXS}.
-   */
-  private       Optional<DCMotorSim>          m_dcmotorSim      = Optional.empty();
-  /**
    * {@link CANcoder} to use as external feedback sensor.
    */
   private final Optional<CANcoder>            m_cancoder        = Optional.empty();
@@ -135,6 +131,10 @@ public class TalonFXSWrapper extends SmartMotorController
    * {@link CANdi} to use as external feedback sensor.
    */
   private final Optional<CANdi>               m_candi           = Optional.empty();
+  /**
+   * {@link DCMotorSim} for the {@link TalonFXS}.
+   */
+  private Optional<DCMotorSim> m_dcmotorSim = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper
@@ -594,8 +594,8 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                     .getMechanismToRotorRatio();
       if (config.getExternalEncoder().get() instanceof CANcoder encoder)
       {
-        var      configurator = encoder.getConfigurator();
-        var      cfg          = new CANcoderConfiguration();
+        var configurator = encoder.getConfigurator();
+        var cfg          = new CANcoderConfiguration();
         configurator.refresh(cfg);
         m_talonConfig.ExternalFeedback.FeedbackRemoteSensorID = encoder.getDeviceID();
         cfg.MagnetSensor.withSensorDirection(
@@ -626,8 +626,8 @@ public class TalonFXSWrapper extends SmartMotorController
         configurator.apply(cfg);
       } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
       {
-        var   configurator = encoder.getConfigurator();
-        var   cfg          = new CANdiConfiguration();
+        var configurator = encoder.getConfigurator();
+        var cfg          = new CANdiConfiguration();
         configurator.refresh(cfg);
         m_talonConfig.ExternalFeedback.FeedbackRemoteSensorID = encoder.getDeviceID();
         // Ensure pro uses best option.
