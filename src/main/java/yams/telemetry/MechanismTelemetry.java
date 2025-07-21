@@ -2,8 +2,6 @@ package yams.telemetry;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -14,6 +12,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.Measure;
 import java.util.List;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import yams.motorcontrollers.SmartMotorController;
@@ -96,16 +95,16 @@ public class MechanismTelemetry
   /**
    * Convert the given unit to the telemetry type.
    *
-   * @param unit Measurable unit like {@link Meters} or {@link Radians}
+   * @param unit Measurable unit like {@link Units#Meters} or {@link Units#Radians}
    * @return double representation of the measurable unit for telemetry.
    */
   private double convertToNativeUnit(Measure unit)
   {
       return switch (unitsString) {
           case "Degrees" -> ((Angle)unit).in(Degrees);
-          case "Radians" -> ((Angle)unit).in(Radians);
+          case "Radians" -> ((Angle)unit).in(Units.Radians);
           case "Feet" -> ((Distance)unit).in(Feet);
-          case "Meters" -> ((Distance)unit).in(Meters);
+          case "Meters" -> ((Distance)unit).in(Units.Meters);
           default -> throw new IllegalArgumentException(
                   "Cannot convert " + unit.toLongString() + " to double! Invalid unit given to mechanism telemetry!");
       };
@@ -119,19 +118,14 @@ public class MechanismTelemetry
    */
   private Measure convertFromNativeUnit(double unit)
   {
-    switch (unitsString)
-    {
-      case "Degrees":
-        return Degrees.of(unit);
-      case "Radians":
-        return Radians.of(unit);
-      case "Feet":
-        return Feet.of(unit);
-      case "Meters":
-        return Meters.of(unit);
-    }
-    throw new IllegalArgumentException(
-        "Cannot convert " + unit + " to " + unitsString + "! Invalid unit given to mechanism telemetry!");
+      return switch (unitsString) {
+          case "Degrees" -> Degrees.of(unit);
+          case "Radians" -> Units.Radians.of(unit);
+          case "Feet" -> Feet.of(unit);
+          case "Meters" -> Units.Meters.of(unit);
+          default -> throw new IllegalArgumentException(
+                  "Cannot convert " + unit + " to " + unitsString + "! Invalid unit given to mechanism telemetry!");
+      };
   }
 
   /**
