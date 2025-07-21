@@ -89,7 +89,7 @@ public class MechanismTelemetry
     this.unitsPublisher.set(units);
     this.tunableSetpointPublisher.set(this.setpoint);
     this.positionPublisher.set(convertToNativeUnit(position));
-    var motorName = motorController.getConfig().getTelemetryName().orElse("motor controller");
+    var motorName = motorController.getConfig().getTelemetryName().orElse("motor");
     motorController.setupTelemetry(networkTable.getSubTable(motorName),
             tuningNetworkTable.getSubTable(motorName));
   }
