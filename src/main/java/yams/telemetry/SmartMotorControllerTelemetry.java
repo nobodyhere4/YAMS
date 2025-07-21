@@ -121,7 +121,7 @@ public class SmartMotorControllerTelemetry
         {
           smc.getMechanismPositionSetpoint().ifPresent(mechSetpoint -> dt.set(
               cfg.getMechanismCircumference().isPresent() ? cfg.convertFromMechanism(mechSetpoint).in(Meters)
-                                                          : mechSetpoint.in(Radians)));
+                                                          : mechSetpoint.in(Rotations)));
         }
         case SetpointVelocity ->
         {
@@ -129,7 +129,7 @@ public class SmartMotorControllerTelemetry
                                                            dt.set(cfg.getMechanismCircumference().isPresent() ?
                                                                   cfg.convertFromMechanism(mechSetpoint)
                                                                      .in(MetersPerSecond) :
-                                                                  mechSetpoint.in(RadiansPerSecond)));
+                                                                  mechSetpoint.in(RotationsPerSecond)));
         }
         case FeedforwardVoltage ->
         {
