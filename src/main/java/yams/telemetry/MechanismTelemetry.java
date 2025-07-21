@@ -13,6 +13,9 @@ import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.Measure;
 import java.util.List;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import yams.motorcontrollers.SmartMotorController;
 
 public class MechanismTelemetry
@@ -98,19 +101,14 @@ public class MechanismTelemetry
    */
   private double convertToNativeUnit(Measure unit)
   {
-    switch (unitsString)
-    {
-      case "Degrees":
-        return unit.in(Degrees);
-      case "Radians":
-        return unit.in(Radians);
-      case "Feet":
-        return unit.in(Feet);
-      case "Meters":
-        return unit.in(Meters);
-    }
-    throw new IllegalArgumentException(
-        "Cannot convert " + unit.toLongString() + " to double! Invalid unit given to mechanism telemetry!");
+      return switch (unitsString) {
+          case "Degrees" -> ((Angle)unit).in(Degrees);
+          case "Radians" -> ((Angle)unit).in(Radians);
+          case "Feet" -> ((Distance)unit).in(Feet);
+          case "Meters" -> ((Distance)unit).in(Meters);
+          default -> throw new IllegalArgumentException(
+                  "Cannot convert " + unit.toLongString() + " to double! Invalid unit given to mechanism telemetry!");
+      };
   }
 
   /**
