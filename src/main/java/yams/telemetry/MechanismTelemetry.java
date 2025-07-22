@@ -67,7 +67,7 @@ public class MechanismTelemetry
    * @param setpoint               Setpoint of the mechanism.
    */
   public void setupTelemetry(String mechanismTelemetryName, SmartMotorController motorController, String units,
-                             Measure setpoint, Measure position)
+                             Measure<?> setpoint, Measure<?> position)
   {
     tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning")
                                              .getSubTable(mechanismTelemetryName);
@@ -100,7 +100,7 @@ public class MechanismTelemetry
    * @param unit Measurable unit like {@link Units#Meters} or {@link Units#Radians}
    * @return double representation of the measurable unit for telemetry.
    */
-  private double convertToNativeUnit(Measure unit)
+  private double convertToNativeUnit(Measure<?> unit)
   {
       return switch (unitsString) {
           case "Degrees" -> ((Angle)unit).in(Degrees);
@@ -118,7 +118,7 @@ public class MechanismTelemetry
    * @param unit Native unit from telemetry.
    * @return Unit representation.
    */
-  private Measure convertFromNativeUnit(double unit)
+  private Measure<?> convertFromNativeUnit(double unit)
   {
       return switch (unitsString) {
           case "Degrees" -> Degrees.of(unit);
@@ -146,7 +146,7 @@ public class MechanismTelemetry
    *
    * @return Tunable setpoint.
    */
-  public Measure getSetpoint()
+  public Measure<?> getSetpoint()
   {
     return convertFromNativeUnit(tunableSetpointSubscriber.get(setpoint));
   }
@@ -156,7 +156,7 @@ public class MechanismTelemetry
    *
    * @param position Position of the mechanism..
    */
-  public void updatePosition(Measure position)
+  public void updatePosition(Measure<?> position)
   {
     positionPublisher.set(convertToNativeUnit(position));
   }
@@ -167,7 +167,7 @@ public class MechanismTelemetry
    *
    * @param setpoint Setpoint of the Mechanism.
    */
-  public void updateSetpoint(Measure setpoint)
+  public void updateSetpoint(Measure<?> setpoint)
   {
     this.setpoint = convertToNativeUnit(setpoint);
     tunableSetpointPublisher.set(this.setpoint);
