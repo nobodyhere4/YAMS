@@ -2,9 +2,12 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -13,14 +16,19 @@ import com.thethriftybot.ThriftyNova;
 import com.thethriftybot.ThriftyNova.CurrentType;
 import com.thethriftybot.ThriftyNova.EncoderType;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -414,6 +422,253 @@ public class NovaWrapper extends SmartMotorController
       return m_sim.get().getAngularPosition().times(config.getGearing().getMechanismToRotorRatio());
     }
     return Rotations.of(m_nova.getPosition());
+  }
+
+  @Override
+  public void setMotorInverted(boolean inverted)
+  {
+    config.withMotorInverted(inverted);
+    m_nova.setInverted(inverted);
+  }
+
+  @Override
+  public void setEncoderInverted(boolean inverted)
+  {
+    config.withEncoderInverted(inverted);
+    m_nova.setInverted(inverted);
+  }
+
+  @Override
+  public void setMotionProfileMaxVelocity(LinearVelocity maxVelocity)
+  {
+    if (pidController.isPresent())
+    {
+      ProfiledPIDController ctr = pidController.get();
+      ctr.setConstraints(new Constraints(maxVelocity.in(MetersPerSecond), ctr.getConstraints().maxAcceleration));
+      config.withClosedLoopController(ctr);
+      pidController = Optional.of(ctr);
+    }
+  }
+
+  @Override
+  public void setMotionProfileMaxAcceleration(LinearAcceleration maxAcceleration)
+  {
+    if (pidController.isPresent())
+    {
+      ProfiledPIDController ctr = pidController.get();
+      ctr.setConstraints(new Constraints(ctr.getConstraints().maxVelocity,
+                                         maxAcceleration.in(MetersPerSecondPerSecond)));
+      config.withClosedLoopController(ctr);
+      pidController = Optional.of(ctr);
+    }
+  }
+
+  @Override
+  public void setMotionProfileMaxVelocity(AngularVelocity maxVelocity)
+  {
+    if (pidController.isPresent())
+    {
+      ProfiledPIDController ctr = pidController.get();
+      ctr.setConstraints(new Constraints(maxVelocity.in(RotationsPerSecond), ctr.getConstraints().maxAcceleration));
+      config.withClosedLoopController(ctr);
+      pidController = Optional.of(ctr);
+    }
+  }
+
+  @Override
+  public void setMotionProfileMaxAcceleration(AngularAcceleration maxAcceleration)
+  {
+    if (pidController.isPresent())
+    {
+      ProfiledPIDController ctr = pidController.get();
+      ctr.setConstraints(new Constraints(ctr.getConstraints().maxVelocity,
+                                         maxAcceleration.in(RotationsPerSecondPerSecond)));
+      config.withClosedLoopController(ctr);
+      pidController = Optional.of(ctr);
+    }
+  }
+
+  @Override
+  public void setKp(double kP)
+  {
+    simplePidController.ifPresent(simplePidController -> {
+      simplePidController.setP(kP);
+      config.withClosedLoopController(simplePidController);
+    });
+    pidController.ifPresent(pidController -> {
+      pidController.setP(kP);
+      config.withClosedLoopController(pidController);
+    });
+  }
+
+  @Override
+  public void setKi(double kI)
+  {
+    simplePidController.ifPresent(simplePidController -> {
+      simplePidController.setI(kI);
+      config.withClosedLoopController(simplePidController);
+    });
+    pidController.ifPresent(pidController -> {
+      pidController.setI(kI);
+      config.withClosedLoopController(pidController);
+    });
+
+  }
+
+  @Override
+  public void setKd(double kD)
+  {
+    simplePidController.ifPresent(simplePidController -> {
+      simplePidController.setP(kD);
+      config.withClosedLoopController(simplePidController);
+    });
+    pidController.ifPresent(pidController -> {
+      pidController.setP(kD);
+      config.withClosedLoopController(pidController);
+    });
+  }
+
+  @Override
+  public void setFeedback(double kP, double kI, double kD)
+  {
+    setKp(kP);
+    setKi(kI);
+    setKd(kD);
+  }
+
+  @Override
+  public void setKs(double kS)
+  {
+    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+      simpleMotorFeedforward.setKs(kS);
+      config.withFeedforward(simpleMotorFeedforward);
+    });
+    config.getArmFeedforward().ifPresent(armFeedforward -> {
+      armFeedforward.setKs(kS);
+      config.withFeedforward(armFeedforward);
+    });
+    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+      elevatorFeedforward.setKs(kS);
+      config.withFeedforward(elevatorFeedforward);
+    });
+  }
+
+  @Override
+  public void setKv(double kV)
+  {
+    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+      simpleMotorFeedforward.setKv(kV);
+      config.withFeedforward(simpleMotorFeedforward);
+    });
+    config.getArmFeedforward().ifPresent(armFeedforward -> {
+      armFeedforward.setKv(kV);
+      config.withFeedforward(armFeedforward);
+    });
+    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+      elevatorFeedforward.setKv(kV);
+      config.withFeedforward(elevatorFeedforward);
+    });
+  }
+
+  @Override
+  public void setKa(double kA)
+  {
+    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+      simpleMotorFeedforward.setKa(kA);
+      config.withFeedforward(simpleMotorFeedforward);
+    });
+    config.getArmFeedforward().ifPresent(armFeedforward -> {
+      armFeedforward.setKs(kA);
+      config.withFeedforward(armFeedforward);
+    });
+    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+      elevatorFeedforward.setKa(kA);
+      config.withFeedforward(elevatorFeedforward);
+    });
+  }
+
+  @Override
+  public void setKg(double kG)
+  {
+    config.getArmFeedforward().ifPresent(armFeedforward -> {
+      armFeedforward.setKg(kG);
+      config.withFeedforward(armFeedforward);
+    });
+    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+      elevatorFeedforward.setKg(kG);
+      config.withFeedforward(elevatorFeedforward);
+    });
+  }
+
+  @Override
+  public void setFeedforward(double kS, double kV, double kA, double kG)
+  {
+    setKs(kS);
+    setKv(kV);
+    setKa(kA);
+    setKg(kG);
+  }
+
+  @Override
+  public void setStatorCurrentLimit(Current currentLimit)
+  {
+    config.withStatorCurrentLimit(currentLimit);
+    m_nova.setMaxCurrent(CurrentType.STATOR, currentLimit.in(Amps));
+  }
+
+  @Override
+  public void setSupplyCurrentLimit(Current currentLimit)
+  {
+    config.withSupplyCurrentLimit(currentLimit);
+    m_nova.setMaxCurrent(CurrentType.SUPPLY, currentLimit.in(Amps));
+  }
+
+  @Override
+  public void setClosedLoopRampRate(Time rampRate)
+  {
+    config.withClosedLoopRampRate(rampRate);
+    m_nova.setRampUp(rampRate.in(Seconds));
+    m_nova.setRampDown(rampRate.in(Seconds));
+  }
+
+  @Deprecated
+  /// Unsupported
+  public void setOpenLoopRampRate(Time rampRate)
+  {
+  }
+
+  @Override
+  public void setMeasurementUpperLimit(Distance upperLimit)
+  {
+    if (config.getMechanismCircumference().isPresent() && config.getMechanismLowerLimit().isPresent())
+    {
+      config.withSoftLimit(config.convertFromMechanism(config.getMechanismLowerLimit().get()), upperLimit);
+    }
+  }
+
+  @Override
+  public void setMeasurementLowerLimit(Distance lowerLimit)
+  {
+    if (config.getMechanismCircumference().isPresent() && config.getMechanismUpperLimit().isPresent())
+    {
+      config.withSoftLimit(lowerLimit, config.convertFromMechanism(config.getMechanismUpperLimit().get()));
+    }
+  }
+
+  @Override
+  public void setMechanismUpperLimit(Angle upperLimit)
+  {
+    config.getMechanismLowerLimit().ifPresent(lowerLimit -> {
+      config.withSoftLimit(lowerLimit, upperLimit);
+    });
+  }
+
+  @Override
+  public void setMechanismLowerLimit(Angle lowerLimit)
+  {
+    config.getMechanismUpperLimit().ifPresent(upperLimit -> {
+      config.withSoftLimit(lowerLimit, upperLimit);
+    });
   }
 
   @Override

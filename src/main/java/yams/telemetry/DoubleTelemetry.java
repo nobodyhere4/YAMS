@@ -16,15 +16,24 @@ import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 public class DoubleTelemetry
 {
 
-  private final DoubleTelemetryField field;
+  private final DoubleTelemetryField       field;
   private final String                     key;
-  private final double                     defaultValue;
+  protected     boolean                    enabled      = false;
   private final boolean                    tunable;
-  protected     boolean                    enabled    = false;
-  private       DoublePublisher            publisher  = null;
-  private       Optional<DoubleSubscriber> subscriber = Optional.empty();
+  private       double                     defaultValue;
+  private       DoublePublisher            publisher    = null;
+  private       Optional<DoubleSubscriber> subscriber   = Optional.empty();
+  private       DoublePublisher            subPublisher = null;
 
 
+  /**
+   * Setup double telemetry for a field.
+   *
+   * @param keyString  Key to use.
+   * @param defaultVal Default value.
+   * @param field      Field representing.
+   * @param tunable    Tunable.
+   */
   public DoubleTelemetry(String keyString, double defaultVal, DoubleTelemetryField field, boolean tunable)
   {
     key = keyString;
@@ -33,13 +42,32 @@ public class DoubleTelemetry
     this.tunable = tunable;
   }
 
+  /**
+   * Set default values.
+   *
+   * @param defaultValue
+   */
+  public void setDefaultValue(double defaultValue)
+  {
+    this.defaultValue = defaultValue;
+  }
+
+  /**
+   * Setup network tables.
+   *
+   * @param dataTable   Data tables.
+   * @param tuningTable Tuning table.
+   */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
     var topic = dataTable.getDoubleTopic(key);
     publisher = topic.publish();
     publisher.setDefault(defaultValue);
-    if (tuningTable != null)
+    if (tuningTable != null && tunable)
     {
+      topic = tuningTable.getDoubleTopic(key);
+      subPublisher = topic.publish();
+      subPublisher.setDefault(defaultValue);
       subscriber = Optional.of(topic.subscribe(defaultValue));
     }
   }

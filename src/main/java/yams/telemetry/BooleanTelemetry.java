@@ -17,12 +17,13 @@ public class BooleanTelemetry
 {
 
   private final BooleanTelemetryField field;
-  private final String                      key;
-  private final boolean                     defaultValue;
-  private final boolean               tunable;
+  private final String  key;
+  private final boolean tunable;
+  private       boolean defaultValue;
   protected     boolean                     enabled    = false;
   private       BooleanPublisher            publisher  = null;
   private       Optional<BooleanSubscriber> subscriber = Optional.empty();
+  private       BooleanPublisher          pubSub = null;
 
 
   public BooleanTelemetry(String keyString, boolean defaultVal, BooleanTelemetryField field, boolean tunable)
@@ -41,6 +42,9 @@ public class BooleanTelemetry
     publisher.setDefault(defaultValue);
     if (tuningTable != null && tunable)
     {
+      topic = tuningTable.getBooleanTopic(key);
+      pubSub = topic.publish();
+      pubSub.setDefault(defaultValue);
       subscriber = Optional.of(topic.subscribe(defaultValue));
     }
   }
@@ -107,5 +111,10 @@ public class BooleanTelemetry
   public BooleanTelemetryField getField()
   {
     return field;
+  }
+
+  public void setDefaultValue(boolean value)
+  {
+    defaultValue = value;
   }
 }

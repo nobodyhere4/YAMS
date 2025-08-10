@@ -1,9 +1,11 @@
 package yams.telemetry;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
@@ -72,10 +74,67 @@ public class SmartMotorControllerTelemetryConfig
    */
   public Map<DoubleTelemetryField, DoubleTelemetry> getDoubleFields(SmartMotorController smc)
   {
-    if(smc.getSupplyCurrent().isEmpty())
+    var config = smc.getConfig();
+    if (smc.getSupplyCurrent().isEmpty())
     {
       doubleFields.get(DoubleTelemetryField.SupplyCurrent).disable();
+      doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit).disable();
     }
+    if (config.getSimpleFeedforward().isEmpty())
+    {
+      doubleFields.get(DoubleTelemetryField.kG).disable();
+    }
+    if (config.getMechanismCircumference().isEmpty())
+    {
+      doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit).disable();
+      doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit).disable();
+    } else
+    {
+      config.getMechanismUpperLimit()
+            .ifPresent(upperLimit -> doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit)
+                                                 .setDefaultValue(config.convertFromMechanism(upperLimit).in(Meters)));
+      config.getMechanismLowerLimit().ifPresent(limit -> doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit)
+                                                                     .setDefaultValue(config.convertFromMechanism(limit)
+                                                                                            .in(Meters)));
+    }
+    config.getMechanismUpperLimit().ifPresent(limit -> doubleFields.get(DoubleTelemetryField.MechanismUpperLimit)
+                                                                   .setDefaultValue(limit.in(Rotations)));
+    config.getMechanismLowerLimit().ifPresent(limit -> doubleFields.get(DoubleTelemetryField.MechanismLowerLimit)
+                                                                   .setDefaultValue(limit.in(Rotations)));
+    config.getSupplyStallCurrentLimit().ifPresent(e -> doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit)
+                                                                   .setDefaultValue((double) e));
+    config.getStatorStallCurrentLimit().ifPresent(e -> doubleFields.get(DoubleTelemetryField.StatorCurrentLimit)
+                                                                   .setDefaultValue((double) e));
+    config.getSimpleClosedLoopController().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kP).setDefaultValue(e.getP());
+      doubleFields.get(DoubleTelemetryField.kI).setDefaultValue(e.getI());
+      doubleFields.get(DoubleTelemetryField.kD).setDefaultValue(e.getD());
+    });
+    config.getClosedLoopController().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kP).setDefaultValue(e.getP());
+      doubleFields.get(DoubleTelemetryField.kI).setDefaultValue(e.getI());
+      doubleFields.get(DoubleTelemetryField.kD).setDefaultValue(e.getD());
+      doubleFields.get(DoubleTelemetryField.MotionProfileMaxAcceleration)
+                  .setDefaultValue(e.getConstraints().maxAcceleration);
+      doubleFields.get(DoubleTelemetryField.MotionProfileMaxVelocity).setDefaultValue(e.getConstraints().maxVelocity);
+    });
+    config.getArmFeedforward().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kS).setDefaultValue(e.getKs());
+      doubleFields.get(DoubleTelemetryField.kV).setDefaultValue(e.getKv());
+      doubleFields.get(DoubleTelemetryField.kA).setDefaultValue(e.getKa());
+      doubleFields.get(DoubleTelemetryField.kG).setDefaultValue(e.getKg());
+    });
+    config.getElevatorFeedforward().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kS).setDefaultValue(e.getKs());
+      doubleFields.get(DoubleTelemetryField.kV).setDefaultValue(e.getKv());
+      doubleFields.get(DoubleTelemetryField.kA).setDefaultValue(e.getKa());
+      doubleFields.get(DoubleTelemetryField.kG).setDefaultValue(e.getKg());
+    });
+    config.getSimpleFeedforward().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kS).setDefaultValue(e.getKs());
+      doubleFields.get(DoubleTelemetryField.kV).setDefaultValue(e.getKv());
+      doubleFields.get(DoubleTelemetryField.kA).setDefaultValue(e.getKa());
+    });
     return doubleFields;
   }
 
@@ -88,12 +147,20 @@ public class SmartMotorControllerTelemetryConfig
   public Map<BooleanTelemetryField, BooleanTelemetry> getBoolFields(SmartMotorController smc)
   {
     var config = smc.getConfig();
-    if(config.getArmFeedforward().isEmpty())
+    if (config.getArmFeedforward().isEmpty())
+    {
       boolFields.get(BooleanTelemetryField.ArmFeedForward).disable();
-    if(config.getElevatorFeedforward().isEmpty())
+    }
+    if (config.getElevatorFeedforward().isEmpty())
+    {
       boolFields.get(BooleanTelemetryField.ElevatorFeedForward).disable();
-    if(config.getSimpleFeedforward().isEmpty())
+    }
+    if (config.getSimpleFeedforward().isEmpty())
+    {
       boolFields.get(BooleanTelemetryField.SimpleMotorFeedForward).disable();
+    }
+    boolFields.get(BooleanTelemetryField.MotorInversion).setDefaultValue(config.getMotorInverted());
+    boolFields.get(BooleanTelemetryField.EncoderInversion).setDefaultValue(config.getEncoderInverted());
     return boolFields;
   }
 

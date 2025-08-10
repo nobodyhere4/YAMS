@@ -65,10 +65,7 @@ public class Elevator extends SmartPositionalMechanism
     {
       // TODO: Add telemetry units to config.
       m_telemetry.setupTelemetry(config.getTelemetryName().get(),
-                                 m_motor,
-                                 "Meters",
-                                 config.getStartingHeight().get(),
-                                 config.getStartingHeight().get());
+                                 m_motor);
     }
     config.applyConfig();
 
@@ -176,8 +173,8 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public void updateTelemetry()
   {
-    m_telemetry.updatePosition(getHeight());
-    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
+//    m_telemetry.updatePosition(getHeight());
+//    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_motor.updateTelemetry();
   }
 

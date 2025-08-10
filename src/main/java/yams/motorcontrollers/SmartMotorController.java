@@ -13,9 +13,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
@@ -554,6 +556,173 @@ public abstract class SmartMotorController
     }
     // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
   }
+
+  /**
+   * Set the inversion state of the motor.
+   *
+   * @param inverted Inverted motor.
+   */
+  public abstract void setMotorInverted(boolean inverted);
+
+  /**
+   * Set the phase of the encoder attached to the brushless motor.
+   *
+   * @param inverted Phase of the encoder.
+   */
+  public abstract void setEncoderInverted(boolean inverted);
+
+  /**
+   * Set the maximum velocity of the trapazoidal profile for the feedback controller.
+   *
+   * @param maxVelocity Maximum velocity, will be translated to MetersPerSecond.
+   */
+  public abstract void setMotionProfileMaxVelocity(LinearVelocity maxVelocity);
+
+  /**
+   * Set the maximum acceleration of the trapazoidal profile for the feedback controller.
+   *
+   * @param maxAcceleration Maximum acceleration, will be translated to MetersPerSecondPerSecond.
+   */
+  public abstract void setMotionProfileMaxAcceleration(LinearAcceleration maxAcceleration);
+
+  /**
+   * Set the maximum velocity for the trapazoidal profile for the feedback controller.
+   *
+   * @param maxVelocity Maximum velocity, will be translated to RotationsPerSecond.
+   */
+  public abstract void setMotionProfileMaxVelocity(AngularVelocity maxVelocity);
+
+  /**
+   * Set the maximum acceleration for the trapazoidal profile for the feedback controller.
+   *
+   * @param maxAcceleration Maximum acceleration, will be translated to RotationsPerSecondPerSecond.
+   */
+  public abstract void setMotionProfileMaxAcceleration(AngularAcceleration maxAcceleration);
+
+  /**
+   * Set kP for the feedback controller PID.
+   *
+   * @param kP kP
+   */
+  public abstract void setKp(double kP);
+
+  /**
+   * Set kI for the feedback controller PID.
+   *
+   * @param kI kI.
+   */
+  public abstract void setKi(double kI);
+
+  /**
+   * Set kD for the feedback controller PID.
+   *
+   * @param kD kD for the feedback controller PID.
+   */
+  public abstract void setKd(double kD);
+
+  /**
+   * Set the closed loop feedback controller PID.
+   *
+   * @param kP kP; Proportional scalar.
+   * @param kI kI; Integral scalar.
+   * @param kD kD; derivative scalar.
+   */
+  public abstract void setFeedback(double kP, double kI, double kD);
+
+  /**
+   * Static feedforward element.
+   *
+   * @param kS kS; Static feedforward.
+   */
+  public abstract void setKs(double kS);
+
+  /**
+   * Velocity feedforward element.
+   *
+   * @param kV kV; Velocity feedforward.
+   */
+  public abstract void setKv(double kV);
+
+  /**
+   * Acceleration feedforward element.
+   *
+   * @param kA kA; Acceleration feedforward.
+   */
+  public abstract void setKa(double kA);
+
+  /**
+   * kSin feedforward element.
+   *
+   * @param kG kG; Gravity feedforward.
+   */
+  public abstract void setKg(double kG);
+
+  /**
+   * Set the feedforward controller.
+   *
+   * @param kS kS; Static feedforward.
+   * @param kV kV; Velocity feedforward.
+   * @param kA kA; Acceleration feedforward.
+   * @param kG kG; Gravity feedforward.
+   */
+  public abstract void setFeedforward(double kS, double kV, double kA, double kG);
+
+  /**
+   * Set the stator current limit for the device.
+   *
+   * @param currentLimit Stator current limit.
+   */
+  public abstract void setStatorCurrentLimit(Current currentLimit);
+
+  /**
+   * Set the supply current limit.
+   *
+   * @param currentLimit Supply current limit.
+   */
+  public abstract void setSupplyCurrentLimit(Current currentLimit);
+
+  /**
+   * Set the closed loop ramp rate. The ramp rate is how fast the motor can go from 0-100, measured in seconds.
+   *
+   * @param rampRate Time from 0 to 100.
+   */
+  public abstract void setClosedLoopRampRate(Time rampRate);
+
+  /**
+   * Set the open loop ramp rate. The ramp rate is how fast the motor can go from 0 to 100, measured in Seconds.
+   *
+   * @param rampRate Time it takes to go from 0 to 100.
+   */
+  public abstract void setOpenLoopRampRate(Time rampRate);
+
+  /**
+   * Set the measurement upper limit, only works if mechanism circumference is defined.
+   *
+   * @param upperLimit Upper limit, will be translated to meters.
+   */
+  public abstract void setMeasurementUpperLimit(Distance upperLimit);
+
+  /**
+   * Set the measurement lower limit, only works if mechanism circumference is defined.
+   *
+   * @param lowerLimit Lower limit, will be translated to meters.
+   */
+  public abstract void setMeasurementLowerLimit(Distance lowerLimit);
+
+  /**
+   * Set the mechanism upper limit.
+   *
+   * @param upperLimit Upper limit, will be translated to rotations.
+   */
+  public abstract void setMechanismUpperLimit(Angle upperLimit);
+
+  /**
+   * Set the mechanism lower limit.
+   *
+   * @param lowerLimit Lower limit, will be translated to rotations.
+   */
+  public abstract void setMechanismLowerLimit(Angle lowerLimit);
+
 
   /**
    * Get the {@link SmartMotorController} temperature.

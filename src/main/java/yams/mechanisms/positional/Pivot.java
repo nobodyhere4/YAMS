@@ -67,10 +67,7 @@ public class Pivot extends SmartPositionalMechanism
     {
       // TODO: Add telemetry units to config.
       m_telemetry.setupTelemetry(config.getTelemetryName().get(),
-                                 m_motor,
-                                 "Degrees",
-                                 config.getStartingAngle().get(),
-                                 config.getStartingAngle().get());
+                                 m_motor);
     }
     config.applyConfig();
 
@@ -304,8 +301,8 @@ public class Pivot extends SmartPositionalMechanism
   @Override
   public void updateTelemetry()
   {
-    m_telemetry.updatePosition(getAngle());
-    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
+//    m_telemetry.updatePosition(getAngle());
+//    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_motor.updateTelemetry();
   }
 
