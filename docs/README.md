@@ -33,6 +33,26 @@ Setting up your first API call should be the easiest part of getting started. Wi
 No guesswork, no complexity—just your first successful call, fast.
 
 <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button primary" data-icon="rocket-launch">Get started</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/" class="button secondary" data-icon="terminal">API reference</a>
+
+{% code title="ArmSubsystem.java" %}
+```java
+// Create your mechanism
+Arm                        arm         = new Arm(config);
+
+// Update telemetry and simulation of the arm.
+public void periodic() { arm.updateTelemetry(); }
+public void simulationPeriodic() { arm.simIterate(); }
+
+// Control the arm with dutycycle. [-1,1]
+public Command setDutyCycle(double dutycycle) { return arm.set(dutycycle); }
+
+// Run SysId
+public Command sysId() { return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30)); }
+
+// Set the angle of the arm.
+public Command setAngle(Angle angle) { return arm.setAngle(angle); }
+```
+{% endcode %}
 {% endcolumn %}
 
 {% column width="58.33333333333333%" %}
@@ -57,30 +77,13 @@ TalonFXS                   armMotor    = new TalonFXS(1);
 SmartMotorController       motor       = new TalonFXSWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
 
 // Create your mechanism config
-ArmConfig                  m_config    = new ArmConfig(motor)
+ArmConfig                  config    = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
       .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(1))
       .withStartingPosition(Degrees.of(0))
-      .withHorizontalZero(Degrees.of(0))
-      .withMechanismPositionConfig(robotToMechanism);
-// Create your mechanism
-Arm                        arm         = new Arm(m_config);
-
-// Update telemetry and simulation of the arm.
-public void periodic() { arm.updateTelemetry(); }
-public void simulationPeriodic() { arm.simIterate(); }
-
-// Control the arm with dutycycle. [-1,1]
-public Command setDutyCycle(double dutycycle) { return arm.set(dutycycle); }
-
-// Run SysId
-public Command sysId() { return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30)); }
-
-// Set the angle of the arm.
-public Command setAngle(Angle angle) { return arm.setAngle(angle); }
-
+      .withHorizontalZero(Degrees.of(0));
 ```
 {% endcode %}
 {% endcolumn %}
