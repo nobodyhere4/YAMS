@@ -28,12 +28,6 @@ layout:
 {% column width="41.66666666666667%" %}
 ### Get started in 5 minutes
 
-Setting up your first API call should be the easiest part of getting started. With clear endpoints, copy-paste-ready examples, and quick authentication, you’ll be up and running in minutes—not hours.
-
-No guesswork, no complexity—just your first successful call, fast.
-
-<a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button primary" data-icon="rocket-launch">Get started</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/" class="button secondary" data-icon="terminal">API reference</a>
-
 {% code title="ArmSubsystem.java" %}
 ```java
 // Create your mechanism
@@ -53,6 +47,12 @@ public Command sysId() { return arm.sysId(Volts.of(3), Volts.of(3).per(Second), 
 public Command setAngle(Angle angle) { return arm.setAngle(angle); }
 ```
 {% endcode %}
+
+No guesswork, no complexity—just your first successful call, fast.
+
+Setting up your first API call should be the easiest part of getting started. With clear endpoints, copy-paste-ready examples, and quick authentication, you’ll be up and running in minutes—not hours.
+
+<a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button primary" data-icon="rocket-launch">Get started</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/" class="button secondary" data-icon="terminal">API reference</a>
 {% endcolumn %}
 
 {% column width="58.33333333333333%" %}
