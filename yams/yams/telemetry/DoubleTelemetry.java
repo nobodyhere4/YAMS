@@ -21,6 +21,7 @@ public class DoubleTelemetry
   protected     boolean                    enabled      = false;
   private final boolean                    tunable;
   private       double                     defaultValue;
+  private       double                     cachedValue;
   private       DoublePublisher            publisher    = null;
   private       Optional<DoubleSubscriber> subscriber   = Optional.empty();
   private       DoublePublisher            subPublisher = null;
@@ -37,7 +38,7 @@ public class DoubleTelemetry
   public DoubleTelemetry(String keyString, double defaultVal, DoubleTelemetryField field, boolean tunable)
   {
     key = keyString;
-    defaultValue = defaultVal;
+    cachedValue = defaultValue = defaultVal;
     this.field = field;
     this.tunable = tunable;
   }
@@ -45,11 +46,11 @@ public class DoubleTelemetry
   /**
    * Set default values.
    *
-   * @param defaultValue
+   * @param defaultValue Default for the entry.
    */
   public void setDefaultValue(double defaultValue)
   {
-    this.defaultValue = defaultValue;
+    cachedValue = this.defaultValue = defaultValue;
   }
 
   /**
@@ -113,7 +114,14 @@ public class DoubleTelemetry
 
   public boolean tunable()
   {
-    return subscriber.isPresent() && tunable && enabled;
+    if(subscriber.isPresent() && tunable && enabled) {
+      if(subscriber.get().get(defaultValue) != cachedValue) {
+        cachedValue = subscriber.get().get(defaultValue);
+        return true;
+      }
+      return false;
+    }
+    return false;
   }
 
   public void enable()

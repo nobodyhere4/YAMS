@@ -20,6 +20,7 @@ public class BooleanTelemetry
   private final String  key;
   private final boolean tunable;
   private       boolean defaultValue;
+  private       boolean cachedValue;
   protected     boolean                     enabled    = false;
   private       BooleanPublisher            publisher  = null;
   private       Optional<BooleanSubscriber> subscriber = Optional.empty();
@@ -29,7 +30,7 @@ public class BooleanTelemetry
   public BooleanTelemetry(String keyString, boolean defaultVal, BooleanTelemetryField field, boolean tunable)
   {
     key = keyString;
-    defaultValue = defaultVal;
+    cachedValue = defaultValue = defaultVal;
     this.field = field;
     this.tunable = tunable;
 
@@ -90,7 +91,14 @@ public class BooleanTelemetry
 
   public boolean tunable()
   {
-    return subscriber.isPresent() && tunable;
+      if(subscriber.isPresent() && tunable && enabled) {
+          if(subscriber.get().get(defaultValue) != cachedValue) {
+              cachedValue = subscriber.get().get(defaultValue);
+              return true;
+          }
+          return false;
+      }
+      return false;
   }
 
   public void enable()
@@ -116,5 +124,6 @@ public class BooleanTelemetry
   public void setDefaultValue(boolean value)
   {
     defaultValue = value;
+    cachedValue = value;
   }
 }
