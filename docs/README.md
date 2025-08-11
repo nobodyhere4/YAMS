@@ -28,26 +28,6 @@ layout:
 {% column width="41.66666666666667%" %}
 ### Get started in 5 minutes
 
-{% code title="ArmSubsystem.java" %}
-```java
-// Create your mechanism
-Arm                        arm         = new Arm(config);
-
-// Update telemetry and simulation of the arm.
-public void periodic() { arm.updateTelemetry(); }
-public void simulationPeriodic() { arm.simIterate(); }
-
-// Control the arm with dutycycle. [-1,1]
-public Command setDutyCycle(double dutycycle) { return arm.set(dutycycle); }
-
-// Run SysId
-public Command sysId() { return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30)); }
-
-// Set the angle of the arm.
-public Command setAngle(Angle angle) { return arm.setAngle(angle); }
-```
-{% endcode %}
-
 No guesswork, no complexity—just your first successful call, fast.
 
 Setting up your first API call should be the easiest part of getting started. With clear endpoints, copy-paste-ready examples, and quick authentication, you’ll be up and running in minutes—not hours.
@@ -84,6 +64,9 @@ ArmConfig                  config    = new ArmConfig(motor)
       .withMass(Pounds.of(1))
       .withStartingPosition(Degrees.of(0))
       .withHorizontalZero(Degrees.of(0));
+
+// Create the Arm!
+Arm                        arm = new Arm(config);
 ```
 {% endcode %}
 {% endcolumn %}
