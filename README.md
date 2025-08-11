@@ -30,6 +30,27 @@
 
 ---
 
+
+## 📂 Examples
+
+The repository contains several example projects under the `/examples` folder demonstrating how to use YAMS for arms, elevators, pivots, and combined subsystems.
+
+These example projects do **not** include YAMS as a dependency via Maven or vendordep directly. Instead, they use a modified `build.gradle` that links the YAMS source code located in the `/yams` folder relative to the example.
+
+This is done by adding the following snippet to the `sourceSets` block in each example’s `build.gradle`:
+
+```groovy
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java'
+            srcDirs '../../yams/'
+        }
+    }
+}
+```
+
+---
 ## 🚀 Quick Example
 
 Here’s a simplified `ArmSubsystem` using a wrapped `TalonFX`:
