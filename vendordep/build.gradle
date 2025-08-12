@@ -34,7 +34,7 @@ java {
 sourceSets {
     main {
         java {
-            srcDir "$rootDir/../../yams/java/"
+            srcDir "$rootDir/../yams/java/"
         }
     }
 }
@@ -89,7 +89,7 @@ tasks.withType(JavaCompile) {
 
 javadoc {
     title = "Yet Another Mechanism System API"
-    destinationDir = file("$releasePath/javadocs/")
+    destinationDir = file("$releasePath/javadocs")
     options {
         links "https://docs.oracle.com/en/java/javase/$javaVersion/docs/api/",
                 'https://github.wpilib.org/allwpilib/docs/release/java/',
@@ -110,6 +110,7 @@ model {
   }
 }
 
+build.dependsOn javadoc
 apply from: 'publish.gradle'
 
 wrapper {
