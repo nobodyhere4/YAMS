@@ -39,7 +39,7 @@ jobs:
         with:
           path: ${{ env.workingDirectory }}/build/maven/
       - name: Create Vendor JSON Repo PR
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@latest
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         with:
          repo: Yet-Another-Software-Suite/vendor-json-repo
          token: ${{ secrets.PUBLISH_VENDOR_JSON_TOKEN }}
