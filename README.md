@@ -1,7 +1,5 @@
-[![Documentation](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/build-pdf.yml)
-
-
 # YAMS - Yet Another Mechanism System
+[![Documentation](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/build-pdf.yml) [![CI](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/ci.yml/badge.svg)](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/ci.yml) [![Release](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/release.yml/badge.svg)](https://github.com/Yet-Another-Software-Suite/YAMS/actions/workflows/release.yml)
 
 > ✨ A flexible, extensible FRC mechanism library built for elevators, arms, turrets, and more — with simulation and telemetry included.
 
