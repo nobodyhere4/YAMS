@@ -31,6 +31,8 @@ jobs:
       - name: Publish vendordep
         run: ./gradlew publish
         working-directory: ${{ env.workingDirectory }}
+      - name: Show current working directory
+        run: pwd
       - name: Show maven repo
         run: find ${{ env.workingDirectory }}/build/maven/ -type f
       - name: Create Vendor JSON Repo PR
