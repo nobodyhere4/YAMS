@@ -34,7 +34,7 @@ java {
 sourceSets {
     main {
         java {
-            srcDir "$rootDir/../yams/java/"
+            srcDir "$rootDir/../../yams/java/"
         }
     }
 }
