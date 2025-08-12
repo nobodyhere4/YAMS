@@ -1,5 +1,5 @@
 name: YAMS CI
-on: [push, pull_request]
+on: [push, pull_request, release]
 jobs:
   build:
     runs-on: ubuntu-latest
