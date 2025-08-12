@@ -16,17 +16,52 @@ import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 public class BooleanTelemetry
 {
 
+  /**
+   * Field representing.
+   */
   private final BooleanTelemetryField field;
+  /**
+   * Network table key.
+   */
   private final String  key;
+  /**
+   * Tunable?
+   */
   private final boolean tunable;
+  /**
+   * Default value.
+   */
   private       boolean defaultValue;
+  /**
+   * Cached value.
+   */
   private       boolean cachedValue;
+  /**
+   * Enabled?
+   */
   protected     boolean                     enabled    = false;
+  /**
+   * Publisher.
+   */
   private       BooleanPublisher            publisher  = null;
+  /**
+   * Subscriber.
+   */
   private       Optional<BooleanSubscriber> subscriber = Optional.empty();
+  /**
+   * Sub publisher.
+   */
   private       BooleanPublisher          pubSub = null;
 
 
+  /**
+   * Setup boolean telemetry for a field.
+   *
+   * @param keyString  Networks table key.
+   * @param defaultVal Default value.
+   * @param field      Field representing.
+   * @param tunable    Tunable?
+   */
   public BooleanTelemetry(String keyString, boolean defaultVal, BooleanTelemetryField field, boolean tunable)
   {
     key = keyString;
@@ -36,6 +71,12 @@ public class BooleanTelemetry
 
   }
 
+  /**
+   * Setup network tables.
+   *
+   * @param dataTable   Data tables.
+   * @param tuningTable Tuning table.
+   */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
     var topic = dataTable.getBooleanTopic(key);
@@ -50,6 +91,11 @@ public class BooleanTelemetry
     }
   }
 
+  /**
+   * Setup network tables.
+   *
+   * @param dataTable Data tables.
+   */
   public void setupNetworkTable(NetworkTable dataTable)
   {
     setupNetworkTables(dataTable, null);
@@ -80,6 +126,11 @@ public class BooleanTelemetry
     return true;
   }
 
+  /**
+   * Get the value.
+   *
+   * @return Value.
+   */
   public boolean get()
   {
     if (subscriber.isPresent())
@@ -89,38 +140,66 @@ public class BooleanTelemetry
     throw new RuntimeException("Tuning table not configured for " + key + "!");
   }
 
+  /**
+   * Check to see if the value has changed.
+   *
+   * @return True if the value has changed.
+   */
   public boolean tunable()
   {
-      if(subscriber.isPresent() && tunable && enabled) {
-          if(subscriber.get().get(defaultValue) != cachedValue) {
-              cachedValue = subscriber.get().get(defaultValue);
-              return true;
-          }
-          return false;
+    if (subscriber.isPresent() && tunable && enabled)
+    {
+      if (subscriber.get().get(defaultValue) != cachedValue)
+      {
+        cachedValue = subscriber.get().get(defaultValue);
+        return true;
       }
       return false;
+    }
+    return false;
   }
 
+  /**
+   * Enable the telemetry.
+   */
   public void enable()
   {
     enabled = true;
   }
 
+  /**
+   * Disable the telemetry.
+   */
   public void disable()
   {
     enabled = false;
   }
 
+  /**
+   * Display the telemetry.
+   *
+   * @param state Enable or disable.
+   */
   public void display(boolean state)
   {
     enabled = state;
   }
 
+  /**
+   * Get the field.
+   *
+   * @return field.
+   */
   public BooleanTelemetryField getField()
   {
     return field;
   }
 
+  /**
+   * Set the default value.
+   *
+   * @param value Default value.
+   */
   public void setDefaultValue(boolean value)
   {
     defaultValue = value;

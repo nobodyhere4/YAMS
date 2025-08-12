@@ -8,6 +8,8 @@ public class InvalidStageGivenException extends RuntimeException
 
   /**
    * Constructs exception for failure to provide stages.
+   *
+   * @param stage Stage given.
    */
   public InvalidStageGivenException(String stage)
   {

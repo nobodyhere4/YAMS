@@ -54,6 +54,9 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 
+/**
+ * Spark wrapper for REV Spark Motor controllers.
+ */
 public class SparkWrapper extends SmartMotorController
 {
 

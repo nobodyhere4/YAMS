@@ -56,41 +56,44 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 
+/**
+ * TalonFX wrapper for a CTRE TalonFX motor controller.
+ */
 public class TalonFXWrapper extends SmartMotorController
 {
 
   /**
    * {@link TalonFX} motor controller
    */
-  private final TalonFX                   m_talonfx;
+  private final TalonFX                       m_talonfx;
   /**
    * {@link DCMotor} controlled by {@link TalonFX}
    */
-  private final DCMotor                   m_dcmotor;
+  private final DCMotor                       m_dcmotor;
   /**
    * Configurator
    */
-  private final TalonFXConfigurator       m_configurator;
+  private final TalonFXConfigurator           m_configurator;
   /**
    * Velocity control request
    */
-  private final VelocityVoltage           m_velocityReq     = new VelocityVoltage(0).withSlot(0);
+  private final VelocityVoltage               m_velocityReq     = new VelocityVoltage(0).withSlot(0);
   /**
    * Position with trapazoidal profiling request.
    */
-  private final MotionMagicVoltage        m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
+  private final MotionMagicVoltage            m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
   /**
    * Position with exponential profiling request.
    */
-  private final MotionMagicExpoVoltage    m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
+  private final MotionMagicExpoVoltage        m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
   /**
    * Configuration of the motor
    */
-  private final TalonFXConfiguration      m_talonConfig;
+  private final TalonFXConfiguration          m_talonConfig;
   /**
    * Mechanism position in rotations.
    */
-  private final StatusSignal<Angle>       m_mechanismPosition;
+  private final StatusSignal<Angle>           m_mechanismPosition;
   /**
    * Mechanism velocity in rotations per second.
    */
@@ -98,23 +101,23 @@ public class TalonFXWrapper extends SmartMotorController
   /**
    * Supply current of the motor controller.
    */
-  private final StatusSignal<Current>     m_supplyCurrent;
+  private final StatusSignal<Current>         m_supplyCurrent;
   /**
    * Stator current of the motor controller.
    */
-  private final StatusSignal<Current>     m_statorCurrent;
+  private final StatusSignal<Current>         m_statorCurrent;
   /**
    * DutyCycle of the motor controller.
    */
-  private final StatusSignal<Double>      m_dutyCycle;
+  private final StatusSignal<Double>          m_dutyCycle;
   /**
    * The motor voltage.
    */
-  private final StatusSignal<Voltage>     m_outputVoltage;
+  private final StatusSignal<Voltage>         m_outputVoltage;
   /**
    * Rotor position.
    */
-  private final StatusSignal<Angle>       m_rotorPosition;
+  private final StatusSignal<Angle>           m_rotorPosition;
   /**
    * Rotor velocity.
    */
@@ -122,19 +125,19 @@ public class TalonFXWrapper extends SmartMotorController
   /**
    * Temperature status
    */
-  private final StatusSignal<Temperature> m_deviceTemperature;
+  private final StatusSignal<Temperature>     m_deviceTemperature;
   /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private final Optional<CANcoder>        m_cancoder        = Optional.empty();
+  private final Optional<CANcoder>            m_cancoder        = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private final Optional<CANdi>           m_candi           = Optional.empty();
+  private final Optional<CANdi>               m_candi           = Optional.empty();
   /**
    * {@link DCMotorSim} for the {@link TalonFX}.
    */
-  private       Optional<DCMotorSim>      m_dcmotorSim      = Optional.empty();
+  private       Optional<DCMotorSim>          m_dcmotorSim      = Optional.empty();
 
   /**
    * Create the {@link TalonFX} wrapper
@@ -392,8 +395,10 @@ public class TalonFXWrapper extends SmartMotorController
   public void setVelocity(AngularVelocity angle)
   {
     setpointVelocity = Optional.ofNullable(angle);
-    if(angle != null)
-        m_talonfx.setControl(m_velocityReq.withVelocity(angle));
+    if (angle != null)
+    {
+      m_talonfx.setControl(m_velocityReq.withVelocity(angle));
+    }
   }
 
   @Override
@@ -567,7 +572,7 @@ public class TalonFXWrapper extends SmartMotorController
       if (config.getExternalEncoder().get() instanceof CANcoder encoder)
       {
         var configurator = encoder.getConfigurator();
-        var cfg = new CANcoderConfiguration();
+        var cfg          = new CANcoderConfiguration();
         configurator.refresh(cfg);
         m_talonConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
         cfg.MagnetSensor.withSensorDirection(
@@ -599,7 +604,7 @@ public class TalonFXWrapper extends SmartMotorController
       } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
       {
         var configurator = encoder.getConfigurator();
-        var cfg = new CANdiConfiguration();
+        var cfg          = new CANdiConfiguration();
         configurator.refresh(cfg);
         m_talonConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
         // Ensure pro uses best option.

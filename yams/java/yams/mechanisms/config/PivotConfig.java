@@ -11,6 +11,9 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/**
+ * Pivot config.
+ */
 public class PivotConfig
 {
 
@@ -107,6 +110,7 @@ public class PivotConfig
    *
    * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
    * @param telemetryVerbosity Telemetry verbosity to apply.
+   * @param networkRoot        Network root to publish the telemetry under.
    * @return {@link ArmConfig} for chaining.
    */
   @Deprecated
@@ -270,6 +274,11 @@ public class PivotConfig
     return motor;
   }
 
+  /**
+   * Sim color value
+   *
+   * @return Sim color value
+   */
   public Color8Bit getSimColor()
   {
     return simColor;

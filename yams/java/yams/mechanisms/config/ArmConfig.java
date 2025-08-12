@@ -14,6 +14,9 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/**
+ * Arm configuration class.
+ */
 public class ArmConfig
 {
 
@@ -138,8 +141,8 @@ public class ArmConfig
   /**
    * Configure telemetry for the {@link yams.mechanisms.positional.Arm} mechanism.
    *
-   * @param networkTableName   Telemetry NetworkTable
-   * @param telemetryName      Telemetry NetworkTable name to appear under {@value networkTableName}
+   * @param networkRoot   Telemetry NetworkTable
+   * @param telemetryName      Telemetry NetworkTable name to appear under _networkTableName_
    * @param telemetryVerbosity Telemetry verbosity to apply.
    * @return {@link ArmConfig} for chaining.
    */
@@ -329,6 +332,11 @@ public class ArmConfig
     return motor;
   }
 
+  /**
+   * Get sim color
+   *
+   * @return sim color.
+   */
   public Color8Bit getSimColor()
   {
     return simColor;

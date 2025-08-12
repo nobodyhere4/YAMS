@@ -39,6 +39,9 @@ import yams.mechanisms.config.MechanismPositionConfig.Plane;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 
+/**
+ * Elevator mechanism.
+ */
 public class Elevator extends SmartPositionalMechanism
 {
 

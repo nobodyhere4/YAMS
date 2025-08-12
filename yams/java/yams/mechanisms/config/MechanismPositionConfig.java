@@ -10,6 +10,12 @@ import edu.wpi.first.units.measure.Distance;
 import java.util.Optional;
 import yams.mechanisms.positional.SmartPositionalMechanism;
 
+/**
+ * A configuration class for specifying the position and visualization properties of a mechanism
+ * relative to a robot in a 3D coordinate system. This class allows setting and retrieving details
+ * such as the mechanism's position relative to the robot, the robot's maximum dimensions, and the
+ * plane in which the mechanism operates.
+ */
 public class MechanismPositionConfig
 {
 
@@ -156,5 +162,17 @@ public class MechanismPositionConfig
    * The planes that the mechanism could be on, used for position calculations.
    */
   public enum Plane
-  {XZ, YZ, XY}
+  {
+    /**
+     * X-Z Plane
+     */
+    XZ,
+    /**
+     * Y-Z Plane
+     */
+    YZ,
+    /**
+     * X-Y Plane
+     */
+    XY}
 }

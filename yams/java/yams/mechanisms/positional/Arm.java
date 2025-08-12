@@ -35,6 +35,9 @@ import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.MechanismPositionConfig.Plane;
 import yams.motorcontrollers.SmartMotorController;
 
+/**
+ * Arm mechanism.
+ */
 public class Arm extends SmartPositionalMechanism
 {
 

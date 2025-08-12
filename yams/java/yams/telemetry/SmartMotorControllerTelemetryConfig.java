@@ -11,6 +11,9 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
+/**
+ * Smart motor controller telemetry configuration.
+ */
 public class SmartMotorControllerTelemetryConfig
 {
 
@@ -32,6 +35,7 @@ public class SmartMotorControllerTelemetryConfig
    * Setup with {@link TelemetryVerbosity}
    *
    * @param verbosity {@link TelemetryVerbosity} to use.
+   * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
    */
   public SmartMotorControllerTelemetryConfig withTelemetryVerbosity(TelemetryVerbosity verbosity)
   {

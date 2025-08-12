@@ -19,6 +19,9 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/**
+ * Smart motor controller telemetry.
+ */
 public class SmartMotorControllerTelemetry
 {
 
@@ -78,6 +81,8 @@ public class SmartMotorControllerTelemetry
 
   /**
    * Publish {@link SmartMotorController} telemetry to {@link NetworkTable}
+   *
+   * @param smc Smart motor controller to publish telemetry for.
    */
   public void publish(SmartMotorController smc)
   {
@@ -522,6 +527,11 @@ public class SmartMotorControllerTelemetry
       this.tunable = tunable;
     }
 
+    /**
+     * Create double telemetry field.
+     *
+     * @return Double telemetry field.
+     */
     public DoubleTelemetry create()
     {
       return new DoubleTelemetry(key, defaultVal, this, tunable);

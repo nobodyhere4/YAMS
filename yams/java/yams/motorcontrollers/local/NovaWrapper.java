@@ -41,6 +41,9 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 
+/**
+ * Nova wrapper for {@link SmartMotorController}
+ */
 public class NovaWrapper extends SmartMotorController
 {
 

@@ -482,6 +482,10 @@ public class SmartMotorControllerConfig
   }
 
 
+  /**
+   * Get the telemetry configuration
+   * @return Telemetry configuration.
+   */
   public Optional<SmartMotorControllerTelemetryConfig> getSmartControllerTelemetryConfig()
   {
     return specifiedTelemetryConfig;
@@ -1234,6 +1238,11 @@ public class SmartMotorControllerConfig
     return closedLoopControllerMaximumVoltage;
   }
 
+  /**
+   * Get the feedback synchronization threshold.
+   *
+   * @return Feedback synchronization threshold.
+   */
   public Optional<Angle> getFeedbackSynchronizationThreshold()
   {
     return feedbackSynchronizationThreshold;
@@ -1308,7 +1317,18 @@ public class SmartMotorControllerConfig
    */
   public enum TelemetryVerbosity
   {
-    LOW, MID, HIGH
+    /**
+     * Low telemetry
+     */
+    LOW,
+    /**
+     * Mid telemetry
+     */
+    MID,
+    /**
+     * High telemetry
+     */
+    HIGH
   }
 
   /**

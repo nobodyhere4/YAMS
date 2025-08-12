@@ -2,14 +2,17 @@ package yams.math;
 
 import yams.exceptions.NoStagesGivenException;
 
+/**
+ * SmartMath class to handle math operations.
+ */
 public class SmartMath
 {
 
   /**
    * Create the sensor to mechanism ratio.
    *
-   * @param stages
-   * @return
+   * @param stages stages between the motor and output shaft.
+   * @return sensor to mechanism ratio.
    */
   public static double sensorToMechanismRatio(double... stages)
   {

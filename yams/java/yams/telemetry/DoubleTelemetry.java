@@ -16,14 +16,41 @@ import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 public class DoubleTelemetry
 {
 
+  /**
+   * Field representing.
+   */
   private final DoubleTelemetryField       field;
+  /**
+   * Network table key.
+   */
   private final String                     key;
+  /**
+   * Enabled?
+   */
   protected     boolean                    enabled      = false;
+  /**
+   * Tunable?
+   */
   private final boolean                    tunable;
+  /**
+   * Default value.
+   */
   private       double                     defaultValue;
+  /**
+   * Cached value.
+   */
   private       double                     cachedValue;
+  /**
+   * Publisher.
+   */
   private       DoublePublisher            publisher    = null;
+  /**
+   * Subscriber.
+   */
   private       Optional<DoubleSubscriber> subscriber   = Optional.empty();
+  /**
+   * Sub publisher.
+   */
   private       DoublePublisher            subPublisher = null;
 
 
@@ -73,6 +100,11 @@ public class DoubleTelemetry
     }
   }
 
+  /**
+   * Setup network tables.
+   *
+   * @param dataTable Data tables.
+   */
   public void setupNetworkTable(NetworkTable dataTable)
   {
     setupNetworkTables(dataTable, null);
@@ -103,6 +135,11 @@ public class DoubleTelemetry
     return true;
   }
 
+  /**
+   * Get the value.
+   *
+   * @return value of telemetry.
+   */
   public double get()
   {
     if (subscriber.isPresent())
@@ -112,10 +149,17 @@ public class DoubleTelemetry
     throw new RuntimeException("Tuning table not configured for " + key + "!");
   }
 
+  /**
+   * Check to see if the value has changed.
+   *
+   * @return True if the value has changed.
+   */
   public boolean tunable()
   {
-    if(subscriber.isPresent() && tunable && enabled) {
-      if(subscriber.get().get(defaultValue) != cachedValue) {
+    if (subscriber.isPresent() && tunable && enabled)
+    {
+      if (subscriber.get().get(defaultValue) != cachedValue)
+      {
         cachedValue = subscriber.get().get(defaultValue);
         return true;
       }
@@ -124,21 +168,37 @@ public class DoubleTelemetry
     return false;
   }
 
+  /**
+   * Enable the telemetry.
+   */
   public void enable()
   {
     enabled = true;
   }
 
+  /**
+   * Disable the telemetry.
+   */
   public void disable()
   {
     enabled = false;
   }
 
+  /**
+   * Display the telemetry.
+   *
+   * @param state Enable or disable.
+   */
   public void display(boolean state)
   {
     enabled = state;
   }
 
+  /**
+   * Get the field.
+   *
+   * @return field.
+   */
   public DoubleTelemetryField getField()
   {
     return field;

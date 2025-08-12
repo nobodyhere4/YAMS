@@ -4,17 +4,20 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import yams.motorcontrollers.SmartMotorController;
 
+/**
+ * Mechanism telemetry.
+ */
 public class MechanismTelemetry
 {
 
   /**
    * Telemetry NetworkTable.
    */
-  private NetworkTable         networkTable;
+  private NetworkTable networkTable;
   /**
    * Tuning NetworkTable.
    */
-  private NetworkTable         tuningNetworkTable;
+  private NetworkTable tuningNetworkTable;
 
   /**
    * Setup telemetry for the Mechanism and motor controller.

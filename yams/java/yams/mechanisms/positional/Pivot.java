@@ -36,6 +36,9 @@ import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.PivotConfig;
 import yams.motorcontrollers.SmartMotorController;
 
+/**
+ * Pivot mechanism.
+ */
 public class Pivot extends SmartPositionalMechanism
 {
 

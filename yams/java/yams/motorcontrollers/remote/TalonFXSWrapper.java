@@ -59,6 +59,9 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 
+/**
+ * TalonFXS Wrapper for CTRE TalonFXS Motor Controllers.
+ */
 public class TalonFXSWrapper extends SmartMotorController
 {
 
@@ -133,11 +136,11 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private final Optional<CANdi>               m_candi           = Optional.empty();
+  private final Optional<CANdi>      m_candi      = Optional.empty();
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
-  private Optional<DCMotorSim> m_dcmotorSim = Optional.empty();
+  private       Optional<DCMotorSim> m_dcmotorSim = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper

@@ -35,6 +35,9 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
 
+/**
+ * Smart motor controller wrapper for motor controllers.
+ */
 public abstract class SmartMotorController
 {
 
@@ -73,15 +76,15 @@ public abstract class SmartMotorController
   /**
    * {@link SmartMotorController} telemetry table.
    */
-  protected Optional<NetworkTable>                        telemetryTable             = Optional.empty();
+  protected Optional<NetworkTable>                        telemetryTable  = Optional.empty();
   /**
    * {@link SmartMotorController} tuning table.
    */
-  protected Optional<NetworkTable> tuningTable = Optional.empty();
+  protected Optional<NetworkTable>                        tuningTable     = Optional.empty();
   /**
    * Config for publishing specific telemetry.
    */
-  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig            = Optional.empty();
+  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig = Optional.empty();
 
 
   /**

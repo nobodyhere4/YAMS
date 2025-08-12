@@ -13,6 +13,9 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/**
+ * Elevator configuration class.
+ */
 public class ElevatorConfig
 {
 
@@ -136,7 +139,8 @@ public class ElevatorConfig
    *
    * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
    * @param telemetryVerbosity Telemetry verbosity to apply.
-   * @return {@link ArmConfig} for chaining.
+   * @param networkRoot        Network root to publish the telemetry under.
+   * @return {@link ElevatorConfig} for chaining.
    */
   @Deprecated
   public ElevatorConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
@@ -282,6 +286,11 @@ public class ElevatorConfig
     return motor;
   }
 
+  /**
+   * Get sim color
+   *
+   * @return sim color
+   */
   public Color8Bit getSimColor()
   {
     return simColor;
