@@ -31,6 +31,8 @@ jobs:
       - name: Publish vendordep
         run: ./gradlew publish
         working-directory: ${{ env.workingDirectory }}
+      - name: Show maven repo
+        run: find -type f ${{ env.workingDirectory }}/build/maven/
       - name: Create Vendor JSON Repo PR
         uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         with:
