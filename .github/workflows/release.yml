@@ -38,6 +38,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ env.workingDirectory }}/build/maven/
+      - name: Create Vendor JSON Repo PR
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@latest
+        with:
+         repo: Yet-Another-Software-Suite/vendor-json-repo
+         token: ${{ secrets.PUBLISH_VENDOR_JSON_TOKEN }}
+         vendordep_file: yams/vendordep/build/maven/yams.json
+         pr_title: "Automatically add YAMS version ${{inputs.releaseVersion}}"
+         pr_branch: "publish_yams_${{inputs.releaseVersion}}"
   deploy:
     permissions:
       contents: write
