@@ -1,7 +1,5 @@
 name: Build and Release
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       releaseVersion:
@@ -15,7 +13,6 @@ jobs:
       contents: read
     env:
       releaseVersion: ${{ inputs.releaseVersion }}
-      releaseName: ${{ github.event.release.name }}
       workingDirectory: yams/vendordep
     steps:
       - uses: actions/checkout@v4
