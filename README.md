@@ -26,7 +26,7 @@
    - Choose `Install new library (online or offline)`
    - Select **Online**
    - Paste the URL to the YAMS vendordep JSON file, e.g.:  
-     `LINK_HERE`
+     `https://yet-another-software-suite.github.io/YAMS/yams.json`
    - Press Enter to install
 
 ---
