@@ -13,7 +13,7 @@ jobs:
       contents: read
     env:
       releaseVersion: ${{ inputs.releaseVersion }}
-      workingDirectory: yams/vendordep
+      workingDirectory: ${{github.workspace}}/yams/vendordep
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
@@ -40,7 +40,7 @@ jobs:
         with:
           repo: Yet-Another-Software-Suite/vendor-json-repo
           token: ${{ secrets.PUBLISH_VENDOR_JSON_TOKEN }}
-          vendordep_file: /home/runner/work/YAMS/YAMS/${{ env.workingDirectory }}/build/maven/yams.json
+          vendordep_file: ${{ env.workingDirectory }}/build/maven/yams.json
           pr_title: "Automatically add YAMS version ${{inputs.releaseVersion}}"
           pr_branch: "publish_yams_${{inputs.releaseVersion}}"
       - name: Setup Pages
