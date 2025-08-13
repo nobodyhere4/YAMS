@@ -210,6 +210,17 @@ public class Pivot extends SmartPositionalMechanism
     return Commands.run(() -> m_motor.setPosition(angle), m_subsystem);
   }
 
+  /**
+   * Set the pivot to the given angle.
+   *
+   * @param angle Pivot angle to go to.
+   * @return {@link Command} that sets the pivot to the desired angle.
+   */
+  public Command setAngle(Supplier<Angle> angle)
+  {
+    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem);
+  }
+
   @Override
   public Trigger max()
   {

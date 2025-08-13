@@ -239,6 +239,17 @@ public class Arm extends SmartPositionalMechanism
   }
 
   /**
+   * Set the arm to the given angle.
+   *
+   * @param angle Arm angle to go to.
+   * @return {@link Command} that sets the arm to the desired angle.
+   */
+  public Command setAngle(Supplier<Angle> angle)
+  {
+    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem);
+  }
+
+  /**
    * Arm is near an angle.
    *
    * @param angle  {@link Angle} to be near.

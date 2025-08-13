@@ -248,6 +248,17 @@ public class Elevator extends SmartPositionalMechanism
     return Commands.run(() -> m_motor.setPosition(height), m_subsystem);
   }
 
+  /**
+   * Set the height of the elevator.
+   *
+   * @param height Height of the elevator to reach.
+   * @return {@link Command} that  sets the elevator height, stops immediately.
+   */
+  public Command setHeight(Supplier<Distance> height)
+  {
+    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem);
+  }
+
 
   /**
    * Get the Height of the Elevator.

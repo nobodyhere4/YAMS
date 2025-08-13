@@ -118,6 +118,17 @@ public abstract class SmartMechanism
   }
 
   /**
+   * Set the DutyCycle of the {@link yams.motorcontrollers.SmartMotorController}.
+   *
+   * @param dutycycle [-1,1] to set.
+   * @return {@link Command}
+   */
+  public Command set(Supplier<Double> dutycycle)
+  {
+    return Commands.run(() -> m_motor.setDutyCycle(dutycycle.get()), m_subsystem);
+  }
+
+  /**
    * Set the voltage of the {@link yams.motorcontrollers.SmartMotorController}.
    *
    * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set.
@@ -126,6 +137,17 @@ public abstract class SmartMechanism
   public Command setVoltage(Voltage volts)
   {
     return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem);
+  }
+
+  /**
+   * Set the voltage of the {@link yams.motorcontrollers.SmartMotorController}.
+   *
+   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set.
+   * @return {@link Command}
+   */
+  public Command setVoltage(Supplier<Voltage> volts)
+  {
+    return Commands.run(() -> m_motor.setVoltage(volts.get()), m_subsystem);
   }
 
   /**
