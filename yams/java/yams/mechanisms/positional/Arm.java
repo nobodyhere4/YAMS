@@ -29,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import java.util.function.Supplier;
+
 import yams.exceptions.ArmConfigurationException;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -239,9 +241,9 @@ public class Arm extends SmartPositionalMechanism
   }
 
   /**
-   * Set the arm to the given angle.
+   * Set the arm to the given angle via a supplier.
    *
-   * @param angle Arm angle to go to.
+   * @param angle Supplier for the arm angle to go to.
    * @return {@link Command} that sets the arm to the desired angle.
    */
   public Command setAngle(Supplier<Angle> angle)

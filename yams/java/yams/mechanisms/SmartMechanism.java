@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
+import java.util.function.Supplier;
+
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
@@ -120,7 +122,7 @@ public abstract class SmartMechanism
   /**
    * Set the DutyCycle of the {@link yams.motorcontrollers.SmartMotorController}.
    *
-   * @param dutycycle [-1,1] to set.
+   * @param dutycycle [-1,1] to set via an {@link Supplier}.
    * @return {@link Command}
    */
   public Command set(Supplier<Double> dutycycle)
@@ -142,7 +144,7 @@ public abstract class SmartMechanism
   /**
    * Set the voltage of the {@link yams.motorcontrollers.SmartMotorController}.
    *
-   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set.
+   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set, via a {@link Supplier}.
    * @return {@link Command}
    */
   public Command setVoltage(Supplier<Voltage> volts)
