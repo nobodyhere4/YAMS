@@ -1,23 +1,14 @@
 package yams.telemetry;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Fahrenheit;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import edu.wpi.first.networktables.NetworkTable;
-import java.util.Map;
+import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+
+import java.util.Map;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * Smart motor controller telemetry.
@@ -30,7 +21,13 @@ public class SmartMotorControllerTelemetry
    * {@link TelemetryVerbosity} for the {@link SmartMotorController}
    */
   private final TelemetryVerbosity                           verbosity = TelemetryVerbosity.HIGH;
+  /**
+   * Double telemetry fields that will be outputted.
+   */
   private       Map<DoubleTelemetryField, DoubleTelemetry>   doubleFields;
+  /**
+   * Boolean telemetry fields that will be outputted.
+   */
   private       Map<BooleanTelemetryField, BooleanTelemetry> boolFields;
 
   /**
@@ -208,8 +205,11 @@ public class SmartMotorControllerTelemetry
    */
   public void applyTuningValues(SmartMotorController smartMotorController)
   {
-
     SmartMotorControllerConfig cfg = smartMotorController.getConfig();
+    if(cfg.getMotorControllerMode() != SmartMotorControllerConfig.ControlMode.CLOSED_LOOP)
+    {
+      throw new SmartMotorControllerConfigurationException("Live tuning does not work in OPEN_LOOP", "Cannot apply setpoints for Live Tuning.",".withControlMode(ControlMode.CLOSED_LOOP) instead of .withControlMode(ControlMode.OPEN_LOOP)");
+    }
     for (Map.Entry<BooleanTelemetryField, BooleanTelemetry> entry : boolFields.entrySet())
     {
       BooleanTelemetry bt = entry.getValue();
@@ -225,29 +225,33 @@ public class SmartMotorControllerTelemetry
     for (Map.Entry<DoubleTelemetryField, DoubleTelemetry> entry : doubleFields.entrySet())
     {
       DoubleTelemetry dt = entry.getValue();
+      switch (dt.getField()) {
+        case TunableSetpointPosition -> {
+          cfg.getMechanismCircumference().ifPresentOrElse(
+                  circumference -> {
+                    System.out.println("Setting elev position to " + dt.get());
+                    smartMotorController.setPosition(Meters.of(dt.get()));
+                  }, () -> {
+                    System.out.println("Setting position to " + dt.get());
+                    smartMotorController.setPosition(Rotations.of(dt.get()));
+                  });
+          break;
+        }
+        case TunableSetpointVelocity -> {
+          if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty()) {
+            return;
+          }
+          cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
+                          MetersPerSecond.of(
+                                  dt.get())),
+                  () -> smartMotorController.setVelocity(
+                          dt.get() == 0 ? null : RadiansPerSecond.of(dt.get())));
+          break;
+        }
+      }
       if (dt.tunable())
       {
-        switch (dt.getField())
-        {
-          case TunableSetpointPosition ->
-          {
-            cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setPosition(Meters.of(
-                dt.get())), () -> smartMotorController.setPosition(Radians.of(dt.get())));
-            break;
-          }
-          case TunableSetpointVelocity ->
-          {
-            if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty())
-            {
-              return;
-            }
-            cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
-                                                                MetersPerSecond.of(
-                                                                    dt.get())),
-                                                            () -> smartMotorController.setVelocity(
-                                                                dt.get() == 0 ? null : RadiansPerSecond.of(dt.get())));
-            break;
-          }
+        switch (dt.getField()) {
           case kP -> smartMotorController.setKp(dt.get());
           case kI -> smartMotorController.setKi(dt.get());
           case kD -> smartMotorController.setKd(dt.get());

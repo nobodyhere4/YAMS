@@ -7,8 +7,9 @@ package yams.telemetry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
-import java.util.Optional;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
+
+import java.util.Optional;
 
 /**
  * Add your docs here.
@@ -91,9 +92,9 @@ public class DoubleTelemetry
     if (tuningTable != null && tunable)
     {
       var topic = tuningTable.getDoubleTopic(key);
+      subscriber = Optional.of(topic.subscribe(defaultValue));
       subPublisher = topic.publish();
       subPublisher.setDefault(defaultValue);
-      subscriber = Optional.of(topic.subscribe(defaultValue));
     } else
     {
       var topic = dataTable.getDoubleTopic(key);
