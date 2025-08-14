@@ -72,6 +72,8 @@ public class NovaWrapper extends SmartMotorController
     m_nova = controller;
     this.m_motor = motor;
     this.config = config;
+    setupSimulation();
+    applyConfig(config);
   }
 
   @Override
@@ -79,12 +81,13 @@ public class NovaWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
+      System.out.println("i setup shit here");
       m_sim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
                                                                             0.001,
                                                                             config.getGearing()
                                                                                   .getRotorToMechanismRatio()),
                                          m_motor,
-                                         1.0 / 1024.0));
+                                         1.0 / 1024.0,0));
     }
   }
 
