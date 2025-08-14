@@ -1,20 +1,10 @@
 package yams.mechanisms.positional;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inch;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -29,14 +19,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import yams.exceptions.ArmConfigurationException;
 import yams.exceptions.PivotConfigurationException;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.PivotConfig;
 import yams.motorcontrollers.SmartMotorController;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * Pivot mechanism.
@@ -209,7 +201,7 @@ public class Pivot extends SmartPositionalMechanism
    */
   public Command setAngle(Angle angle)
   {
-    return Commands.run(() -> m_motor.setPosition(angle), m_subsystem);
+    return Commands.run(() -> m_motor.setPosition(angle), m_subsystem).withName(m_subsystem.getName() + " SetAngle");
   }
 
   /**
@@ -220,7 +212,7 @@ public class Pivot extends SmartPositionalMechanism
    */
   public Command setAngle(Supplier<Angle> angle)
   {
-    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem);
+    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem).withName(m_subsystem.getName() + " SetAngle Supplier");
   }
 
   @Override
@@ -296,7 +288,7 @@ public class Pivot extends SmartPositionalMechanism
     {
       group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
     }
-    return group;
+    return group.withName(m_subsystem.getName() + " SysId");
   }
 
   @Override

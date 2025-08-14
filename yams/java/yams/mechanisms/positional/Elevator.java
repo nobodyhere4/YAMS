@@ -1,22 +1,9 @@
 package yams.mechanisms.positional;
 
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kilograms;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -31,15 +18,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import yams.exceptions.ElevatorConfigurationException;
 import yams.mechanisms.config.ElevatorConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.MechanismPositionConfig.Plane;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * Elevator mechanism.
@@ -247,7 +236,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Command setHeight(Distance height)
   {
-    return Commands.run(() -> m_motor.setPosition(height), m_subsystem);
+    return Commands.run(() -> m_motor.setPosition(height), m_subsystem).withName(m_subsystem.getName() + " SetHeight");
   }
 
   /**
@@ -258,7 +247,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Command setHeight(Supplier<Distance> height)
   {
-    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem);
+    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem).withName(m_subsystem.getName() + " SetHeight Supplier");
   }
 
 
@@ -409,7 +398,7 @@ public class Elevator extends SmartPositionalMechanism
     {
       group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
     }
-    return group;
+    return group.withName(m_subsystem.getName() + " SysId");
   }
 
   /**

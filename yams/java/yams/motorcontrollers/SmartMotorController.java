@@ -11,6 +11,8 @@ import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -529,8 +531,13 @@ public abstract class SmartMotorController
                                                                                                                    TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
-        RobotModeTriggers.test().whileTrue(Commands.run(()->this.telemetry.applyTuningValues(this),
-                config.getSubsystem()));
+        Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
+                config.getSubsystem())
+                .finallyDo(() -> System.err.println("=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
+        liveTuningCommand.setName("LiveTuning");
+        liveTuningCommand.setSubsystem(config.getSubsystem().getName());
+        SmartDashboard.putData(telemetry.getPath()+"/LiveTuning",liveTuningCommand);
+        RobotModeTriggers.test().whileTrue(liveTuningCommand);
       }
     }
   }

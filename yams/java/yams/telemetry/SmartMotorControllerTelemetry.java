@@ -237,7 +237,7 @@ public class SmartMotorControllerTelemetry
         }
         case TunableSetpointVelocity -> {
           if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty()) {
-            return;
+            continue;
           }
           cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
                           MetersPerSecond.of(

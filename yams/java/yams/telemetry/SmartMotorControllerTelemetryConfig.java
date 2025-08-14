@@ -1,15 +1,16 @@
 package yams.telemetry;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 
 /**
  * Smart motor controller telemetry configuration.
@@ -313,7 +314,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointPosition()
   {
-    doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enable();
+    doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
     return this;
   }
 
@@ -324,7 +325,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointVelocity()
   {
-    doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
+    doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
     return this;
   }
 
