@@ -229,10 +229,8 @@ public class SmartMotorControllerTelemetry
         case TunableSetpointPosition -> {
           cfg.getMechanismCircumference().ifPresentOrElse(
                   circumference -> {
-                    System.out.println("Setting elev position to " + dt.get());
                     smartMotorController.setPosition(Meters.of(dt.get()));
                   }, () -> {
-                    System.out.println("Setting position to " + dt.get());
                     smartMotorController.setPosition(Rotations.of(dt.get()));
                   });
           break;
