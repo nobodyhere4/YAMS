@@ -35,11 +35,14 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Nova wrapper for {@link SmartMotorController}
@@ -702,5 +705,11 @@ public class NovaWrapper extends SmartMotorController
         "[WARNING] Thrifty Nova's have no configuration class, returning the ThriftyNova Object.",
         true);
     return m_nova;
+  }
+
+  @Override
+  public Pair<Optional<List<BooleanTelemetryField>>, Optional<List<DoubleTelemetryField>>> getUnsupportedTelemetryFields()
+  {
+    return Pair.of(Optional.empty(), Optional.empty());
   }
 }

@@ -88,15 +88,17 @@ public class DoubleTelemetry
    */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
-    var topic = dataTable.getDoubleTopic(key);
-    publisher = topic.publish();
-    publisher.setDefault(defaultValue);
     if (tuningTable != null && tunable)
     {
-      topic = tuningTable.getDoubleTopic(key);
+      var topic = tuningTable.getDoubleTopic(key);
       subPublisher = topic.publish();
       subPublisher.setDefault(defaultValue);
       subscriber = Optional.of(topic.subscribe(defaultValue));
+    } else
+    {
+      var topic = dataTable.getDoubleTopic(key);
+      publisher = topic.publish();
+      publisher.setDefault(defaultValue);
     }
   }
 
@@ -123,8 +125,6 @@ public class DoubleTelemetry
       double tuningValue = subscriber.get().get(defaultValue);
       if (tuningValue != value)
       {
-        value = tuningValue;
-        publisher.set(value);
         return false;
       }
     }

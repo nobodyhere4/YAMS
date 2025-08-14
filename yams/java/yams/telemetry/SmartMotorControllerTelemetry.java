@@ -145,6 +145,7 @@ public class SmartMotorControllerTelemetry
           smc.getMechanismPositionSetpoint().ifPresent(mechSetpoint -> dt.set(
               cfg.getMechanismCircumference().isPresent() ? cfg.convertFromMechanism(mechSetpoint).in(Meters)
                                                           : mechSetpoint.in(Rotations)));
+          break;
         }
         case SetpointVelocity ->
         {
@@ -238,13 +239,13 @@ public class SmartMotorControllerTelemetry
       {
         switch (dt.getField())
         {
-          case SetpointPosition ->
+          case TunableSetpointPosition ->
           {
             cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setPosition(Meters.of(
                 dt.get())), () -> smartMotorController.setPosition(Radians.of(dt.get())));
             break;
           }
-          case SetpointVelocity ->
+          case TunableSetpointVelocity ->
           {
             if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty())
             {
@@ -430,11 +431,19 @@ public class SmartMotorControllerTelemetry
     /**
      * Setpoint position
      */
-    SetpointPosition("closedloop/setpoint/position", 0, true),
+    TunableSetpointPosition("closedloop/setpoint/position", 0, true),
+    /**
+     * Setpoint position
+     */
+    SetpointPosition("closedloop/setpoint/position", 0, false),
     /**
      * Setpoint velocity
      */
-    SetpointVelocity("closedloop/setpoint/velocity", 0, true),
+    TunableSetpointVelocity("closedloop/setpoint/velocity", 0, true),
+    /**
+     * Setpoint velocity
+     */
+    SetpointVelocity("closedloop/setpoint/velocity", 0, false),
     /**
      * Feedforward voltage.
      */

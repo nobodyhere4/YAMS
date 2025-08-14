@@ -51,8 +51,12 @@ public class SmartMotorControllerTelemetryConfig
         boolFields.get(BooleanTelemetryField.ArmFeedForward).enable();
         boolFields.get(BooleanTelemetryField.SimpleMotorFeedForward).enable();
         boolFields.get(BooleanTelemetryField.MotionProfile).enable();
+        boolFields.get(BooleanTelemetryField.MotorInversion).enable();
+        boolFields.get(BooleanTelemetryField.EncoderInversion).enable();
         doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
         doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enable();
+        doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
         doubleFields.get(DoubleTelemetryField.FeedforwardVoltage).enable();
         doubleFields.get(DoubleTelemetryField.PIDOutputVoltage).enable();
         doubleFields.get(DoubleTelemetryField.StatorCurrent).enable();
@@ -64,8 +68,43 @@ public class SmartMotorControllerTelemetryConfig
         doubleFields.get(DoubleTelemetryField.MechanismVelocity).enable();
         doubleFields.get(DoubleTelemetryField.RotorPosition).enable();
         doubleFields.get(DoubleTelemetryField.RotorVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismLowerLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismUpperLimit).enable();
+        doubleFields.get(DoubleTelemetryField.kP).enable();
+        doubleFields.get(DoubleTelemetryField.OutputVoltage).enable();
+        doubleFields.get(DoubleTelemetryField.kG).enable();
+        doubleFields.get(DoubleTelemetryField.StatorCurrentLimit).enable();
+        doubleFields.get(DoubleTelemetryField.OpenloopRampRate).enable();
+        doubleFields.get(DoubleTelemetryField.kV).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit).enable();
+        doubleFields.get(DoubleTelemetryField.ClosedloopRampRate).enable();
+        doubleFields.get(DoubleTelemetryField.kI).enable();
+        doubleFields.get(DoubleTelemetryField.MotionProfileMaxAcceleration).enable();
+        doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MotionProfileMaxVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.kS).enable();
+        doubleFields.get(DoubleTelemetryField.kA).enable();
+        doubleFields.get(DoubleTelemetryField.kD).enable();
       case MID:
       case LOW:
+    }
+    if (verbosity == TelemetryVerbosity.HIGH)
+    {
+      for (DoubleTelemetry dt : doubleFields.values())
+      {
+        if (!dt.enabled)
+        {
+          System.err.println("DT " + dt.getField().name() + " is DISABLED!!");
+        }
+      }
+      for (BooleanTelemetry dt : boolFields.values())
+      {
+        if (!dt.enabled)
+        {
+          System.err.println("BT " + dt.getField().name() + " is DISABLED!!");
+        }
+      }
     }
     return this;
   }
@@ -79,6 +118,19 @@ public class SmartMotorControllerTelemetryConfig
   public Map<DoubleTelemetryField, DoubleTelemetry> getDoubleFields(SmartMotorController smc)
   {
     var config = smc.getConfig();
+    var unsupTelemetry = smc.getUnsupportedTelemetryFields();
+    unsupTelemetry.getFirst().ifPresent(btList -> {
+      for (BooleanTelemetryField bt : btList)
+      {
+        boolFields.get(bt).disable();
+      }
+    });
+    unsupTelemetry.getSecond().ifPresent(dtList -> {
+      for (DoubleTelemetryField dt : dtList)
+      {
+        doubleFields.get(dt).disable();
+      }
+    });
     if (smc.getSupplyCurrent().isEmpty())
     {
       doubleFields.get(DoubleTelemetryField.SupplyCurrent).disable();
@@ -263,7 +315,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointPosition()
   {
-    doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
+    doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enable();
     return this;
   }
 
@@ -274,7 +326,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public SmartMotorControllerTelemetryConfig withSetpointVelocity()
   {
-    doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
+    doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
     return this;
   }
 

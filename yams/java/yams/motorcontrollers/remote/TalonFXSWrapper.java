@@ -54,10 +54,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * TalonFXS Wrapper for CTRE TalonFXS Motor Controllers.
@@ -1174,5 +1177,11 @@ public class TalonFXSWrapper extends SmartMotorController
   public Object getMotorControllerConfig()
   {
     return m_talonConfig;
+  }
+
+  @Override
+  public Pair<Optional<List<BooleanTelemetryField>>, Optional<List<DoubleTelemetryField>>> getUnsupportedTelemetryFields()
+  {
+    return Pair.of(Optional.empty(), Optional.empty());
   }
 }

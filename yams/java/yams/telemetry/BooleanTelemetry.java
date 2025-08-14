@@ -79,15 +79,18 @@ public class BooleanTelemetry
    */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
-    var topic = dataTable.getBooleanTopic(key);
-    publisher = topic.publish();
-    publisher.setDefault(defaultValue);
+
     if (tuningTable != null && tunable)
     {
-      topic = tuningTable.getBooleanTopic(key);
+      var topic = tuningTable.getBooleanTopic(key);
       pubSub = topic.publish();
       pubSub.setDefault(defaultValue);
       subscriber = Optional.of(topic.subscribe(defaultValue));
+    } else
+    {
+      var topic = dataTable.getBooleanTopic(key);
+      publisher = topic.publish();
+      publisher.setDefault(defaultValue);
     }
   }
 
@@ -114,8 +117,6 @@ public class BooleanTelemetry
       boolean tuningValue = subscriber.get().get(defaultValue);
       if (tuningValue != value)
       {
-        value = tuningValue;
-        publisher.set(value);
         return false;
       }
     }

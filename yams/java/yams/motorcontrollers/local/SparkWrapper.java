@@ -47,12 +47,15 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Spark wrapper for REV Spark Motor controllers.
@@ -436,6 +439,7 @@ public class SparkWrapper extends SmartMotorController
   }
 
   @Override
+  @Deprecated
   public Optional<Current> getSupplyCurrent()
   {
     return Optional.empty();
@@ -794,5 +798,13 @@ public class SparkWrapper extends SmartMotorController
   public Object getMotorControllerConfig()
   {
     return sparkBaseConfig;
+  }
+
+  @Override
+  public Pair<Optional<List<BooleanTelemetryField>>, Optional<List<DoubleTelemetryField>>> getUnsupportedTelemetryFields()
+  {
+    return Pair.of(Optional.empty(),
+                   Optional.of(List.of(DoubleTelemetryField.SupplyCurrent,
+                                       DoubleTelemetryField.SupplyCurrentLimit)));
   }
 }

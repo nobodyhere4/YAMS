@@ -28,6 +28,8 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import yams.exceptions.SmartMotorControllerConfigurationException;
@@ -40,6 +42,31 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
  */
 public class SmartMotorControllerConfig
 {
+
+  /**
+   * Missing options that would be decremented for each motor application.
+   */
+  private List<SmartMotorControllerOptions> missingOptions = Arrays.asList(SmartMotorControllerOptions.values());
+
+  /**
+   * All possible options that must be checked and applied during motor config application.
+   */
+  public enum SmartMotorControllerOptions
+  {
+    /**
+     * Inversion state of the motor
+     */
+    MOTOR_INVERTED,
+    /**
+     * Supply current limit
+     */
+    SUPPLY_CURRENT_LIMIT,
+    /**
+     * Stator current limit.
+     */
+    STATOR_CURRENT_LIMIT,
+    // TODO: Add more
+  }
 
   /**
    * Subsystem that the {@link SmartMotorController} controls.
