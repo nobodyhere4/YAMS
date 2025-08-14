@@ -57,8 +57,6 @@ public class SmartMotorControllerTelemetryConfig
         doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
         doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enable();
         doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
-        doubleFields.get(DoubleTelemetryField.FeedforwardVoltage).enable();
-        doubleFields.get(DoubleTelemetryField.PIDOutputVoltage).enable();
         doubleFields.get(DoubleTelemetryField.StatorCurrent).enable();
         doubleFields.get(DoubleTelemetryField.SupplyCurrent).enable();
         doubleFields.get(DoubleTelemetryField.MotorTemperature).enable();
@@ -327,28 +325,6 @@ public class SmartMotorControllerTelemetryConfig
   public SmartMotorControllerTelemetryConfig withSetpointVelocity()
   {
     doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
-    return this;
-  }
-
-  /**
-   * Enables the feedforward voltage logging if available.
-   *
-   * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
-   */
-  public SmartMotorControllerTelemetryConfig withFeedforwardVoltage()
-  {
-    doubleFields.get(DoubleTelemetryField.FeedforwardVoltage).enable();
-    return this;
-  }
-
-  /**
-   * Enables the pid output voltage logging if available.
-   *
-   * @return {@link SmartMotorControllerTelemetryConfig} for chaining.
-   */
-  public SmartMotorControllerTelemetryConfig withPidOutputVoltage()
-  {
-    doubleFields.get(DoubleTelemetryField.PIDOutputVoltage).enable();
     return this;
   }
 

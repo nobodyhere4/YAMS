@@ -155,16 +155,6 @@ public class SmartMotorControllerTelemetry
                                                                      .in(MetersPerSecond) :
                                                                   mechSetpoint.in(RotationsPerSecond)));
         }
-        case FeedforwardVoltage ->
-        {
-          // TODO: Remove
-//          smc.getFeedforwardVoltage();
-        }
-        case PIDOutputVoltage ->
-        {
-          // TODO: Remove
-//          smc.getPIDOutputVoltage();
-        }
         case OutputVoltage ->
         {
           dt.set(smc.getVoltage().in(Volts));
@@ -444,14 +434,6 @@ public class SmartMotorControllerTelemetry
      * Setpoint velocity
      */
     SetpointVelocity("closedloop/setpoint/velocity", 0, false),
-    /**
-     * Feedforward voltage.
-     */
-    FeedforwardVoltage("closedloop/voltage/feedforward", 0, false),
-    /**
-     * PID output voltage
-     */
-    PIDOutputVoltage("closedloop/voltage/feedback", 0, false),
     /**
      * Voltage supplied to the motor.
      */
