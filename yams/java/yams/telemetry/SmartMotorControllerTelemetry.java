@@ -225,31 +225,30 @@ public class SmartMotorControllerTelemetry
     for (Map.Entry<DoubleTelemetryField, DoubleTelemetry> entry : doubleFields.entrySet())
     {
       DoubleTelemetry dt = entry.getValue();
-      switch (dt.getField()) {
-        case TunableSetpointPosition -> {
-          cfg.getMechanismCircumference().ifPresentOrElse(
-                  circumference -> {
-                    smartMotorController.setPosition(Meters.of(dt.get()));
-                  }, () -> {
-                    smartMotorController.setPosition(Rotations.of(dt.get()));
-                  });
-          break;
-        }
-        case TunableSetpointVelocity -> {
-          if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty()) {
-            continue;
-          }
-          cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
-                          MetersPerSecond.of(
-                                  dt.get())),
-                  () -> smartMotorController.setVelocity(
-                          dt.get() == 0 ? null : RadiansPerSecond.of(dt.get())));
-          break;
-        }
-      }
       if (dt.tunable())
       {
         switch (dt.getField()) {
+          case TunableSetpointPosition -> {
+            System.out.println("SET ELEV POS TO: "+dt.get());
+            cfg.getMechanismCircumference().ifPresentOrElse(
+                    circumference -> {
+                      smartMotorController.setPosition(Meters.of(dt.get()));
+                    }, () -> {
+                      smartMotorController.setPosition(Rotations.of(dt.get()));
+                    });
+            break;
+          }
+          case TunableSetpointVelocity -> {
+            if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty()) {
+              continue;
+            }
+            cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
+                            MetersPerSecond.of(
+                                    dt.get())),
+                    () -> smartMotorController.setVelocity(
+                            dt.get() == 0 ? null : RadiansPerSecond.of(dt.get())));
+            break;
+          }
           case kP -> smartMotorController.setKp(dt.get());
           case kI -> smartMotorController.setKi(dt.get());
           case kD -> smartMotorController.setKd(dt.get());
