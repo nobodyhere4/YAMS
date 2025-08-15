@@ -310,6 +310,7 @@ public class Pivot extends SmartPositionalMechanism
     {
       if (!m_motor.getSimSupplier().get().isInputFed())
       {
+        m_motor.getSimSupplier().get().feedInput();
         m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
       }
       m_motor.getSimSupplier().get().starveInput();

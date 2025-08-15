@@ -312,6 +312,10 @@ public class TalonFXWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
+      if (!m_simSupplier.get().isInputFed())
+      {
+        m_simSupplier.get().setMechanismStatorDutyCycle(getDutyCycle());
+      }
       var talonFXSim = m_talonfx.getSimState();
 
       // set the supply voltage of the TalonFX
