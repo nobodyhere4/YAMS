@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SmartMotorControllerTestSubsystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +54,7 @@ public class SmartMotorControllerTalonFxTest {
 //        simPeriodicBeforeCallback = HAL.registerSimPeriodicBeforeCallback(simpleSubsystem::simulationPeriodic);
         simpleSubsystem.smc = controller;
         SimHooks.stepTiming(0.0); // Wait for Notifiers
-
+        CommandScheduler.getInstance().enable();
         // teleopInit
         DriverStationSim.setAutonomous(false);
         DriverStationSim.setEnabled(true);
@@ -90,7 +91,9 @@ public class SmartMotorControllerTalonFxTest {
         SimHooks.stepTiming(3);
 
         Distance preDist = controller.getMeasurementPosition();
-        runCommand(2,()->controller.setDutyCycle(0.5));
+        CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(0.5));
+        CommandScheduler.getInstance().run();
+//        runCommand(2,()->controller.setDutyCycle(0.5));
         SimHooks.stepTiming(2);
 
         System.out.println("PRE DIST: " + preDist);
@@ -99,7 +102,8 @@ public class SmartMotorControllerTalonFxTest {
 
         preDist = controller.getMeasurementPosition();
 
-        runCommand(3,()->controller.setDutyCycle(-1));
+        CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(-1));
+//        runCommand(3,()->controller.setDutyCycle(-1));
         SimHooks.stepTiming(3);
 
         System.out.println("PRE DIST: " + preDist);
