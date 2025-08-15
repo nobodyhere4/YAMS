@@ -2,6 +2,8 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -50,6 +52,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -162,6 +165,48 @@ public class SparkWrapper extends SmartMotorController
     {
       sparkSim = Optional.of(new SparkSim(spark, motor));
       sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
+      setSimSupplier(new SimSupplier()
+      {
+        @Override
+        public Voltage getMechanismSupplyVoltage()
+        {
+          return Volts.of(RoboRioSim.getVInVoltage());
+        }
+
+        @Override
+        public Angle getMechanismPosition()
+        {
+          return setpointPosition.orElseGet(() -> Degrees.of(0));
+        }
+
+        @Override
+        public void setMechanismPosition(Angle position)
+        {
+        }
+
+        @Override
+        public Angle getRotorPosition()
+        {
+          return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+        }
+
+        @Override
+        public AngularVelocity getMechanismVelocity()
+        {
+          return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
+        }
+
+        @Override
+        public void setMechanismVelocity(AngularVelocity velocity)
+        {
+        }
+
+        @Override
+        public AngularVelocity getRotorVelocity()
+        {
+          return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
+        }
+      });
     }
   }
 
@@ -196,16 +241,19 @@ public class SparkWrapper extends SmartMotorController
   }
 
   @Override
-  public void simIterate(AngularVelocity mechanismVelocity)
+  public void simIterate()
   {
-    if (RobotBase.isSimulation())
+    if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
-      sparkSim.ifPresent(sim -> sim.iterate(mechanismVelocity.in(RotationsPerSecond),
+      sparkSim.ifPresent(sim -> sim.iterate(m_simSupplier.get().getMechanismVelocity().in(RotationsPerSecond),
                                             RoboRioSim.getVInVoltage(),
                                             config.getClosedLoopControlPeriod().in(Second)));
-      sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(mechanismVelocity.in(RotationsPerSecond),
+      sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(m_simSupplier.get().getMechanismVelocity()
+                                                                        .in(RotationsPerSecond),
                                                            config.getClosedLoopControlPeriod().in(Seconds)));
-      sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.iterate(mechanismVelocity.in(
+      sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.iterate(m_simSupplier.get()
+                                                                                                      .getMechanismVelocity()
+                                                                                                      .in(
           RotationsPerSecond), config.getClosedLoopControlPeriod().in(Seconds)));
     }
   }

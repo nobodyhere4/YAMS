@@ -26,7 +26,6 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -302,21 +301,8 @@ public abstract class SmartMotorController
 
   /**
    * Simulation iteration.
-   *
-   * @param mechanismVelocity Mechanism velocity to apply to the simulated motor controller.
    */
-  public abstract void simIterate(AngularVelocity mechanismVelocity);
-
-  /**
-   * Simulation iteration using existing mechanism velocity.
-   */
-  public void simIterate()
-  {
-    if (RobotBase.isSimulation() && setpointVelocity.isPresent())
-    {
-      simIterate(setpointVelocity.get());
-    }
-  }
+  public abstract void simIterate();
 
   /**
    * Set the encoder velocity

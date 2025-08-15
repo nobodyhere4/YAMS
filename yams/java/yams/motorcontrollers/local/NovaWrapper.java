@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -37,6 +38,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
+import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -91,6 +93,50 @@ public class NovaWrapper extends SmartMotorController
                                                                                   .getRotorToMechanismRatio()),
                                          m_motor,
                                          1.0 / 1024.0,0));
+      setSimSupplier(new SimSupplier()
+      {
+        @Override
+        public Voltage getMechanismSupplyVoltage()
+        {
+          return Volts.of(RoboRioSim.getVInVoltage());
+        }
+
+        @Override
+        public Angle getMechanismPosition()
+        {
+          return m_sim.get().getAngularPosition();
+        }
+
+        @Override
+        public void setMechanismPosition(Angle position)
+        {
+          m_sim.get().setAngle(position.in(Radians));
+        }
+
+        @Override
+        public Angle getRotorPosition()
+        {
+          return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+        }
+
+        @Override
+        public AngularVelocity getMechanismVelocity()
+        {
+          return m_sim.get().getAngularVelocity();
+        }
+
+        @Override
+        public void setMechanismVelocity(AngularVelocity velocity)
+        {
+          m_sim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
+        }
+
+        @Override
+        public AngularVelocity getRotorVelocity()
+        {
+          return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
+        }
+      });
     }
   }
 
@@ -108,12 +154,12 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
-  public void simIterate(AngularVelocity mechanismVelocity)
+  public void simIterate()
   {
     if (RobotBase.isSimulation())
     {
       m_sim.ifPresent(sim -> {
-        sim.setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
+        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
         sim.update(config.getClosedLoopControlPeriod().in(Seconds));
       });
     }

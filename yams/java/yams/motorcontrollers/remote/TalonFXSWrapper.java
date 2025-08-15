@@ -283,7 +283,7 @@ public class TalonFXSWrapper extends SmartMotorController
   }
 
   @Override
-  public void simIterate(AngularVelocity mechanismVelocity)
+  public void simIterate()
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
@@ -299,7 +299,7 @@ public class TalonFXSWrapper extends SmartMotorController
       // using WPILib's DCMotorSim class for physics simulation
       // m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
       m_dcmotorSim.ifPresent(sim -> {
-        sim.setAngularVelocity(mechanismVelocity.in(RadiansPerSecond));
+        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
         sim.update(config.getClosedLoopControlPeriod().in(Seconds));
       });
 
