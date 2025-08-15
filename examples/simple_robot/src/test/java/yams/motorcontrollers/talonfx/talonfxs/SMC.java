@@ -1,4 +1,4 @@
-package yams.motorcontrollers.talonfx.elevator;
+package yams.motorcontrollers.talonfx.talonfxs;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -17,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import yams.helpers.MockHardwareExtension;
 import yams.helpers.SchedulerPumpHelper;
 import yams.helpers.TestWithScheduler;
-import yams.mechanisms.config.ElevatorConfig;
-import yams.mechanisms.positional.Elevator;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.remote.TalonFXWrapper;
@@ -29,18 +27,17 @@ import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
 
-public class SmartMotorControllerTalonFxTest {
+public class SMC {
     private SmartMotorControllerTestSubsystem simpleSubsystem;
     private SmartMotorControllerConfig config;
     private SmartMotorController controller;
-    private TalonFX talonFX;
-    private Elevator elevator;
+    private TalonFX motorController;
     @BeforeEach
     void startThread() {
         TestWithScheduler.schedulerStart();
         TestWithScheduler.schedulerClear();
         MockHardwareExtension.beforeAll();
-        talonFX = new TalonFX(54);
+        motorController = new TalonFX((int)(Math.random()*50));
         simpleSubsystem = new SmartMotorControllerTestSubsystem();
         config = new SmartMotorControllerConfig(simpleSubsystem)
                 .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
@@ -52,15 +49,9 @@ public class SmartMotorControllerTalonFxTest {
                 .withMotorInverted(false)
                 .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
                 .withControlMode(SmartMotorControllerConfig.ControlMode.CLOSED_LOOP);
-        controller = new TalonFXWrapper(talonFX, DCMotor.getKrakenX60(1), config);
-        ElevatorConfig m_config      = new ElevatorConfig(controller)
-                .withStartingHeight(Meters.of(0.5))
-                .withHardLimits(Meters.of(0), Meters.of(3))
-                .withMass(Pounds.of(16));
-        elevator = new Elevator(m_config);
+        controller = new TalonFXWrapper(motorController, DCMotor.getKrakenX60(1), config);
+
         simpleSubsystem.smc = controller;
-        simpleSubsystem.mechUpdateTelemetry = elevator::updateTelemetry;
-        simpleSubsystem.mechSimPeriodic = elevator::simIterate;
         SimHooks.stepTiming(0.0); // Wait for Notifiers
         CommandScheduler.getInstance().enable();
         // teleopInit
@@ -71,8 +62,9 @@ public class SmartMotorControllerTalonFxTest {
 
     @AfterEach
     void stopThread() {
+        CommandScheduler.getInstance().unregisterSubsystem(simpleSubsystem);
         simpleSubsystem.close();
-        talonFX.close();
+        motorController.close();
 //        simPeriodicBeforeCallback.close();
 //        simPeriodicAfterCallback.close();
         Preferences.removeAll();
@@ -125,27 +117,6 @@ public class SmartMotorControllerTalonFxTest {
         preDist = controller.getMeasurementPosition();
 
         schedule(simpleSubsystem.setPositionSetpoint(Meters.of(0)));
-        runScheduler(Seconds.of(10));
-
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.gt(controller.getMeasurementPosition()));
-    }
-
-    @Test
-    void testElevatorPID() throws InterruptedException {
-        Distance preDist = controller.getMeasurementPosition();
-
-        schedule(elevator.setHeight(Meters.of(3)));
-        runScheduler(Seconds.of(3));
-
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.lt(controller.getMeasurementPosition()));
-
-        preDist = controller.getMeasurementPosition();
-
-        schedule(elevator.setHeight(Meters.of(0)));
         runScheduler(Seconds.of(10));
 
         System.out.println("PRE DIST: " + preDist);

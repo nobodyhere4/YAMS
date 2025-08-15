@@ -2,7 +2,11 @@ package yams.helpers;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Integration test helper class that will run the command scheduler. Use of
@@ -57,10 +61,18 @@ public final class SchedulerPumpHelper {
 			throws InterruptedException {
 		int heartbeatToUseInMs = getHeartbeatToUse(optionalHeartbeatInMs);
 		long start = System.currentTimeMillis();
-		while (System.currentTimeMillis() < (start + durationInMs.in(Units.Milliseconds))) {
+		AtomicLong time = new AtomicLong();
+		RobotController.setTimeSource(time::get);
+
+		for (int i = 0; i < durationInMs.in(Units.Milliseconds)/heartbeatToUseInMs; i++) {
+			time.set((long) i * 20 * 1_000); // 20,000 microseconds = 20ms time step
 			CommandScheduler.getInstance().run();
-			Thread.sleep(heartbeatToUseInMs);
-//			SimHooks.stepTiming(heartbeatToUseInMs);
+			SimHooks.stepTimingAsync(heartbeatToUseInMs);
 		}
+//		while (System.currentTimeMillis() < (start + durationInMs.in(Units.Milliseconds))) {
+//			CommandScheduler.getInstance().run();
+//			Thread.sleep(heartbeatToUseInMs);
+////			SimHooks.stepTiming(heartbeatToUseInMs);
+//		}
 	}
 }
