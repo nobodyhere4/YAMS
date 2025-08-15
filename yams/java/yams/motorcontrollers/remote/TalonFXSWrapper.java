@@ -141,11 +141,11 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private final Optional<CANdi>      m_candi      = Optional.empty();
+  private final Optional<CANdi>               m_candi           = Optional.empty();
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
-  private       Optional<DCMotorSim> m_dcmotorSim = Optional.empty();
+  private       Optional<DCMotorSim>          m_dcmotorSim      = Optional.empty();
 
   /**
    * Create the {@link TalonFXS} wrapper
@@ -216,22 +216,59 @@ public class TalonFXSWrapper extends SmartMotorController
                                                   m_dcmotor));
         setSimSupplier(new SimSupplier()
         {
+          boolean inputFed   = false;
+          boolean simUpdated = false;
+
+          @Override
+          public void updateSimState()
+          {
+            if (!isInputFed())
+            {
+              m_dcmotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+            }
+            if (!simUpdated)
+            {
+              starveInput();
+              m_dcmotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              feedUpdateSim();
+            }
+
+          }
+
+          @Override
+          public boolean getUpdatedSim()
+          {
+            return simUpdated;
+          }
+
+          @Override
+          public void feedUpdateSim()
+          {
+            simUpdated = true;
+          }
+
+          @Override
+          public void starveUpdateSim()
+          {
+            simUpdated = false;
+          }
+
           @Override
           public boolean isInputFed()
           {
-            return false;
+            return inputFed;
           }
 
           @Override
           public void feedInput()
           {
-
+            inputFed = true;
           }
 
           @Override
           public void starveInput()
           {
-
+            inputFed = false;
           }
 
           @Override
@@ -338,9 +375,10 @@ public class TalonFXSWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
-      if (!m_simSupplier.get().isInputFed())
+      if (!m_simSupplier.get().getUpdatedSim())
       {
-        m_simSupplier.get().setMechanismStatorDutyCycle(getDutyCycle());
+        m_simSupplier.get().updateSimState();
+        m_simSupplier.get().starveUpdateSim();
       }
       var talonFXSim = m_talonfxs.getSimState();
 

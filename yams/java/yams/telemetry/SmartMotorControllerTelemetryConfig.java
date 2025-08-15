@@ -115,7 +115,7 @@ public class SmartMotorControllerTelemetryConfig
    */
   public Map<DoubleTelemetryField, DoubleTelemetry> getDoubleFields(SmartMotorController smc)
   {
-    var config = smc.getConfig();
+    var config         = smc.getConfig();
     var unsupTelemetry = smc.getUnsupportedTelemetryFields();
     unsupTelemetry.getFirst().ifPresent(btList -> {
       for (BooleanTelemetryField bt : btList)

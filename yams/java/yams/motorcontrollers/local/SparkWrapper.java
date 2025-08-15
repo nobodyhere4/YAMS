@@ -81,15 +81,15 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Motor type.
    */
-  private final DCMotor            motor;
+  private final DCMotor                           motor;
   /**
    * Spark base configuration.
    */
-  private final SparkBaseConfig    sparkBaseConfig;
+  private final SparkBaseConfig                   sparkBaseConfig;
   /**
    * Spark relative encoder.
    */
-  private final RelativeEncoder    sparkRelativeEncoder;
+  private final RelativeEncoder                   sparkRelativeEncoder;
   /**
    * Spark relative encoder sim object.
    */
@@ -97,7 +97,7 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark simulation.
    */
-  private       Optional<SparkSim> sparkSim = Optional.empty();
+  private       Optional<SparkSim>                sparkSim                = Optional.empty();
   /**
    * Spark absolute encoder.
    */
@@ -171,27 +171,64 @@ public class SparkWrapper extends SmartMotorController
         sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
         setSimSupplier(new SimSupplier()
         {
+          boolean simUpdated = false;
+          boolean inputFed   = false;
+
+          @Override
+          public void updateSimState()
+          {
+            // TODO: Make SparkMax's work on their own
+//            if (!inputFed)
+//            {
+//              m_sim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+//            }
+//            if(!simUpdated)
+//            {
+//              starveInput();
+//              m_sim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+//            }
+          }
+
+          @Override
+          public boolean getUpdatedSim()
+          {
+            return simUpdated;
+          }
+
+          @Override
+          public void feedUpdateSim()
+          {
+            simUpdated = true;
+          }
+
+          @Override
+          public void starveUpdateSim()
+          {
+            simUpdated = false;
+          }
+
           @Override
           public boolean isInputFed()
           {
-            return true;
+            return inputFed;
           }
 
           @Override
           public void feedInput()
           {
-
+            inputFed = true;
           }
 
           @Override
           public void starveInput()
           {
-
+            inputFed = false;
           }
 
           @Override
           public void setMechanismStatorDutyCycle(double dutyCycle)
           {
+            inputFed = true;
             sparkSim.get().setAppliedOutput(dutyCycle);
           }
 
@@ -210,6 +247,7 @@ public class SparkWrapper extends SmartMotorController
           @Override
           public void setMechanismStatorVoltage(Voltage volts)
           {
+            inputFed = true;
             sparkSim.get().setAppliedOutput(volts.in(Volts) / RoboRioSim.getVInVoltage());
           }
 
@@ -296,6 +334,11 @@ public class SparkWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
+      if (!m_simSupplier.get().getUpdatedSim())
+      {
+        m_simSupplier.get().updateSimState();
+        m_simSupplier.get().starveUpdateSim();
+      }
       m_simSupplier.ifPresent(mSimSupplier -> {
         sparkSim.ifPresent(sim -> sim.iterate(mSimSupplier.getMechanismVelocity().in(RotationsPerSecond),
                                               mSimSupplier.getMechanismSupplyVoltage().in(Volts),

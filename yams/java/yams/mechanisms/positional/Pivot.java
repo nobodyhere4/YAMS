@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -308,15 +307,9 @@ public class Pivot extends SmartPositionalMechanism
   {
     if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      if (!m_motor.getSimSupplier().get().isInputFed())
-      {
-        m_motor.getSimSupplier().get().feedInput();
-        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
-      }
-      m_motor.getSimSupplier().get().starveInput();
-      m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
-
+      m_motor.getSimSupplier().get().updateSimState();
       m_motor.simIterate();
+      m_motor.getSimSupplier().get().starveUpdateSim();
 
       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
       visualizationUpdate();

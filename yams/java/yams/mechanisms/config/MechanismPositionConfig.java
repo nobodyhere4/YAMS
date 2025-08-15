@@ -25,17 +25,17 @@ public class MechanismPositionConfig
   /**
    * The length of the robot in meters.
    */
-  protected Optional<Distance> maxRobotLength = Optional.empty();
+  protected Optional<Distance>      maxRobotLength   = Optional.empty();
   /**
    * The height of the robot in meters.
    */
-  protected Optional<Distance> maxRobotHeight = Optional.empty();
+  protected Optional<Distance>      maxRobotHeight   = Optional.empty();
   // TODO: Add soft limits display config.
   // TODO: Add hard limits display config.
   /**
    * The plane that the mechanism is on, used for position calculations.
    */
-  protected Plane              plane          = Plane.XZ;
+  protected Plane                   plane            = Plane.XZ;
 
   /**
    * Set the position of the {@link SmartPositionalMechanism} relative to the robot.

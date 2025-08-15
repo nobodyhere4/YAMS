@@ -31,7 +31,7 @@ public class DoubleTelemetry
   /**
    * Enabled?
    */
-  protected     boolean                    enabled = false;
+  protected     boolean                    enabled      = false;
   /**
    * Default value.
    */

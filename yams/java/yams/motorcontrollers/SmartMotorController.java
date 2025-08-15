@@ -85,19 +85,19 @@ public abstract class SmartMotorController
   /**
    * {@link SmartMotorController} telemetry table.
    */
-  protected Optional<NetworkTable>                        telemetryTable  = Optional.empty();
+  protected Optional<NetworkTable>                        telemetryTable             = Optional.empty();
   /**
    * {@link SmartMotorController} tuning table.
    */
-  protected Optional<NetworkTable>                        tuningTable     = Optional.empty();
+  protected Optional<NetworkTable>                        tuningTable                = Optional.empty();
   /**
    * Config for publishing specific telemetry.
    */
-  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig = Optional.empty();
+  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig            = Optional.empty();
   /**
    * {@link SimSupplier} for the mechanism.
    */
-  protected Optional<SimSupplier>                         m_simSupplier   = Optional.empty();
+  protected Optional<SimSupplier>                         m_simSupplier              = Optional.empty();
 
 
   /**

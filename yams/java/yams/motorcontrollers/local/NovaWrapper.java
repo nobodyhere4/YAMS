@@ -98,27 +98,64 @@ public class NovaWrapper extends SmartMotorController
 
         setSimSupplier(new SimSupplier()
         {
+          boolean simUpdated = false;
+          boolean inputFed   = false;
+
+          @Override
+          public void updateSimState()
+          {
+            if (!inputFed)
+            {
+              m_sim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+            }
+            if (!simUpdated)
+            {
+              starveInput();
+              m_sim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              feedUpdateSim();
+            }
+          }
+
+          @Override
+          public boolean getUpdatedSim()
+          {
+            return simUpdated;
+          }
+
+          @Override
+          public void feedUpdateSim()
+          {
+            simUpdated = true;
+          }
+
+          @Override
+          public void starveUpdateSim()
+          {
+            simUpdated = false;
+          }
+
           @Override
           public boolean isInputFed()
           {
-            return true;
+            return simUpdated;
           }
 
           @Override
           public void feedInput()
           {
-
+            inputFed = true;
           }
 
           @Override
           public void starveInput()
           {
-
+            inputFed = false;
           }
 
           @Override
           public void setMechanismStatorDutyCycle(double dutyCycle)
           {
+            inputFed = true;
             m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
           }
 
@@ -138,6 +175,7 @@ public class NovaWrapper extends SmartMotorController
           @Override
           public void setMechanismStatorVoltage(Voltage volts)
           {
+            inputFed = true;
             m_sim.get().setInputVoltage(volts.in(Volts));
           }
 
@@ -209,6 +247,11 @@ public class NovaWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
+      if (!m_simSupplier.get().getUpdatedSim())
+      {
+        m_simSupplier.get().updateSimState();
+        m_simSupplier.get().starveUpdateSim();
+      }
       m_sim.ifPresent(sim -> {
         sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
         sim.update(config.getClosedLoopControlPeriod().in(Seconds));

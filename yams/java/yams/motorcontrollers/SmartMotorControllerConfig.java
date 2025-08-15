@@ -46,15 +46,16 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private final Subsystem                         subsystem;
+  private final Subsystem                                     subsystem;
   /**
    * Missing options that would be decremented for each motor application.
    */
-  private final List<SmartMotorControllerOptions> missingOptions  = Arrays.asList(SmartMotorControllerOptions.values());
+  private final List<SmartMotorControllerOptions>             missingOptions                     = Arrays.asList(
+      SmartMotorControllerOptions.values());
   /**
    * External encoder.
    */
-  private       Optional<Object>                  externalEncoder = Optional.empty();
+  private       Optional<Object>                              externalEncoder                    = Optional.empty();
   /**
    * External encoder inversion state.
    */
@@ -189,6 +190,7 @@ public class SmartMotorControllerConfig
    * Encoder discontinuity point.
    */
   private       Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
+
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
    *

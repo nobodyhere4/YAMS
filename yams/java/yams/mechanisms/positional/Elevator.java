@@ -72,7 +72,7 @@ public class Elevator extends SmartPositionalMechanism
   {
     m_config = config;
     m_motor = config.getMotor();
-    DCMotor dcMotor = m_motor.getDCMotor();
+    DCMotor                    dcMotor   = m_motor.getDCMotor();
     MechanismGearing           gearing   = m_motor.getConfig().getGearing();
     SmartMotorControllerConfig smcConfig = m_motor.getConfig();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
@@ -125,7 +125,41 @@ public class Elevator extends SmartPositionalMechanism
       {
         final Supplier<Double> pos = m_sim.get()::getPositionMeters;
         final Supplier<Double> mps = m_sim.get()::getVelocityMetersPerSecond;
-        boolean inputFed = false;
+        boolean inputFed   = false;
+        boolean updatedSim = false;
+
+        @Override
+        public void updateSimState()
+        {
+          if (!isInputFed())
+          {
+            m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+          }
+          if (!updatedSim)
+          {
+            starveInput();
+            m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
+            feedUpdateSim();
+          }
+        }
+
+        @Override
+        public boolean getUpdatedSim()
+        {
+          return updatedSim;
+        }
+
+        @Override
+        public void feedUpdateSim()
+        {
+          updatedSim = true;
+        }
+
+        @Override
+        public void starveUpdateSim()
+        {
+          updatedSim = false;
+        }
 
         @Override
         public boolean isInputFed()
@@ -293,20 +327,14 @@ public class Elevator extends SmartPositionalMechanism
   {
     if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      if (!m_motor.getSimSupplier().get().isInputFed())
-      {
-        m_motor.getSimSupplier().get().feedInput();
-        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
-      }
-      m_motor.getSimSupplier().get().starveInput();
-      m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
-
+      m_motor.getSimSupplier().get().updateSimState();
       m_motor.simIterate();
+      m_motor.getSimSupplier().get().starveUpdateSim();
       // It is impossible for an elevator to go bellow the minimum height, it would break...
       if (m_config.getMinimumHeight().isPresent() && getHeight().lt(m_config.getMinimumHeight().get()))
       {
 //        m_motor.simIterate(RotationsPerSecond.of(0));
-        m_motor.setEncoderPosition(m_config.getMinimumHeight().get());
+//        m_motor.setEncoderPosition(m_config.getMinimumHeight().get());
       } else
       {
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
@@ -513,10 +541,10 @@ public class Elevator extends SmartPositionalMechanism
 
     Command group = Commands.print("Starting SysId!")
                             .beforeStarting(Commands.runOnce(m_motor::stopClosedLoopController))
-                            .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.dynamic(Direction.kForward).until(maxTrigger).withTimeout(3))
                             .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
                             .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
-                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger).withTimeout(3))
                             .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {

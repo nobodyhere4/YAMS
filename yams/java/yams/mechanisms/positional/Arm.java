@@ -67,7 +67,7 @@ public class Arm extends SmartPositionalMechanism
   {
     this.m_config = config;
     m_motor = config.getMotor();
-    DCMotor dcmotor = m_motor.getDCMotor();
+    DCMotor          dcmotor = m_motor.getDCMotor();
     MechanismGearing gearing = m_motor.getConfig().getGearing();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     // Seed the relative encoder
@@ -119,7 +119,41 @@ public class Arm extends SmartPositionalMechanism
                                                   0.0));// Add noise with a std-dev of 1 tick
       m_motor.setSimSupplier(new SimSupplier()
       {
-        boolean inputFed = false;
+        boolean inputFed   = false;
+        boolean updatedSim = false;
+
+        @Override
+        public void updateSimState()
+        {
+          if (!isInputFed())
+          {
+            m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+          }
+          if (!updatedSim)
+          {
+            starveInput();
+            m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
+            feedUpdateSim();
+          }
+        }
+
+        @Override
+        public boolean getUpdatedSim()
+        {
+          return updatedSim;
+        }
+
+        @Override
+        public void feedUpdateSim()
+        {
+          updatedSim = true;
+        }
+
+        @Override
+        public void starveUpdateSim()
+        {
+          updatedSim = false;
+        }
 
         @Override
         public boolean isInputFed()
@@ -263,15 +297,9 @@ public class Arm extends SmartPositionalMechanism
   {
     if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      if (!m_motor.getSimSupplier().get().isInputFed())
-      {
-        m_motor.getSimSupplier().get().feedInput();
-        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
-      }
-      m_motor.getSimSupplier().get().starveInput();
-      m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
-
+      m_motor.getSimSupplier().get().updateSimState();
       m_motor.simIterate();
+      m_motor.getSimSupplier().get().starveUpdateSim();
       if (m_config.getLowerHardLimit().isPresent() && m_sim.get().getVelocityRadPerSec() < 0 &&
           m_motor.getMechanismPosition().lt(m_config.getLowerHardLimit().get()))
       {

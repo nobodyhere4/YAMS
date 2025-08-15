@@ -19,27 +19,27 @@ public class BooleanTelemetry
   /**
    * Field representing.
    */
-  private final BooleanTelemetryField field;
+  private final BooleanTelemetryField       field;
   /**
    * Network table key.
    */
-  private final String                key;
+  private final String                      key;
   /**
    * Tunable?
    */
-  private final boolean               tunable;
+  private final boolean                     tunable;
   /**
    * Enabled?
    */
-  protected     boolean               enabled = false;
+  protected     boolean                     enabled    = false;
   /**
    * Default value.
    */
-  private       boolean               defaultValue;
+  private       boolean                     defaultValue;
   /**
    * Cached value.
    */
-  private       boolean               cachedValue;
+  private       boolean                     cachedValue;
   /**
    * Publisher.
    */
@@ -51,7 +51,7 @@ public class BooleanTelemetry
   /**
    * Sub publisher.
    */
-  private       BooleanPublisher      pubSub  = null;
+  private       BooleanPublisher            pubSub     = null;
 
 
   /**

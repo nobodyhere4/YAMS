@@ -32,11 +32,11 @@ public abstract class SmartMechanism
   /**
    * Mechanism telemetry.
    */
-  protected MechanismTelemetry m_telemetry = new MechanismTelemetry();
+  protected MechanismTelemetry   m_telemetry = new MechanismTelemetry();
   /**
    * Mechanism Window.
    */
-  protected Mechanism2d        mechanismWindow;
+  protected Mechanism2d          mechanismWindow;
 
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.

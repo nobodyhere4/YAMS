@@ -12,6 +12,28 @@ public interface SimSupplier
 {
 
   /**
+   * Update the sim state.
+   */
+  void updateSimState();
+
+  /**
+   * Get the updated sim watchdog.
+   *
+   * @return Updated sim.
+   */
+  boolean getUpdatedSim();
+
+  /**
+   * Feed the update sim watch
+   */
+  void feedUpdateSim();
+
+  /**
+   * Starve the update sim watch.
+   */
+  void starveUpdateSim();
+
+  /**
    * Check if the input was fed.
    *
    * @return Input fed.

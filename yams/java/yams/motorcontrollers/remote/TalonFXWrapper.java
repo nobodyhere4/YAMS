@@ -189,22 +189,58 @@ public class TalonFXWrapper extends SmartMotorController
                                                   m_dcmotor));
         setSimSupplier(new SimSupplier()
         {
+          boolean simUpdated = false;
+          boolean inputFed   = false;
+
+          @Override
+          public void updateSimState()
+          {
+            if (!isInputFed())
+            {
+              m_dcmotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+            }
+            if (!simUpdated)
+            {
+              starveInput();
+              m_dcmotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              feedUpdateSim();
+            }
+          }
+
+          @Override
+          public boolean getUpdatedSim()
+          {
+            return simUpdated;
+          }
+
+          @Override
+          public void feedUpdateSim()
+          {
+            simUpdated = true;
+          }
+
+          @Override
+          public void starveUpdateSim()
+          {
+            simUpdated = false;
+          }
+
           @Override
           public boolean isInputFed()
           {
-            return false;
+            return inputFed;
           }
 
           @Override
           public void feedInput()
           {
-
+            inputFed = true;
           }
 
           @Override
           public void starveInput()
           {
-
+            inputFed = false;
           }
 
           @Override
@@ -312,9 +348,10 @@ public class TalonFXWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
-      if (!m_simSupplier.get().isInputFed())
+      if (!m_simSupplier.get().getUpdatedSim())
       {
-        m_simSupplier.get().setMechanismStatorDutyCycle(getDutyCycle());
+        m_simSupplier.get().updateSimState();
+        m_simSupplier.get().starveUpdateSim();
       }
       var talonFXSim = m_talonfx.getSimState();
 
