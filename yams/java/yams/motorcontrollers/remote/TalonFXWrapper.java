@@ -53,6 +53,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
+import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
@@ -182,6 +183,51 @@ public class TalonFXWrapper extends SmartMotorController
                                                                                    config.getGearing()
                                                                                          .getRotorToMechanismRatio()),
                                                 m_dcmotor));
+      setSimSupplier(new SimSupplier()
+      {
+        @Override
+        public Voltage getMechanismSupplyVoltage()
+        {
+          return Volts.of(RoboRioSim.getVInVoltage());
+        }
+
+        @Override
+        public Angle getMechanismPosition()
+        {
+          return m_dcmotorSim.get().getAngularPosition().times(config.getGearing().getMechanismToRotorRatio());
+        }
+
+        @Override
+        public void setMechanismPosition(Angle position)
+        {
+          m_dcmotorSim.get().setAngle(position.in(Radians));
+        }
+
+        @Override
+        public Angle getRotorPosition()
+        {
+          return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+
+        }
+
+        @Override
+        public AngularVelocity getMechanismVelocity()
+        {
+          return m_dcmotorSim.get().getAngularVelocity();
+        }
+
+        @Override
+        public void setMechanismVelocity(AngularVelocity velocity)
+        {
+          m_dcmotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
+        }
+
+        @Override
+        public AngularVelocity getRotorVelocity()
+        {
+          return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
+        }
+      });
     }
   }
 
@@ -213,12 +259,12 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public void simIterate(AngularVelocity mechanismVelocity)
   {
-    if (RobotBase.isSimulation() && m_dcmotorSim.isPresent())
+    if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
       var talonFXSim = m_talonfx.getSimState();
 
       // set the supply voltage of the TalonFX
-      talonFXSim.setSupplyVoltage(RoboRioSim.getVInVoltage());
+      talonFXSim.setSupplyVoltage(m_simSupplier.get().getMechanismSupplyVoltage());
 
       // get the motor voltage of the TalonFX
       var motorVoltage = talonFXSim.getMotorVoltageMeasure();
@@ -234,18 +280,16 @@ public class TalonFXWrapper extends SmartMotorController
       // apply the new rotor position and velocity to the TalonFX;
       // note that this is rotor position/velocity (before gear ratio), but
       // DCMotorSim returns mechanism position/velocity (after gear ratio)
-      talonFXSim.setRawRotorPosition(m_dcmotorSim.get().getAngularPosition()
-                                                 .times(config.getGearing().getMechanismToRotorRatio()));
-      talonFXSim.setRotorVelocity(m_dcmotorSim.get().getAngularVelocity()
-                                              .times(config.getGearing().getMechanismToRotorRatio()));
+      talonFXSim.setRawRotorPosition(m_simSupplier.get().getRotorPosition());
+      talonFXSim.setRotorVelocity(m_simSupplier.get().getRotorVelocity());
 
       if (m_cancoder.isPresent())
       {
         var cancoderSim = m_cancoder.get().getSimState();
-        cancoderSim.setSupplyVoltage(RoboRioSim.getVInVoltage());
-        cancoderSim.setVelocity(m_dcmotorSim.get().getAngularVelocity()
+        cancoderSim.setSupplyVoltage(m_simSupplier.get().getMechanismSupplyVoltage());
+        cancoderSim.setVelocity(m_simSupplier.get().getMechanismVelocity()
                                             .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
-        cancoderSim.setRawPosition(m_dcmotorSim.get().getAngularPosition()
+        cancoderSim.setRawPosition(m_simSupplier.get().getMechanismPosition()
                                                .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
         cancoderSim.setMagnetHealth(MagnetHealthValue.Magnet_Green);
       }
@@ -256,16 +300,16 @@ public class TalonFXWrapper extends SmartMotorController
         if (useCANdiPWM1())
         {
           candiSim.setPwm1Connected(true);
-          candiSim.setPwm1Position(m_dcmotorSim.get().getAngularPosition()
+          candiSim.setPwm1Position(m_simSupplier.get().getMechanismPosition()
                                                .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
-          candiSim.setPwm1Velocity(m_dcmotorSim.get().getAngularVelocity()
+          candiSim.setPwm1Velocity(m_simSupplier.get().getMechanismVelocity()
                                                .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
         } else if (useCANdiPWM2())
         {
           candiSim.setPwm2Connected(true);
-          candiSim.setPwm2Position(m_dcmotorSim.get().getAngularPosition()
+          candiSim.setPwm2Position(m_simSupplier.get().getMechanismPosition()
                                                .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
-          candiSim.setPwm2Velocity(m_dcmotorSim.get().getAngularVelocity()
+          candiSim.setPwm2Velocity(m_simSupplier.get().getMechanismVelocity()
                                                .times(config.getExternalEncoderGearing().getMechanismToRotorRatio()));
         }
       }
@@ -315,7 +359,8 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public void setEncoderVelocity(AngularVelocity velocity)
   {
-    m_dcmotorSim.ifPresent(sim -> sim.setAngularVelocity(velocity.in(RadiansPerSecond)));
+    m_simSupplier.ifPresent(mSim -> mSim.setMechanismVelocity(velocity));
+//    m_dcmotorSim.ifPresent(sim -> sim.setAngularVelocity(velocity.in(RadiansPerSecond)));
     // Cannot set velocity of CANdi or CANCoder.
   }
 
@@ -329,7 +374,8 @@ public class TalonFXWrapper extends SmartMotorController
   public void setEncoderPosition(Angle angle)
   {
     m_talonfx.setPosition(angle);
-    m_dcmotorSim.ifPresent(dcMotorSim -> dcMotorSim.setAngle(angle.in(Radians)));
+    m_simSupplier.ifPresent(mSim -> mSim.setMechanismPosition(angle));
+//    m_dcmotorSim.ifPresent(dcMotorSim -> dcMotorSim.setAngle(angle.in(Radians)));
 
     // Might want to set absolute encoder position in the future
     /*

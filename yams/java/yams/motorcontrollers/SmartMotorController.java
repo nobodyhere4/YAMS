@@ -1,5 +1,11 @@
 package yams.motorcontrollers;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
@@ -7,7 +13,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,6 +33,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import java.util.List;
+import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -24,11 +42,6 @@ import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
-
-import java.util.List;
-import java.util.Optional;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Smart motor controller wrapper for motor controllers.
@@ -80,6 +93,10 @@ public abstract class SmartMotorController
    * Config for publishing specific telemetry.
    */
   protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig = Optional.empty();
+  /**
+   * {@link SimSupplier} for the mechanism.
+   */
+  protected Optional<SimSupplier> m_simSupplier = Optional.empty();
 
 
   /**
@@ -150,6 +167,16 @@ public abstract class SmartMotorController
       }
 
     }
+  }
+
+  /**
+   * Set the {@link SimSupplier} Mechanism.
+   *
+   * @param mechanismSupplier Mechanism sim supplier.
+   */
+  public void setSimSupplier(SimSupplier mechanismSupplier)
+  {
+    m_simSupplier = Optional.of(mechanismSupplier);
   }
 
   /**

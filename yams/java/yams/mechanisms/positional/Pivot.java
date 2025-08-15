@@ -1,10 +1,20 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inch;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -19,16 +29,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.Optional;
+import java.util.function.Supplier;
 import yams.exceptions.ArmConfigurationException;
 import yams.exceptions.PivotConfigurationException;
+import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.PivotConfig;
 import yams.motorcontrollers.SmartMotorController;
-
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Pivot mechanism.
@@ -54,6 +62,7 @@ public class Pivot extends SmartPositionalMechanism
   {
     m_config = config;
     m_motor = config.getMotor();
+    MechanismGearing gearing = m_motor.getConfig().getGearing();
     m_subsystem = m_motor.getConfig().getSubsystem();
     // Seed the relative encoder
     if (m_motor.getConfig().getExternalEncoder().isPresent())
@@ -95,7 +104,6 @@ public class Pivot extends SmartPositionalMechanism
                                                                                    .getMechanismToRotorRatio()),
                                           motor.getDCMotor(),
                                           1.0 / 4096.0));// Add noise with a std-dev of 1 tick
-
       Distance pivotLength = Inches.of(36);
       mechanismWindow = new Mechanism2d(pivotLength.in(Meters) * 2,
                                         pivotLength.in(Meters) * 2);

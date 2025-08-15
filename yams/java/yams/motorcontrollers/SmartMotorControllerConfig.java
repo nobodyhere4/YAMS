@@ -876,7 +876,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
+   * Set the closed loop controller for the {@link SmartMotorController}.
    *
    * @param kP KP scalar for the PID Controller.
    * @param kI KI scalar for the PID Controller.
@@ -885,12 +885,6 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopController(double kP, double kI, double kD)
   {
-    if (mechanismCircumference.isEmpty())
-    {
-      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
-                                                           "Closed loop controller cannot be created.",
-                                                           "withMechanismCircumference(Distance)");
-    }
     this.controller = Optional.empty();
     this.simpleController = Optional.of(new PIDController(kP, kI, kD));
     return this;
