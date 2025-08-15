@@ -141,7 +141,7 @@ public class ArmConfig
   /**
    * Configure telemetry for the {@link yams.mechanisms.positional.Arm} mechanism.
    *
-   * @param networkRoot   Telemetry NetworkTable
+   * @param networkRoot        Telemetry NetworkTable
    * @param telemetryName      Telemetry NetworkTable name to appear under _networkTableName_
    * @param telemetryVerbosity Telemetry verbosity to apply.
    * @return {@link ArmConfig} for chaining.

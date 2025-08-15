@@ -1,5 +1,6 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Meters;
@@ -10,9 +11,11 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -64,6 +67,7 @@ public class Arm extends SmartPositionalMechanism
   {
     this.m_config = config;
     m_motor = config.getMotor();
+    DCMotor dcmotor = m_motor.getDCMotor();
     MechanismGearing gearing = m_motor.getConfig().getGearing();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     // Seed the relative encoder
@@ -115,10 +119,49 @@ public class Arm extends SmartPositionalMechanism
                                                   0.0));// Add noise with a std-dev of 1 tick
       m_motor.setSimSupplier(new SimSupplier()
       {
+        boolean inputFed = false;
+
+        @Override
+        public boolean isInputFed()
+        {
+          return inputFed;
+        }
+
+        @Override
+        public void feedInput()
+        {
+          inputFed = true;
+        }
+
+        @Override
+        public void starveInput()
+        {
+          inputFed = false;
+        }
+
+        @Override
+        public void setMechanismStatorDutyCycle(double dutyCycle)
+        {
+          m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+        }
+
         @Override
         public Voltage getMechanismSupplyVoltage()
         {
           return Volts.of(RoboRioSim.getVInVoltage());
+        }
+
+        @Override
+        public Voltage getMechanismStatorVoltage()
+        {
+          return Volts.of(dcmotor.getVoltage(dcmotor.getTorque(m_sim.get().getCurrentDrawAmps()),
+                                             m_sim.get().getVelocityRadPerSec()));
+        }
+
+        @Override
+        public void setMechanismStatorVoltage(Voltage volts)
+        {
+          m_sim.get().setInputVoltage(volts.in(Volts));
         }
 
         @Override
@@ -156,6 +199,12 @@ public class Arm extends SmartPositionalMechanism
         public AngularVelocity getRotorVelocity()
         {
           return getMechanismVelocity().times(gearing.getMechanismToRotorRatio());
+        }
+
+        @Override
+        public Current getCurrentDraw()
+        {
+          return Amps.of(m_sim.get().getCurrentDrawAmps());
         }
       });
 
@@ -212,12 +261,16 @@ public class Arm extends SmartPositionalMechanism
   @Override
   public void simIterate()
   {
-    if (m_sim.isPresent())
+    if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      if (!m_motor.getSimSupplier().get().isInputFed())
+      {
+        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      }
+      m_motor.getSimSupplier().get().starveInput();
       m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
 
-      m_motor.simIterate(RadiansPerSecond.of(m_sim.get().getVelocityRadPerSec()));
+      m_motor.simIterate();
       if (m_config.getLowerHardLimit().isPresent() && m_sim.get().getVelocityRadPerSec() < 0 &&
           m_motor.getMechanismPosition().lt(m_config.getLowerHardLimit().get()))
       {
@@ -297,7 +350,8 @@ public class Arm extends SmartPositionalMechanism
    */
   public Command setAngle(Supplier<Angle> angle)
   {
-    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem).withName(m_subsystem.getName() + " SetAngle Supplier");
+    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem).withName(
+        m_subsystem.getName() + " SetAngle Supplier");
   }
 
   /**
@@ -377,10 +431,13 @@ public class Arm extends SmartPositionalMechanism
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);
 
-    Command group = routine.dynamic(Direction.kForward).until(maxTrigger)
-                           .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
-                           .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
-                           .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger));
+    Command group = Commands.print("Starting SysId!")
+                            .andThen(Commands.runOnce(m_motor::stopClosedLoopController))
+                            .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
+                            .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                            .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
       group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));

@@ -2,6 +2,7 @@ package yams.motorcontrollers;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 /**
@@ -11,51 +12,98 @@ public interface SimSupplier
 {
 
   /**
+   * Check if the input was fed.
+   *
+   * @return Input fed.
+   */
+  boolean isInputFed();
+
+  /**
+   * Feed input
+   *
+   */
+  void feedInput();
+
+  /**
+   * Starve the input.
+   */
+  void starveInput();
+
+  /**
+   * Set the dutycyle of the mechanism stator.
+   *
+   * @param dutyCycle Dutycycle value.
+   */
+  void setMechanismStatorDutyCycle(double dutyCycle);
+
+  /**
    * Gets the supply voltage for the motor controller.
    *
    * @return Supply voltage to the motor controller
    */
-  public Voltage getMechanismSupplyVoltage();
+  Voltage getMechanismSupplyVoltage();
+
+  /**
+   * Get the mechanism stator voltage.
+   *
+   * @return Stator voltage of the mechanism.
+   */
+  Voltage getMechanismStatorVoltage();
+
+  /**
+   * Set mechanism voltage, mostly used for SysId testing.
+   *
+   * @param volts Voltage to set.
+   */
+  void setMechanismStatorVoltage(Voltage volts);
 
   /**
    * Get the mechanism position.
    *
    * @return mechanism angle.
    */
-  public Angle getMechanismPosition();
+  Angle getMechanismPosition();
 
   /**
    * Set the Mechanism position
    *
    * @param position Position of the mechanism.
    */
-  public void setMechanismPosition(Angle position);
+  void setMechanismPosition(Angle position);
 
   /**
    * Get the rotor position.
    *
    * @return rotor position.
    */
-  public Angle getRotorPosition();
+  Angle getRotorPosition();
 
   /**
    * Get the mechanism velocity.
    *
    * @return Mechanism velocity.
    */
-  public AngularVelocity getMechanismVelocity();
+  AngularVelocity getMechanismVelocity();
 
   /**
    * Set the Mechanism velocity.
    *
    * @param velocity Mechanism velocity.
    */
-  public void setMechanismVelocity(AngularVelocity velocity);
+  void setMechanismVelocity(AngularVelocity velocity);
 
   /**
    * Get the rotor velocity.
    *
    * @return rotor velocity.
    */
-  public AngularVelocity getRotorVelocity();
+  AngularVelocity getRotorVelocity();
+
+  /**
+   * Get the current draw of from the sim.
+   *
+   * @return Current draw.
+   */
+  Current getCurrentDraw();
+
 }

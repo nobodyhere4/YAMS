@@ -132,6 +132,7 @@ public class SparkWrapper extends SmartMotorController
 
     this.motor = motor;
     spark = controller;
+    this.config = config;
     sparkRelativeEncoder = controller.getEncoder();
     setupSimulation();
     applyConfig(config);
@@ -163,49 +164,99 @@ public class SparkWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
-      sparkSim = Optional.of(new SparkSim(spark, motor));
-      sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
-      setSimSupplier(new SimSupplier()
+      var setupRan = sparkSim.isPresent();
+      if (!setupRan)
       {
-        @Override
-        public Voltage getMechanismSupplyVoltage()
+        sparkSim = Optional.of(new SparkSim(spark, motor));
+        sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
+        setSimSupplier(new SimSupplier()
         {
-          return Volts.of(RoboRioSim.getVInVoltage());
-        }
+          @Override
+          public boolean isInputFed()
+          {
+            return true;
+          }
 
-        @Override
-        public Angle getMechanismPosition()
-        {
-          return setpointPosition.orElseGet(() -> Degrees.of(0));
-        }
+          @Override
+          public void feedInput()
+          {
 
-        @Override
-        public void setMechanismPosition(Angle position)
-        {
-        }
+          }
 
-        @Override
-        public Angle getRotorPosition()
-        {
-          return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
-        }
+          @Override
+          public void starveInput()
+          {
 
-        @Override
-        public AngularVelocity getMechanismVelocity()
-        {
-          return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
-        }
+          }
 
-        @Override
-        public void setMechanismVelocity(AngularVelocity velocity)
-        {
-        }
+          @Override
+          public void setMechanismStatorDutyCycle(double dutyCycle)
+          {
+            sparkSim.get().setAppliedOutput(dutyCycle);
+          }
 
-        @Override
-        public AngularVelocity getRotorVelocity()
-        {
-          return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
-        }
+          @Override
+          public Voltage getMechanismSupplyVoltage()
+          {
+            return Volts.of(RoboRioSim.getVInVoltage());
+          }
+
+          @Override
+          public Voltage getMechanismStatorVoltage()
+          {
+            return getMechanismSupplyVoltage().times(sparkSim.get().getAppliedOutput());
+          }
+
+          @Override
+          public void setMechanismStatorVoltage(Voltage volts)
+          {
+            sparkSim.get().setAppliedOutput(volts.in(Volts) / RoboRioSim.getVInVoltage());
+          }
+
+          @Override
+          public Angle getMechanismPosition()
+          {
+            return setpointPosition.orElseGet(() -> Degrees.of(0));
+          }
+
+          @Override
+          public void setMechanismPosition(Angle position)
+          {
+          }
+
+          @Override
+          public Angle getRotorPosition()
+          {
+            return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+          }
+
+          @Override
+          public AngularVelocity getMechanismVelocity()
+          {
+            return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
+          }
+
+          @Override
+          public void setMechanismVelocity(AngularVelocity velocity)
+          {
+          }
+
+          @Override
+          public AngularVelocity getRotorVelocity()
+          {
+            return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
+          }
+
+          @Override
+          public Current getCurrentDraw()
+          {
+            return Amps.of(sparkSim.get().getMotorCurrent());
+          }
+        });
+      }
+      config.getStartingPosition().ifPresent(startingPos -> {
+        sparkSim.get().setPosition(startingPos.in(Rotations));
+        sparkRelativeEncoderSim.get().setPosition(startingPos.in(Rotations));
       });
     }
   }
@@ -245,16 +296,19 @@ public class SparkWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation() && m_simSupplier.isPresent())
     {
-      sparkSim.ifPresent(sim -> sim.iterate(m_simSupplier.get().getMechanismVelocity().in(RotationsPerSecond),
-                                            RoboRioSim.getVInVoltage(),
-                                            config.getClosedLoopControlPeriod().in(Second)));
-      sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(m_simSupplier.get().getMechanismVelocity()
-                                                                        .in(RotationsPerSecond),
-                                                           config.getClosedLoopControlPeriod().in(Seconds)));
-      sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim -> absoluteEncoderSim.iterate(m_simSupplier.get()
-                                                                                                      .getMechanismVelocity()
-                                                                                                      .in(
-          RotationsPerSecond), config.getClosedLoopControlPeriod().in(Seconds)));
+      m_simSupplier.ifPresent(mSimSupplier -> {
+        sparkSim.ifPresent(sim -> sim.iterate(mSimSupplier.getMechanismVelocity().in(RotationsPerSecond),
+                                              mSimSupplier.getMechanismSupplyVoltage().in(Volts),
+                                              config.getClosedLoopControlPeriod().in(Second)));
+        sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(mSimSupplier.getMechanismVelocity()
+                                                                         .in(RotationsPerSecond),
+                                                             config.getClosedLoopControlPeriod().in(Seconds)));
+        sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim ->
+                                              absoluteEncoderSim.iterate(mSimSupplier.getMechanismVelocity()
+                                                                                     .in(RotationsPerSecond),
+                                                                         config.getClosedLoopControlPeriod()
+                                                                               .in(Seconds)));
+      });
     }
   }
 
@@ -318,10 +372,7 @@ public class SparkWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
-
-    this.config = config;
     pidController = config.getClosedLoopController();
-
     // Handle simple pid vs profile pid controller.
     if (pidController.isEmpty())
     {
@@ -336,11 +387,13 @@ public class SparkWrapper extends SmartMotorController
     if (closedLoopControllerThread == null)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
-
     } else
     {
       closedLoopControllerThread.stop();
+      closedLoopControllerThread.close();
+      closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
     }
+
     if (config.getTelemetryName().isPresent())
     {
       closedLoopControllerThread.setName(config.getTelemetryName().get());
@@ -476,14 +529,16 @@ public class SparkWrapper extends SmartMotorController
   @Override
   public double getDutyCycle()
   {
-    return sparkSim.map(SparkSim::getAppliedOutput).orElseGet(spark::getAppliedOutput);
+    return m_simSupplier.map(simSupplier -> simSupplier.getMechanismStatorVoltage().in(Volts) /
+                                            simSupplier.getMechanismSupplyVoltage().in(Volts))
+                        .orElseGet(spark::getAppliedOutput);
   }
 
   @Override
   public void setDutyCycle(double dutyCycle)
   {
     spark.set(dutyCycle);
-    sparkSim.ifPresent(sparkSim1 -> sparkSim1.setAppliedOutput(dutyCycle));
+    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
   }
 
   @Override
@@ -498,19 +553,21 @@ public class SparkWrapper extends SmartMotorController
   @Override
   public Current getStatorCurrent()
   {
-    return sparkSim.map(sim -> Amps.of(sim.getMotorCurrent())).orElseGet(() -> Amps.of(spark.getOutputCurrent()));
+    return m_simSupplier.isPresent() ? m_simSupplier.get().getCurrentDraw() : Amps.of(spark.getOutputCurrent());
   }
 
   @Override
   public Voltage getVoltage()
   {
-    return Volts.of(spark.getAppliedOutput() * spark.getBusVoltage());
+    return m_simSupplier.isPresent() ? m_simSupplier.get().getMechanismStatorVoltage() : Volts.of(
+        spark.getAppliedOutput() * spark.getBusVoltage());
   }
 
   @Override
   public void setVoltage(Voltage voltage)
   {
     spark.setVoltage(voltage);
+    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorVoltage(voltage));
   }
 
   @Override

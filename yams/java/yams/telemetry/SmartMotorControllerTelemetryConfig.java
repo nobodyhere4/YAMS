@@ -1,16 +1,15 @@
 package yams.telemetry;
 
-import yams.motorcontrollers.SmartMotorController;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
-import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
+import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Smart motor controller telemetry configuration.
@@ -157,9 +156,9 @@ public class SmartMotorControllerTelemetryConfig
     config.getMechanismLowerLimit().ifPresent(limit -> doubleFields.get(DoubleTelemetryField.MechanismLowerLimit)
                                                                    .setDefaultValue(limit.in(Rotations)));
     config.getSupplyStallCurrentLimit().ifPresent(e -> doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit)
-                                                                   .setDefaultValue((double) e));
+                                                                   .setDefaultValue(e));
     config.getStatorStallCurrentLimit().ifPresent(e -> doubleFields.get(DoubleTelemetryField.StatorCurrentLimit)
-                                                                   .setDefaultValue((double) e));
+                                                                   .setDefaultValue(e));
     config.getSimpleClosedLoopController().ifPresent(e -> {
       doubleFields.get(DoubleTelemetryField.kP).setDefaultValue(e.getP());
       doubleFields.get(DoubleTelemetryField.kI).setDefaultValue(e.getI());

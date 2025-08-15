@@ -7,14 +7,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.Optional;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.gearing.Sprocket;
 import yams.motorcontrollers.SmartMotorController;
 import yams.telemetry.MechanismTelemetry;
-
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * Generic implementation of a mechanism with advanced telemetry.
@@ -116,7 +115,9 @@ public abstract class SmartMechanism
    */
   public Command set(double dutycycle)
   {
-    return Commands.run(() -> m_motor.setDutyCycle(dutycycle), m_subsystem).withName(m_subsystem.getName() + " SetDutyCycle");
+    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setDutyCycle(dutycycle), m_subsystem)
+                   .finallyDo(m_motor::startClosedLoopController)
+                   .withName(m_subsystem.getName() + " SetDutyCycle");
   }
 
   /**
@@ -127,7 +128,10 @@ public abstract class SmartMechanism
    */
   public Command set(Supplier<Double> dutycycle)
   {
-    return Commands.run(() -> m_motor.setDutyCycle(dutycycle.get()), m_subsystem).withName(m_subsystem.getName() + " SetDutyCycle Supplier");
+    return Commands.startRun(m_motor::stopClosedLoopController,
+                             () -> m_motor.setDutyCycle(dutycycle.get()), m_subsystem)
+                   .finallyDo(m_motor::startClosedLoopController)
+                   .withName(m_subsystem.getName() + " SetDutyCycle Supplier");
   }
 
   /**
@@ -138,18 +142,23 @@ public abstract class SmartMechanism
    */
   public Command setVoltage(Voltage volts)
   {
-    return Commands.run(() -> m_motor.setVoltage(volts), m_subsystem).withName(m_subsystem.getName() + " SetVoltage");
+    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setVoltage(volts), m_subsystem)
+                   .finallyDo(m_motor::startClosedLoopController)
+                   .withName(m_subsystem.getName() + " SetVoltage");
   }
 
   /**
    * Set the voltage of the {@link yams.motorcontrollers.SmartMotorController}.
    *
-   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set, via a {@link Supplier}.
+   * @param volts {@link Voltage} of the {@link yams.motorcontrollers.SmartMotorController} to set, via a
+   *              {@link Supplier}.
    * @return {@link Command}
    */
   public Command setVoltage(Supplier<Voltage> volts)
   {
-    return Commands.run(() -> m_motor.setVoltage(volts.get()), m_subsystem).withName(m_subsystem.getName() + " SetVoltage Supplier");
+    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setVoltage(volts.get()), m_subsystem)
+                   .finallyDo(m_motor::startClosedLoopController)
+                   .withName(m_subsystem.getName() + " SetVoltage Supplier");
   }
 
   /**

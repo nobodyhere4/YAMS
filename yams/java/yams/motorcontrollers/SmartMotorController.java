@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.MathUtil;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
@@ -95,7 +97,7 @@ public abstract class SmartMotorController
   /**
    * {@link SimSupplier} for the mechanism.
    */
-  protected Optional<SimSupplier> m_simSupplier = Optional.empty();
+  protected Optional<SimSupplier>                         m_simSupplier   = Optional.empty();
 
 
   /**
@@ -169,6 +171,16 @@ public abstract class SmartMotorController
   }
 
   /**
+   * Get the sim supplier.
+   *
+   * @return Sim supplier.
+   */
+  public Optional<SimSupplier> getSimSupplier()
+  {
+    return m_simSupplier;
+  }
+
+  /**
    * Set the {@link SimSupplier} Mechanism.
    *
    * @param mechanismSupplier Mechanism sim supplier.
@@ -176,6 +188,33 @@ public abstract class SmartMotorController
   public void setSimSupplier(SimSupplier mechanismSupplier)
   {
     m_simSupplier = Optional.of(mechanismSupplier);
+  }
+
+  /**
+   * Stop the closed loop controller.
+   */
+  public void stopClosedLoopController()
+  {
+    if (closedLoopControllerThread != null)
+    {
+      closedLoopControllerThread.stop();
+    }
+  }
+
+  /**
+   * Start the closed loop controller with the period.
+   */
+  public void startClosedLoopController()
+  {
+    if (closedLoopControllerThread != null && config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+    {
+      closedLoopControllerThread.stop();
+      closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Seconds));
+    }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+    {
+      closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+      closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Seconds));
+    }*/
   }
 
   /**
@@ -545,11 +584,12 @@ public abstract class SmartMotorController
         }
         updateTelemetry();
         Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
-                config.getSubsystem())
-                .finallyDo(() -> System.err.println("=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
+                                                 config.getSubsystem())
+                                            .finallyDo(() -> System.err.println(
+                                                "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
         liveTuningCommand.setName("LiveTuning");
         liveTuningCommand.setSubsystem(config.getSubsystem().getName());
-        SmartDashboard.putData(telemetry.getPath()+"/LiveTuning",liveTuningCommand);
+        SmartDashboard.putData(telemetry.getPath() + "/LiveTuning", liveTuningCommand);
         RobotModeTriggers.test().whileTrue(liveTuningCommand);
       }
     }

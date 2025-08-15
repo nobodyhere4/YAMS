@@ -13,7 +13,8 @@ import static edu.wpi.first.units.Units.Volts;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
-import com.ctre.phoenix6.hardware.TalonFXS;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -28,12 +29,12 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.remote.TalonFXSWrapper;
+import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase
 {
 
-  private final TalonFXS                   armMotor    = new TalonFXS(1);//, MotorType.kBrushless);
+  private final SparkMax             armMotor = new SparkMax(1, MotorType.kBrushless);
 //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
@@ -54,7 +55,7 @@ public class ArmSubsystem extends SubsystemBase
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController       motor       = new TalonFXSWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
+  private final SmartMotorController motor    = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
   private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
     .withMaxRobotHeight(Meters.of(1.5))
     .withMaxRobotLength(Meters.of(0.75))

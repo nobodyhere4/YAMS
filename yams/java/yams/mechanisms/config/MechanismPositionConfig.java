@@ -11,10 +11,9 @@ import java.util.Optional;
 import yams.mechanisms.positional.SmartPositionalMechanism;
 
 /**
- * A configuration class for specifying the position and visualization properties of a mechanism
- * relative to a robot in a 3D coordinate system. This class allows setting and retrieving details
- * such as the mechanism's position relative to the robot, the robot's maximum dimensions, and the
- * plane in which the mechanism operates.
+ * A configuration class for specifying the position and visualization properties of a mechanism relative to a robot in
+ * a 3D coordinate system. This class allows setting and retrieving details such as the mechanism's position relative to
+ * the robot, the robot's maximum dimensions, and the plane in which the mechanism operates.
  */
 public class MechanismPositionConfig
 {
@@ -26,17 +25,17 @@ public class MechanismPositionConfig
   /**
    * The length of the robot in meters.
    */
-  protected Optional<Distance>      maxRobotLength = Optional.empty();
+  protected Optional<Distance> maxRobotLength = Optional.empty();
   /**
    * The height of the robot in meters.
    */
-  protected Optional<Distance>      maxRobotHeight = Optional.empty();
+  protected Optional<Distance> maxRobotHeight = Optional.empty();
   // TODO: Add soft limits display config.
   // TODO: Add hard limits display config.
   /**
    * The plane that the mechanism is on, used for position calculations.
    */
-  protected Plane plane = Plane.XZ;
+  protected Plane              plane          = Plane.XZ;
 
   /**
    * Set the position of the {@link SmartPositionalMechanism} relative to the robot.
@@ -174,5 +173,6 @@ public class MechanismPositionConfig
     /**
      * X-Y Plane
      */
-    XY}
+    XY
+  }
 }

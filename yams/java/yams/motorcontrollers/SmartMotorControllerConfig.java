@@ -44,38 +44,17 @@ public class SmartMotorControllerConfig
 {
 
   /**
-   * Missing options that would be decremented for each motor application.
-   */
-  private List<SmartMotorControllerOptions> missingOptions = Arrays.asList(SmartMotorControllerOptions.values());
-
-  /**
-   * All possible options that must be checked and applied during motor config application.
-   */
-  public enum SmartMotorControllerOptions
-  {
-    /**
-     * Inversion state of the motor
-     */
-    MOTOR_INVERTED,
-    /**
-     * Supply current limit
-     */
-    SUPPLY_CURRENT_LIMIT,
-    /**
-     * Stator current limit.
-     */
-    STATOR_CURRENT_LIMIT,
-    // TODO: Add more
-  }
-
-  /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private final Subsystem                                     subsystem;
+  private final Subsystem                         subsystem;
+  /**
+   * Missing options that would be decremented for each motor application.
+   */
+  private final List<SmartMotorControllerOptions> missingOptions  = Arrays.asList(SmartMotorControllerOptions.values());
   /**
    * External encoder.
    */
-  private       Optional<Object>                              externalEncoder                    = Optional.empty();
+  private       Optional<Object>                  externalEncoder = Optional.empty();
   /**
    * External encoder inversion state.
    */
@@ -210,7 +189,6 @@ public class SmartMotorControllerConfig
    * Encoder discontinuity point.
    */
   private       Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
-
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
    *
@@ -508,9 +486,9 @@ public class SmartMotorControllerConfig
     return this;
   }
 
-
   /**
    * Get the telemetry configuration
+   *
    * @return Telemetry configuration.
    */
   public Optional<SmartMotorControllerTelemetryConfig> getSmartControllerTelemetryConfig()
@@ -594,7 +572,6 @@ public class SmartMotorControllerConfig
   {
     return idleMode;
   }
-
 
   /**
    * Lower limit of the mechanism.
@@ -859,7 +836,6 @@ public class SmartMotorControllerConfig
     return simpleFeedforward;
   }
 
-
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations and
    * outputs are in Rotations.
@@ -1076,7 +1052,6 @@ public class SmartMotorControllerConfig
   {
     return subsystem;
   }
-
 
   /**
    * Convert {@link LinearVelocity} to {@link AngularVelocity} using the
@@ -1330,6 +1305,26 @@ public class SmartMotorControllerConfig
   public boolean getExternalEncoderInverted()
   {
     return externalEncoderInverted;
+  }
+
+  /**
+   * All possible options that must be checked and applied during motor config application.
+   */
+  public enum SmartMotorControllerOptions
+  {
+    /**
+     * Inversion state of the motor
+     */
+    MOTOR_INVERTED,
+    /**
+     * Supply current limit
+     */
+    SUPPLY_CURRENT_LIMIT,
+    /**
+     * Stator current limit.
+     */
+    STATOR_CURRENT_LIMIT,
+    // TODO: Add more
   }
 
 

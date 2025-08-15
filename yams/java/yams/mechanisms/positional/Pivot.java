@@ -220,7 +220,8 @@ public class Pivot extends SmartPositionalMechanism
    */
   public Command setAngle(Supplier<Angle> angle)
   {
-    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem).withName(m_subsystem.getName() + " SetAngle Supplier");
+    return Commands.run(() -> m_motor.setPosition(angle.get()), m_subsystem).withName(
+        m_subsystem.getName() + " SetAngle Supplier");
   }
 
   @Override
@@ -288,10 +289,13 @@ public class Pivot extends SmartPositionalMechanism
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);
 
-    Command group = routine.dynamic(Direction.kForward).until(maxTrigger)
-                           .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
-                           .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
-                           .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger));
+    Command group = Commands.print("Starting SysId")
+                            .andThen(Commands.runOnce(m_motor::stopClosedLoopController))
+                            .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
+                            .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                            .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
       group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
@@ -302,12 +306,16 @@ public class Pivot extends SmartPositionalMechanism
   @Override
   public void simIterate()
   {
-    if (m_sim.isPresent())
+    if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      if (!m_motor.getSimSupplier().get().isInputFed())
+      {
+        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      }
+      m_motor.getSimSupplier().get().starveInput();
       m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
 
-      m_motor.simIterate(m_sim.get().getAngularVelocity());
+      m_motor.simIterate();
 
       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_sim.get().getCurrentDrawAmps()));
       visualizationUpdate();

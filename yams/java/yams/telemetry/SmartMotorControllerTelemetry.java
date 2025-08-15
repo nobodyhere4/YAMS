@@ -216,9 +216,11 @@ public class SmartMotorControllerTelemetry
   public void applyTuningValues(SmartMotorController smartMotorController)
   {
     SmartMotorControllerConfig cfg = smartMotorController.getConfig();
-    if(cfg.getMotorControllerMode() != SmartMotorControllerConfig.ControlMode.CLOSED_LOOP)
+    if (cfg.getMotorControllerMode() != SmartMotorControllerConfig.ControlMode.CLOSED_LOOP)
     {
-      throw new SmartMotorControllerConfigurationException("Live tuning does not work in OPEN_LOOP", "Cannot apply setpoints for Live Tuning.",".withControlMode(ControlMode.CLOSED_LOOP) instead of .withControlMode(ControlMode.OPEN_LOOP)");
+      throw new SmartMotorControllerConfigurationException("Live tuning does not work in OPEN_LOOP",
+                                                           "Cannot apply setpoints for Live Tuning.",
+                                                           ".withControlMode(ControlMode.CLOSED_LOOP) instead of .withControlMode(ControlMode.OPEN_LOOP)");
     }
     for (Map.Entry<BooleanTelemetryField, BooleanTelemetry> entry : boolFields.entrySet())
     {
@@ -237,26 +239,30 @@ public class SmartMotorControllerTelemetry
       DoubleTelemetry dt = entry.getValue();
       if (dt.tunable())
       {
-        switch (dt.getField()) {
-          case TunableSetpointPosition -> {
-            System.out.println("SET ELEV POS TO: "+dt.get());
+        switch (dt.getField())
+        {
+          case TunableSetpointPosition ->
+          {
+            System.out.println("SET ELEV POS TO: " + dt.get());
             cfg.getMechanismCircumference().ifPresentOrElse(
-                    circumference -> {
-                      smartMotorController.setPosition(Meters.of(dt.get()));
-                    }, () -> {
+                circumference -> {
+                  smartMotorController.setPosition(Meters.of(dt.get()));
+                }, () -> {
                   smartMotorController.setPosition(Degrees.of(dt.get()));
-                    });
+                });
             break;
           }
-          case TunableSetpointVelocity -> {
-            if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty()) {
+          case TunableSetpointVelocity ->
+          {
+            if (dt.get() == 0 && smartMotorController.getMechanismSetpointVelocity().isEmpty())
+            {
               continue;
             }
             cfg.getMechanismCircumference().ifPresentOrElse(circumference -> smartMotorController.setVelocity(
-                            MetersPerSecond.of(
-                                    dt.get())),
-                    () -> smartMotorController.setVelocity(
-                        dt.get() == 0 ? null : DegreesPerSecond.of(dt.get())));
+                                                                MetersPerSecond.of(
+                                                                    dt.get())),
+                                                            () -> smartMotorController.setVelocity(
+                                                                dt.get() == 0 ? null : DegreesPerSecond.of(dt.get())));
             break;
           }
           case kP -> smartMotorController.setKp(dt.get());

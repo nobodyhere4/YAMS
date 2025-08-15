@@ -1,5 +1,6 @@
 package yams.motorcontrollers.remote;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -205,55 +206,105 @@ public class TalonFXSWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
-      m_dcmotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_dcmotor,
-                                                                                   0.001,
-                                                                                   config.getGearing()
-                                                                                         .getRotorToMechanismRatio()),
-                                                m_dcmotor));
-      setSimSupplier(new SimSupplier()
+      var setupRan = m_dcmotorSim.isPresent();
+      if (!setupRan)
       {
-        @Override
-        public Voltage getMechanismSupplyVoltage()
+        m_dcmotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_dcmotor,
+                                                                                     0.001,
+                                                                                     config.getGearing()
+                                                                                           .getRotorToMechanismRatio()),
+                                                  m_dcmotor));
+        setSimSupplier(new SimSupplier()
         {
-          return Volts.of(RoboRioSim.getVInVoltage());
-        }
+          @Override
+          public boolean isInputFed()
+          {
+            return false;
+          }
 
-        @Override
-        public Angle getMechanismPosition()
-        {
-          return m_dcmotorSim.get().getAngularPosition().times(config.getGearing().getMechanismToRotorRatio());
-        }
+          @Override
+          public void feedInput()
+          {
 
-        @Override
-        public void setMechanismPosition(Angle position)
-        {
-          m_dcmotorSim.get().setAngle(position.in(Radians));
-        }
+          }
 
-        @Override
-        public Angle getRotorPosition()
-        {
-          return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+          @Override
+          public void starveInput()
+          {
 
-        }
+          }
 
-        @Override
-        public AngularVelocity getMechanismVelocity()
-        {
-          return m_dcmotorSim.get().getAngularVelocity();
-        }
+          @Override
+          public void setMechanismStatorDutyCycle(double dutyCycle)
+          {
+            m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+          }
 
-        @Override
-        public void setMechanismVelocity(AngularVelocity velocity)
-        {
-          m_dcmotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
-        }
+          @Override
+          public Voltage getMechanismSupplyVoltage()
+          {
+            return Volts.of(RoboRioSim.getVInVoltage());
+          }
 
-        @Override
-        public AngularVelocity getRotorVelocity()
-        {
-          return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
-        }
+          @Override
+          public Voltage getMechanismStatorVoltage()
+          {
+            return Volts.of(m_dcmotor.getVoltage(m_dcmotorSim.get().getTorqueNewtonMeters(),
+                                                 m_dcmotorSim.get().getAngularVelocityRadPerSec()));
+          }
+
+          @Override
+          public void setMechanismStatorVoltage(Voltage volts)
+          {
+            m_dcmotorSim.get().setInputVoltage(volts.in(Volts));
+          }
+
+          @Override
+          public Angle getMechanismPosition()
+          {
+            return m_dcmotorSim.get().getAngularPosition().times(config.getGearing().getMechanismToRotorRatio());
+          }
+
+          @Override
+          public void setMechanismPosition(Angle position)
+          {
+            m_dcmotorSim.get().setAngle(position.in(Radians));
+          }
+
+          @Override
+          public Angle getRotorPosition()
+          {
+            return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
+
+          }
+
+          @Override
+          public AngularVelocity getMechanismVelocity()
+          {
+            return m_dcmotorSim.get().getAngularVelocity();
+          }
+
+          @Override
+          public void setMechanismVelocity(AngularVelocity velocity)
+          {
+            m_dcmotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
+          }
+
+          @Override
+          public AngularVelocity getRotorVelocity()
+          {
+            return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
+          }
+
+          @Override
+          public Current getCurrentDraw()
+          {
+            return Amps.of(m_dcmotorSim.get().getCurrentDrawAmps());
+          }
+        });
+      }
+      config.getStartingPosition().ifPresent(mechPos -> {
+        m_dcmotorSim.get().setAngle(mechPos.in(Radians));
       });
     }
   }
@@ -492,6 +543,7 @@ public class TalonFXSWrapper extends SmartMotorController
   public void setDutyCycle(double dutyCycle)
   {
     m_talonfxs.set(dutyCycle);
+    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
   }
 
 
@@ -760,7 +812,10 @@ public class TalonFXSWrapper extends SmartMotorController
       if (config.getStartingPosition().isPresent())
       {
         m_configurator.apply(m_talonConfig);
-        m_talonfxs.setPosition(config.getStartingPosition().get());
+        if (!RobotBase.isSimulation())
+        {
+          m_talonfxs.setPosition(config.getStartingPosition().get());
+        }
       }
       // Discontinuity point
       if (config.getDiscontinuityPoint().isPresent())

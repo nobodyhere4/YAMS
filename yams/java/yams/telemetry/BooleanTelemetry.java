@@ -23,23 +23,23 @@ public class BooleanTelemetry
   /**
    * Network table key.
    */
-  private final String  key;
+  private final String                key;
   /**
    * Tunable?
    */
-  private final boolean tunable;
-  /**
-   * Default value.
-   */
-  private       boolean defaultValue;
-  /**
-   * Cached value.
-   */
-  private       boolean cachedValue;
+  private final boolean               tunable;
   /**
    * Enabled?
    */
-  protected     boolean                     enabled    = false;
+  protected     boolean               enabled = false;
+  /**
+   * Default value.
+   */
+  private       boolean               defaultValue;
+  /**
+   * Cached value.
+   */
+  private       boolean               cachedValue;
   /**
    * Publisher.
    */
@@ -51,7 +51,7 @@ public class BooleanTelemetry
   /**
    * Sub publisher.
    */
-  private       BooleanPublisher          pubSub = null;
+  private       BooleanPublisher      pubSub  = null;
 
 
   /**

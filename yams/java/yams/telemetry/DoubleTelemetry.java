@@ -7,9 +7,8 @@ package yams.telemetry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
-import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
-
 import java.util.Optional;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Add your docs here.
@@ -26,13 +25,13 @@ public class DoubleTelemetry
    */
   private final String                     key;
   /**
-   * Enabled?
-   */
-  protected     boolean                    enabled      = false;
-  /**
    * Tunable?
    */
   private final boolean                    tunable;
+  /**
+   * Enabled?
+   */
+  protected     boolean                    enabled = false;
   /**
    * Default value.
    */

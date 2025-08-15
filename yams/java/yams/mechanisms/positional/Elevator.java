@@ -1,20 +1,23 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -69,6 +72,7 @@ public class Elevator extends SmartPositionalMechanism
   {
     m_config = config;
     m_motor = config.getMotor();
+    DCMotor dcMotor = m_motor.getDCMotor();
     MechanismGearing           gearing   = m_motor.getConfig().getGearing();
     SmartMotorControllerConfig smcConfig = m_motor.getConfig();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
@@ -83,6 +87,7 @@ public class Elevator extends SmartPositionalMechanism
     if (RobotBase.isSimulation())
     {
       SmartMotorController motor = config.getMotor();
+      motor.setupSimulation();
       if (config.getCarriageMass().isEmpty())
       {
         throw new ElevatorConfigurationException("Mass is not configured!",
@@ -118,6 +123,35 @@ public class Elevator extends SmartPositionalMechanism
                                           0.01 / 4096, 0.01 / 4096));
       m_motor.setSimSupplier(new SimSupplier()
       {
+        final Supplier<Double> pos = m_sim.get()::getPositionMeters;
+        final Supplier<Double> mps = m_sim.get()::getVelocityMetersPerSecond;
+        boolean inputFed = false;
+
+        @Override
+        public boolean isInputFed()
+        {
+          return inputFed;
+        }
+
+        @Override
+        public void feedInput()
+        {
+          inputFed = true;
+        }
+
+        @Override
+        public void starveInput()
+        {
+          inputFed = false;
+        }
+
+        @Override
+        public void setMechanismStatorDutyCycle(double dutyCycle)
+        {
+          feedInput();
+          m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+        }
+
         @Override
         public Voltage getMechanismSupplyVoltage()
         {
@@ -125,16 +159,29 @@ public class Elevator extends SmartPositionalMechanism
         }
 
         @Override
+        public Voltage getMechanismStatorVoltage()
+        {
+          return Volts.of(dcMotor.getVoltage(dcMotor.getTorque(m_sim.get().getCurrentDrawAmps()),
+                                             getMechanismVelocity().in(RadiansPerSecond)));
+        }
+
+        @Override
+        public void setMechanismStatorVoltage(Voltage volts)
+        {
+          feedInput();
+          m_sim.get().setInputVoltage(volts.in(Volts));
+        }
+
+        @Override
         public Angle getMechanismPosition()
         {
-          return smcConfig.convertToMechanism(Meters.of(m_sim.get().getPositionMeters()));
+          return smcConfig.convertToMechanism(Meters.of(pos.get()));
         }
 
         @Override
         public void setMechanismPosition(Angle position)
         {
-          m_sim.get().setState(smcConfig.convertFromMechanism(position).in(Meters),
-                               m_sim.get().getVelocityMetersPerSecond());
+          m_sim.get().setState(smcConfig.convertFromMechanism(position).in(Meters), mps.get());
 
         }
 
@@ -147,21 +194,26 @@ public class Elevator extends SmartPositionalMechanism
         @Override
         public AngularVelocity getMechanismVelocity()
         {
-          return smcConfig.convertToMechanism(MetersPerSecond.of(m_sim.get().getVelocityMetersPerSecond()));
+          return smcConfig.convertToMechanism(MetersPerSecond.of(mps.get()));
 
         }
 
         @Override
         public void setMechanismVelocity(AngularVelocity velocity)
         {
-          m_sim.get().setState(m_sim.get().getPositionMeters(),
-                               smcConfig.convertFromMechanism(velocity).in(MetersPerSecond));
+          m_sim.get().setState(pos.get(), smcConfig.convertFromMechanism(velocity).in(MetersPerSecond));
         }
 
         @Override
         public AngularVelocity getRotorVelocity()
         {
           return getMechanismVelocity().times(gearing.getMechanismToRotorRatio());
+        }
+
+        @Override
+        public Current getCurrentDraw()
+        {
+          return Amps.of(m_sim.get().getCurrentDrawAmps());
         }
       });
       mechanismWindow = new Mechanism2d(config.getMaximumHeight().get().in(Meters) * 2,
@@ -239,17 +291,20 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public void simIterate()
   {
-    if (m_sim.isPresent())
+    if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
     {
-      m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      if (!m_motor.getSimSupplier().get().isInputFed())
+      {
+        m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+      }
+      m_motor.getSimSupplier().get().starveInput();
       m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
 
-      m_motor.simIterate(m_motor.getConfig()
-                                .convertToMechanism(MetersPerSecond.of(m_sim.get().getVelocityMetersPerSecond())));
+      m_motor.simIterate();
       // It is impossible for an elevator to go bellow the minimum height, it would break...
       if (m_config.getMinimumHeight().isPresent() && getHeight().lt(m_config.getMinimumHeight().get()))
       {
-        m_motor.simIterate(RotationsPerSecond.of(0));
+//        m_motor.simIterate(RotationsPerSecond.of(0));
         m_motor.setEncoderPosition(m_config.getMinimumHeight().get());
       } else
       {
@@ -311,7 +366,8 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Command setHeight(Supplier<Distance> height)
   {
-    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem).withName(m_subsystem.getName() + " SetHeight Supplier");
+    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem).withName(
+        m_subsystem.getName() + " SetHeight Supplier");
   }
 
 
@@ -441,7 +497,7 @@ public class Elevator extends SmartPositionalMechanism
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
     {
       min = motorConfig.convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())
-                       .plus(Centimeters.of(1));
+                       .plus(Centimeters.of(3));
     } else if (m_config.getMinimumHeight().isPresent())
     {
       min = m_config.getMinimumHeight().get().plus(Centimeters.of(1));
@@ -454,10 +510,13 @@ public class Elevator extends SmartPositionalMechanism
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);
 
-    Command group = routine.dynamic(Direction.kForward).until(maxTrigger)
-                           .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
-                           .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
-                           .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger));
+    Command group = Commands.print("Starting SysId!")
+                            .beforeStarting(Commands.runOnce(m_motor::stopClosedLoopController))
+                            .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
+                            .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
+                            .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                            .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
       group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));

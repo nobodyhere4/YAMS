@@ -1,6 +1,17 @@
 package frc.robot.subsystems;
 
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -18,10 +29,6 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
-
-import static edu.wpi.first.units.Units.*;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
@@ -42,10 +49,10 @@ public class ElevatorSubsystem extends SubsystemBase
       .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
 //      .withSpecificTelemetry("ElevatorMotor", motorTelemetryConfig)
       .withStatorCurrentLimit(Amps.of(40))
-      .withVoltageCompensation(Volts.of(12))
+//      .withVoltageCompensation(Volts.of(12))
       .withMotorInverted(false)
-      .withClosedLoopRampRate(Seconds.of(0.25))
-      .withOpenLoopRampRate(Seconds.of(0.25))
+//      .withClosedLoopRampRate(Seconds.of(0.25))
+//      .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor         = new SparkWrapper(elevatorMotor,
