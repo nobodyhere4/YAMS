@@ -1,7 +1,6 @@
 package yams.motorcontrollers.talonfx.elevator;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
@@ -18,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import yams.helpers.MockHardwareExtension;
 import yams.helpers.SchedulerPumpHelper;
 import yams.helpers.TestWithScheduler;
+import yams.mechanisms.config.ElevatorConfig;
+import yams.mechanisms.positional.Elevator;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.remote.TalonFXWrapper;
@@ -33,8 +34,7 @@ public class SmartMotorControllerTalonFxTest {
     private SmartMotorControllerConfig config;
     private SmartMotorController controller;
     private TalonFX talonFX;
-    private HAL.SimPeriodicAfterCallback simPeriodicAfterCallback;
-    private HAL.SimPeriodicBeforeCallback simPeriodicBeforeCallback;
+    private Elevator elevator;
     @BeforeEach
     void startThread() {
         TestWithScheduler.schedulerStart();
@@ -53,9 +53,14 @@ public class SmartMotorControllerTalonFxTest {
                 .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
                 .withControlMode(SmartMotorControllerConfig.ControlMode.CLOSED_LOOP);
         controller = new TalonFXWrapper(talonFX, DCMotor.getKrakenX60(1), config);
-//        simPeriodicAfterCallback = HAL.registerSimPeriodicAfterCallback(simpleSubsystem::periodic);
-//        simPeriodicBeforeCallback = HAL.registerSimPeriodicBeforeCallback(simpleSubsystem::simulationPeriodic);
+        ElevatorConfig m_config      = new ElevatorConfig(controller)
+                .withStartingHeight(Meters.of(0.5))
+                .withHardLimits(Meters.of(0), Meters.of(3))
+                .withMass(Pounds.of(16));
+        elevator = new Elevator(m_config);
         simpleSubsystem.smc = controller;
+        simpleSubsystem.mechUpdateTelemetry = elevator::updateTelemetry;
+        simpleSubsystem.mechSimPeriodic = elevator::simIterate;
         SimHooks.stepTiming(0.0); // Wait for Notifiers
         CommandScheduler.getInstance().enable();
         // teleopInit
@@ -110,8 +115,8 @@ public class SmartMotorControllerTalonFxTest {
     void testPID() throws InterruptedException {
         Distance preDist = controller.getMeasurementPosition();
 
-        schedule(simpleSubsystem.setPositionSetpoint(Meters.of(1)));
-        runScheduler(Seconds.of(10));
+        schedule(simpleSubsystem.setPositionSetpoint(Meters.of(3)));
+        runScheduler(Seconds.of(3));
 
         System.out.println("PRE DIST: " + preDist);
         System.out.println("POST DIST: " + controller.getMeasurementPosition());
@@ -120,6 +125,27 @@ public class SmartMotorControllerTalonFxTest {
         preDist = controller.getMeasurementPosition();
 
         schedule(simpleSubsystem.setPositionSetpoint(Meters.of(0)));
+        runScheduler(Seconds.of(10));
+
+        System.out.println("PRE DIST: " + preDist);
+        System.out.println("POST DIST: " + controller.getMeasurementPosition());
+        assertTrue(preDist.gt(controller.getMeasurementPosition()));
+    }
+
+    @Test
+    void testElevatorPID() throws InterruptedException {
+        Distance preDist = controller.getMeasurementPosition();
+
+        schedule(elevator.setHeight(Meters.of(3)));
+        runScheduler(Seconds.of(3));
+
+        System.out.println("PRE DIST: " + preDist);
+        System.out.println("POST DIST: " + controller.getMeasurementPosition());
+        assertTrue(preDist.lt(controller.getMeasurementPosition()));
+
+        preDist = controller.getMeasurementPosition();
+
+        schedule(elevator.setHeight(Meters.of(0)));
         runScheduler(Seconds.of(10));
 
         System.out.println("PRE DIST: " + preDist);

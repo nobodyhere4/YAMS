@@ -8,6 +8,8 @@ import yams.motorcontrollers.SmartMotorController;
 
 public class SmartMotorControllerTestSubsystem extends SubsystemBase {
     public SmartMotorController smc;
+    public Runnable mechSimPeriodic = null;
+    public Runnable mechUpdateTelemetry = null;
 
     public SmartMotorControllerTestSubsystem() {
     }
@@ -36,11 +38,17 @@ public class SmartMotorControllerTestSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        smc.updateTelemetry();
+        if(mechUpdateTelemetry == null)
+            smc.updateTelemetry();
+        else
+            mechUpdateTelemetry.run();
     }
 
     @Override
     public void simulationPeriodic() {
-        smc.simIterate();
+        if(mechSimPeriodic == null)
+            smc.simIterate();
+        else
+            mechSimPeriodic.run();
     }
 }
