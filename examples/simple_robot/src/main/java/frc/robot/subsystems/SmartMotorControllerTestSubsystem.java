@@ -15,7 +15,7 @@ public class SmartMotorControllerTestSubsystem extends SubsystemBase {
     public Command setDutyCycle(double dutyCycle)
     {
         return runOnce(smc::stopClosedLoopController)
-                .andThen(run(()->{smc.setDutyCycle(dutyCycle);System.out.println("RUNNING!");}))
+                .andThen(run(()->{smc.setDutyCycle(dutyCycle);}))
                 .finallyDo(smc::startClosedLoopController);
     }
 

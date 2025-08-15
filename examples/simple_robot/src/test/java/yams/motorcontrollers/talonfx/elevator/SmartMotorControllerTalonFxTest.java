@@ -5,16 +5,19 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SmartMotorControllerTestSubsystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import yams.helpers.MockHardwareExtension;
+import yams.helpers.SchedulerPumpHelper;
+import yams.helpers.TestWithScheduler;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.remote.TalonFXWrapper;
@@ -34,9 +37,9 @@ public class SmartMotorControllerTalonFxTest {
     private HAL.SimPeriodicBeforeCallback simPeriodicBeforeCallback;
     @BeforeEach
     void startThread() {
-        HAL.initialize(500, 0);
-        SimHooks.pauseTiming();
-        DriverStationSim.resetData();
+        TestWithScheduler.schedulerStart();
+        TestWithScheduler.schedulerClear();
+        MockHardwareExtension.beforeAll();
         talonFX = new TalonFX(54);
         simpleSubsystem = new SmartMotorControllerTestSubsystem();
         config = new SmartMotorControllerConfig(simpleSubsystem)
@@ -68,33 +71,26 @@ public class SmartMotorControllerTalonFxTest {
 //        simPeriodicBeforeCallback.close();
 //        simPeriodicAfterCallback.close();
         Preferences.removeAll();
-        RoboRioSim.resetData();
-        DriverStationSim.resetData();
-        DriverStationSim.notifyNewData();
+        MockHardwareExtension.afterAll();
+        TestWithScheduler.schedulerClear();
+
     }
 
-    private void runCommand(double seconds, Runnable cmd)
-    {
-        double timer = System.currentTimeMillis();
+    private void runScheduler(Time duration) throws InterruptedException {
+        SchedulerPumpHelper.runForDuration(duration);
+    }
 
-        while ((System.currentTimeMillis()-timer) < seconds*1000) {
-            Timer.delay(0.02);
-            cmd.run();
-            simpleSubsystem.simulationPeriodic();
-            simpleSubsystem.periodic();
-        }
+    private void schedule(Command cmd)
+    {
+        CommandScheduler.getInstance().schedule(cmd);
     }
 
     @Test
-    void testDutycycle() {
-        // advance 150 timesteps
-        SimHooks.stepTiming(3);
-
+    void testDutycycle() throws InterruptedException{
         Distance preDist = controller.getMeasurementPosition();
         CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(0.5));
-        CommandScheduler.getInstance().run();
-//        runCommand(2,()->controller.setDutyCycle(0.5));
-        SimHooks.stepTiming(2);
+
+        runScheduler(Seconds.of(3));
 
         System.out.println("PRE DIST: " + preDist);
         System.out.println("POST DIST: " + controller.getMeasurementPosition());
@@ -103,8 +99,7 @@ public class SmartMotorControllerTalonFxTest {
         preDist = controller.getMeasurementPosition();
 
         CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(-1));
-//        runCommand(3,()->controller.setDutyCycle(-1));
-        SimHooks.stepTiming(3);
+        runScheduler(Seconds.of(3));
 
         System.out.println("PRE DIST: " + preDist);
         System.out.println("POST DIST: " + controller.getMeasurementPosition());
@@ -112,14 +107,11 @@ public class SmartMotorControllerTalonFxTest {
     }
 
     @Test
-    void testPID()
-    {
-        // advance 150 timesteps
-        SimHooks.stepTiming(3);
-
+    void testPID() throws InterruptedException {
         Distance preDist = controller.getMeasurementPosition();
-        runCommand(2,()->controller.setPosition(Meters.of(1)));
-        SimHooks.stepTiming(2);
+
+        schedule(simpleSubsystem.setPositionSetpoint(Meters.of(1)));
+        runScheduler(Seconds.of(10));
 
         System.out.println("PRE DIST: " + preDist);
         System.out.println("POST DIST: " + controller.getMeasurementPosition());
@@ -127,8 +119,8 @@ public class SmartMotorControllerTalonFxTest {
 
         preDist = controller.getMeasurementPosition();
 
-        runCommand(3,()->controller.setPosition(Meters.of(0)));
-        SimHooks.stepTiming(3);
+        schedule(simpleSubsystem.setPositionSetpoint(Meters.of(0)));
+        runScheduler(Seconds.of(10));
 
         System.out.println("PRE DIST: " + preDist);
         System.out.println("POST DIST: " + controller.getMeasurementPosition());
