@@ -7,8 +7,10 @@ package yams.telemetry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
-import java.util.Optional;
+import edu.wpi.first.networktables.PubSub;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
+
+import java.util.Optional;
 
 /**
  * Add your docs here.
@@ -52,6 +54,14 @@ public class DoubleTelemetry
    * Sub publisher.
    */
   private       DoublePublisher            subPublisher = null;
+  /**
+   * Tuning table
+   */
+  private Optional<NetworkTable> tuningTable = Optional.empty();
+  /**
+   * Data table.
+   */
+  private Optional<NetworkTable> dataTable = Optional.empty();
 
 
   /**
@@ -88,6 +98,8 @@ public class DoubleTelemetry
    */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
+    this.tuningTable = Optional.ofNullable(tuningTable);
+    this.dataTable = Optional.ofNullable(dataTable);
     if (tuningTable != null && tunable)
     {
       var topic = tuningTable.getDoubleTopic(key);
@@ -202,5 +214,19 @@ public class DoubleTelemetry
   public DoubleTelemetryField getField()
   {
     return field;
+  }
+
+  /**
+   * Close the telemetry field.
+   */
+  public void close()
+  {
+    subscriber.ifPresent(PubSub::close);
+    if(subPublisher != null)
+      subPublisher.close();
+    if(publisher != null)
+      publisher.close();
+    dataTable.ifPresent(table -> table.getEntry(key).unpublish());
+    tuningTable.ifPresent(table -> table.getEntry(key).unpublish());
   }
 }

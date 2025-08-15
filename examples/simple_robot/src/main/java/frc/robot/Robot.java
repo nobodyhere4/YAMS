@@ -15,7 +15,7 @@ public class Robot extends TimedRobot
 {
     private Command autonomousCommand;
     
-    private final RobotContainer robotContainer;
+    public final RobotContainer robotContainer;
     
     
     public Robot()

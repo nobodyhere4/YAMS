@@ -1,24 +1,14 @@
 package yams.telemetry;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Fahrenheit;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import edu.wpi.first.networktables.NetworkTable;
-import java.util.Map;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+
+import java.util.Map;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * Smart motor controller telemetry.
@@ -545,5 +535,22 @@ public class SmartMotorControllerTelemetry
       return new DoubleTelemetry(key, defaultVal, this, tunable);
     }
 
+  }
+
+  /**
+   * Close and unpublish telemetry.
+   */
+  public void close()
+  {
+    if(doubleFields != null)
+        for (Map.Entry<DoubleTelemetryField, DoubleTelemetry> entry : doubleFields.entrySet())
+        {
+          entry.getValue().close();
+        }
+    if(boolFields != null)
+        for (Map.Entry<BooleanTelemetryField, BooleanTelemetry> entry : boolFields.entrySet())
+        {
+          entry.getValue().close();
+        }
   }
 }

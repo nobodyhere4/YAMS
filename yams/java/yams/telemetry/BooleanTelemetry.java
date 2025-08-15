@@ -4,11 +4,10 @@
 
 package yams.telemetry;
 
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
-import java.util.Optional;
+import edu.wpi.first.networktables.*;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
+
+import java.util.Optional;
 
 /**
  * Add your docs here.
@@ -52,7 +51,18 @@ public class BooleanTelemetry
    * Sub publisher.
    */
   private       BooleanPublisher            pubSub     = null;
-
+  /**
+   * pub or sub topic.
+   */
+  private BooleanTopic topic;
+  /**
+   * Tuning table
+   */
+  private Optional<NetworkTable> tuningTable = Optional.empty();
+  /**
+   * Data table.
+   */
+  private Optional<NetworkTable> dataTable = Optional.empty();
 
   /**
    * Setup boolean telemetry for a field.
@@ -79,16 +89,17 @@ public class BooleanTelemetry
    */
   public void setupNetworkTables(NetworkTable dataTable, NetworkTable tuningTable)
   {
-
+    this.dataTable = Optional.ofNullable(dataTable);
+    this.tuningTable = Optional.ofNullable(tuningTable);
     if (tuningTable != null && tunable)
     {
-      var topic = tuningTable.getBooleanTopic(key);
+      topic = tuningTable.getBooleanTopic(key);
       pubSub = topic.publish();
       pubSub.setDefault(defaultValue);
       subscriber = Optional.of(topic.subscribe(defaultValue));
     } else
     {
-      var topic = dataTable.getBooleanTopic(key);
+      topic = dataTable.getBooleanTopic(key);
       publisher = topic.publish();
       publisher.setDefault(defaultValue);
     }
@@ -205,5 +216,19 @@ public class BooleanTelemetry
   {
     defaultValue = value;
     cachedValue = value;
+  }
+
+  /**
+   * Close the telemetry field.
+   */
+  public void close()
+  {
+    subscriber.ifPresent(PubSub::close);
+    if(pubSub != null)
+      pubSub.close();
+    if(publisher != null)
+      publisher.close();
+    dataTable.ifPresent(table -> table.getEntry(key).unpublish());
+    tuningTable.ifPresent(table -> table.getEntry(key).unpublish());
   }
 }
