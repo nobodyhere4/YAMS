@@ -1,7 +1,6 @@
 package yams.mechs;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -26,7 +25,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.SmartMotorControllerTestSubsystem;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import yams.helpers.MockHardwareExtension;
+import yams.helpers.SmartMotorControllerTestSubsystem;
 import yams.helpers.TestWithScheduler;
 import yams.mechanisms.config.ElevatorConfig;
 import yams.mechanisms.positional.Elevator;
@@ -56,7 +55,7 @@ public class ElevatorTest
     return new SmartMotorControllerConfig(subsystem)
         .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
         .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
-        .withSoftLimit(Meters.of(0), Meters.of(2))
+        .withSoftLimit(Meters.of(0), Meters.of(5))
         .withGearing(gearing(gearbox(3, 4)))
         .withIdleMode(MotorMode.BRAKE)
 //        .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
@@ -239,8 +238,8 @@ public class ElevatorTest
   void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
-    Command highPid = Commands.run(() -> smc.setPosition(Degrees.of(80)));
-    Command lowPid  = Commands.run(() -> smc.setPosition(Degrees.of(-80)));
+    Command highPid = Commands.run(() -> smc.setPosition(Meters.of(2)));
+    Command lowPid  = Commands.run(() -> smc.setPosition(Meters.of(0)));
 
     positionPidTest(smc, highPid, lowPid);
 
@@ -253,7 +252,7 @@ public class ElevatorTest
   {
     startTest(smc);
     Elevator elevator = createElevator(smc);
-    Command  highPid  = elevator.setHeight(Meters.of(3));
+    Command highPid = elevator.setHeight(Meters.of(2));
     Command  lowPid   = elevator.setHeight(Meters.of(0));
 
     positionPidTest(smc, highPid, lowPid);

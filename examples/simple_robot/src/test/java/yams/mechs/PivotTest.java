@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.SmartMotorControllerTestSubsystem;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import yams.helpers.MockHardwareExtension;
+import yams.helpers.SmartMotorControllerTestSubsystem;
 import yams.helpers.TestWithScheduler;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -64,7 +64,7 @@ public class PivotTest
   private static Pivot createPivot(SmartMotorController smc)
   {
     PivotConfig config = new PivotConfig(smc)
-        .withHardLimit(Degrees.of(-100), Degrees.of(200))
+        .withHardLimit(Degrees.of(-100), Degrees.of(150))
         .withStartingPosition(Degrees.of(0))
         .withMOI(0.001);
     Pivot                             pivot  = new Pivot(config);
