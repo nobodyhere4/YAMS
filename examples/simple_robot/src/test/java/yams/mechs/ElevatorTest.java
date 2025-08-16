@@ -21,6 +21,7 @@ import com.thethriftybot.ThriftyNova;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -169,24 +170,24 @@ public class ElevatorTest
   private static void dutyCycleTest(SmartMotorController smc, Command dutycycleUp, Command dutyCycleDown)
   throws InterruptedException
   {
-    Distance pre = smc.getMeasurementPosition();
-    Distance post;
+    LinearVelocity pre = smc.getMeasurementVelocity();
+    LinearVelocity post;
 
     TestWithScheduler.schedule(dutycycleUp);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(1));
 
-    post = smc.getMeasurementPosition();
-    System.out.println("DutyCycleUp PreTest Height: " + pre);
-    System.out.println("DutyCycleUp PostTest Height: " + post);
+    post = smc.getMeasurementVelocity();
+    System.out.println("DutyCycleUp PreTest Speed: " + pre);
+    System.out.println("DutyCycleUp PostTest Speed: " + post);
     assertTrue(pre.lt(post));
 
-    pre = smc.getMeasurementPosition();
+    pre = smc.getMeasurementVelocity();
     TestWithScheduler.schedule(dutyCycleDown);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(1));
 
-    post = smc.getMeasurementPosition();
-    System.out.println("DutyCycleDown PreTest Height: " + pre);
-    System.out.println("DutyCycleDown PostTest Height: " + post);
+    post = smc.getMeasurementVelocity();
+    System.out.println("DutyCycleDown PreTest Speed: " + pre);
+    System.out.println("DutyCycleDown PostTest Speed: " + post);
     assertTrue(pre.gt(post));
   }
 
@@ -210,8 +211,8 @@ public class ElevatorTest
     startTest(smc);
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
 
-    Command dutyCycleUp   = subsys.setDutyCycle(0.5);
-    Command dutyCycleDown = subsys.setDutyCycle(-0.5);
+    Command dutyCycleUp   = subsys.setDutyCycle(1);
+    Command dutyCycleDown = subsys.setDutyCycle(-1);
 
     dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
 

@@ -18,6 +18,7 @@ import com.thethriftybot.ThriftyNova;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -160,24 +161,24 @@ public class PivotTest
   private static void dutyCycleTest(SmartMotorController smc, Command dutycycleUp, Command dutyCycleDown)
   throws InterruptedException
   {
-    Angle pre = smc.getMechanismPosition();
-    Angle post;
+    AngularVelocity pre = smc.getMechanismVelocity();
+    AngularVelocity post;
 
     TestWithScheduler.schedule(dutycycleUp);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(1));
 
-    post = smc.getMechanismPosition();
-    System.out.println("DutyCycleUp PreTest Angle: " + pre);
-    System.out.println("DutyCycleUp PostTest Angle: " + post);
+    post = smc.getMechanismVelocity();
+    System.out.println("DutyCycleUp PreTest Speed: " + pre);
+    System.out.println("DutyCycleUp PostTest Speed: " + post);
     assertTrue(pre.lt(post));
 
-    pre = smc.getMechanismPosition();
+    pre = smc.getMechanismVelocity();
     TestWithScheduler.schedule(dutyCycleDown);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(1));
 
-    post = smc.getMechanismPosition();
-    System.out.println("DutyCycleDown PreTest Angle: " + pre);
-    System.out.println("DutyCycleDown PostTest Angle: " + post);
+    post = smc.getMechanismVelocity();
+    System.out.println("DutyCycleDown PreTest Speed: " + pre);
+    System.out.println("DutyCycleDown PostTest Speed: " + post);
     assertTrue(pre.gt(post));
   }
 
