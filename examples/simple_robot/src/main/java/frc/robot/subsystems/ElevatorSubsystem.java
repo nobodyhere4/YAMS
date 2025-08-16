@@ -12,8 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
