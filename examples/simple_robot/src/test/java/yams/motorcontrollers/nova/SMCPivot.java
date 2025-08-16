@@ -1,7 +1,16 @@
 package yams.motorcontrollers.nova;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
+
 import com.thethriftybot.ThriftyNova;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -22,136 +31,142 @@ import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.NovaWrapper;
 
-import static edu.wpi.first.units.Units.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
 
+public class SMCPivot
+{
 
-public class SMCPivot {
-    private SmartMotorControllerTestSubsystem simpleSubsystem;
-    private SmartMotorControllerConfig config;
-    private SmartMotorController controller;
-    private ThriftyNova motorController;
-    private Pivot arm;
-    @BeforeEach
-    void startThread() {
-        TestWithScheduler.schedulerStart();
-        TestWithScheduler.schedulerClear();
-        MockHardwareExtension.beforeAll();
-        motorController = new ThriftyNova((int)(Math.random()*50));
-        simpleSubsystem = new SmartMotorControllerTestSubsystem();
-        config = new SmartMotorControllerConfig(simpleSubsystem)
-                .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
-                .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
-                .withSoftLimit(Meters.of(0), Meters.of(2))
-                .withGearing(gearing(gearbox(3, 4)))
-                .withIdleMode(SmartMotorControllerConfig.MotorMode.BRAKE)
-                .withStatorCurrentLimit(Amps.of(40))
-                .withMotorInverted(false)
-                .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
-                .withControlMode(SmartMotorControllerConfig.ControlMode.CLOSED_LOOP);
-        controller = new NovaWrapper(motorController, DCMotor.getNEO(1), config);
-        PivotConfig m_config    = new PivotConfig(controller)
-                .withHardLimit(Degrees.of(-100), Degrees.of(200))
-                .withStartingPosition(Degrees.of(0))
-                .withMOI(0.001);
-        arm = new Pivot(m_config);
-        simpleSubsystem.smc = controller;
-        simpleSubsystem.mechUpdateTelemetry = arm::updateTelemetry;
-        simpleSubsystem.mechSimPeriodic = arm::simIterate;
-        SimHooks.stepTiming(0.0); // Wait for Notifiers
-        CommandScheduler.getInstance().enable();
-        // teleopInit
-        DriverStationSim.setAutonomous(false);
-        DriverStationSim.setEnabled(true);
-        DriverStationSim.notifyNewData();
-    }
+  private SmartMotorControllerTestSubsystem simpleSubsystem;
+  private SmartMotorControllerConfig        config;
+  private SmartMotorController              controller;
+  private ThriftyNova                       motorController;
+  private Pivot                             arm;
 
-    @AfterEach
-    void stopThread() throws Exception {
-        CommandScheduler.getInstance().unregisterSubsystem(simpleSubsystem);
-        simpleSubsystem.close();
-        motorController.close();
+  @BeforeEach
+  void startThread()
+  {
+    TestWithScheduler.schedulerStart();
+    TestWithScheduler.schedulerClear();
+    MockHardwareExtension.beforeAll();
+    motorController = new ThriftyNova((int) (Math.random() * 50));
+    simpleSubsystem = new SmartMotorControllerTestSubsystem();
+    config = new SmartMotorControllerConfig(simpleSubsystem)
+        .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
+        .withSoftLimit(Degrees.of(0), Degrees.of(100))
+        .withGearing(gearing(gearbox(3, 4)))
+        .withIdleMode(MotorMode.BRAKE)
+        .withStatorCurrentLimit(Amps.of(40))
+        .withMotorInverted(false)
+        .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
+        .withControlMode(ControlMode.CLOSED_LOOP);
+    controller = new NovaWrapper(motorController, DCMotor.getNEO(1), config);
+    PivotConfig m_config = new PivotConfig(controller)
+        .withHardLimit(Degrees.of(-100), Degrees.of(200))
+        .withStartingPosition(Degrees.of(0))
+        .withMOI(0.001);
+    arm = new Pivot(m_config);
+    simpleSubsystem.smc = controller;
+    simpleSubsystem.mechUpdateTelemetry = arm::updateTelemetry;
+    simpleSubsystem.mechSimPeriodic = arm::simIterate;
+    SimHooks.stepTiming(0.0); // Wait for Notifiers
+    CommandScheduler.getInstance().enable();
+    // teleopInit
+    DriverStationSim.setAutonomous(false);
+    DriverStationSim.setEnabled(true);
+    DriverStationSim.notifyNewData();
+  }
+
+  @AfterEach
+  void stopThread() throws Exception
+  {
+    CommandScheduler.getInstance().unregisterSubsystem(simpleSubsystem);
+    simpleSubsystem.close();
+    motorController.close();
 //        simPeriodicBeforeCallback.close();
 //        simPeriodicAfterCallback.close();
-        Preferences.removeAll();
-        MockHardwareExtension.afterAll();
-        TestWithScheduler.schedulerClear();
+    Preferences.removeAll();
+    MockHardwareExtension.afterAll();
+    TestWithScheduler.schedulerClear();
 
-    }
+  }
 
-    private void runScheduler(Time duration) throws InterruptedException {
-        SchedulerPumpHelper.runForDuration(duration);
-    }
+  private void runScheduler(Time duration) throws InterruptedException
+  {
+    SchedulerPumpHelper.runForDuration(duration);
+  }
 
-    private void schedule(Command cmd)
-    {
-        CommandScheduler.getInstance().schedule(cmd);
-    }
+  private void schedule(Command cmd)
+  {
+    CommandScheduler.getInstance().schedule(cmd);
+  }
 
-    @Test
-    void testDutycycle() throws InterruptedException{
-        Distance preDist = controller.getMeasurementPosition();
-        CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(0.5));
+  @Test
+  void testDutycycle() throws InterruptedException
+  {
+    Angle preDist = controller.getMechanismPosition();
+    CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(0.5));
 
-        runScheduler(Seconds.of(3));
+    runScheduler(Seconds.of(3));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.lt(controller.getMeasurementPosition()));
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.lt(controller.getMechanismPosition()));
 
-        preDist = controller.getMeasurementPosition();
+    preDist = controller.getMechanismPosition();
 
-        CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(-1));
-        runScheduler(Seconds.of(3));
+    CommandScheduler.getInstance().schedule(simpleSubsystem.setDutyCycle(-1));
+    runScheduler(Seconds.of(3));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.gt(controller.getMeasurementPosition()));
-    }
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.gt(controller.getMechanismPosition()));
+  }
 
-    @Test
-    void testPID() throws InterruptedException {
-        Angle preDist = controller.getMechanismPosition();
+  @Test
+  void testPID() throws InterruptedException
+  {
+    Angle preDist = controller.getMechanismPosition();
 
-        schedule(simpleSubsystem.setPositionSetpoint(Degrees.of(30)));
-        runScheduler(Seconds.of(3));
+    schedule(simpleSubsystem.setPositionSetpoint(Degrees.of(30)));
+    runScheduler(Seconds.of(300));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.lt(controller.getMechanismPosition()));
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.lt(controller.getMechanismPosition()));
 
-        preDist = controller.getMechanismPosition();
+    preDist = controller.getMechanismPosition();
 
-        schedule(simpleSubsystem.setPositionSetpoint(Degrees.of(0)));
-        runScheduler(Seconds.of(10));
+    schedule(simpleSubsystem.setPositionSetpoint(Degrees.of(0)));
+    runScheduler(Seconds.of(300));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.gt(controller.getMechanismPosition()));
-    }
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.gt(controller.getMechanismPosition()));
+  }
 
-    @Test
-    void testArmPID() throws InterruptedException {
-        Angle preDist = controller.getMechanismPosition();
+  @Test
+  void testArmPID() throws InterruptedException
+  {
+    Angle preDist = controller.getMechanismPosition();
 
-        schedule(arm.setAngle(Degrees.of(30)));
-        runScheduler(Seconds.of(3));
+    schedule(arm.setAngle(Degrees.of(50)));
+    runScheduler(Seconds.of(300));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.lt(controller.getMechanismPosition()));
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.lt(controller.getMechanismPosition()));
 
-        preDist = controller.getMechanismPosition();
+    preDist = controller.getMechanismPosition();
 
-        schedule(arm.setAngle(Degrees.of(0)));
-        runScheduler(Seconds.of(10));
+    schedule(arm.setAngle(Degrees.of(0)));
+    runScheduler(Seconds.of(300));
 
-        System.out.println("PRE DIST: " + preDist);
-        System.out.println("POST DIST: " + controller.getMeasurementPosition());
-        assertTrue(preDist.gt(controller.getMechanismPosition()));
-    }
+    System.out.println("PRE DIST: " + preDist);
+    System.out.println("POST DIST: " + controller.getMechanismPosition());
+    assertTrue(preDist.gt(controller.getMechanismPosition()));
+  }
 }
