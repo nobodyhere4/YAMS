@@ -10,6 +10,7 @@ public class SmartMotorControllerTestSubsystem extends SubsystemBase {
     public SmartMotorController smc;
     public Runnable mechSimPeriodic = null;
     public Runnable mechUpdateTelemetry = null;
+  public boolean testRunning = false;
 
     public SmartMotorControllerTestSubsystem() {
     }
@@ -36,19 +37,36 @@ public class SmartMotorControllerTestSubsystem extends SubsystemBase {
         smc.close();
     }
 
+  public void setSMC(SmartMotorController sm)
+  {
+    smc = sm;
+  }
+
     @Override
     public void periodic() {
-        if(mechUpdateTelemetry == null)
-            smc.updateTelemetry();
-        else
-            mechUpdateTelemetry.run();
+      if (testRunning)
+      {
+        if (mechUpdateTelemetry == null)
+        {
+          smc.updateTelemetry();
+        } else
+        {
+          mechUpdateTelemetry.run();
+        }
+      }
     }
 
     @Override
     public void simulationPeriodic() {
-        if(mechSimPeriodic == null)
-            smc.simIterate();
-        else
-            mechSimPeriodic.run();
+      if (testRunning)
+      {
+        if (mechSimPeriodic == null)
+        {
+          smc.simIterate();
+        } else
+        {
+          mechSimPeriodic.run();
+        }
+      }
     }
 }
