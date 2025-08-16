@@ -8,10 +8,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.SmartMotorControllerTestSubsystem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class RobotContainer
@@ -21,14 +17,6 @@ public class RobotContainer
 //  ArmSubsystem arm = new ArmSubsystem();
 //  public ElevatorSubsystem elevator = new ElevatorSubsystem();
 //  public CommandXboxController xboxController = new CommandXboxController(0);
-  public List<SmartMotorControllerTestSubsystem> subsystems = new ArrayList<>();
-
-  public SmartMotorControllerTestSubsystem createTestSubsystem()
-  {
-    var subsys = new SmartMotorControllerTestSubsystem();
-    subsystems.add(subsys);
-    return subsys;
-  }
 
   public RobotContainer()
   {
