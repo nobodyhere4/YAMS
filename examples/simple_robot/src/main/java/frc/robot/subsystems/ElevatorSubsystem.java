@@ -28,12 +28,12 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.SparkWrapper;
+import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
 
-  private final SparkMax                   elevatorMotor = new SparkMax(2, MotorType.kBrushless);
+  private final TalonFX                   elevatorMotor = new TalonFX(2);//, MotorType.kBrushless);
 //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
@@ -55,7 +55,7 @@ public class ElevatorSubsystem extends SubsystemBase
 //      .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController       motor         = new SparkWrapper(elevatorMotor,
+  private final SmartMotorController       motor         = new TalonFXWrapper(elevatorMotor,
                                                                             DCMotor.getNEO(1),
                                                                             motorConfig);
   private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
