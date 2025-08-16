@@ -71,8 +71,11 @@ public class ArmTest
         .withHardLimit(Degrees.of(-100), Degrees.of(200))
 //        .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
         .withMass(Pounds.of(1))
-        .withStartingPosition(Degrees.of(0))
-        .withHorizontalZero(Degrees.of(0));
+        .withStartingPosition(Degrees.of(0));
+    if (!(smc instanceof SparkWrapper || smc instanceof NovaWrapper))
+    {
+      config.withHorizontalZero(Degrees.of(0))
+    }
     Arm                               arm    = new Arm(config);
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
     subsys.smc = smc;

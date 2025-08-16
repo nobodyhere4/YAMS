@@ -175,14 +175,7 @@ public class ArmConfig
    */
   public ArmConfig withHorizontalZero(Angle horizontalZero)
   {
-    try
-    {
-      motor.getConfig().withZeroOffset(horizontalZero);
-
-    } catch (Exception e)
-    {
-      System.err.println(e);
-    }
+    motor.getConfig().withZeroOffset(horizontalZero);
     return this;
   }
 
