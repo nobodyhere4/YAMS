@@ -74,7 +74,7 @@ public class ArmTest
         .withStartingPosition(Degrees.of(0));
     if (!(smc instanceof SparkWrapper || smc instanceof NovaWrapper))
     {
-      config.withHorizontalZero(Degrees.of(0))
+      config.withHorizontalZero(Degrees.of(0));
     }
     Arm                               arm    = new Arm(config);
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
