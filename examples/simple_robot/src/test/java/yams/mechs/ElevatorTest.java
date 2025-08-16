@@ -158,7 +158,7 @@ public class ElevatorTest
 
     pre = smc.getMeasurementPosition();
     TestWithScheduler.schedule(lowPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(500));
 
     post = smc.getMeasurementPosition();
     System.out.println("PID Low PreTest Height: " + pre);
