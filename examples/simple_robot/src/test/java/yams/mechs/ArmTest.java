@@ -54,7 +54,7 @@ public class ArmTest
 
     return new SmartMotorControllerConfig(subsystem)
         .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
-        .withSoftLimit(Degrees.of(-30), Degrees.of(100))
+        .withSoftLimit(Degrees.of(-100), Degrees.of(100))
         .withGearing(gearing(gearbox(3, 4)))
         .withIdleMode(MotorMode.BRAKE)
 //      .withSpecificTelemetry("ArmMotor", motorTelemetryConfig)

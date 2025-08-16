@@ -253,7 +253,7 @@ public class ElevatorTest
     startTest(smc);
     Elevator elevator = createElevator(smc);
     Command highPid = elevator.setHeight(Meters.of(2));
-    Command  lowPid   = elevator.setHeight(Meters.of(0));
+    Command lowPid = elevator.setHeight(Meters.of(0.5));
 
     positionPidTest(smc, highPid, lowPid);
 
