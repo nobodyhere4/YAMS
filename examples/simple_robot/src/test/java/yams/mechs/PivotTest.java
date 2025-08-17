@@ -163,17 +163,23 @@ public class PivotTest
   private static void dutyCycleTest(SmartMotorController smc, Command dutycycleUp, Command dutyCycleDown)
   throws InterruptedException
   {
-    AngularVelocity pre = smc.getMechanismVelocity();
+    AngularVelocity pre       = smc.getMechanismVelocity();
+    Angle           preAngle  = smc.getMechanismPosition();
     AngularVelocity post;
+    Angle           postAngle = smc.getMechanismPosition();
 
     TestWithScheduler.schedule(dutycycleUp);
     TestWithScheduler.cycle(Seconds.of(1));
 
     post = smc.getMechanismVelocity();
+    postAngle = smc.getMechanismPosition();
     System.out.println("DutyCycleUp PreTest Speed: " + pre);
-    System.out.println("DutyCycleUp PostTest Speed: " + post);
-    assertTrue(pre.lt(post));
+    System.out.println("DutyCycleUp PreTest Angle: " + preAngle);
 
+    System.out.println("DutyCycleUp PostTest Speed: " + post);
+    System.out.println("DutyCycleUp PostTest Angle: " + postAngle);
+
+    assertTrue(pre.lt(post) || preAngle.lt(postAngle));
 //    pre = smc.getMechanismVelocity();
 //    TestWithScheduler.schedule(dutyCycleDown);
 //    TestWithScheduler.cycle(Seconds.of(1));

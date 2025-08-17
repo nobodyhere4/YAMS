@@ -2,11 +2,11 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -33,6 +33,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -48,6 +49,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +83,7 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Motor type.
    */
-  private final DCMotor                           motor;
+  private final DCMotor              m_motor;
   /**
    * Spark base configuration.
    */
@@ -106,7 +108,10 @@ public class SparkWrapper extends SmartMotorController
    * Spark absolute encoder sim object
    */
   private       Optional<SparkAbsoluteEncoderSim> sparkAbsoluteEncoderSim = Optional.empty();
-
+  /**
+   * DC Motor Sim.
+   */
+  private       Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
 
   /**
    * Create a {@link SmartMotorController} from {@link SparkMax} or {@link SparkFlex}
@@ -130,7 +135,7 @@ public class SparkWrapper extends SmartMotorController
           "[ERROR] Unsupported controller type: " + controller.getClass().getSimpleName());
     }
 
-    this.motor = motor;
+    this.m_motor = motor;
     spark = controller;
     this.config = config;
     sparkRelativeEncoder = controller.getEncoder();
@@ -167,8 +172,14 @@ public class SparkWrapper extends SmartMotorController
       var setupRan = sparkSim.isPresent();
       if (!setupRan)
       {
-        sparkSim = Optional.of(new SparkSim(spark, motor));
+        sparkSim = Optional.of(new SparkSim(spark, m_motor));
         sparkRelativeEncoderSim = Optional.of(sparkSim.get().getRelativeEncoderSim());
+        m_dcMotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
+                                                                                     0.001,
+                                                                                     config.getGearing()
+                                                                                           .getRotorToMechanismRatio()),
+                                                  m_motor,
+                                                  1.0 / 1024.0, 0));
         setSimSupplier(new SimSupplier()
         {
           boolean simUpdated = false;
@@ -177,16 +188,16 @@ public class SparkWrapper extends SmartMotorController
           @Override
           public void updateSimState()
           {
-            // TODO: Make SparkMax's work on their own
-//            if (!inputFed)
-//            {
-//              m_sim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
-//            }
-//            if(!simUpdated)
-//            {
-//              starveInput();
-//              m_sim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
-//            }
+            if (!inputFed)
+            {
+              m_dcMotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+            }
+            if (!simUpdated)
+            {
+              starveInput();
+              m_dcMotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              feedUpdateSim();
+            }
           }
 
           @Override
@@ -230,6 +241,8 @@ public class SparkWrapper extends SmartMotorController
           {
             inputFed = true;
             sparkSim.get().setAppliedOutput(dutyCycle);
+            m_dcMotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+
           }
 
           @Override
@@ -241,25 +254,32 @@ public class SparkWrapper extends SmartMotorController
           @Override
           public Voltage getMechanismStatorVoltage()
           {
-            return getMechanismSupplyVoltage().times(sparkSim.get().getAppliedOutput());
+            return Volts.of(m_motor.getVoltage(m_dcMotorSim.get().getTorqueNewtonMeters(),
+                                               m_dcMotorSim.get().getAngularVelocityRadPerSec()));
+            //getMechanismSupplyVoltage().times(sparkSim.get().getAppliedOutput());
           }
 
           @Override
           public void setMechanismStatorVoltage(Voltage volts)
           {
             inputFed = true;
+            m_dcMotorSim.get().setInputVoltage(volts.in(Volts));
             sparkSim.get().setAppliedOutput(volts.in(Volts) / RoboRioSim.getVInVoltage());
           }
 
           @Override
           public Angle getMechanismPosition()
           {
-            return setpointPosition.orElseGet(() -> Degrees.of(0));
+//            return setpointPosition.orElseGet(() -> Degrees.of(0));
+            return m_dcMotorSim.get().getAngularPosition();
+
           }
 
           @Override
           public void setMechanismPosition(Angle position)
           {
+            m_dcMotorSim.get().setAngle(position.in(Radians));
+
           }
 
           @Override
@@ -271,12 +291,16 @@ public class SparkWrapper extends SmartMotorController
           @Override
           public AngularVelocity getMechanismVelocity()
           {
-            return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
+            return m_dcMotorSim.get().getAngularVelocity();
+
+//            return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
           }
 
           @Override
           public void setMechanismVelocity(AngularVelocity velocity)
           {
+            m_dcMotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
+
           }
 
           @Override
@@ -288,7 +312,8 @@ public class SparkWrapper extends SmartMotorController
           @Override
           public Current getCurrentDraw()
           {
-            return Amps.of(sparkSim.get().getMotorCurrent());
+//            return Amps.of(sparkSim.get().getMotorCurrent());
+            return Amps.of(m_dcMotorSim.get().getCurrentDrawAmps());
           }
         });
       }
@@ -616,7 +641,7 @@ public class SparkWrapper extends SmartMotorController
   @Override
   public DCMotor getDCMotor()
   {
-    return motor;
+    return m_motor;
   }
 
   @Override

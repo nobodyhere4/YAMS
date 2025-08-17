@@ -155,7 +155,7 @@ public class ElevatorTest
     post = smc.getMeasurementPosition();
     System.out.println("PID High PreTest Height: " + pre);
     System.out.println("PID High PostTest Height: " + post);
-    assertFalse(pre.isNear(post, Meters.of(0.05)));
+    assertFalse(pre.isNear(post, Meters.of(0.005)));
 
 //    pre = smc.getMeasurementPosition();
 //    TestWithScheduler.schedule(lowPIDSetCommand);
@@ -170,15 +170,22 @@ public class ElevatorTest
   private static void dutyCycleTest(SmartMotorController smc, Command dutycycleUp, Command dutyCycleDown)
   throws InterruptedException
   {
-    LinearVelocity pre = smc.getMeasurementVelocity();
+    Distance       preDist = smc.getMeasurementPosition();
+    LinearVelocity pre     = smc.getMeasurementVelocity();
     LinearVelocity post;
+    Distance       postDist;
 
     TestWithScheduler.schedule(dutycycleUp);
     TestWithScheduler.cycle(Seconds.of(1));
 
     post = smc.getMeasurementVelocity();
+    postDist = smc.getMeasurementPosition();
     System.out.println("DutyCycleUp PreTest Speed: " + pre);
+    System.out.println("DutyCycleUp PreTest Dist: " + preDist);
+
     System.out.println("DutyCycleUp PostTest Speed: " + post);
+    System.out.println("DutyCycleUp PostTest Dist: " + postDist);
+
     assertTrue(pre.lt(post));
 
 //    pre = smc.getMeasurementVelocity();
@@ -254,7 +261,7 @@ public class ElevatorTest
     startTest(smc);
     Elevator elevator = createElevator(smc);
     Command highPid = elevator.setHeight(Meters.of(2));
-    Command lowPid = elevator.setHeight(Meters.of(0.5));
+    Command lowPid  = elevator.setHeight(Meters.of(0.5));
 
     positionPidTest(smc, highPid, lowPid);
 

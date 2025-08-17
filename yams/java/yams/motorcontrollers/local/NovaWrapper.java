@@ -63,7 +63,7 @@ public class NovaWrapper extends SmartMotorController
   /**
    * Sim for ThriftyNova's.
    */
-  private       Optional<DCMotorSim> m_sim = Optional.empty();
+  private Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
 
   /**
    * Construct the Nova Wrapper for the generic {@link SmartMotorController}.
@@ -86,14 +86,14 @@ public class NovaWrapper extends SmartMotorController
   {
     if (RobotBase.isSimulation())
     {
-      var setupRan = m_sim.isPresent();
+      var setupRan = m_dcMotorSim.isPresent();
       if (!setupRan)
       {
-        m_sim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
-                                                                              0.001,
-                                                                              config.getGearing()
+        m_dcMotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
+                                                                                     0.001,
+                                                                                     config.getGearing()
                                                                                     .getRotorToMechanismRatio()),
-                                           m_motor,
+                                                  m_motor,
                                            1.0 / 1024.0, 0));
 
         setSimSupplier(new SimSupplier()
@@ -106,12 +106,12 @@ public class NovaWrapper extends SmartMotorController
           {
             if (!inputFed)
             {
-              m_sim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
+              m_dcMotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
             }
             if (!simUpdated)
             {
               starveInput();
-              m_sim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              m_dcMotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
               feedUpdateSim();
             }
           }
@@ -156,7 +156,7 @@ public class NovaWrapper extends SmartMotorController
           public void setMechanismStatorDutyCycle(double dutyCycle)
           {
             inputFed = true;
-            m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+            m_dcMotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
           }
 
           @Override
@@ -168,27 +168,27 @@ public class NovaWrapper extends SmartMotorController
           @Override
           public Voltage getMechanismStatorVoltage()
           {
-            return Volts.of(m_motor.getVoltage(m_sim.get().getTorqueNewtonMeters(),
-                                               m_sim.get().getAngularVelocityRadPerSec()));
+            return Volts.of(m_motor.getVoltage(m_dcMotorSim.get().getTorqueNewtonMeters(),
+                                               m_dcMotorSim.get().getAngularVelocityRadPerSec()));
           }
 
           @Override
           public void setMechanismStatorVoltage(Voltage volts)
           {
             inputFed = true;
-            m_sim.get().setInputVoltage(volts.in(Volts));
+            m_dcMotorSim.get().setInputVoltage(volts.in(Volts));
           }
 
           @Override
           public Angle getMechanismPosition()
           {
-            return m_sim.get().getAngularPosition();
+            return m_dcMotorSim.get().getAngularPosition();
           }
 
           @Override
           public void setMechanismPosition(Angle position)
           {
-            m_sim.get().setAngle(position.in(Radians));
+            m_dcMotorSim.get().setAngle(position.in(Radians));
           }
 
           @Override
@@ -200,13 +200,13 @@ public class NovaWrapper extends SmartMotorController
           @Override
           public AngularVelocity getMechanismVelocity()
           {
-            return m_sim.get().getAngularVelocity();
+            return m_dcMotorSim.get().getAngularVelocity();
           }
 
           @Override
           public void setMechanismVelocity(AngularVelocity velocity)
           {
-            m_sim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
+            m_dcMotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
           }
 
           @Override
@@ -218,13 +218,13 @@ public class NovaWrapper extends SmartMotorController
           @Override
           public Current getCurrentDraw()
           {
-            return Amps.of(m_sim.get().getCurrentDrawAmps());
+            return Amps.of(m_dcMotorSim.get().getCurrentDrawAmps());
           }
         });
       }
 
       config.getStartingPosition().ifPresent(mechPos -> {
-        m_sim.get().setAngle(mechPos.in(Radians));
+        m_dcMotorSim.get().setAngle(mechPos.in(Radians));
       });
     }
   }
@@ -256,7 +256,7 @@ public class NovaWrapper extends SmartMotorController
         m_simSupplier.get().updateSimState();
         m_simSupplier.get().starveUpdateSim();
       }
-      m_sim.ifPresent(sim -> {
+      m_dcMotorSim.ifPresent(sim -> {
         sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
         sim.update(config.getClosedLoopControlPeriod().in(Seconds));
       });

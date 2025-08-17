@@ -857,6 +857,11 @@ public class TalonFXSWrapper extends SmartMotorController
         if (!RobotBase.isSimulation())
         {
           m_talonfxs.setPosition(config.getStartingPosition().get());
+        } else
+        {
+          m_talonfxs.getSimState().setRawRotorPosition(config.getStartingPosition().get()
+                                                             .times(config.getGearing().getMechanismToRotorRatio()));
+          m_talonfxs.setPosition(config.getStartingPosition().get());
         }
       }
       // Discontinuity point
