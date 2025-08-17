@@ -196,6 +196,12 @@ public class SparkWrapper extends SmartMotorController
             {
               starveInput();
               m_dcMotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              try
+              {
+                Thread.sleep(1);
+              } catch (Exception e)
+              {
+              }
               feedUpdateSim();
             }
           }

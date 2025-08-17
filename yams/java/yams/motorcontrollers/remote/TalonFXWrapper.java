@@ -203,6 +203,12 @@ public class TalonFXWrapper extends SmartMotorController
             {
               starveInput();
               m_dcmotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              try
+              {
+                Thread.sleep(1);
+              } catch (Exception e)
+              {
+              }
               feedUpdateSim();
             }
           }

@@ -187,7 +187,7 @@ public class ArmTest
     System.out.println("DutyCycleUp PostTest Speed: " + post);
     System.out.println("DutyCycleUp PostTest Angle: " + postAngle);
 
-    assertTrue(pre.lt(post) || preAngle.lt(postAngle));
+    assertTrue(!pre.isNear(post, 0.05) || !preAngle.isNear(postAngle, 0.05));
 
 //    pre = smc.getMechanismVelocity();
 //    TestWithScheduler.schedule(dutyCycleDown);

@@ -230,6 +230,13 @@ public class TalonFXSWrapper extends SmartMotorController
             {
               starveInput();
               m_dcmotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
+              try
+              {
+                Thread.sleep(1);
+              } catch (Exception e)
+              {
+
+              }
               feedUpdateSim();
             }
 
@@ -391,10 +398,10 @@ public class TalonFXSWrapper extends SmartMotorController
       // use the motor voltage to calculate new position and velocity
       // using WPILib's DCMotorSim class for physics simulation
       // m_dcmotorSim.get().setInputVoltage(motorVoltage.in(Volts));
-      m_dcmotorSim.ifPresent(sim -> {
-        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
-        sim.update(config.getClosedLoopControlPeriod().in(Seconds));
-      });
+//      m_dcmotorSim.ifPresent(sim -> {
+//        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
+//        sim.update(config.getClosedLoopControlPeriod().in(Seconds));
+//      });
 
       // apply the new rotor position and velocity to the TalonFX;
       // note that this is rotor position/velocity (before gear ratio), but
