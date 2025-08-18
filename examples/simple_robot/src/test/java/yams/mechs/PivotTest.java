@@ -51,11 +51,11 @@ public class PivotTest
     return new SmartMotorControllerConfig(subsystem)
         .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
         .withSoftLimit(Degrees.of(-100), Degrees.of(100))
-        .withGearing(gearing(gearbox(3, 4)))
+        .withGearing(gearing(gearbox(3, 4,5)))
         .withIdleMode(MotorMode.BRAKE)
         .withStatorCurrentLimit(Amps.of(40))
         .withMotorInverted(false)
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0, 0.02))
+        .withFeedforward(new SimpleMotorFeedforward(1, 0, 0, 0.02))
         .withControlMode(ControlMode.CLOSED_LOOP);
   }
 
@@ -64,7 +64,7 @@ public class PivotTest
     PivotConfig config = new PivotConfig(smc)
         .withHardLimit(Degrees.of(-100), Degrees.of(150))
         .withStartingPosition(Degrees.of(0))
-        .withMOI(0.001);
+        .withMOI(0.01);
     Pivot                             pivot  = new Pivot(config);
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
     subsys.smc = smc;
@@ -142,7 +142,7 @@ public class PivotTest
     AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(30),()->{
+    TestWithScheduler.cycle(Seconds.of(10),()->{
       if(smc.getDutyCycle() != 0)
       {
         testPassed.set(true);
@@ -152,7 +152,7 @@ public class PivotTest
     post = smc.getMechanismPosition();
     System.out.println("PID High PreTest Angle: " + pre);
     System.out.println("PID High PostTest Angle: " + post);
-    assertTrue(!pre.isNear(post, Degrees.of(0.05)) || testPassed.get());
+    assertTrue(!pre.isNear(post, Degrees.of(0.0003)) || testPassed.get());
 
 //    pre = smc.getMechanismPosition();
 //    TestWithScheduler.schedule(lowPIDSetCommand);
@@ -220,12 +220,29 @@ public class PivotTest
   void testSMCDutyCycle(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
+    smc.setupSimulation();
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
 
     Command dutyCycleUp   = subsys.setDutyCycle(0.5);
     Command dutyCycleDown = subsys.setDutyCycle(-0.5);
 
     dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
+
+    closeSMC(smc);
+  }
+
+
+
+  @ParameterizedTest
+  @MethodSource("createConfigs")
+  void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
+  {
+    startTest(smc);
+    smc.setupSimulation();
+    Command highPid = Commands.run(() -> smc.setPosition(Degrees.of(80)));
+    Command lowPid  = Commands.run(() -> smc.setPosition(Degrees.of(-80)));
+
+    positionPidTest(smc, highPid, lowPid);
 
     closeSMC(smc);
   }
@@ -244,19 +261,6 @@ public class PivotTest
     closeSMC(smc);
   }
 
-
-  @ParameterizedTest
-  @MethodSource("createConfigs")
-  void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
-  {
-    startTest(smc);
-    Command highPid = Commands.run(() -> smc.setPosition(Degrees.of(80)));
-    Command lowPid  = Commands.run(() -> smc.setPosition(Degrees.of(-80)));
-
-    positionPidTest(smc, highPid, lowPid);
-
-    closeSMC(smc);
-  }
 
   @ParameterizedTest
   @MethodSource("createConfigs")

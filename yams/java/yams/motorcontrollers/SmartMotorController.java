@@ -259,6 +259,8 @@ public abstract class SmartMotorController
 
       } else if (config.getSimpleFeedforward().isPresent())
       {
+        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
+                setpointPosition.get().in(Rotations));
         feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
             RotationsPerSecond), pidController.get().getSetpoint().velocity);
 
@@ -268,11 +270,12 @@ public abstract class SmartMotorController
     {
       if (setpointPosition.isPresent())
       {
-        pidOutputVoltage = simplePidController.get().calculate(setpointPosition.get().in(Rotations),
+        pidOutputVoltage = simplePidController.get().calculate(getMechanismPosition().in(Rotations),
                                                                setpointPosition.get().in(Rotations));
       } else if (setpointVelocity.isPresent())
       {
-        pidOutputVoltage = simplePidController.get().calculate(setpointVelocity.get().in(RotationsPerSecond));
+        pidOutputVoltage = simplePidController.get().calculate(getMechanismVelocity().in(RotationsPerSecond),
+                                                               setpointVelocity.get().in(RotationsPerSecond));
       }
     }
     if (config.getMechanismUpperLimit().isPresent())
