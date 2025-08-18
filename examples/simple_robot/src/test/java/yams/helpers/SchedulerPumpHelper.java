@@ -51,13 +51,13 @@ public final class SchedulerPumpHelper {
 	 * of deadlocks. As of this writing, parallel testing is NOT the default mode
 	 * for JUnit. So if you have not decorated your tests to run in parallel, you
 	 * are fine.
-	 * 
+	 * @param cycleRunnable 		Runnable that runs at the end of each cycle.
 	 * @param durationInMs          Duration to run in milliseconds
 	 * @param optionalHeartbeatInMs Optional pump time in milliseconds. If omitted,
 	 *                              20ms default unless changed.
 	 * @throws InterruptedException Thrown if sleeping interrupted
 	 */
-	public static synchronized void runForDuration(Time durationInMs, int... optionalHeartbeatInMs)
+	public static synchronized void runForDuration(Runnable cycleRunnable, Time durationInMs, int... optionalHeartbeatInMs)
 			throws InterruptedException {
 		int heartbeatToUseInMs = getHeartbeatToUse(optionalHeartbeatInMs);
 		long start = System.currentTimeMillis();
@@ -68,6 +68,8 @@ public final class SchedulerPumpHelper {
 			time.set((long) i * 20 * 1_000); // 20,000 microseconds = 20ms time step
 			CommandScheduler.getInstance().run();
 			SimHooks.stepTimingAsync(heartbeatToUseInMs);
+			if(cycleRunnable != null)
+				cycleRunnable.run();
 		}
 //		while (System.currentTimeMillis() < (start + durationInMs.in(Units.Milliseconds))) {
 //			CommandScheduler.getInstance().run();

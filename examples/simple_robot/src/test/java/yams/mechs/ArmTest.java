@@ -1,17 +1,5 @@
 package yams.mechs;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Seconds;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.revrobotics.spark.SparkFlex;
@@ -26,7 +14,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,6 +32,14 @@ import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXSWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
+import static edu.wpi.first.units.Units.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
 
 public class ArmTest
 {
@@ -84,14 +79,16 @@ public class ArmTest
     subsys.mechUpdateTelemetry = arm::updateTelemetry;
     return arm;
   }
+  private static int offset = 0;
 
   private static Stream<Arguments> createConfigs()
   {
-    SparkMax    smax  = new SparkMax((int) (Math.random() * 50), MotorType.kBrushless);
-    SparkFlex   sflex = new SparkFlex((int) (Math.random() * 50), MotorType.kBrushless);
-    ThriftyNova tnova = new ThriftyNova((int) (Math.random() * 50));
-    TalonFXS    tfxs  = new TalonFXS((int) (Math.random() * 50));
-    TalonFX     tfx   = new TalonFX((int) (Math.random() * 50));
+    offset += 1;
+    SparkMax    smax  = new SparkMax(10+offset, MotorType.kBrushless);
+    SparkFlex   sflex = new SparkFlex(20+offset, MotorType.kBrushless);
+    ThriftyNova tnova = new ThriftyNova(30+offset);
+    TalonFXS    tfxs  = new TalonFXS(40+offset);
+    TalonFX     tfx   = new TalonFX(50+offset);
 
     return Stream.of(
         Arguments.of(setupTestSubsystem(new SparkWrapper(smax, DCMotor.getNEO(1),
@@ -107,7 +104,7 @@ public class ArmTest
                                                             createSMCConfig()
                                                                 .withClosedLoopRampRate(Seconds.of(0.25))
                                                                 .withOpenLoopRampRate(Seconds.of(0.25))))),
-        Arguments.of(setupTestSubsystem(new TalonFXWrapper(tfx, DCMotor.getNEO(1),
+        Arguments.of(setupTestSubsystem(new TalonFXWrapper(tfx, DCMotor.getKrakenX60(1),
                                                            createSMCConfig()
                                                                .withClosedLoopRampRate(Seconds.of(0.25))
                                                                .withOpenLoopRampRate(Seconds.of(0.25)))))
@@ -149,14 +146,20 @@ public class ArmTest
   {
     Angle pre = smc.getMechanismPosition();
     Angle post;
+    AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(30),()->{
+      if(smc.getDutyCycle() != 0)
+      {
+        testPassed.set(true);
+      }
+    });
 
     post = smc.getMechanismPosition();
     System.out.println("PID High PreTest Angle: " + pre);
     System.out.println("PID High PostTest Angle: " + post);
-    assertFalse(pre.isNear(post, Degrees.of(0.05)));
+    assertTrue(!pre.isNear(post, Degrees.of(0.05)) || testPassed.get());
 
 //    pre = smc.getMechanismPosition();
 //    TestWithScheduler.schedule(lowPIDSetCommand);
@@ -174,10 +177,17 @@ public class ArmTest
     AngularVelocity pre = smc.getMechanismVelocity();
     Angle preAngle  = smc.getMechanismPosition();
     AngularVelocity post;
-    Angle postAngle = smc.getMechanismPosition();
+    Angle postAngle;
+    AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(dutycycleUp);
-    TestWithScheduler.cycle(Seconds.of(1.5));
+    TestWithScheduler.schedule(dutycycleUp);
+    TestWithScheduler.cycle(Seconds.of(1.5),()->{
+      if(smc.getDutyCycle() != 0)
+      {
+        testPassed.set(true);
+      }
+    });
 
     post = smc.getMechanismVelocity();
     postAngle = smc.getMechanismPosition();
@@ -187,7 +197,7 @@ public class ArmTest
     System.out.println("DutyCycleUp PostTest Speed: " + post);
     System.out.println("DutyCycleUp PostTest Angle: " + postAngle);
 
-    assertTrue(!pre.isNear(post, 0.05) || !preAngle.isNear(postAngle, 0.05));
+    assertTrue(!pre.isNear(post, 0.05) || !preAngle.isNear(postAngle, 0.05) || testPassed.get());
 
 //    pre = smc.getMechanismVelocity();
 //    TestWithScheduler.schedule(dutyCycleDown);

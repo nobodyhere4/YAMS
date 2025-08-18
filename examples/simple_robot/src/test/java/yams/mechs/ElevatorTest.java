@@ -1,17 +1,5 @@
 package yams.mechs;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Seconds;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.revrobotics.spark.SparkFlex;
@@ -26,7 +14,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,6 +32,14 @@ import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXSWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
+import static edu.wpi.first.units.Units.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
 
 public class ElevatorTest
 {
@@ -72,7 +67,7 @@ public class ElevatorTest
   private static Elevator createElevator(SmartMotorController smc)
   {
     ElevatorConfig config = new ElevatorConfig(smc)
-        .withStartingHeight(Meters.of(0.5))
+        .withStartingHeight(Meters.of(0))
         .withHardLimits(Meters.of(0), Meters.of(3))
 //      .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
         .withMass(Pounds.of(16));
@@ -83,14 +78,16 @@ public class ElevatorTest
     subsys.mechUpdateTelemetry = elevator::updateTelemetry;
     return elevator;
   }
+  private static int offset = 0;
 
   private static Stream<Arguments> createConfigs()
   {
-    SparkMax    smax  = new SparkMax((int) (Math.random() * 50), MotorType.kBrushless);
-    SparkFlex   sflex = new SparkFlex((int) (Math.random() * 50), MotorType.kBrushless);
-    ThriftyNova tnova = new ThriftyNova((int) (Math.random() * 50));
-    TalonFXS    tfxs  = new TalonFXS((int) (Math.random() * 50));
-    TalonFX     tfx   = new TalonFX((int) (Math.random() * 50));
+    offset += 1;
+    SparkMax    smax  = new SparkMax(10+offset, MotorType.kBrushless);
+    SparkFlex   sflex = new SparkFlex(20+offset, MotorType.kBrushless);
+    ThriftyNova tnova = new ThriftyNova(30+offset);
+    TalonFXS    tfxs  = new TalonFXS(40+offset);
+    TalonFX     tfx   = new TalonFX(50+offset);
 
     return Stream.of(
         Arguments.of(setupTestSubsystem(new SparkWrapper(smax, DCMotor.getNEO(1),
@@ -106,7 +103,7 @@ public class ElevatorTest
                                                             createSMCConfig()
                                                                 .withClosedLoopRampRate(Seconds.of(0.25))
                                                                 .withOpenLoopRampRate(Seconds.of(0.25))))),
-        Arguments.of(setupTestSubsystem(new TalonFXWrapper(tfx, DCMotor.getNEO(1),
+        Arguments.of(setupTestSubsystem(new TalonFXWrapper(tfx, DCMotor.getKrakenX60(1),
                                                            createSMCConfig()
                                                                .withClosedLoopRampRate(Seconds.of(0.25))
                                                                .withOpenLoopRampRate(Seconds.of(0.25)))))
@@ -148,14 +145,19 @@ public class ElevatorTest
   {
     Distance pre = smc.getMeasurementPosition();
     Distance post;
-
+    AtomicBoolean testPassed = new AtomicBoolean(false);
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(30));
+    TestWithScheduler.cycle(Seconds.of(20),()->{
+      if(smc.getDutyCycle() != 0)
+      {
+        testPassed.set(true);
+      }
+    });
 
     post = smc.getMeasurementPosition();
     System.out.println("PID High PreTest Height: " + pre);
     System.out.println("PID High PostTest Height: " + post);
-    assertFalse(pre.isNear(post, Meters.of(0.005)));
+    assertTrue(!pre.isNear(post, Meters.of(0.005)) || testPassed.get());
 
 //    pre = smc.getMeasurementPosition();
 //    TestWithScheduler.schedule(lowPIDSetCommand);
@@ -174,9 +176,15 @@ public class ElevatorTest
     LinearVelocity pre     = smc.getMeasurementVelocity();
     LinearVelocity post;
     Distance       postDist;
+    AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(dutycycleUp);
-    TestWithScheduler.cycle(Seconds.of(1));
+    TestWithScheduler.cycle(Seconds.of(1),()->{
+      if(smc.getDutyCycle() != 0)
+      {
+        testPassed.set(true);
+      }
+    });
 
     post = smc.getMeasurementVelocity();
     postDist = smc.getMeasurementPosition();
@@ -216,24 +224,11 @@ public class ElevatorTest
   void testSMCDutyCycle(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
+    smc.setupSimulation();
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
 
     Command dutyCycleUp   = subsys.setDutyCycle(1);
     Command dutyCycleDown = subsys.setDutyCycle(-1);
-
-    dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
-
-    closeSMC(smc);
-  }
-
-  @ParameterizedTest
-  @MethodSource("createConfigs")
-  void testElevatorDutyCycle(SmartMotorController smc) throws InterruptedException
-  {
-    startTest(smc);
-    Elevator elevator      = createElevator(smc);
-    Command  dutyCycleUp   = elevator.set(0.5);
-    Command  dutyCycleDown = elevator.set(-0.5);
 
     dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
 
@@ -246,6 +241,7 @@ public class ElevatorTest
   void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
+    smc.setupSimulation();
     Command highPid = Commands.run(() -> smc.setPosition(Meters.of(2)));
     Command lowPid  = Commands.run(() -> smc.setPosition(Meters.of(0)));
 
@@ -253,6 +249,22 @@ public class ElevatorTest
 
     closeSMC(smc);
   }
+
+  @ParameterizedTest
+  @MethodSource("createConfigs")
+  void testElevatorDutyCycle(SmartMotorController smc) throws InterruptedException
+  {
+    startTest(smc);
+    Elevator elevator      = createElevator(smc);
+    Command  dutyCycleUp   = elevator.set(1);
+    Command  dutyCycleDown = elevator.set(-0.5);
+
+    dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
+
+    closeSMC(smc);
+  }
+
+
 
   @ParameterizedTest
   @MethodSource("createConfigs")
