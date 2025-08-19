@@ -265,9 +265,9 @@ public class ElevatorTest
     Command  dutyCycleUp   = elevator.set(1);
     Command  dutyCycleDown = elevator.set(-0.5);
 
-    if (smc instanceof TalonFXWrapper)
+    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
     {
-      System.err.println("[WARNING] TalonFX Does not work with CI on linux, skipping for now.");
+      System.err.println("Warning: TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
     } else
     {
       dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
