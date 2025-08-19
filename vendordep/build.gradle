@@ -72,13 +72,23 @@ dependencies {
 
 //    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 //    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation wpi.java.vendor.java()
+
+    nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
+    nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
+    simulationDebug wpi.sim.enableDebug()
+
+    nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
+    nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
+    simulationRelease wpi.sim.enableRelease()
+
     testImplementation platform("org.junit:junit-bom:5.11.4")
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.mockito:mockito-core:5.3.1"
     testImplementation "org.mockito:mockito-junit-jupiter:5.3.1"
+    testImplementation wpi.java.vendor.java()
+
 }
 
 // Set up java tests
@@ -89,6 +99,15 @@ test {
         events "failed"
         exceptionFormat "full"
     }
+}
+
+wpi.sim.addGui().defaultEnabled = true
+wpi.sim.addDriverstation()
+wpi.java.configureTestTasks(test)
+
+tasks.test {
+    // Disable test when running 'build' task, but enable when running 'test' task directly
+    enabled = !gradle.startParameter.taskNames.contains('build')
 }
 
 if (project.hasProperty('onlylinuxathena') || project.hasProperty('onlylinuxarm32') || project.hasProperty('onlylinuxarm64') || project.hasProperty('onlywindowsarm64') || project.hasProperty('onlylinuxsystemcore')) {
