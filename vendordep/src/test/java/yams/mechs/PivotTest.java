@@ -256,13 +256,13 @@ public class PivotTest
     Command dutyCycleUp   = pivot.set(0.5);
     Command dutyCycleDown = pivot.set(-0.5);
 
-    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
-    {
-      System.out.println("[WARNING] TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
-    } else
-    {
+//    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
+//    {
+//      System.out.println("[WARNING] TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
+//    } else
+//    {
       dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
-    }
+//    }
 
     closeSMC(smc);
   }
