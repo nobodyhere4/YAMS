@@ -148,6 +148,11 @@ public class PivotTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(500);
+      TestWithScheduler.cycle(Seconds.of(0.5));
+    }
 
     post = smc.getMechanismPosition();
     System.out.println("PID High PreTest Angle: " + pre);
@@ -182,6 +187,11 @@ public class PivotTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(200);
+      TestWithScheduler.cycle(Seconds.of(1));
+    }
 
     post = smc.getMechanismVelocity();
     postAngle = smc.getMechanismPosition();

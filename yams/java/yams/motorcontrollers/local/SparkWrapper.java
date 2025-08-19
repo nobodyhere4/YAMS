@@ -618,7 +618,7 @@ public class SparkWrapper extends SmartMotorController
   public void setDutyCycle(double dutyCycle)
   {
     spark.set(dutyCycle);
-    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
+//    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
   }
 
   @Override

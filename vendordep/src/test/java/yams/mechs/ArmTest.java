@@ -161,6 +161,11 @@ public class ArmTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(20);
+      TestWithScheduler.cycle(Seconds.of(1));
+    }
 
     post = smc.getMechanismPosition();
     System.out.println("PID High PreTest Angle: " + pre);
@@ -194,6 +199,11 @@ public class ArmTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(20);
+      TestWithScheduler.cycle(Seconds.of(1));
+    }
 
     post = smc.getMechanismVelocity();
     postAngle = smc.getMechanismPosition();

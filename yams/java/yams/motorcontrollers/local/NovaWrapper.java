@@ -90,9 +90,8 @@ public class NovaWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcMotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
-                                                                                     0.001,
-                                                                                     config.getGearing()
-                                                                                    .getRotorToMechanismRatio()),
+                                                                                     0.01,
+                                                                                     config.getGearing().getRotorToMechanismRatio()),
                                                   m_motor,
                                            1.0 / 1024.0, 0));
 
@@ -256,10 +255,10 @@ public class NovaWrapper extends SmartMotorController
         m_simSupplier.get().updateSimState();
         m_simSupplier.get().starveUpdateSim();
       }
-      m_dcMotorSim.ifPresent(sim -> {
-        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
-        sim.update(config.getClosedLoopControlPeriod().in(Seconds));
-      });
+//      m_dcMotorSim.ifPresent(sim -> {
+//        sim.setAngularVelocity(m_simSupplier.get().getMechanismVelocity().in(RadiansPerSecond));
+//        sim.update(config.getClosedLoopControlPeriod().in(Seconds));
+//      });
     }
   }
 

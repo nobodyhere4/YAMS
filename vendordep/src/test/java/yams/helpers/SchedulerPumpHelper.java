@@ -3,6 +3,7 @@ package yams.helpers;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -68,6 +69,7 @@ public final class SchedulerPumpHelper {
 			time.set((long) i * 20 * 1_000); // 20,000 microseconds = 20ms time step
 			CommandScheduler.getInstance().run();
 			SimHooks.stepTimingAsync(heartbeatToUseInMs);
+      Thread.sleep(1);
 			if(cycleRunnable != null)
 				cycleRunnable.run();
 		}

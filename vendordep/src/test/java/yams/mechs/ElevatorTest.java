@@ -55,7 +55,7 @@ public class ElevatorTest
 
     return new SmartMotorControllerConfig(subsystem)
         .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
-        .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(1))
+        .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.1), MetersPerSecondPerSecond.of(0.5))
         .withSoftLimit(Meters.of(0), Meters.of(5))
         .withGearing(gearing(gearbox(3, 4)))
         .withIdleMode(MotorMode.BRAKE)
@@ -159,10 +159,16 @@ public class ElevatorTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(200);
+      TestWithScheduler.cycle(Seconds.of(2));
+    }
 
     post = smc.getMeasurementPosition();
     System.out.println("PID High PreTest Height: " + pre);
-    System.out.println("PID High PostTest Height: " + post);
+    System.out.println("PID High PostTest Height: " + post + " == "+post.in(Meters));
+
     assertTrue(!pre.isNear(post, Meters.of(0.005)) || testPassed.get());
 
 //    pre = smc.getMeasurementPosition();
@@ -191,6 +197,11 @@ public class ElevatorTest
         testPassed.set(true);
       }
     });
+    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(200);
+      TestWithScheduler.cycle(Seconds.of(1));
+    }
 
     post = smc.getMeasurementVelocity();
     postDist = smc.getMeasurementPosition();
@@ -272,13 +283,7 @@ public class ElevatorTest
     Command  dutyCycleUp   = elevator.set(1);
     Command  dutyCycleDown = elevator.set(-0.5);
 
-//    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
-//    {
-//      System.out.println("[WARNING] TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
-//    } else
-//    {
       dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
-//    }
 
     closeSMC(smc);
   }

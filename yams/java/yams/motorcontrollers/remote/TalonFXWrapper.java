@@ -183,21 +183,21 @@ public class TalonFXWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcmotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_dcmotor,
-                                                                                     0.001,
+                                                                                     0.01,
                                                                                      config.getGearing()
                                                                                            .getRotorToMechanismRatio()),
                                                   m_dcmotor));
         setSimSupplier(new SimSupplier()
         {
-          boolean simUpdated = false;
           boolean inputFed   = false;
+          boolean simUpdated = false;
 
           @Override
           public void updateSimState()
           {
             if (!isInputFed())
             {
-              m_dcmotorSim.get().setInput(m_talonfx.getSimState().getMotorVoltage());
+              m_dcmotorSim.get().setInputVoltage(getDutyCycle() * RoboRioSim.getVInVoltage());
             }
             if (!simUpdated)
             {
@@ -208,9 +208,11 @@ public class TalonFXWrapper extends SmartMotorController
                 Thread.sleep(1);
               } catch (Exception e)
               {
+
               }
               feedUpdateSim();
             }
+
           }
 
           @Override
@@ -252,7 +254,8 @@ public class TalonFXWrapper extends SmartMotorController
           @Override
           public void setMechanismStatorDutyCycle(double dutyCycle)
           {
-            m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+//            feedInput();
+//            m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
           }
 
           @Override
@@ -271,26 +274,26 @@ public class TalonFXWrapper extends SmartMotorController
           @Override
           public void setMechanismStatorVoltage(Voltage volts)
           {
-            m_dcmotorSim.get().setInputVoltage(volts.in(Volts));
+//            feedInput();
+//            m_dcmotorSim.get().setInputVoltage(volts.in(Volts));
           }
 
           @Override
           public Angle getMechanismPosition()
           {
-            return m_dcmotorSim.get().getAngularPosition().times(config.getGearing().getMechanismToRotorRatio());
+            return m_dcmotorSim.get().getAngularPosition();
           }
 
           @Override
           public void setMechanismPosition(Angle position)
           {
-            m_dcmotorSim.get().setAngle(position.in(Radians));
+            m_dcmotorSim.get().setAngle(position.times(config.getGearing().getMechanismToRotorRatio()).in(Radians));
           }
 
           @Override
           public Angle getRotorPosition()
           {
             return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
-
           }
 
           @Override
@@ -319,7 +322,7 @@ public class TalonFXWrapper extends SmartMotorController
         });
       }
       config.getStartingPosition().ifPresent(mechPos -> {
-        m_dcmotorSim.get().setAngle(mechPos.in(Radians));
+        m_simSupplier.get().setMechanismPosition(mechPos);
       });
     }
   }
