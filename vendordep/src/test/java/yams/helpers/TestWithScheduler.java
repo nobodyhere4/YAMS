@@ -19,9 +19,15 @@ public class TestWithScheduler
     CommandScheduler.getInstance().schedule(cmd);
   }
 
-  public static void cycle(Time time, Runnable cycleRunnable) throws InterruptedException
+  public static void cycle(Time time, Runnable cycleRunnable)
   {
-    SchedulerPumpHelper.runForDuration(cycleRunnable, time);
+    try
+    {
+      SchedulerPumpHelper.runForDuration(cycleRunnable, time);
+    }catch (Exception e)
+    {
+      System.out.println("[WARNING] Cycle interrupted: "+e);
+    }
   }
 
 	public static void cycle(Time time) throws InterruptedException
