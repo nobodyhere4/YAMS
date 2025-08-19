@@ -161,7 +161,7 @@ public class ElevatorTest
     });
     if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
-      Thread.sleep(1000);
+      Thread.sleep(200);
       TestWithScheduler.cycle(Seconds.of(2));
     }
 
