@@ -80,8 +80,8 @@ public class PivotTest
     SparkMax    smax  = new SparkMax(10+offset, MotorType.kBrushless);
     SparkFlex   sflex = new SparkFlex(20+offset, MotorType.kBrushless);
     ThriftyNova tnova = new ThriftyNova(30+offset);
-    TalonFXS    tfxs  = new TalonFXS(40+offset);
-    TalonFX     tfx   = new TalonFX(50+offset);
+    TalonFXS    tfxs  = new TalonFXS(60+offset);
+    TalonFX     tfx   = new TalonFX(70+offset);
 
     return Stream.of(
         Arguments.of(setupTestSubsystem(new SparkWrapper(smax, DCMotor.getNEO(1),
