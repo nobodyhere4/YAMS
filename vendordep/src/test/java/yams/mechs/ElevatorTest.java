@@ -267,7 +267,7 @@ public class ElevatorTest
 
     if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
     {
-      System.out.println("Warning: TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
+      System.out.println("[WARNING] TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
     } else
     {
       dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
