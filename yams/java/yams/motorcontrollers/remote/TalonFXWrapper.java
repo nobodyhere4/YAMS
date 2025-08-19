@@ -434,7 +434,7 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public void setEncoderVelocity(AngularVelocity velocity)
   {
-    m_simSupplier.ifPresent(mSim -> mSim.setMechanismVelocity(velocity));
+    //m_simSupplier.ifPresent(mSim -> mSim.setMechanismVelocity(velocity));
 //    m_dcmotorSim.ifPresent(sim -> sim.setAngularVelocity(velocity.in(RadiansPerSecond)));
     // Cannot set velocity of CANdi or CANCoder.
   }
@@ -535,7 +535,7 @@ public class TalonFXWrapper extends SmartMotorController
   public void setDutyCycle(double dutyCycle)
   {
     m_talonfx.set(dutyCycle);
-    m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
+    //m_simSupplier.ifPresent(simSupplier -> simSupplier.setMechanismStatorDutyCycle(dutyCycle));
   }
 
   @Override
