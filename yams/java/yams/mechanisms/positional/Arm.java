@@ -176,6 +176,7 @@ public class Arm extends SmartPositionalMechanism
         @Override
         public void setMechanismStatorDutyCycle(double dutyCycle)
         {
+          feedInput();
           m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
         }
 

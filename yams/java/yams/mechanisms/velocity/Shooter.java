@@ -160,6 +160,7 @@ public class Shooter extends SmartVelocityMechanism
         @Override
         public void setMechanismStatorDutyCycle(double dutyCycle)
         {
+          feedInput();
           m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
         }
 
@@ -186,13 +187,13 @@ public class Shooter extends SmartVelocityMechanism
         @Override
         public Angle getMechanismPosition()
         {
-          return m_dcmotorSim.get().getAngularPosition().times(motorConfig.getGearing().getMechanismToRotorRatio());
+          return m_dcmotorSim.get().getAngularPosition();//.times(motorConfig.getGearing().getRotorToMechanismRatio());
         }
 
         @Override
         public void setMechanismPosition(Angle position)
         {
-          m_dcmotorSim.get().setAngle(position.in(Radians));
+          m_dcmotorSim.get().setAngle(position.in(Radians));//.times(motorConfig.getGearing().getMechanismToRotorRatio()).in(Radians));
         }
 
         @Override
