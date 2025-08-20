@@ -176,6 +176,7 @@ public class TalonFXSWrapper extends SmartMotorController
     m_rotorPosition = m_talonfxs.getRotorPosition();
     m_rotorVelocity = m_talonfxs.getRotorVelocity();
     m_deviceTemperature = m_talonfxs.getDeviceTemp();
+    closedLoopControllerThread = null;
 
     DCMotor minion = new DCMotor(12, 3.1, 200.46, 1.43, RPM.of(7200).in(RadiansPerSecond), 1);
     if (isMotor(motor, minion))

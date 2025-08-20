@@ -159,15 +159,15 @@ public class ElevatorTest
         testPassed.set(true);
       }
     });
-    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
-      Thread.sleep(200);
-      TestWithScheduler.cycle(Seconds.of(2));
+      Thread.sleep(20);
+//      TestWithScheduler.cycle(Seconds.of(2));
     }
 
     post = smc.getMeasurementPosition();
     System.out.println("PID High PreTest Height: " + pre);
-    System.out.println("PID High PostTest Height: " + post + " == "+post.in(Meters));
+    System.out.println("PID High PostTest Height: " + post + " == " + post.in(Meters));
 
     assertTrue(!pre.isNear(post, Meters.of(0.005)) || testPassed.get());
 
@@ -197,7 +197,7 @@ public class ElevatorTest
         testPassed.set(true);
       }
     });
-    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
       Thread.sleep(200);
       TestWithScheduler.cycle(Seconds.of(1));
@@ -264,6 +264,15 @@ public class ElevatorTest
   @MethodSource("createConfigs")
   void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
   {
+    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
+    {
+      smc.applyConfig(smc.getConfig()
+                         .withClosedLoopController(0.01,
+                                                   0,
+                                                   0,
+                                                   MetersPerSecond.of(0.1),
+                                                   MetersPerSecondPerSecond.of(0.5)));
+    }
     startTest(smc);
     smc.setupSimulation();
     Command highPid = Commands.run(() -> smc.setPosition(Meters.of(2)));
@@ -283,7 +292,7 @@ public class ElevatorTest
     Command  dutyCycleUp   = elevator.set(1);
     Command  dutyCycleDown = elevator.set(-0.5);
 
-      dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
+    dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
 
     closeSMC(smc);
   }

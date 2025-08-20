@@ -173,6 +173,7 @@ public class TalonFXWrapper extends SmartMotorController
     m_rotorPosition = m_talonfx.getRotorPosition();
     m_rotorVelocity = m_talonfx.getRotorVelocity();
     m_deviceTemperature = m_talonfx.getDeviceTemp();
+    closedLoopControllerThread = null;
 
     setupSimulation();
     applyConfig(smartConfig);
