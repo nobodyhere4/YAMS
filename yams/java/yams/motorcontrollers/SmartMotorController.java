@@ -234,7 +234,7 @@ public abstract class SmartMotorController
         if (setpointPosition.get().lt(config.getMechanismLowerLimit().get()))
         {
           DriverStation.reportWarning("[WARNING] Setpoint is lower than Mechanism " +
-                                      (config.getTelemetryName().isPresent() ? getName()
+                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
                                                                              : "Unnamed smart motor") +
                                       " lower limit, changing setpoint to lower limit.", false);
           setpointPosition = config.getMechanismLowerLimit();
@@ -296,11 +296,11 @@ public abstract class SmartMotorController
       {
         simplePidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
-                                                                   setpointVelocity.get().in(RotationsPerSecond)));
+                                             setpointVelocity.get().in(RotationsPerSecond)));
         });
         pidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
-                                                                   setpointVelocity.get().in(RotationsPerSecond)));
+                                             setpointVelocity.get().in(RotationsPerSecond)));
         });
       }
     }
@@ -851,6 +851,19 @@ public abstract class SmartMotorController
    */
   public abstract Pair<Optional<List<BooleanTelemetryField>>, Optional<List<DoubleTelemetryField>>> getUnsupportedTelemetryFields();
 
+  /**
+   * Get the name of the {@link SmartMotorController}
+   *
+   * @return {@link String} name if present, else "SmartMotorController"
+   */
+  public String getName()
+  {
+    return config.getTelemetryName().orElse("SmartMotorController");
+  }
+
+  /**
+   * Close the SMC for unit testing.
+   */
   public void close()
   {
     if (closedLoopControllerThread != null)

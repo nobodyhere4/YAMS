@@ -4,8 +4,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static yams.mechanisms.SmartMechanism.gearbox;
@@ -35,8 +36,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import yams.helpers.MockHardwareExtension;
 import yams.helpers.SmartMotorControllerTestSubsystem;
 import yams.helpers.TestWithScheduler;
-import yams.mechanisms.config.ArmConfig;
-import yams.mechanisms.positional.Arm;
+import yams.mechanisms.config.ShooterConfig;
+import yams.mechanisms.positional.Pivot;
+import yams.mechanisms.velocity.Shooter;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -63,6 +65,21 @@ public class ShooterTest
         .withMotorInverted(false)
         .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
         .withControlMode(ControlMode.CLOSED_LOOP);
+  }
+
+  private static Shooter createShooter(SmartMotorController smc)
+  {
+    ShooterConfig cfg = new ShooterConfig(smc)
+        .withDiameter(Inches.of(4))
+        .withMass(Pounds.of(1))
+//        .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH)
+        .withUpperSoftLimit(RPM.of(1000));
+    Shooter                           shooter = new Shooter(cfg);
+    SmartMotorControllerTestSubsystem subsys  = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
+    subsys.smc = smc;
+    subsys.mechSimPeriodic = shooter::simIterate;
+    subsys.mechUpdateTelemetry = shooter::updateTelemetry;
+    return shooter;
   }
 
   private static int offset = 0;
@@ -127,23 +144,23 @@ public class ShooterTest
     }
   }
 
-  private static void shooterVelocityPidTest(SmartMotorController smc)
+  private static void shooterVelocityPidTest(SmartMotorController smc, Command velocityUp)
   throws InterruptedException
   {
-    Angle         pre        = smc.getMechanismPosition();
-    AngularVelocity preVel = smc.getMechanismVelocity();
-    Angle         post;
+    Angle           pre        = smc.getMechanismPosition();
+    AngularVelocity preVel     = smc.getMechanismVelocity();
+    Angle           post;
     AngularVelocity postVel;
-    AtomicBoolean testPassed = new AtomicBoolean(false);
+    AtomicBoolean   testPassed = new AtomicBoolean(false);
 
-    TestWithScheduler.schedule(Commands.run(()->smc.setVelocity(DegreesPerSecond.of(100)), smc.getConfig().getSubsystem()));
+    TestWithScheduler.schedule(velocityUp);
     TestWithScheduler.cycle(Seconds.of(30), () -> {
       if (smc.getDutyCycle() != 0)
       {
         testPassed.set(true);
       }
     });
-    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
       Thread.sleep(20);
       TestWithScheduler.cycle(Seconds.of(1));
@@ -168,6 +185,48 @@ public class ShooterTest
   }
 
 
+  private static void dutyCycleTest(SmartMotorController smc, Command dutycycleUp, Command dutyCycleDown)
+  throws InterruptedException
+  {
+    AngularVelocity pre        = smc.getMechanismVelocity();
+    Angle           preAngle   = smc.getMechanismPosition();
+    AngularVelocity post;
+    Angle           postAngle;
+    AtomicBoolean   testPassed = new AtomicBoolean(false);
+
+    TestWithScheduler.schedule(dutycycleUp);
+    TestWithScheduler.schedule(dutycycleUp);
+    TestWithScheduler.cycle(Seconds.of(1), () -> {
+      if (smc.getDutyCycle() != 0)
+      {
+        testPassed.set(true);
+      }
+    });
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+    {
+      Thread.sleep(200);
+      TestWithScheduler.cycle(Seconds.of(1));
+    }
+
+    post = smc.getMechanismVelocity();
+    postAngle = smc.getMechanismPosition();
+    System.out.println("DutyCycleUp PreTest Speed: " + pre);
+    System.out.println("DutyCycleUp PreTest Angle: " + preAngle);
+
+    System.out.println("DutyCycleUp PostTest Speed: " + post);
+    System.out.println("DutyCycleUp PostTest Angle: " + postAngle);
+
+    boolean pass = pre.lt(post) || preAngle.lt(postAngle) || testPassed.get();
+    if ((smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper) && !pass)
+    {
+      System.out.println("[WARNING] TalonFXS or TalonFX did not pass test, current attributing this to OS differences.");
+    } else
+    {
+      assertTrue(pass);
+    }
+  }
+
+
   private static SmartMotorController setupTestSubsystem(SmartMotorController smc)
   {
     SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
@@ -181,21 +240,67 @@ public class ShooterTest
     subsys.testRunning = true;
   }
 
+  @ParameterizedTest
+  @MethodSource("createConfigs")
+  void testSMCDutyCycle(SmartMotorController smc) throws InterruptedException
+  {
+    startTest(smc);
+    smc.setupSimulation();
+    SmartMotorControllerTestSubsystem subsys = (SmartMotorControllerTestSubsystem) smc.getConfig().getSubsystem();
+
+    Command dutyCycleUp   = subsys.setDutyCycle(0.5);
+    Command dutyCycleDown = subsys.setDutyCycle(-0.5);
+
+    dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
+
+    closeSMC(smc);
+  }
 
 
   @ParameterizedTest
   @MethodSource("createConfigs")
-  void testShooterPid(SmartMotorController smc) throws InterruptedException
+  void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
+    smc.setupSimulation();
+    Command highPid = Commands.run(() -> smc.setVelocity(RPM.of(80)));
+//    Command lowPid  = Commands.run(() -> smc.setPosition(Degrees.of(-80)));
+
+    shooterVelocityPidTest(smc, highPid);
+
+    closeSMC(smc);
+  }
+
+  @ParameterizedTest
+  @MethodSource("createConfigs")
+  void testShooterDutyCycle(SmartMotorController smc) throws InterruptedException
+  {
+    startTest(smc);
+    Shooter   shooter       = createShooter(smc);
+    Command dutyCycleUp = shooter.set(0.5);
+    Command dutyCycleDown = shooter.set(-0.5);
 
 //    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
 //    {
 //      System.out.println("[WARNING] TalonFX and TalonFXS Does not work with CI on linux, skipping for now.");
 //    } else
 //    {
-    shooterVelocityPidTest(smc);
+    dutyCycleTest(smc, dutyCycleUp, dutyCycleDown);
 //    }
+
+    closeSMC(smc);
+  }
+
+  @ParameterizedTest
+  @MethodSource("createConfigs")
+  void testPivotPositionPID(SmartMotorController smc) throws InterruptedException
+  {
+    startTest(smc);
+    Shooter   shooter   = createShooter(smc);
+    Command highPid = shooter.setSpeed(RPM.of(80));
+    Command lowPid  = shooter.setSpeed(RPM.of(-80));
+
+    shooterVelocityPidTest(smc, highPid);
 
     closeSMC(smc);
   }

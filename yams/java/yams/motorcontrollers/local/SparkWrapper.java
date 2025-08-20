@@ -476,7 +476,7 @@ public class SparkWrapper extends SmartMotorController
 
     if (config.getTelemetryName().isPresent())
     {
-      closedLoopControllerThread.setName(getName());
+      closedLoopControllerThread.setName(config.getTelemetryName().get());
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
