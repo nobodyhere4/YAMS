@@ -56,8 +56,8 @@ public class ShooterTest
     SmartMotorControllerTestSubsystem subsystem = new SmartMotorControllerTestSubsystem();
 
     return new SmartMotorControllerConfig(subsystem)
-        .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
-        .withSoftLimit(Degrees.of(-100), Degrees.of(100))
+        .withClosedLoopController(1, 0, 0)
+//        .withSoftLimit(Degrees.of(-100), Degrees.of(100))
         .withGearing(gearing(gearbox(3, 4)))
         .withIdleMode(MotorMode.BRAKE)
 //      .withSpecificTelemetry("ArmMotor", motorTelemetryConfig)
@@ -259,7 +259,7 @@ public class ShooterTest
 
   @ParameterizedTest
   @MethodSource("createConfigs")
-  void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
+  void testSMCVelocityPID(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
     smc.setupSimulation();
@@ -293,7 +293,7 @@ public class ShooterTest
 
   @ParameterizedTest
   @MethodSource("createConfigs")
-  void testPivotPositionPID(SmartMotorController smc) throws InterruptedException
+  void testShooterVelocityPID(SmartMotorController smc) throws InterruptedException
   {
     startTest(smc);
     Shooter   shooter   = createShooter(smc);
