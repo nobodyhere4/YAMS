@@ -83,7 +83,7 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Motor type.
    */
-  private final DCMotor              m_motor;
+  private final DCMotor                           m_motor;
   /**
    * Spark base configuration.
    */
@@ -111,7 +111,7 @@ public class SparkWrapper extends SmartMotorController
   /**
    * DC Motor Sim.
    */
-  private       Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
+  private       Optional<DCMotorSim>              m_dcMotorSim            = Optional.empty();
 
   /**
    * Create a {@link SmartMotorController} from {@link SparkMax} or {@link SparkFlex}
@@ -675,7 +675,8 @@ public class SparkWrapper extends SmartMotorController
     {
       return RotationsPerSecond.of(sparkAbsoluteEncoder.get().getVelocity());
     }
-    return RotationsPerSecond.of(sparkRelativeEncoder.getVelocity());
+    return RotationsPerSecond.of(sparkSim.map(SparkSim::getVelocity)
+                                         .orElseGet(sparkRelativeEncoder::getVelocity));
   }
 
   @Override

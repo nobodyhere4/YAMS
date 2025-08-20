@@ -1,5 +1,12 @@
 package yams.motorcontrollers;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
@@ -7,7 +14,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +33,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -24,11 +44,6 @@ import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
-
-import java.util.List;
-import java.util.Optional;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Smart motor controller wrapper for motor controllers.
@@ -208,8 +223,8 @@ public abstract class SmartMotorController
    */
   public void iterateClosedLoopController()
   {
-    double pidOutputVoltage = 0;
-    double feedforward      = 0.0;
+    AtomicReference<Double> pidOutputVoltage = new AtomicReference<>((double) 0);
+    double                  feedforward      = 0.0;
     synchronizeRelativeEncoder();
 
     if (setpointPosition.isPresent())
@@ -242,8 +257,8 @@ public abstract class SmartMotorController
     {
       if (config.getArmFeedforward().isPresent())
       {
-        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                         setpointPosition.get().in(Rotations));
+        pidOutputVoltage.set(pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                           setpointPosition.get().in(Rotations)));
         feedforward = config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
                                                                                getMechanismVelocity().in(
                                                                                    RotationsPerSecond),
@@ -251,58 +266,71 @@ public abstract class SmartMotorController
                                                                                             .getSetpoint().velocity);
       } else if (config.getElevatorFeedforward().isPresent())
       {
-        pidOutputVoltage = pidController.get().calculate(getMeasurementPosition().in(Meters),
-                                                         config.convertFromMechanism(setpointPosition.get())
-                                                               .in(Meters));
+        pidOutputVoltage.set(pidController.get().calculate(getMeasurementPosition().in(Meters),
+                                                           config.convertFromMechanism(setpointPosition.get())
+                                                                 .in(Meters)));
         feedforward = config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
             MetersPerSecond), pidController.get().getSetpoint().velocity);
 
       } else if (config.getSimpleFeedforward().isPresent())
       {
-        pidOutputVoltage = pidController.get().calculate(getMechanismPosition().in(Rotations),
-                setpointPosition.get().in(Rotations));
+        pidOutputVoltage.set(pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                           setpointPosition.get().in(Rotations)));
         feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
             RotationsPerSecond), pidController.get().getSetpoint().velocity);
 
       }
-
-    } else if (simplePidController.isPresent())
+    } else
     {
       if (setpointPosition.isPresent())
       {
-        pidOutputVoltage = simplePidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                               setpointPosition.get().in(Rotations));
+        simplePidController.ifPresent(pid -> {
+          pidOutputVoltage.set(pid.calculate(getMechanismPosition().in(Rotations),
+                                             setpointPosition.get().in(Rotations)));
+        });
+        pidController.ifPresent(pid -> {
+          pidOutputVoltage.set(pid.calculate(getMechanismPosition().in(Rotations),
+                                             setpointPosition.get().in(Rotations)));
+        });
       } else if (setpointVelocity.isPresent())
       {
-        pidOutputVoltage = simplePidController.get().calculate(getMechanismVelocity().in(RotationsPerSecond),
-                                                               setpointVelocity.get().in(RotationsPerSecond));
+        simplePidController.ifPresent(pid -> {
+          pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
+                                                                   setpointVelocity.get().in(RotationsPerSecond)));
+        });
+        pidController.ifPresent(pid -> {
+          pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
+                                                                   setpointVelocity.get().in(RotationsPerSecond)));
+        });
       }
     }
     if (config.getMechanismUpperLimit().isPresent())
     {
-      if (getMechanismPosition().gt(config.getMechanismUpperLimit().get()) && (pidOutputVoltage + feedforward) > 0)
+      if (getMechanismPosition().gt(config.getMechanismUpperLimit().get()) &&
+          (pidOutputVoltage.get() + feedforward) > 0)
       {
-        pidOutputVoltage = feedforward = 0;
+        pidOutputVoltage.set(feedforward = 0);
       }
     }
     if (config.getMechanismLowerLimit().isPresent())
     {
-      if (getMechanismPosition().lt(config.getMechanismLowerLimit().get()) && (pidOutputVoltage + feedforward) < 0)
+      if (getMechanismPosition().lt(config.getMechanismLowerLimit().get()) &&
+          (pidOutputVoltage.get() + feedforward) < 0)
       {
-        pidOutputVoltage = feedforward = 0;
+        pidOutputVoltage.set(feedforward = 0);
       }
     }
     if (config.getTemperatureCutoff().isPresent())
     {
       if (getTemperature().gte(config.getTemperatureCutoff().get()))
       {
-        pidOutputVoltage = feedforward = 0;
+        pidOutputVoltage.set(feedforward = 0);
       }
     }
 //    telemetry.pidOutputVoltage = pidOutputVoltage;
 //    telemetry.feedforwardVoltage = feedforward;
 //    telemetry.outputVoltage = pidOutputVoltage + feedforward;
-    double outputVoltage = pidOutputVoltage + feedforward;
+    double outputVoltage = pidOutputVoltage.get() + feedforward;
     if (config.getClosedLoopControllerMaximumVoltage().isPresent())
     {
       double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
@@ -825,7 +853,7 @@ public abstract class SmartMotorController
 
   public void close()
   {
-    if(closedLoopControllerThread != null)
+    if (closedLoopControllerThread != null)
     {
       closedLoopControllerThread.stop();
       closedLoopControllerThread.close();
