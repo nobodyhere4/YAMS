@@ -304,9 +304,20 @@ public class Shooter extends SmartVelocityMechanism
   public Command setSpeed(AngularVelocity speed)
   {
     m_config.getLowerSoftLimit().ifPresent(low -> {
-      DriverStation.reportWarning("[WARNING] You have requested to set " + getName() + " to " + speed +
-                                  " which is lower than minimum velocity " + low + "!", false);
+      if (low.gt(speed))
+      {
+        DriverStation.reportWarning("[WARNING] You have requested to set " + getName() + " to " + speed +
+                                    " which is lower than minimum velocity " + low + "!", false);
+      }
     });
+    m_config.getUpperSoftLimit().ifPresent(high -> {
+      if (high.lt(speed))
+      {
+        DriverStation.reportWarning("[WARNING] You have requested to set " + getName() + " to " + speed +
+                                    " which is greater than maximum velocity " + high + "!", false);
+      }
+    });
+
     return Commands.run(() -> m_motor.setVelocity(speed), m_subsystem).withName(
         m_subsystem.getName() + " " + getName() + " SetSpeed");
   }
