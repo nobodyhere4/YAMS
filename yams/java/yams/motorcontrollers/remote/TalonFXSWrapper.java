@@ -1,8 +1,12 @@
 package yams.motorcontrollers.remote;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -55,6 +59,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SimSupplier;
@@ -210,7 +215,7 @@ public class TalonFXSWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcmotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_dcmotor,
-                                                                                     0.01,
+                                                                                     SingleJointedArmSim.estimateMOI(Inches.of(4).in(Meters), Pounds.of(1).in(Kilograms)),
                                                                                      config.getGearing()
                                                                                            .getRotorToMechanismRatio()),
                                                   m_dcmotor));
@@ -281,8 +286,8 @@ public class TalonFXSWrapper extends SmartMotorController
           @Override
           public void setMechanismStatorDutyCycle(double dutyCycle)
           {
-//            feedInput();
-//            m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
+            feedInput();
+            m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
           }
 
           @Override
@@ -314,7 +319,7 @@ public class TalonFXSWrapper extends SmartMotorController
           @Override
           public void setMechanismPosition(Angle position)
           {
-            m_dcmotorSim.get().setAngle(position.times(config.getGearing().getMechanismToRotorRatio()).in(Radians));
+            m_dcmotorSim.get().setAngle(position.in(Radians));//.times(config.getGearing().getMechanismToRotorRatio()).in(Radians));
           }
 
           @Override
