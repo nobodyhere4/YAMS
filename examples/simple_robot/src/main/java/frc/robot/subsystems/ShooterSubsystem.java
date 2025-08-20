@@ -4,6 +4,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
@@ -16,6 +19,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
+import yams.mechanisms.config.ShooterConfig;
+import yams.mechanisms.velocity.Shooter;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -49,12 +54,22 @@ public class ShooterSubsystem extends SubsystemBase
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
 
-  public ShooterSubsystem(){}
+  private final ShooterConfig shooterConfig = new ShooterConfig(motor)
+      .withDiameter(Inches.of(4))
+      .withMass(Pounds.of(1))
+      .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH)
+      .withUpperSoftLimit(RPM.of(1000));
+  private final Shooter       shooter       = new Shooter(shooterConfig);
 
-  public AngularVelocity getVelocity() { return motor.getMechanismVelocity();}
-  public Command setVelocity(AngularVelocity speed){ return run(()->motor.setVelocity(speed));}
-  public Command setDutyCycle(double dutyCycle){return run(()->motor.setDutyCycle(dutyCycle));}
+  public ShooterSubsystem() {}
 
-  public Command setVelocity(Supplier<AngularVelocity> speed){ return run(()->motor.setVelocity(speed.get()));}
-  public Command setDutyCycle(Supplier<Double> dutyCycle){return run(()->motor.setDutyCycle(dutyCycle.get()));}
+  public AngularVelocity getVelocity() {return shooter.getSpeed();}
+
+  public Command setVelocity(AngularVelocity speed) {return shooter.setSpeed(speed);}
+
+  public Command setDutyCycle(double dutyCycle) {return shooter.set(dutyCycle);}
+
+  public Command setVelocity(Supplier<AngularVelocity> speed) {return shooter.setSpeed(speed);}
+
+  public Command setDutyCycle(Supplier<Double> dutyCycle) {return shooter.set(dutyCycle);}
 }

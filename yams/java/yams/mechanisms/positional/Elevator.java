@@ -1,10 +1,28 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -19,6 +37,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.Optional;
+import java.util.function.Supplier;
 import yams.exceptions.ElevatorConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ElevatorConfig;
@@ -27,11 +47,6 @@ import yams.mechanisms.config.MechanismPositionConfig.Plane;
 import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
-
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Elevator mechanism.
@@ -64,7 +79,7 @@ public class Elevator extends SmartPositionalMechanism
     if (config.getTelemetryName().isPresent())
     {
       // TODO: Add telemetry units to config.
-      m_telemetry.setupTelemetry(config.getTelemetryName().get(),
+      m_telemetry.setupTelemetry(getName(),
                                  m_motor);
     }
     config.applyConfig();
@@ -286,16 +301,14 @@ public class Elevator extends SmartPositionalMechanism
                          3,
                          new Color8Bit(Color.kLimeGreen)
                      ));
-      mechanismRoot = mechanismWindow.getRoot(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "Root" : "ElevatorRoot",
-          config.getMaximumHeight().get().in(Meters), 0);
-      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Elevator",
-          config.getStartingHeight().get().in(Meters),
-          config.getAngle().in(Degrees), 6, config.getSimColor()));
-      SmartDashboard.putData(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "/mechanism" : "Elevator/mechanism",
-          mechanismWindow);
+      mechanismRoot = mechanismWindow.getRoot(getName() + "Root",
+                                              config.getMaximumHeight().get().in(Meters), 0);
+      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(getName(),
+                                                                       config.getStartingHeight().get().in(Meters),
+                                                                       config.getAngle().in(Degrees),
+                                                                       6,
+                                                                       config.getSimColor()));
+      SmartDashboard.putData(getName() + "/mechanism", mechanismWindow);
     }
   }
 
@@ -359,6 +372,12 @@ public class Elevator extends SmartPositionalMechanism
                      .plus(mechanismTranslation);
     }
     return mechanismTranslation;
+  }
+
+  @Override
+  public String getName()
+  {
+    return m_config.getTelemetryName().orElse("Elevator");
   }
 
   /**
@@ -533,7 +552,7 @@ public class Elevator extends SmartPositionalMechanism
                             .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
-      group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
+      group = group.andThen(Commands.print(getName() + " SysId test done."));
     }
     return group.withName(m_subsystem.getName() + " SysId");
   }

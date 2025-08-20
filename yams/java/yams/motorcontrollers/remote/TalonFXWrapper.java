@@ -582,7 +582,7 @@ public class TalonFXWrapper extends SmartMotorController
                                                                          new Constraints(0, 0)).getPositionTolerance())
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
-                                           (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                           (config.getTelemetryName().isPresent() ? getName()
                                                                                   : "TalonFX(" +
                                                                                     m_talonfx.getDeviceID() + ")"));
       }
@@ -618,7 +618,7 @@ public class TalonFXWrapper extends SmartMotorController
       if (controller.getErrorTolerance() != new PIDController(0, 0, 0).getErrorTolerance())
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
-                                           (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                           (config.getTelemetryName().isPresent() ? getName()
                                                                                   : "TalonFX(" +
                                                                                     m_talonfx.getDeviceID() + ")"));
       }
@@ -711,7 +711,7 @@ public class TalonFXWrapper extends SmartMotorController
       if (config.getStartingPosition().isPresent())
       {
         DriverStation.reportWarning("[WARNING] Starting position is not applied to " +
-                                    (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                    (config.getTelemetryName().isPresent() ? getName()
                                                                            : ("TalonFX(" + m_talonfx.getDeviceID() +
                                                                               ")"))
                                     +

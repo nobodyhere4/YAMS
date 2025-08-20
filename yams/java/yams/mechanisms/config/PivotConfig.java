@@ -106,7 +106,7 @@ public class PivotConfig
   }
 
   /**
-   * Configure telemetry for the {@link yams.mechanisms.positional.Arm} mechanism.
+   * Configure telemetry for the {@link yams.mechanisms.positional.Pivot} mechanism.
    *
    * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
    * @param telemetryVerbosity Telemetry verbosity to apply.

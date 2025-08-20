@@ -78,7 +78,7 @@ public class Arm extends SmartPositionalMechanism
     if (config.getTelemetryName().isPresent())
     {
       // TODO: Add telemetry units to config.
-      m_telemetry.setupTelemetry(config.getTelemetryName().get(), m_motor);
+      m_telemetry.setupTelemetry(getName(), m_motor);
     }
     config.applyConfig();
 
@@ -246,14 +246,16 @@ public class Arm extends SmartPositionalMechanism
                                               .getWindowXDimension(config.getLength().get()).in(Meters),
                                         config.getMechanismPositionConfig()
                                               .getWindowYDimension(config.getLength().get()).in(Meters));
-      mechanismRoot = mechanismWindow.getRoot(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "Root" : "ArmRoot",
-          config.getMechanismPositionConfig().getMechanismX(config.getLength().get()).in(Meters),
-          config.getMechanismPositionConfig().getMechanismY(config.getLength().get()).in(Meters));
-      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : "Arm",
-          config.getLength().get().in(Meters),
-          config.getStartingAngle().get().in(Degrees), 6, config.getSimColor()));
+      mechanismRoot = mechanismWindow.getRoot(getName() + "Root",
+                                              config.getMechanismPositionConfig()
+                                                    .getMechanismX(config.getLength().get()).in(Meters),
+                                              config.getMechanismPositionConfig()
+                                                    .getMechanismY(config.getLength().get()).in(Meters));
+      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(getName(),
+                                                                       config.getLength().get().in(Meters),
+                                                                       config.getStartingAngle().get().in(Degrees),
+                                                                       6,
+                                                                       config.getSimColor()));
       mechanismRoot.append(new MechanismLigament2d("MaxHard",
                                                    Inch.of(3).in(Meters),
                                                    config.getUpperHardLimit().get()
@@ -278,9 +280,7 @@ public class Arm extends SmartPositionalMechanism
                                                           .in(Degrees),
                                                      4, new Color8Bit(Color.kYellow)));
       }
-      SmartDashboard.putData(
-          config.getTelemetryName().isPresent() ? config.getTelemetryName().get() + "/mechanism" : "Arm/mechanism",
-          mechanismWindow);
+      SmartDashboard.putData(getName() + "/mechanism", mechanismWindow);
     }
   }
 
@@ -348,6 +348,12 @@ public class Arm extends SmartPositionalMechanism
                      .plus(mechanismTranslation);
     }
     return mechanismTranslation;
+  }
+
+  @Override
+  public String getName()
+  {
+    return m_config.getTelemetryName().orElse("Arm");
   }
 
   /**
@@ -469,7 +475,7 @@ public class Arm extends SmartPositionalMechanism
                             .finallyDo(m_motor::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
-      group = group.andThen(Commands.print(m_config.getTelemetryName().get() + " SysId test done."));
+      group = group.andThen(Commands.print(getName() + " SysId test done."));
     }
     return group.withName(m_subsystem.getName() + " SysId");
   }

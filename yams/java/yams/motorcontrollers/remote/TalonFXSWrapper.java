@@ -1,11 +1,8 @@
 package yams.motorcontrollers.remote;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Pound;
-import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -58,7 +55,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SimSupplier;
@@ -619,7 +615,7 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                          new Constraints(0, 0)).getPositionTolerance())
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
-                                           (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                           (config.getTelemetryName().isPresent() ? getName()
                                                                                   : "TalonFXS(" +
                                                                                     m_talonfxs.getDeviceID() + ")"));
       }
@@ -653,7 +649,7 @@ public class TalonFXSWrapper extends SmartMotorController
       if (controller.getErrorTolerance() != new PIDController(0, 0, 0).getErrorTolerance())
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
-                                           (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                           (config.getTelemetryName().isPresent() ? getName()
                                                                                   : "TalonFXS(" +
                                                                                     m_talonfxs.getDeviceID() + ")"));
       }
@@ -746,7 +742,7 @@ public class TalonFXSWrapper extends SmartMotorController
       if (config.getStartingPosition().isPresent())
       {
         DriverStation.reportWarning("[WARNING] Starting position is not applied to " +
-                                    (config.getTelemetryName().isPresent() ? config.getTelemetryName().get() : (
+                                    (config.getTelemetryName().isPresent() ? getName() : (
                                         "TalonFXS(" + m_talonfxs.getDeviceID() + ")")) +
                                     " because an external encoder is used!", false);
       }

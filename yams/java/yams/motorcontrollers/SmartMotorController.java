@@ -234,7 +234,7 @@ public abstract class SmartMotorController
         if (setpointPosition.get().lt(config.getMechanismLowerLimit().get()))
         {
           DriverStation.reportWarning("[WARNING] Setpoint is lower than Mechanism " +
-                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                      (config.getTelemetryName().isPresent() ? getName()
                                                                              : "Unnamed smart motor") +
                                       " lower limit, changing setpoint to lower limit.", false);
           setpointPosition = config.getMechanismLowerLimit();
@@ -245,7 +245,7 @@ public abstract class SmartMotorController
         if (setpointPosition.get().gt(config.getMechanismUpperLimit().get()))
         {
           DriverStation.reportWarning("[WARNING] Setpoint is higher than Mechanism " +
-                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
+                                      (config.getTelemetryName().isPresent() ? getName()
                                                                              : "Unnamed smart motor") +
                                       " upper limit, changing setpoint to upper limit.", false);
           setpointPosition = config.getMechanismUpperLimit();
@@ -442,7 +442,7 @@ public abstract class SmartMotorController
                                       new SysIdRoutine.Mechanism(
                                           this::setVoltage,
                                           log -> {
-                                            log.motor(config.getTelemetryName().get())
+                                            log.motor(getName())
                                                .voltage(
                                                    getVoltage())
                                                .linearVelocity(getMeasurementVelocity())
@@ -455,7 +455,7 @@ public abstract class SmartMotorController
                                       new SysIdRoutine.Mechanism(
                                           this::setVoltage,
                                           log -> {
-                                            log.motor(config.getTelemetryName().get())
+                                            log.motor(getName())
                                                .voltage(
                                                    getVoltage())
                                                .angularPosition(getMechanismPosition())
@@ -586,8 +586,8 @@ public abstract class SmartMotorController
       parentTable = Optional.of(telemetry);
       if (config.getTelemetryName().isPresent())
       {
-        telemetryTable = Optional.of(telemetry.getSubTable(config.getTelemetryName().get()));
-        tuningTable = Optional.of(tuning.getSubTable(config.getTelemetryName().get()));
+        telemetryTable = Optional.of(telemetry.getSubTable(getName()));
+        tuningTable = Optional.of(tuning.getSubTable(getName()));
         if (config.getSmartControllerTelemetryConfig().isPresent())
         {
           this.telemetry.setupTelemetry(this, telemetry, tuning, config.getSmartControllerTelemetryConfig().get());

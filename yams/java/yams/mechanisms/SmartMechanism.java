@@ -212,4 +212,11 @@ public abstract class SmartMechanism
    * @return {@link Translation3d} of the mechanism.
    */
   public abstract Translation3d getRelativeMechanismPosition();
+
+  /**
+   * Get the name of the mechanism.
+   *
+   * @return {@link String} name.
+   */
+  public abstract String getName();
 }

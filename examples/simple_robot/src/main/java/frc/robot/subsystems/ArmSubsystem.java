@@ -34,8 +34,8 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class ArmSubsystem extends SubsystemBase
 {
 
-  private final SparkMax             armMotor = new SparkMax(1, MotorType.kBrushless);
-//  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
+  private final SparkMax                   armMotor         = new SparkMax(1, MotorType.kBrushless);
+  //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
 //          .withMechanismLowerLimit()
@@ -55,12 +55,16 @@ public class ArmSubsystem extends SubsystemBase
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController motor    = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
+  private final SmartMotorController       motor            = new SparkWrapper(armMotor,
+                                                                               DCMotor.getNEO(1),
+                                                                               motorConfig);
   private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
-    .withMaxRobotHeight(Meters.of(1.5))
-    .withMaxRobotLength(Meters.of(0.75))
-    .withRelativePosition(new Translation3d(Meters.of(0.25), Meters.of(0), Meters.of(0.5)));
-  private final ArmConfig                  m_config    = new ArmConfig(motor)
+      .withMaxRobotHeight(Meters.of(1.5))
+      .withMaxRobotLength(Meters.of(0.75))
+      .withRelativePosition(new Translation3d(Meters.of(0.25), Meters.of(0), Meters.of(0.5)));
+
+
+  private       ArmConfig m_config = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
       .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
@@ -68,7 +72,7 @@ public class ArmSubsystem extends SubsystemBase
       .withStartingPosition(Degrees.of(0))
       .withHorizontalZero(Degrees.of(0))
       .withMechanismPositionConfig(robotToMechanism);
-  private final Arm                        arm         = new Arm(m_config);
+  private final Arm       arm      = new Arm(m_config);
 
   public ArmSubsystem()
   {

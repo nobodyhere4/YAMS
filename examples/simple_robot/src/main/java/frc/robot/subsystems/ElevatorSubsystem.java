@@ -1,6 +1,17 @@
 package frc.robot.subsystems;
 
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
+
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -19,15 +30,11 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
-import static edu.wpi.first.units.Units.*;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
-
 public class ElevatorSubsystem extends SubsystemBase
 {
 
-  private final SparkMax elevatorMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
-//  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
+  private final SparkMax                   elevatorMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
+  //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
 //          .withMechanismLowerLimit()
@@ -51,18 +58,18 @@ public class ElevatorSubsystem extends SubsystemBase
   private final SmartMotorController       motor         = new SparkWrapper(elevatorMotor,
                                                                             DCMotor.getNEO(1),
                                                                             motorConfig);
-  private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
-    .withMaxRobotHeight(Meters.of(1.5))
-    .withMaxRobotLength(Meters.of(0.75))
-    .withRelativePosition(new Translation3d(Meters.of(-0.25), Meters.of(0), Meters.of(0.5)));
 
-  private final ElevatorConfig             m_config      = new ElevatorConfig(motor)
+  private final MechanismPositionConfig m_robotToMechanism = new MechanismPositionConfig()
+      .withMaxRobotHeight(Meters.of(1.5))
+      .withMaxRobotLength(Meters.of(0.75))
+      .withRelativePosition(new Translation3d(Meters.of(-0.25), Meters.of(0), Meters.of(0.5)));
+  private       ElevatorConfig          m_config           = new ElevatorConfig(motor)
       .withStartingHeight(Meters.of(0.5))
       .withHardLimits(Meters.of(0), Meters.of(3))
       .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
-      .withMechanismPositionConfig(robotToMechanism)
+      .withMechanismPositionConfig(m_robotToMechanism)
       .withMass(Pounds.of(16));
-  private final Elevator                   elevator      = new Elevator(m_config);
+  private final Elevator                m_elevator         = new Elevator(m_config);
 
   public ElevatorSubsystem()
   {
@@ -71,27 +78,27 @@ public class ElevatorSubsystem extends SubsystemBase
 
   public void periodic()
   {
-    elevator.updateTelemetry();
+    m_elevator.updateTelemetry();
   }
 
   public void simulationPeriodic()
   {
-    elevator.simIterate();
+    m_elevator.simIterate();
   }
 
   public Command elevCmd(double dutycycle)
   {
-    return elevator.set(dutycycle);
+    return m_elevator.set(dutycycle);
   }
 
   public Command setHeight(Distance height)
   {
-    return elevator.setHeight(height);
+    return m_elevator.setHeight(height);
   }
 
   public Command sysId()
   {
-    return elevator.sysId(Volts.of(12), Volts.of(12).per(Second), Second.of(30));
+    return m_elevator.sysId(Volts.of(12), Volts.of(12).per(Second), Second.of(30));
   }
 }
 
