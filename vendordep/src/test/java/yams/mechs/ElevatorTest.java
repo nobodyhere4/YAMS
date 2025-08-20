@@ -264,10 +264,19 @@ public class ElevatorTest
   @MethodSource("createConfigs")
   void testSMCPositionPID(SmartMotorController smc) throws InterruptedException
   {
-    if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
+    if (smc instanceof TalonFXSWrapper)
     {
       smc.applyConfig(smc.getConfig()
                          .withClosedLoopController(0.2,
+                                                   0,
+                                                   0,
+                                                   MetersPerSecond.of(0.1),
+                                                   MetersPerSecondPerSecond.of(0.5)));
+    }
+    if (smc instanceof TalonFXWrapper)
+    {
+      smc.applyConfig(smc.getConfig()
+                         .withClosedLoopController(0.02,
                                                    0,
                                                    0,
                                                    MetersPerSecond.of(0.1),
