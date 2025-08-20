@@ -625,33 +625,42 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                                   : "TalonFXS(" +
                                                                                     m_talonfxs.getDeviceID() + ")"));
       }
-      m_talonConfig.Slot0.kP = controller.getP();
-      m_talonConfig.Slot0.kI = controller.getI();
-      m_talonConfig.Slot0.kD = controller.getD();
+
       if (config.getMechanismCircumference().isPresent())
       {
+        m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
+        m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
+        m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
         m_talonConfig.MotionMagic
             .withMotionMagicCruiseVelocity(
                 config.convertToMechanism(MetersPerSecond.of(controller.getConstraints().maxVelocity)));
-      } else
-      {
-        m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(controller.getConstraints().maxAcceleration));
-      }
-      if (config.getMechanismCircumference().isPresent())
-      {
+
         m_talonConfig.MotionMagic
             .withMotionMagicAcceleration(
                 config.convertToMechanism(MetersPerSecondPerSecond.of(controller.getConstraints().maxAcceleration)));
       } else
       {
+        m_talonConfig.Slot0.kP = controller.getP();
+        m_talonConfig.Slot0.kI = controller.getI();
+        m_talonConfig.Slot0.kD = controller.getD();
+        m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(controller.getConstraints().maxAcceleration));
         m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
+
       }
     } else if (config.getSimpleClosedLoopController().isPresent())
     {
       PIDController controller = config.getSimpleClosedLoopController().get();
-      m_talonConfig.Slot0.kP = controller.getP();
-      m_talonConfig.Slot0.kI = controller.getI();
-      m_talonConfig.Slot0.kD = controller.getD();
+      if (config.getMechanismCircumference().isPresent())
+      {
+        m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
+        m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
+        m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
+      } else
+      {
+        m_talonConfig.Slot0.kP = controller.getP();
+        m_talonConfig.Slot0.kI = controller.getI();
+        m_talonConfig.Slot0.kD = controller.getD();
+      }
       if (controller.getErrorTolerance() != new PIDController(0, 0, 0).getErrorTolerance())
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
