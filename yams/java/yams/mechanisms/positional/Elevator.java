@@ -530,7 +530,7 @@ public class Elevator extends SmartPositionalMechanism
     if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
     {
       min = motorConfig.convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())
-                       .plus(Centimeters.of(3));
+                       .plus(Centimeters.of(10));
     } else if (m_config.getMinimumHeight().isPresent())
     {
       min = m_config.getMinimumHeight().get().plus(Centimeters.of(1));
