@@ -1,5 +1,15 @@
 package yams.mechs;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Millisecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.revrobotics.spark.SparkFlex;
@@ -14,6 +24,8 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,14 +44,6 @@ import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXSWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import static edu.wpi.first.units.Units.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
 
 public class PivotTest
 {
@@ -142,16 +146,21 @@ public class PivotTest
     AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(10),()->{
-      if(smc.getDutyCycle() != 0)
-      {
-        testPassed.set(true);
-      }
-    });
-    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
-      Thread.sleep(500);
-      TestWithScheduler.cycle(Seconds.of(0.5));
+      TestWithScheduler.cycle(Seconds.of(1), () -> {
+        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().in(Millisecond));} catch (Exception e) {}
+      });
+
+    } else
+    {
+      TestWithScheduler.cycle(Seconds.of(20), () -> {
+        if (smc.getDutyCycle() != 0)
+        {
+          testPassed.set(true);
+        }
+      });
     }
 
     post = smc.getMechanismPosition();

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Millisecond;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -155,16 +156,21 @@ public class ArmTest
     AtomicBoolean testPassed = new AtomicBoolean(false);
 
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(30), () -> {
-      if (smc.getDutyCycle() != 0)
-      {
-        testPassed.set(true);
-      }
-    });
-    if(smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
+
+    if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
-      Thread.sleep(20);
-      TestWithScheduler.cycle(Seconds.of(1));
+      TestWithScheduler.cycle(Seconds.of(1), () -> {
+        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().in(Millisecond));} catch (Exception e) {}
+      });
+
+    } else
+    {
+      TestWithScheduler.cycle(Seconds.of(20), () -> {
+        if (smc.getDutyCycle() != 0)
+        {
+          testPassed.set(true);
+        }
+      });
     }
 
     post = smc.getMechanismPosition();

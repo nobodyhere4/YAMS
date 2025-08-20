@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Millisecond;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -107,8 +108,9 @@ public class ElevatorTest
         Arguments.of(setupTestSubsystem(new NovaWrapper(tnova, DCMotor.getNEO(1), createSMCConfig()))),
         Arguments.of(setupTestSubsystem(new TalonFXSWrapper(tfxs, DCMotor.getNEO(1),
                                                             createSMCConfig()
-                                                                .withClosedLoopRampRate(Seconds.of(0.25))
-                                                                .withOpenLoopRampRate(Seconds.of(0.25))))),
+//                                                                .withClosedLoopControlPeriod(Millisecond.of(1))
+.withClosedLoopRampRate(Seconds.of(0.25))
+.withOpenLoopRampRate(Seconds.of(0.25))))),
         Arguments.of(setupTestSubsystem(new TalonFXWrapper(tfx, DCMotor.getKrakenX60(1),
                                                            createSMCConfig()
                                                                .withClosedLoopRampRate(Seconds.of(0.25))
@@ -153,16 +155,21 @@ public class ElevatorTest
     Distance      post;
     AtomicBoolean testPassed = new AtomicBoolean(false);
     TestWithScheduler.schedule(highPIDSetCommand);
-    TestWithScheduler.cycle(Seconds.of(20), () -> {
-      if (smc.getDutyCycle() != 0)
-      {
-        testPassed.set(true);
-      }
-    });
+
     if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
-      Thread.sleep(20);
-//      TestWithScheduler.cycle(Seconds.of(2));
+      TestWithScheduler.cycle(Seconds.of(1), () -> {
+        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().in(Millisecond));} catch (Exception e) {}
+      });
+
+    } else
+    {
+      TestWithScheduler.cycle(Seconds.of(20), () -> {
+        if (smc.getDutyCycle() != 0)
+        {
+          testPassed.set(true);
+        }
+      });
     }
 
     post = smc.getMeasurementPosition();
@@ -266,21 +273,21 @@ public class ElevatorTest
   {
     if (smc instanceof TalonFXSWrapper)
     {
-      smc.applyConfig(smc.getConfig()
-                         .withClosedLoopController(0.2,
-                                                   0,
-                                                   0,
-                                                   MetersPerSecond.of(0.1),
-                                                   MetersPerSecondPerSecond.of(0.5)));
+//      smc.applyConfig(smc.getConfig()
+//                         .withClosedLoopController(0.2,
+//                                                   0,
+//                                                   0,
+//                                                   MetersPerSecond.of(0.1),
+//                                                   MetersPerSecondPerSecond.of(0.5)));
     }
     if (smc instanceof TalonFXWrapper)
     {
-      smc.applyConfig(smc.getConfig()
-                         .withClosedLoopController(0.02,
-                                                   0,
-                                                   0,
-                                                   MetersPerSecond.of(0.1),
-                                                   MetersPerSecondPerSecond.of(0.5)));
+//      smc.applyConfig(smc.getConfig()
+//                         .withClosedLoopController(0.02,
+//                                                   0,
+//                                                   0,
+//                                                   MetersPerSecond.of(0.1),
+//                                                   MetersPerSecondPerSecond.of(0.5)));
     }
     startTest(smc);
     smc.setupSimulation();

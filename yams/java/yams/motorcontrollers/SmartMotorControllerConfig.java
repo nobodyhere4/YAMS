@@ -762,7 +762,7 @@ public class SmartMotorControllerConfig
    * @param time Period of the motor controller PID.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withPeriod(Time time)
+  public SmartMotorControllerConfig withClosedLoopControlPeriod(Time time)
   {
     controlPeriod = time;
     return this;
