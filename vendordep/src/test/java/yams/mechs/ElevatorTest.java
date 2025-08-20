@@ -267,7 +267,7 @@ public class ElevatorTest
     if (smc instanceof TalonFXWrapper || smc instanceof TalonFXSWrapper)
     {
       smc.applyConfig(smc.getConfig()
-                         .withClosedLoopController(0.01,
+                         .withClosedLoopController(0.05,
                                                    0,
                                                    0,
                                                    MetersPerSecond.of(0.1),
