@@ -355,7 +355,7 @@ public class Shooter extends SmartVelocityMechanism
     }
     throw new ShooterConfigurationException("Shooter upper soft limit is empty",
                                             "Cannot create max trigger.",
-                                            "withUpperSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
+                                            "withLowerSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
   }
 
   @Override
