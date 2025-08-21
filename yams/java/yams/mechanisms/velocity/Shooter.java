@@ -1,22 +1,15 @@
 package yams.mechanisms.velocity;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
@@ -38,9 +31,9 @@ import yams.exceptions.ShooterConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.ShooterConfig;
-import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.simulation.DCMotorSimSupplier;
 
 /**
  * Shooter mechanism.
@@ -92,141 +85,7 @@ public class Shooter extends SmartVelocityMechanism
                                                                                         .getMechanismToRotorRatio()),
                                                 dcMotor));
 
-      m_smc.setSimSupplier(new SimSupplier()
-      {
-        boolean inputFed   = false;
-        boolean simUpdated = false;
-
-        @Override
-        public void updateSimState()
-        {
-          if (!isInputFed())
-          {
-            m_dcmotorSim.get().setInput(m_smc.getDutyCycle() * RoboRioSim.getVInVoltage());
-          }
-          if (!simUpdated)
-          {
-            starveInput();
-//                        System.out.println("POS: "+getMechanismPosition()+"\tVoltage: "+getMechanismStatorVoltage()+"\tVelocity: "+getMechanismVelocity());
-            m_dcmotorSim.get().update(motorConfig.getClosedLoopControlPeriod().in(Seconds));
-            try
-            {
-              Thread.sleep(1);
-            } catch (Exception e)
-            {
-
-            }
-            feedUpdateSim();
-          }
-
-        }
-
-        @Override
-        public boolean getUpdatedSim()
-        {
-          return simUpdated;
-        }
-
-        @Override
-        public void feedUpdateSim()
-        {
-          simUpdated = true;
-        }
-
-        @Override
-        public void starveUpdateSim()
-        {
-          simUpdated = false;
-        }
-
-        @Override
-        public boolean isInputFed()
-        {
-          return inputFed;
-        }
-
-        @Override
-        public void feedInput()
-        {
-          inputFed = true;
-        }
-
-        @Override
-        public void starveInput()
-        {
-          inputFed = false;
-        }
-
-        @Override
-        public void setMechanismStatorDutyCycle(double dutyCycle)
-        {
-          feedInput();
-          m_dcmotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
-        }
-
-        @Override
-        public Voltage getMechanismSupplyVoltage()
-        {
-          return Volts.of(RoboRioSim.getVInVoltage());
-        }
-
-        @Override
-        public Voltage getMechanismStatorVoltage()
-        {
-          return Volts.of(dcMotor.getVoltage(m_dcmotorSim.get().getTorqueNewtonMeters(),
-                                             m_dcmotorSim.get().getAngularVelocityRadPerSec()));
-        }
-
-        @Override
-        public void setMechanismStatorVoltage(Voltage volts)
-        {
-          feedInput();
-          m_dcmotorSim.get().setInputVoltage(volts.in(Volts));
-        }
-
-        @Override
-        public Angle getMechanismPosition()
-        {
-          return m_dcmotorSim.get().getAngularPosition();//.times(motorConfig.getGearing().getRotorToMechanismRatio());
-        }
-
-        @Override
-        public void setMechanismPosition(Angle position)
-        {
-          m_dcmotorSim.get().setAngle(position.in(Radians));//.times(motorConfig.getGearing().getMechanismToRotorRatio()).in(Radians));
-        }
-
-        @Override
-        public Angle getRotorPosition()
-        {
-          return getMechanismPosition().times(motorConfig.getGearing().getMechanismToRotorRatio());
-
-        }
-
-        @Override
-        public AngularVelocity getMechanismVelocity()
-        {
-          return m_dcmotorSim.get().getAngularVelocity();
-        }
-
-        @Override
-        public void setMechanismVelocity(AngularVelocity velocity)
-        {
-          m_dcmotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
-        }
-
-        @Override
-        public AngularVelocity getRotorVelocity()
-        {
-          return getMechanismVelocity().times(motorConfig.getGearing().getMechanismToRotorRatio());
-        }
-
-        @Override
-        public Current getCurrentDraw()
-        {
-          return Amps.of(m_dcmotorSim.get().getCurrentDrawAmps());
-        }
-      });
+      m_smc.setSimSupplier(new DCMotorSimSupplier(m_dcmotorSim.get(), m_smc));
       Distance ShooterLength = config.getLength().orElse(Inches.of(36));
       m_mechanismWindow = new Mechanism2d(ShooterLength.in(Meters) * 2,
                                         ShooterLength.in(Meters) * 2);

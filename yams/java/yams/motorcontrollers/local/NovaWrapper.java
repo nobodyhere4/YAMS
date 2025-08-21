@@ -2,12 +2,8 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kilograms;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -39,7 +35,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
@@ -94,9 +89,7 @@ public class NovaWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcMotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
-                                                                                     SingleJointedArmSim.estimateMOI(
-                                                                                         Inches.of(4).in(Meters),
-                                                                                         Pounds.of(1).in(Kilograms)),
+                                                                                     m_config.getMOI(),
                                                                                      m_config.getGearing()
                                                                                              .getRotorToMechanismRatio()),
                                                   m_motor,

@@ -1,5 +1,8 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -134,7 +137,23 @@ public class ShooterConfig
    */
   public ShooterConfig withMOI(double MOI)
   {
+    motor.getConfig().withMomentOfInertia(MOI);
     this.moi = OptionalDouble.of(MOI);
+    return this;
+  }
+
+  /**
+   * Configure the MOI directly instead of estimating it with the length and mass of the
+   * {@link yams.mechanisms.velocity.Shooter} for simulation.
+   *
+   * @param length Length of the {@link yams.mechanisms.velocity.Shooter}.
+   * @param weight Weight of the {@link yams.mechanisms.velocity.Shooter}
+   * @return {@link ShooterConfig} for chaining.
+   */
+  public ShooterConfig withMOI(Distance length, Mass weight)
+  {
+    motor.getConfig().withMomentOfInertia(length, weight);
+    this.moi = OptionalDouble.of(SingleJointedArmSim.estimateMOI(length.in(Meters), weight.in(Kilograms)));
     return this;
   }
 

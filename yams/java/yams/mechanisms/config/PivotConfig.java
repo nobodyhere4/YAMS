@@ -1,6 +1,12 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
@@ -87,7 +93,23 @@ public class PivotConfig
    */
   public PivotConfig withMOI(double MOI)
   {
+    motor.getConfig().withMomentOfInertia(MOI);
     this.moi = OptionalDouble.of(MOI);
+    return this;
+  }
+
+  /**
+   * Configure the MOI directly instead of estimating it with the length and mass of the
+   * {@link yams.mechanisms.positional.Pivot} for simulation.
+   *
+   * @param length Length of the {@link yams.mechanisms.positional.Pivot}.
+   * @param weight Weight of the {@link yams.mechanisms.positional.Pivot}
+   * @return {@link PivotConfig} for chaining.
+   */
+  public PivotConfig withMOI(Distance length, Mass weight)
+  {
+    motor.getConfig().withMomentOfInertia(length, weight);
+    this.moi = OptionalDouble.of(SingleJointedArmSim.estimateMOI(length.in(Meters), weight.in(Kilograms)));
     return this;
   }
 

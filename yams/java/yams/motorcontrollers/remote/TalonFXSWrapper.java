@@ -1,11 +1,8 @@
 package yams.motorcontrollers.remote;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -56,7 +53,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.List;
 import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
@@ -213,9 +209,7 @@ public class TalonFXSWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcmotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_dcmotor,
-                                                                                     SingleJointedArmSim.estimateMOI(
-                                                                                         Inches.of(4).in(Meters),
-                                                                                         Pounds.of(1).in(Kilograms)),
+                                                                                     m_config.getMOI(),
                                                                                      m_config.getGearing()
                                                                                              .getRotorToMechanismRatio()),
                                                   m_dcmotor));

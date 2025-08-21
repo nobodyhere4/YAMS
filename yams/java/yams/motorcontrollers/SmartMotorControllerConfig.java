@@ -1,10 +1,13 @@
 package yams.motorcontrollers;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -24,9 +27,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Arrays;
 import java.util.List;
@@ -190,6 +195,12 @@ public class SmartMotorControllerConfig
    * Encoder discontinuity point.
    */
   private       Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
+  /**
+   * Moment of inertia for DCSim
+   */
+  private       Double                                        moi                                = SingleJointedArmSim
+      .estimateMOI(Inches.of(4).in(Meters),
+                   Pounds.of(1).in(Kilograms));
 
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
@@ -532,6 +543,41 @@ public class SmartMotorControllerConfig
   }
 
   /**
+   * Add the mechanism moment of inertia to the {@link SmartMotorController}s simulation when not run under a formal
+   * mechanism.
+   *
+   * @param length Length of the mechanism for MOI.
+   * @param weight Weight of the mechanism for MOI.
+   * @return {@link SmartMotorControllerConfig} for chaining
+   */
+  public SmartMotorControllerConfig withMomentOfInertia(Distance length, Mass weight)
+  {
+    if (length == null || weight == null)
+    {
+      throw new SmartMotorControllerConfigurationException("Length or Weight cannot be null!",
+                                                           "MOI is necessary for standalone SmartMotorController simulation!",
+                                                           "withMOI(Inches.of(4),Pounds.of(1))");
+    } else
+    {
+      moi = SingleJointedArmSim.estimateMOI(length.in(Meters), weight.in(Kilograms));
+    }
+    return this;
+  }
+
+  /**
+   * Add the mechanism moment of inertia to the {@link SmartMotorController}s simulation when not run under a formal
+   * mechanism.
+   *
+   * @param MOI Known moment of inertia.
+   * @return {@link SmartMotorControllerConfig} for chaining
+   */
+  public SmartMotorControllerConfig withMomentOfInertia(double MOI)
+  {
+    moi = MOI;
+    return this;
+  }
+
+  /**
    * Set the angle soft limits.
    *
    * @param low  Low angle soft limit.
@@ -574,6 +620,14 @@ public class SmartMotorControllerConfig
   {
     return idleMode;
   }
+
+  /**
+   * Get the Moment of Inertia of the {@link SmartMotorController}'s mechanism for the
+   * {@link edu.wpi.first.wpilibj.simulation.DCMotorSim}.
+   *
+   * @return Moment of Inertia in JKgMetersSquared.
+   */
+  public double getMOI() {return moi;}
 
   /**
    * Lower limit of the mechanism.
