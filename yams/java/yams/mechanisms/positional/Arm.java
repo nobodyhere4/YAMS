@@ -42,6 +42,7 @@ import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.MechanismPositionConfig.Plane;
 import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
+import yams.motorcontrollers.simulation.ArmSimSupplier;
 
 /**
  * Arm mechanism.
@@ -117,131 +118,7 @@ public class Arm extends SmartPositionalMechanism
                                                   config.getStartingAngle().get().in(Radians),
                                                   0.002 / 4096.0,
                                                   0.0));// Add noise with a std-dev of 1 tick
-      m_smc.setSimSupplier(new SimSupplier()
-      {
-        boolean inputFed   = false;
-        boolean updatedSim = false;
-
-        @Override
-        public void updateSimState()
-        {
-          if (!isInputFed())
-          {
-            m_sim.get().setInput(m_smc.getDutyCycle() * RoboRioSim.getVInVoltage());
-          }
-          if (!updatedSim)
-          {
-            starveInput();
-            m_sim.get().update(m_smc.getConfig().getClosedLoopControlPeriod().in(Seconds));
-            feedUpdateSim();
-          }
-        }
-
-        @Override
-        public boolean getUpdatedSim()
-        {
-          return updatedSim;
-        }
-
-        @Override
-        public void feedUpdateSim()
-        {
-          updatedSim = true;
-        }
-
-        @Override
-        public void starveUpdateSim()
-        {
-          updatedSim = false;
-        }
-
-        @Override
-        public boolean isInputFed()
-        {
-          return inputFed;
-        }
-
-        @Override
-        public void feedInput()
-        {
-          inputFed = true;
-        }
-
-        @Override
-        public void starveInput()
-        {
-          inputFed = false;
-        }
-
-        @Override
-        public void setMechanismStatorDutyCycle(double dutyCycle)
-        {
-          feedInput();
-          m_sim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
-        }
-
-        @Override
-        public Voltage getMechanismSupplyVoltage()
-        {
-          return Volts.of(RoboRioSim.getVInVoltage());
-        }
-
-        @Override
-        public Voltage getMechanismStatorVoltage()
-        {
-          return Volts.of(dcmotor.getVoltage(dcmotor.getTorque(m_sim.get().getCurrentDrawAmps()),
-                                             m_sim.get().getVelocityRadPerSec()));
-        }
-
-        @Override
-        public void setMechanismStatorVoltage(Voltage volts)
-        {
-          m_sim.get().setInputVoltage(volts.in(Volts));
-        }
-
-        @Override
-        public Angle getMechanismPosition()
-        {
-          return Radians.of(m_sim.get().getAngleRads());
-        }
-
-        @Override
-        public void setMechanismPosition(Angle position)
-        {
-          m_sim.get().setState(position.in(Radians), m_sim.get().getVelocityRadPerSec());
-
-        }
-
-        @Override
-        public Angle getRotorPosition()
-        {
-          return getMechanismPosition().times(gearing.getMechanismToRotorRatio());
-        }
-
-        @Override
-        public AngularVelocity getMechanismVelocity()
-        {
-          return RadiansPerSecond.of(m_sim.get().getVelocityRadPerSec());
-        }
-
-        @Override
-        public void setMechanismVelocity(AngularVelocity velocity)
-        {
-          m_sim.get().setState(m_sim.get().getAngleRads(), velocity.in(RadiansPerSecond));
-        }
-
-        @Override
-        public AngularVelocity getRotorVelocity()
-        {
-          return getMechanismVelocity().times(gearing.getMechanismToRotorRatio());
-        }
-
-        @Override
-        public Current getCurrentDraw()
-        {
-          return Amps.of(m_sim.get().getCurrentDrawAmps());
-        }
-      });
+      m_smc.setSimSupplier(new ArmSimSupplier(m_sim.get(), m_smc));
 
       m_mechanismWindow = new Mechanism2d(config.getMechanismPositionConfig()
                                                 .getWindowXDimension(config.getLength().get()).in(Meters),
