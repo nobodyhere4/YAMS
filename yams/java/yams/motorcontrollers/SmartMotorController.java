@@ -54,51 +54,51 @@ public abstract class SmartMotorController
   /**
    * Telemetry.
    */
-  protected SmartMotorControllerTelemetry   telemetry                  = new SmartMotorControllerTelemetry();
+  protected SmartMotorControllerTelemetry                 telemetry                    = new SmartMotorControllerTelemetry();
   /**
    * {@link SmartMotorControllerConfig} for the motor.
    */
-  protected SmartMotorControllerConfig      m_config;
+  protected SmartMotorControllerConfig                    m_config;
   /**
    * Profiled PID controller for the motor controller.
    */
-  protected Optional<ProfiledPIDController> m_pidController       = Optional.empty();
+  protected Optional<ProfiledPIDController>               m_pidController              = Optional.empty();
   /**
    * Simple PID controller for the motor controller.
    */
-  protected Optional<PIDController>         m_simplePidController = Optional.empty();
+  protected Optional<PIDController>                       m_simplePidController        = Optional.empty();
   /**
    * Setpoint position
    */
-  protected Optional<Angle>                 setpointPosition      = Optional.empty();
+  protected Optional<Angle>                               setpointPosition             = Optional.empty();
   /**
    * Setpoint velocity.
    */
-  protected Optional<AngularVelocity> setpointVelocity             = Optional.empty();
+  protected Optional<AngularVelocity>                     setpointVelocity             = Optional.empty();
   /**
    * Thread of the closed loop controller.
    */
-  protected Notifier                  m_closedLoopControllerThread = null;
+  protected Notifier                                      m_closedLoopControllerThread = null;
   /**
    * Parent table for telemetry.
    */
-  protected Optional<NetworkTable>    parentTable                  = Optional.empty();
+  protected Optional<NetworkTable>                        parentTable                  = Optional.empty();
   /**
    * {@link SmartMotorController} telemetry table.
    */
-  protected Optional<NetworkTable>                        telemetryTable             = Optional.empty();
+  protected Optional<NetworkTable>                        telemetryTable               = Optional.empty();
   /**
    * {@link SmartMotorController} tuning table.
    */
-  protected Optional<NetworkTable>                        tuningTable                = Optional.empty();
+  protected Optional<NetworkTable>                        tuningTable                  = Optional.empty();
   /**
    * Config for publishing specific telemetry.
    */
-  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig            = Optional.empty();
+  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig              = Optional.empty();
   /**
    * {@link SimSupplier} for the mechanism.
    */
-  protected Optional<SimSupplier>                         m_simSupplier              = Optional.empty();
+  protected Optional<SimSupplier>                         m_simSupplier                = Optional.empty();
 
 
   /**
@@ -211,6 +211,13 @@ public abstract class SmartMotorController
     {
       m_closedLoopControllerThread.stop();
       m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().in(Seconds));
+      m_simplePidController.ifPresent(PIDController::reset);
+      m_pidController.ifPresent(pid -> pid.reset(getMechanismPosition().in(Rotations),
+                                                 getMechanismVelocity().in(RotationsPerSecond)));
+      m_config.getMechanismCircumference().ifPresent(circumference -> {
+        m_pidController.ifPresent(pid -> pid.reset(getMeasurementPosition().in(Meters),
+                                                   getMeasurementVelocity().in(MetersPerSecond)));
+      });
     }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
@@ -261,14 +268,14 @@ public abstract class SmartMotorController
                                                              setpointPosition.get().in(Rotations)));
         feedforward = m_config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
                                                                                  getMechanismVelocity().in(
-                                                                                   RotationsPerSecond),
+                                                                                     RotationsPerSecond),
                                                                                  m_pidController.get()
                                                                                                 .getSetpoint().velocity);
       } else if (m_config.getElevatorFeedforward().isPresent())
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMeasurementPosition().in(Meters),
                                                              m_config.convertFromMechanism(setpointPosition.get())
-                                                                   .in(Meters)));
+                                                                     .in(Meters)));
         feedforward = m_config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
             MetersPerSecond), m_pidController.get().getSetpoint().velocity);
 
@@ -597,7 +604,7 @@ public abstract class SmartMotorController
                                         tuning,
                                         new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(m_config.getVerbosity()
                                                                                                                  .orElse(
-                                                                                                                   TelemetryVerbosity.HIGH)));
+                                                                                                                     TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
         Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
