@@ -209,8 +209,6 @@ public abstract class SmartMotorController
   {
     if (m_closedLoopControllerThread != null && m_config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.stop();
-      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().in(Seconds));
       m_simplePidController.ifPresent(PIDController::reset);
       m_pidController.ifPresent(pid -> pid.reset(getMechanismPosition().in(Rotations),
                                                  getMechanismVelocity().in(RotationsPerSecond)));
@@ -218,6 +216,8 @@ public abstract class SmartMotorController
         m_pidController.ifPresent(pid -> pid.reset(getMeasurementPosition().in(Meters),
                                                    getMeasurementVelocity().in(MetersPerSecond)));
       });
+      m_closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().in(Seconds));
     }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
