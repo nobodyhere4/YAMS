@@ -877,6 +877,7 @@ public abstract class SmartMotorController
     {
       m_closedLoopControllerThread.stop();
       m_closedLoopControllerThread.close();
+      m_closedLoopControllerThread = null;
     }
     telemetry.close();
   }
