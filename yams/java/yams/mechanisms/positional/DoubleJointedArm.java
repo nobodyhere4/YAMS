@@ -1,39 +1,39 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.Optional;
 import yams.exceptions.ArmConfigurationException;
 import yams.exceptions.DoubleJointedArmConfigurationException;
-import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.MechanismPositionConfig.Plane;
-import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.simulation.ArmSimSupplier;
-
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Arm mechanism.
@@ -44,19 +44,19 @@ public class DoubleJointedArm extends SmartPositionalMechanism
   /**
    * Upper arm {@link SmartMotorController}
    */
-  private final SmartMotorController m_upperSMC;
+  private final SmartMotorController          m_upperSMC;
   /**
    * Lower arm {@link SmartMotorController}
    */
-  private final SmartMotorController m_lowerSMC;
+  private final SmartMotorController          m_lowerSMC;
   /**
    * Arm config.
    */
-  private final ArmConfig m_lowerArmConfig;
+  private final ArmConfig                     m_lowerArmConfig;
   /**
    * Arm config.
    */
-  private final ArmConfig m_upperArmConfig;
+  private final ArmConfig                     m_upperArmConfig;
   /**
    * Simulation for the arm.
    */
@@ -65,6 +65,18 @@ public class DoubleJointedArm extends SmartPositionalMechanism
    * Simulation for the arm.
    */
   private       Optional<SingleJointedArmSim> m_upperArmSim = Optional.empty();
+  /**
+   * Lower ligament
+   */
+  private       MechanismLigament2d           m_lowerLigament;
+  /**
+   * Upper root
+   */
+  private       MechanismRoot2d               m_upperRoot;
+  /**
+   * Upper ligament.
+   */
+  private       MechanismLigament2d           m_upperLigament;
 
   /**
    * Constructor for the Arm mechanism.
@@ -77,23 +89,25 @@ public class DoubleJointedArm extends SmartPositionalMechanism
     m_upperArmConfig = upperConfig;
     m_lowerSMC = lowerConfig.getMotor();
     m_upperSMC = upperConfig.getMotor();
-    if(lowerConfig.getMotor().getConfig().getSubsystem() != upperConfig.getMotor().getConfig().getSubsystem())
+    if (lowerConfig.getMotor().getConfig().getSubsystem() != upperConfig.getMotor().getConfig().getSubsystem())
     {
-      throw new DoubleJointedArmConfigurationException("SmartMotorControllers do not have the same subsystem!", "Cannot create commands for single subsystem.","withSubsystem(this)");
+      throw new DoubleJointedArmConfigurationException("SmartMotorControllers do not have the same subsystem!",
+                                                       "Cannot create commands for single subsystem.",
+                                                       "withSubsystem(this)");
     }
     // Seed the relative encoder
-    m_lowerSMC.getConfig().getExternalEncoder().ifPresent(encoder ->{
+    m_lowerSMC.getConfig().getExternalEncoder().ifPresent(encoder -> {
       m_lowerSMC.seedRelativeEncoder();
     });
-    m_upperSMC.getConfig().getExternalEncoder().ifPresent(encoder ->{
+    m_upperSMC.getConfig().getExternalEncoder().ifPresent(encoder -> {
       m_upperSMC.seedRelativeEncoder();
     });
     // Setup telemetry
-    lowerConfig.getTelemetryName().ifPresent(name ->{
-      m_telemetry.setupTelemetry(getName()+"/lower", m_lowerSMC);
+    lowerConfig.getTelemetryName().ifPresent(name -> {
+      m_telemetry.setupTelemetry(getName() + "/lower", m_lowerSMC);
     });
-    upperConfig.getTelemetryName().ifPresent(name ->{
-      m_telemetry.setupTelemetry(getName()+"/upper", m_lowerSMC);
+    upperConfig.getTelemetryName().ifPresent(name -> {
+      m_telemetry.setupTelemetry(getName() + "/upper", m_lowerSMC);
     });
 
     // Apply configs
@@ -126,48 +140,64 @@ public class DoubleJointedArm extends SmartPositionalMechanism
       }
       // Setup Sim
       m_lowerArmSim = Optional.of(new SingleJointedArmSim(m_lowerSMC.getDCMotor(),
-                                                  m_lowerSMC.getConfig().getGearing().getMechanismToRotorRatio(),
-                                                  lowerConfig.getMOI(),
-                                                  lowerConfig.getLength().get().in(Meters),
-                                                  lowerConfig.getLowerHardLimit().get().in(Radians),
-                                                  lowerConfig.getUpperHardLimit().get().in(Radians),
-                                                  true,
-                                                  lowerConfig.getStartingAngle().get().in(Radians),
-                                                  0.002 / 4096.0,
-                                                  0.0));// Add noise with a std-dev of 1 tick
-      m_upperSMC.setSimSupplier(new ArmSimSupplier(m_upperArmSim.get(), m_upperSMC));
+                                                          m_lowerSMC.getConfig().getGearing()
+                                                                    .getMechanismToRotorRatio(),
+                                                          lowerConfig.getMOI(),
+                                                          lowerConfig.getLength().get().in(Meters),
+                                                          lowerConfig.getLowerHardLimit().get().in(Radians),
+                                                          lowerConfig.getUpperHardLimit().get().in(Radians),
+                                                          true,
+                                                          lowerConfig.getStartingAngle().get().in(Radians),
+                                                          0.002 / 4096.0,
+                                                          0.0));// Add noise with a std-dev of 1 tick
+      m_lowerSMC.setSimSupplier(new ArmSimSupplier(m_lowerArmSim.get(), m_lowerSMC));
       m_upperArmSim = Optional.of(new SingleJointedArmSim(m_upperSMC.getDCMotor(),
-              m_upperSMC.getConfig().getGearing().getMechanismToRotorRatio(),
-              upperConfig.getMOI(),
-              upperConfig.getLength().get().in(Meters),
-              upperConfig.getLowerHardLimit().get().in(Radians),
-              upperConfig.getUpperHardLimit().get().in(Radians),
-              true,
-              upperConfig.getStartingAngle().get().in(Radians),
-              0.002 / 4096.0,
-              0.0));// Add noise with a std-dev of 1 tick
+                                                          m_upperSMC.getConfig().getGearing()
+                                                                    .getMechanismToRotorRatio(),
+                                                          upperConfig.getMOI(),
+                                                          upperConfig.getLength().get().in(Meters),
+                                                          upperConfig.getLowerHardLimit().get().in(Radians),
+                                                          upperConfig.getUpperHardLimit().get().in(Radians),
+                                                          true,
+                                                          upperConfig.getStartingAngle().get().in(Radians),
+                                                          0.002 / 4096.0,
+                                                          0.0));// Add noise with a std-dev of 1 tick
       m_upperSMC.setSimSupplier(new ArmSimSupplier(m_upperArmSim.get(), m_upperSMC));
 
-      var lowerLen = lowerConfig.getLength().get();
-      var upperLen = upperConfig.getLength().get();
+      var lowerLen        = lowerConfig.getLength().get();
+      var upperLen        = upperConfig.getLength().get();
       var lowerMechPosCfg = lowerConfig.getMechanismPositionConfig();
       var upperMechPosCfg = upperConfig.getMechanismPositionConfig();
-      var lowerWindowX = lowerMechPosCfg.getWindowXDimension(lowerLen).in(Meters);
-      var upperWindowX = upperMechPosCfg.getWindowXDimension(upperLen).in(Meters);
-      var lowerWindowY = lowerMechPosCfg.getWindowYDimension(lowerLen).in(Meters);
-      var upperWindowY = upperMechPosCfg.getWindowYDimension(upperLen).in(Meters);
+      var lowerWindowX    = lowerMechPosCfg.getWindowXDimension(lowerLen).in(Meters);
+      var upperWindowX    = upperMechPosCfg.getWindowXDimension(upperLen).in(Meters);
+      var lowerWindowY    = lowerMechPosCfg.getWindowYDimension(lowerLen).in(Meters);
+      var upperWindowY    = upperMechPosCfg.getWindowYDimension(upperLen).in(Meters);
       var lowerMechanismX = lowerMechPosCfg.getMechanismX(lowerLen).in(Meters);
-      var upperMechanismX = upperMechPosCfg.getMechanismX(upperLen).in(Meters);
+      var upperMechanismX = upperMechPosCfg.getMechanismX(upperLen)
+                                           .plus(lowerLen.times(Math.cos(lowerConfig.getStartingAngle().get()
+                                                                                    .in(Radians)))).in(Meters);
       var lowerMechanismY = lowerMechPosCfg.getMechanismY(lowerLen).in(Meters);
-      var upperMechanismY = upperMechPosCfg.getMechanismY(upperLen).in(Meters);
-      m_mechanismWindow = new Mechanism2d(lowerWindowX+upperWindowX,lowerWindowY+upperWindowY);
-      m_mechanismRoot = m_mechanismWindow.getRoot(getName() + "Root",lowerMechanismX,lowerMechanismY);
-      m_mechanismLigament = m_mechanismRoot.append(new MechanismLigament2d(getName()+" lower",
-                                                                           lowerLen.in(Meters),
-                                                                           lowerConfig.getStartingAngle().get().in(Degrees),
-                                                                           6,
-                                                                           lowerConfig.getSimColor()));
-      m_mechanismRoot.append(m_mechanismWindow.getRoot(getName()+" upper",upperMechanismX,upperMechanismY));
+      var upperMechanismY = upperMechPosCfg.getMechanismY(upperLen)
+                                           .plus(lowerLen.times(Math.sin(lowerConfig.getStartingAngle().get()
+                                                                                    .in(Radians)))).in(Meters);
+      m_mechanismWindow = new Mechanism2d(lowerWindowX + upperWindowX, lowerWindowY + upperWindowY);
+      m_mechanismRoot = m_mechanismWindow.getRoot(getName() + "Root", lowerMechanismX, lowerMechanismY);
+      m_lowerLigament = m_mechanismLigament = m_mechanismRoot.append(new MechanismLigament2d(getName() + " lower",
+                                                                                             lowerLen.in(Meters),
+                                                                                             lowerConfig.getStartingAngle()
+                                                                                                        .get()
+                                                                                                        .in(Degrees),
+                                                                                             6,
+                                                                                             lowerConfig.getSimColor()));
+      m_upperRoot = m_mechanismRoot.append(m_mechanismWindow.getRoot(getName() + " upper Root",
+                                                                     upperMechanismX,
+                                                                     upperMechanismY));
+      m_upperLigament = m_upperRoot.append(new MechanismLigament2d(getName() + " upper",
+                                                                   upperLen.in(Meters),
+                                                                   upperConfig.getStartingAngle().get()
+                                                                              .in(Degrees),
+                                                                   6,
+                                                                   upperConfig.getSimColor()));
 //      m_mechanismRoot.append(new MechanismLigament2d("MaxHard",
 //                                                     Inch.of(3).in(Meters),
 //                                                     lowerConfig.getUpperHardLimit().get()
@@ -207,24 +237,69 @@ public class DoubleJointedArm extends SmartPositionalMechanism
   @Override
   public void simIterate()
   {
-    if (m_lowerArmSim.isPresent() && m_lowerSMC.getSimSupplier().isPresent() && m_upperArmSim.isPresent() && m_upperSMC.getSimSupplier().isPresent())
+    if (m_lowerArmSim.isPresent() && m_lowerSMC.getSimSupplier().isPresent() && m_upperArmSim.isPresent() &&
+        m_upperSMC.getSimSupplier().isPresent())
     {
       m_lowerSMC.getSimSupplier().get().updateSimState();
       m_lowerSMC.simIterate();
       m_lowerSMC.getSimSupplier().get().starveUpdateSim();
-      if (m_lowerArmConfig.getLowerHardLimit().isPresent() && m_lowerArmSim.get().getVelocityRadPerSec() < 0 &&
-          m_lowerSMC.getMechanismPosition().lt(m_lowerArmConfig.getLowerHardLimit().get()))
-      {
-        m_lowerSMC.setEncoderPosition(m_lowerArmConfig.getLowerHardLimit().get());
-      }
-      if (m_lowerArmConfig.getUpperHardLimit().isPresent() && m_lowerArmSim.get().getVelocityRadPerSec() > 0 &&
-          m_lowerSMC.getMechanismPosition().gt(m_lowerArmConfig.getUpperHardLimit().get()))
-      {
-        m_lowerSMC.setEncoderPosition(m_lowerArmConfig.getUpperHardLimit().get());
-      }
-      RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_lowerArmSim.get().getCurrentDrawAmps()));
+      m_upperSMC.getSimSupplier().get().updateSimState();
+      m_upperSMC.simIterate();
+      m_upperSMC.getSimSupplier().get().starveUpdateSim();
+//      if (m_lowerArmConfig.getLowerHardLimit().isPresent() && m_lowerArmSim.get().getVelocityRadPerSec() < 0 &&
+//          m_lowerSMC.getMechanismPosition().lt(m_lowerArmConfig.getLowerHardLimit().get()))
+//      {
+//        m_lowerSMC.setEncoderPosition(m_lowerArmConfig.getLowerHardLimit().get());
+//      }
+//      if (m_lowerArmConfig.getUpperHardLimit().isPresent() && m_lowerArmSim.get().getVelocityRadPerSec() > 0 &&
+//          m_lowerSMC.getMechanismPosition().gt(m_lowerArmConfig.getUpperHardLimit().get()))
+//      {
+//        m_lowerSMC.setEncoderPosition(m_lowerArmConfig.getUpperHardLimit().get());
+//      }
+      RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_lowerArmSim.get()
+                                                                                            .getCurrentDrawAmps(),
+                                                                               m_upperArmSim.get()
+                                                                                            .getCurrentDrawAmps()));
       visualizationUpdate();
     }
+  }
+
+  /**
+   * Get the joint pose as a {@link Translation2d}.
+   *
+   * @return {@link Translation2d} of the joint.
+   */
+  public Translation2d getJointPose()
+  {
+    if (m_lowerArmConfig.getLength().isPresent() && m_upperArmConfig.getLength().isPresent())
+    {
+      var lowerLen   = m_lowerArmConfig.getLength().get();
+      var upperLen   = m_upperArmConfig.getLength().get();
+      var lowerAngle = getLowerAngle().in(Radians);
+      return new Translation2d(lowerLen.times(Math.cos(lowerAngle)).in(Meters),
+                               lowerLen.times(Math.sin(lowerAngle)).in(Meters));
+    }
+    return Translation2d.kZero;
+  }
+
+  /**
+   * Upper arm {@link Angle}
+   *
+   * @return {@link Angle} of the upper Arm.
+   */
+  public Angle getUpperAngle()
+  {
+    return m_upperSMC.getMechanismPosition();
+  }
+
+  /**
+   * Lower arm {@link Angle}
+   *
+   * @return {@link Angle} of the lower arm.
+   */
+  public Angle getLowerAngle()
+  {
+    return m_lowerSMC.getMechanismPosition();
   }
 
   /**
@@ -235,6 +310,10 @@ public class DoubleJointedArm extends SmartPositionalMechanism
   @Override
   public void visualizationUpdate()
   {
+    var upperTrans = getJointPose();
+    m_lowerLigament.setAngle(getLowerAngle().in(Degrees));
+    m_upperLigament.setAngle(getUpperAngle().in(Degrees));
+    m_upperRoot.setPosition(upperTrans.getX(),upperTrans.getY());
 //    m_mechanismLigament.setAngle(getAngle().in(Degrees));
   }
 
@@ -250,14 +329,16 @@ public class DoubleJointedArm extends SmartPositionalMechanism
     Plane movementPlane = m_lowerArmConfig.getMechanismPositionConfig().getMovementPlane();
     Translation3d mechanismTranslation = new Translation3d(m_mechanismLigament.getLength(),
                                                            new Rotation3d(
-                                                               Plane.YZ == movementPlane ? m_mechanismLigament.getAngle()
-                                                                                         : 0,
-                                                               Plane.XZ == movementPlane ? m_mechanismLigament.getAngle()
-                                                                                         : 0, 0));
+                                                               Plane.YZ == movementPlane
+                                                               ? m_mechanismLigament.getAngle()
+                                                               : 0,
+                                                               Plane.XZ == movementPlane
+                                                               ? m_mechanismLigament.getAngle()
+                                                               : 0, 0));
     if (m_lowerArmConfig.getMechanismPositionConfig().getRelativePosition().isPresent())
     {
       return m_lowerArmConfig.getMechanismPositionConfig().getRelativePosition().get()
-                     .plus(mechanismTranslation);
+                             .plus(mechanismTranslation);
     }
     return mechanismTranslation;
   }
@@ -268,9 +349,21 @@ public class DoubleJointedArm extends SmartPositionalMechanism
     return m_lowerArmConfig.getTelemetryName().orElse("Arm");
   }
 
-  public Pose2d getPosition()
+  /**
+   * Get the end pose of the arm.
+   * @return {@link Translation2d} of the arm.
+   */
+  public Translation2d getPosition()
   {
-      return Pose2d.kZero;
+    if (m_lowerArmConfig.getLength().isPresent() && m_upperArmConfig.getLength().isPresent())
+    {
+      var lowerLen   = m_lowerArmConfig.getLength().get();
+      var upperLen   = m_upperArmConfig.getLength().get();
+      var upperAngle = getUpperAngle().in(Radians);
+      return new Translation2d(upperLen.times(Math.cos(upperAngle)).in(Meters),
+                               upperLen.times(Math.sin(upperAngle)).in(Meters)).plus(getJointPose());
+    }
+    return Translation2d.kZero;
   }
 
   public void setPosition()
@@ -287,7 +380,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism
    */
   public Trigger isNear(Angle angle, Angle within)
   {
-      return null;
+    return null;
 //    return new Trigger(() -> getAngle().isNear(angle, within));
   }
 
@@ -390,7 +483,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism
    */
   public Trigger lte(Angle angle)
   {
-      return null;
+    return null;
 //    return new Trigger(() -> getAngle().lte(angle));
   }
 
@@ -402,7 +495,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism
    */
   public Trigger gte(Angle angle)
   {
-      return null;
+    return null;
 //    return new Trigger(() -> getAngle().gte(angle));
   }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.DoubleJointedArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -19,7 +20,8 @@ public class RobotContainer
 
   //  TurretSubsystem       turret         = new TurretSubsystem();
 //  ArmSubsystem arm = new ArmSubsystem();
-  public ElevatorSubsystem elevator = new ElevatorSubsystem();
+//  public ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private DoubleJointedArmSubsystem dja = new DoubleJointedArmSubsystem();
   public CommandXboxController xboxController = new CommandXboxController(0);
 
   public RobotContainer()
@@ -35,11 +37,11 @@ public class RobotContainer
 
   private void configureBindings()
   {
-    xboxController.button(1).whileTrue(elevator.setHeight(Meters.of(1)));
-    xboxController.button(2).whileTrue(elevator.setHeight(Meters.of(0)));
-    xboxController.button(3).whileTrue(elevator.sysId());
-    xboxController.button(4).whileTrue(elevator.elevCmd(-0.5));
-    xboxController.button(5).whileTrue(elevator.elevCmd(0.5));
+//    xboxController.button(1).whileTrue(elevator.setHeight(Meters.of(1)));
+//    xboxController.button(2).whileTrue(elevator.setHeight(Meters.of(0)));
+//    xboxController.button(3).whileTrue(elevator.sysId());
+//    xboxController.button(4).whileTrue(elevator.elevCmd(-0.5));
+//    xboxController.button(5).whileTrue(elevator.elevCmd(0.5));
 
 //    xboxController.button(1).whileTrue(arm.armCmd(0.5));
 //    xboxController.button(2).whileTrue(arm.armCmd(-0.5));
