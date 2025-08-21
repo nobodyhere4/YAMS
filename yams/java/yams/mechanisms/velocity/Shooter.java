@@ -65,21 +65,21 @@ public class Shooter extends SmartVelocityMechanism
   public Shooter(ShooterConfig config)
   {
     m_config = config;
-    m_motor = config.getMotor();
-    SmartMotorControllerConfig motorConfig = m_motor.getConfig();
-    DCMotor                    dcMotor     = m_motor.getDCMotor();
-    MechanismGearing           gearing     = m_motor.getConfig().getGearing();
-    m_subsystem = m_motor.getConfig().getSubsystem();
+    m_smc = config.getMotor();
+    SmartMotorControllerConfig motorConfig = m_smc.getConfig();
+    DCMotor                    dcMotor     = m_smc.getDCMotor();
+    MechanismGearing           gearing     = m_smc.getConfig().getGearing();
+    m_subsystem = m_smc.getConfig().getSubsystem();
     // Seed the relative encoder
-    if (m_motor.getConfig().getExternalEncoder().isPresent())
+    if (m_smc.getConfig().getExternalEncoder().isPresent())
     {
-      m_motor.seedRelativeEncoder();
+      m_smc.seedRelativeEncoder();
     }
     if (config.getTelemetryName().isPresent())
     {
       // TODO: Add telemetry units to config.
       m_telemetry.setupTelemetry(getName(),
-                                 m_motor);
+                                 m_smc);
     }
     config.applyConfig();
 
@@ -92,7 +92,7 @@ public class Shooter extends SmartVelocityMechanism
                                                                                         .getMechanismToRotorRatio()),
                                                 dcMotor));
 
-      m_motor.setSimSupplier(new SimSupplier()
+      m_smc.setSimSupplier(new SimSupplier()
       {
         boolean inputFed   = false;
         boolean simUpdated = false;
@@ -102,7 +102,7 @@ public class Shooter extends SmartVelocityMechanism
         {
           if (!isInputFed())
           {
-            m_dcmotorSim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+            m_dcmotorSim.get().setInput(m_smc.getDutyCycle() * RoboRioSim.getVInVoltage());
           }
           if (!simUpdated)
           {
@@ -228,15 +228,15 @@ public class Shooter extends SmartVelocityMechanism
         }
       });
       Distance ShooterLength = config.getLength().orElse(Inches.of(36));
-      mechanismWindow = new Mechanism2d(ShooterLength.in(Meters) * 2,
+      m_mechanismWindow = new Mechanism2d(ShooterLength.in(Meters) * 2,
                                         ShooterLength.in(Meters) * 2);
-      mechanismRoot = mechanismWindow.getRoot(getName() + "Root",
-                                              ShooterLength.in(Meters), ShooterLength.in(Meters));
+      mechanismRoot = m_mechanismWindow.getRoot(getName() + "Root",
+                                                ShooterLength.in(Meters), ShooterLength.in(Meters));
       mechanismLigament = mechanismRoot.append(new MechanismLigament2d(getName(),
                                                                        ShooterLength.in(Meters),
                                                                        0, 6, config.getSimColor()));
 
-      SmartDashboard.putData(getName() + "/mechanism", mechanismWindow);
+      SmartDashboard.putData(getName() + "/mechanism", m_mechanismWindow);
     }
   }
 
@@ -281,7 +281,7 @@ public class Shooter extends SmartVelocityMechanism
    */
   public AngularVelocity getSpeed()
   {
-    return m_motor.getMechanismVelocity();
+    return m_smc.getMechanismVelocity();
   }
 
   /**
@@ -319,7 +319,7 @@ public class Shooter extends SmartVelocityMechanism
       }
     });
 
-    return Commands.run(() -> m_motor.setVelocity(speed), m_subsystem).withName(
+    return Commands.run(() -> m_smc.setVelocity(speed), m_subsystem).withName(
         m_subsystem.getName() + " " + getName() + " SetSpeed");
   }
 
@@ -331,7 +331,7 @@ public class Shooter extends SmartVelocityMechanism
    */
   public Command setSpeed(Supplier<AngularVelocity> speed)
   {
-    return Commands.run(() -> m_motor.setVelocity(speed.get()), m_subsystem).withName(
+    return Commands.run(() -> m_smc.setVelocity(speed.get()), m_subsystem).withName(
         m_subsystem.getName() + " SetSpeed Supplier");
   }
 
@@ -403,11 +403,11 @@ public class Shooter extends SmartVelocityMechanism
   @Override
   public void simIterate()
   {
-    if (m_dcmotorSim.isPresent() && m_motor.getSimSupplier().isPresent())
+    if (m_dcmotorSim.isPresent() && m_smc.getSimSupplier().isPresent())
     {
-      m_motor.getSimSupplier().get().updateSimState();
-      m_motor.simIterate();
-      m_motor.getSimSupplier().get().starveUpdateSim();
+      m_smc.getSimSupplier().get().updateSimState();
+      m_smc.simIterate();
+      m_smc.getSimSupplier().get().starveUpdateSim();
 
       RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_dcmotorSim.get()
                                                                                            .getCurrentDrawAmps()));
@@ -420,7 +420,7 @@ public class Shooter extends SmartVelocityMechanism
   {
 //    m_telemetry.updatePosition(getAngle());
 //    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
-    m_motor.updateTelemetry();
+    m_smc.updateTelemetry();
   }
 
   /**
@@ -429,7 +429,7 @@ public class Shooter extends SmartVelocityMechanism
   @Override
   public void visualizationUpdate()
   {
-    mechanismLigament.setAngle(m_motor.getMechanismPosition().in(Degrees));
+    mechanismLigament.setAngle(m_smc.getMechanismPosition().in(Degrees));
   }
 
   /**

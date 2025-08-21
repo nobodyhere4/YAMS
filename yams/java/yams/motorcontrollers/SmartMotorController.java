@@ -54,35 +54,35 @@ public abstract class SmartMotorController
   /**
    * Telemetry.
    */
-  protected SmartMotorControllerTelemetry                 telemetry                  = new SmartMotorControllerTelemetry();
+  protected SmartMotorControllerTelemetry   telemetry                  = new SmartMotorControllerTelemetry();
   /**
    * {@link SmartMotorControllerConfig} for the motor.
    */
-  protected SmartMotorControllerConfig                    config;
+  protected SmartMotorControllerConfig      m_config;
   /**
    * Profiled PID controller for the motor controller.
    */
-  protected Optional<ProfiledPIDController>               pidController              = Optional.empty();
+  protected Optional<ProfiledPIDController> m_pidController       = Optional.empty();
   /**
    * Simple PID controller for the motor controller.
    */
-  protected Optional<PIDController>                       simplePidController        = Optional.empty();
+  protected Optional<PIDController>         m_simplePidController = Optional.empty();
   /**
    * Setpoint position
    */
-  protected Optional<Angle>                               setpointPosition           = Optional.empty();
+  protected Optional<Angle>                 setpointPosition      = Optional.empty();
   /**
    * Setpoint velocity.
    */
-  protected Optional<AngularVelocity>                     setpointVelocity           = Optional.empty();
+  protected Optional<AngularVelocity> setpointVelocity             = Optional.empty();
   /**
    * Thread of the closed loop controller.
    */
-  protected Notifier                                      closedLoopControllerThread = null;
+  protected Notifier                  m_closedLoopControllerThread = null;
   /**
    * Parent table for telemetry.
    */
-  protected Optional<NetworkTable>                        parentTable                = Optional.empty();
+  protected Optional<NetworkTable>    parentTable                  = Optional.empty();
   /**
    * {@link SmartMotorController} telemetry table.
    */
@@ -139,12 +139,12 @@ public abstract class SmartMotorController
   {
     if (isMotor(getDCMotor(), DCMotor.getNeo550(1)))
     {
-      if (config.getStatorStallCurrentLimit().isEmpty())
+      if (m_config.getStatorStallCurrentLimit().isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("Stator current limit is not defined for NEO550!",
                                                              "Safety check failed.",
                                                              "withStatorCurrentLimit(Current)");
-      } else if (config.getStatorStallCurrentLimit().getAsInt() > 40)
+      } else if (m_config.getStatorStallCurrentLimit().getAsInt() > 40)
       {
         throw new SmartMotorControllerConfigurationException("Stator current limit is too high for NEO550!",
                                                              "Safety check failed.",
@@ -155,12 +155,12 @@ public abstract class SmartMotorController
     }
     if (isMotor(getDCMotor(), DCMotor.getNEO(1)))
     {
-      if (config.getStatorStallCurrentLimit().isEmpty())
+      if (m_config.getStatorStallCurrentLimit().isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("Stator current limit is not defined for NEO!",
                                                              "Safety check failed.",
                                                              "withStatorCurrentLimit(Current)");
-      } else if (config.getStatorStallCurrentLimit().getAsInt() > 60)
+      } else if (m_config.getStatorStallCurrentLimit().getAsInt() > 60)
       {
         throw new SmartMotorControllerConfigurationException("Stator current limit is too high for NEO!",
                                                              "Safety check failed.",
@@ -196,9 +196,9 @@ public abstract class SmartMotorController
    */
   public void stopClosedLoopController()
   {
-    if (closedLoopControllerThread != null)
+    if (m_closedLoopControllerThread != null)
     {
-      closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.stop();
     }
   }
 
@@ -207,10 +207,10 @@ public abstract class SmartMotorController
    */
   public void startClosedLoopController()
   {
-    if (closedLoopControllerThread != null && config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+    if (m_closedLoopControllerThread != null && m_config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      closedLoopControllerThread.stop();
-      closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Seconds));
+      m_closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().in(Seconds));
     }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
@@ -229,100 +229,100 @@ public abstract class SmartMotorController
 
     if (setpointPosition.isPresent())
     {
-      if (config.getMechanismLowerLimit().isPresent())
+      if (m_config.getMechanismLowerLimit().isPresent())
       {
-        if (setpointPosition.get().lt(config.getMechanismLowerLimit().get()))
+        if (setpointPosition.get().lt(m_config.getMechanismLowerLimit().get()))
         {
           DriverStation.reportWarning("[WARNING] Setpoint is lower than Mechanism " +
-                                      (config.getTelemetryName().isPresent() ? config.getTelemetryName().get()
-                                                                             : "Unnamed smart motor") +
+                                      (m_config.getTelemetryName().isPresent() ? m_config.getTelemetryName().get()
+                                                                               : "Unnamed smart motor") +
                                       " lower limit, changing setpoint to lower limit.", false);
-          setpointPosition = config.getMechanismLowerLimit();
+          setpointPosition = m_config.getMechanismLowerLimit();
         }
       }
-      if (config.getMechanismUpperLimit().isPresent())
+      if (m_config.getMechanismUpperLimit().isPresent())
       {
-        if (setpointPosition.get().gt(config.getMechanismUpperLimit().get()))
+        if (setpointPosition.get().gt(m_config.getMechanismUpperLimit().get()))
         {
           DriverStation.reportWarning("[WARNING] Setpoint is higher than Mechanism " +
-                                      (config.getTelemetryName().isPresent() ? getName()
-                                                                             : "Unnamed smart motor") +
+                                      (m_config.getTelemetryName().isPresent() ? getName()
+                                                                               : "Unnamed smart motor") +
                                       " upper limit, changing setpoint to upper limit.", false);
-          setpointPosition = config.getMechanismUpperLimit();
+          setpointPosition = m_config.getMechanismUpperLimit();
         }
       }
     }
 
-    if (pidController.isPresent() && setpointPosition.isPresent())
+    if (m_pidController.isPresent() && setpointPosition.isPresent())
     {
-      if (config.getArmFeedforward().isPresent())
+      if (m_config.getArmFeedforward().isPresent())
       {
-        pidOutputVoltage.set(pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                           setpointPosition.get().in(Rotations)));
-        feedforward = config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
-                                                                               getMechanismVelocity().in(
+        pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                             setpointPosition.get().in(Rotations)));
+        feedforward = m_config.getArmFeedforward().get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+                                                                                 getMechanismVelocity().in(
                                                                                    RotationsPerSecond),
-                                                                               pidController.get()
-                                                                                            .getSetpoint().velocity);
-      } else if (config.getElevatorFeedforward().isPresent())
+                                                                                 m_pidController.get()
+                                                                                                .getSetpoint().velocity);
+      } else if (m_config.getElevatorFeedforward().isPresent())
       {
-        pidOutputVoltage.set(pidController.get().calculate(getMeasurementPosition().in(Meters),
-                                                           config.convertFromMechanism(setpointPosition.get())
-                                                                 .in(Meters)));
-        feedforward = config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
-            MetersPerSecond), pidController.get().getSetpoint().velocity);
+        pidOutputVoltage.set(m_pidController.get().calculate(getMeasurementPosition().in(Meters),
+                                                             m_config.convertFromMechanism(setpointPosition.get())
+                                                                   .in(Meters)));
+        feedforward = m_config.getElevatorFeedforward().get().calculateWithVelocities(getMeasurementVelocity().in(
+            MetersPerSecond), m_pidController.get().getSetpoint().velocity);
 
-      } else if (config.getSimpleFeedforward().isPresent())
+      } else if (m_config.getSimpleFeedforward().isPresent())
       {
-        pidOutputVoltage.set(pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                           setpointPosition.get().in(Rotations)));
-        feedforward = config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
-            RotationsPerSecond), pidController.get().getSetpoint().velocity);
+        pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                             setpointPosition.get().in(Rotations)));
+        feedforward = m_config.getSimpleFeedforward().get().calculateWithVelocities(getMechanismVelocity().in(
+            RotationsPerSecond), m_pidController.get().getSetpoint().velocity);
 
       }
     } else
     {
       if (setpointPosition.isPresent())
       {
-        simplePidController.ifPresent(pid -> {
+        m_simplePidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismPosition().in(Rotations),
                                              setpointPosition.get().in(Rotations)));
         });
-        pidController.ifPresent(pid -> {
+        m_pidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismPosition().in(Rotations),
                                              setpointPosition.get().in(Rotations)));
         });
       } else if (setpointVelocity.isPresent())
       {
-        simplePidController.ifPresent(pid -> {
+        m_simplePidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
                                              setpointVelocity.get().in(RotationsPerSecond)));
         });
-        pidController.ifPresent(pid -> {
+        m_pidController.ifPresent(pid -> {
           pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
                                              setpointVelocity.get().in(RotationsPerSecond)));
         });
       }
     }
-    if (config.getMechanismUpperLimit().isPresent())
+    if (m_config.getMechanismUpperLimit().isPresent())
     {
-      if (getMechanismPosition().gt(config.getMechanismUpperLimit().get()) &&
+      if (getMechanismPosition().gt(m_config.getMechanismUpperLimit().get()) &&
           (pidOutputVoltage.get() + feedforward) > 0)
       {
         pidOutputVoltage.set(feedforward = 0);
       }
     }
-    if (config.getMechanismLowerLimit().isPresent())
+    if (m_config.getMechanismLowerLimit().isPresent())
     {
-      if (getMechanismPosition().lt(config.getMechanismLowerLimit().get()) &&
+      if (getMechanismPosition().lt(m_config.getMechanismLowerLimit().get()) &&
           (pidOutputVoltage.get() + feedforward) < 0)
       {
         pidOutputVoltage.set(feedforward = 0);
       }
     }
-    if (config.getTemperatureCutoff().isPresent())
+    if (m_config.getTemperatureCutoff().isPresent())
     {
-      if (getTemperature().gte(config.getTemperatureCutoff().get()))
+      if (getTemperature().gte(m_config.getTemperatureCutoff().get()))
       {
         pidOutputVoltage.set(feedforward = 0);
       }
@@ -331,9 +331,9 @@ public abstract class SmartMotorController
 //    telemetry.feedforwardVoltage = feedforward;
 //    telemetry.outputVoltage = pidOutputVoltage + feedforward;
     double outputVoltage = pidOutputVoltage.get() + feedforward;
-    if (config.getClosedLoopControllerMaximumVoltage().isPresent())
+    if (m_config.getClosedLoopControllerMaximumVoltage().isPresent())
     {
-      double maximumVoltage = config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
+      double maximumVoltage = m_config.getClosedLoopControllerMaximumVoltage().get().in(Volts);
       outputVoltage = MathUtil.clamp(outputVoltage, -maximumVoltage, maximumVoltage);
 //      telemetry.outputVoltage = MathUtil.clamp(telemetry.outputVoltage, -maximumVoltage, maximumVoltage);
     }
@@ -430,13 +430,13 @@ public abstract class SmartMotorController
   public SysIdRoutine sysId(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
     SysIdRoutine sysIdRoutine = null;
-    if (config.getTelemetryName().isEmpty())
+    if (m_config.getTelemetryName().isEmpty())
     {
       throw new SmartMotorControllerConfigurationException("Telemetry is undefined",
                                                            "Cannot create SysIdRoutine",
                                                            "withTelemetry(String,TelemetryVerbosity)");
     }
-    if (config.getMechanismCircumference().isPresent())
+    if (m_config.getMechanismCircumference().isPresent())
     {
       sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
                                       new SysIdRoutine.Mechanism(
@@ -448,7 +448,7 @@ public abstract class SmartMotorController
                                                .linearVelocity(getMeasurementVelocity())
                                                .linearPosition(getMeasurementPosition());
                                           },
-                                          config.getSubsystem()));
+                                          m_config.getSubsystem()));
     } else
     {
       sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
@@ -461,7 +461,7 @@ public abstract class SmartMotorController
                                                .angularPosition(getMechanismPosition())
                                                .angularVelocity(getMechanismVelocity());
                                           },
-                                          config.getSubsystem()));
+                                          m_config.getSubsystem()));
     }
     return sysIdRoutine;
   }
@@ -584,28 +584,28 @@ public abstract class SmartMotorController
     if (parentTable.isEmpty())
     {
       parentTable = Optional.of(telemetry);
-      if (config.getTelemetryName().isPresent())
+      if (m_config.getTelemetryName().isPresent())
       {
         telemetryTable = Optional.of(telemetry.getSubTable(getName()));
         tuningTable = Optional.of(tuning.getSubTable(getName()));
-        if (config.getSmartControllerTelemetryConfig().isPresent())
+        if (m_config.getSmartControllerTelemetryConfig().isPresent())
         {
-          this.telemetry.setupTelemetry(this, telemetry, tuning, config.getSmartControllerTelemetryConfig().get());
+          this.telemetry.setupTelemetry(this, telemetry, tuning, m_config.getSmartControllerTelemetryConfig().get());
         } else
         {
           this.telemetry.setupTelemetry(this, telemetry,
                                         tuning,
-                                        new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(config.getVerbosity()
-                                                                                                               .orElse(
+                                        new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(m_config.getVerbosity()
+                                                                                                                 .orElse(
                                                                                                                    TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
         Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
-                                                 config.getSubsystem())
+                                                 m_config.getSubsystem())
                                             .finallyDo(() -> System.err.println(
                                                 "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
         liveTuningCommand.setName("LiveTuning");
-        liveTuningCommand.setSubsystem(config.getSubsystem().getName());
+        liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
         SmartDashboard.putData(telemetry.getPath() + "/LiveTuning", liveTuningCommand);
         RobotModeTriggers.test().whileTrue(liveTuningCommand);
       }
@@ -617,7 +617,7 @@ public abstract class SmartMotorController
    */
   public void updateTelemetry()
   {
-    if (telemetryTable.isPresent() && config.getVerbosity().isPresent())
+    if (telemetryTable.isPresent() && m_config.getVerbosity().isPresent())
     {
 //      telemetry.refresh(this);
       telemetry.publish(this);
@@ -858,7 +858,7 @@ public abstract class SmartMotorController
    */
   public String getName()
   {
-    return config.getTelemetryName().orElse("SmartMotorController");
+    return m_config.getTelemetryName().orElse("SmartMotorController");
   }
 
   /**
@@ -866,10 +866,10 @@ public abstract class SmartMotorController
    */
   public void close()
   {
-    if (closedLoopControllerThread != null)
+    if (m_closedLoopControllerThread != null)
     {
-      closedLoopControllerThread.stop();
-      closedLoopControllerThread.close();
+      m_closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.close();
     }
     telemetry.close();
   }

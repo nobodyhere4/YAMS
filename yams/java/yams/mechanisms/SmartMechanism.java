@@ -28,7 +28,7 @@ public abstract class SmartMechanism
   /**
    * Motor for the subsystem.
    */
-  protected SmartMotorController m_motor;
+  protected SmartMotorController m_smc;
   /**
    * Mechanism telemetry.
    */
@@ -36,7 +36,7 @@ public abstract class SmartMechanism
   /**
    * Mechanism Window.
    */
-  protected Mechanism2d          mechanismWindow;
+  protected Mechanism2d        m_mechanismWindow;
 
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.
@@ -115,8 +115,8 @@ public abstract class SmartMechanism
    */
   public Command set(double dutycycle)
   {
-    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setDutyCycle(dutycycle), m_subsystem)
-                   .finallyDo(m_motor::startClosedLoopController)
+    return Commands.startRun(m_smc::stopClosedLoopController, () -> m_smc.setDutyCycle(dutycycle), m_subsystem)
+                   .finallyDo(m_smc::startClosedLoopController)
                    .withName(m_subsystem.getName() + " SetDutyCycle");
   }
 
@@ -128,9 +128,9 @@ public abstract class SmartMechanism
    */
   public Command set(Supplier<Double> dutycycle)
   {
-    return Commands.startRun(m_motor::stopClosedLoopController,
-                             () -> m_motor.setDutyCycle(dutycycle.get()), m_subsystem)
-                   .finallyDo(m_motor::startClosedLoopController)
+    return Commands.startRun(m_smc::stopClosedLoopController,
+                             () -> m_smc.setDutyCycle(dutycycle.get()), m_subsystem)
+                   .finallyDo(m_smc::startClosedLoopController)
                    .withName(m_subsystem.getName() + " SetDutyCycle Supplier");
   }
 
@@ -142,8 +142,8 @@ public abstract class SmartMechanism
    */
   public Command setVoltage(Voltage volts)
   {
-    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setVoltage(volts), m_subsystem)
-                   .finallyDo(m_motor::startClosedLoopController)
+    return Commands.startRun(m_smc::stopClosedLoopController, () -> m_smc.setVoltage(volts), m_subsystem)
+                   .finallyDo(m_smc::startClosedLoopController)
                    .withName(m_subsystem.getName() + " SetVoltage");
   }
 
@@ -156,8 +156,8 @@ public abstract class SmartMechanism
    */
   public Command setVoltage(Supplier<Voltage> volts)
   {
-    return Commands.startRun(m_motor::stopClosedLoopController, () -> m_motor.setVoltage(volts.get()), m_subsystem)
-                   .finallyDo(m_motor::startClosedLoopController)
+    return Commands.startRun(m_smc::stopClosedLoopController, () -> m_smc.setVoltage(volts.get()), m_subsystem)
+                   .finallyDo(m_smc::startClosedLoopController)
                    .withName(m_subsystem.getName() + " SetVoltage Supplier");
   }
 
@@ -168,7 +168,7 @@ public abstract class SmartMechanism
    */
   public SmartMotorController getMotorController()
   {
-    return m_motor;
+    return m_smc;
   }
 
   /**
@@ -178,7 +178,7 @@ public abstract class SmartMechanism
    */
   public Optional<Angle> getMechanismSetpoint()
   {
-    return m_motor.getMechanismPositionSetpoint();
+    return m_smc.getMechanismPositionSetpoint();
   }
 
   /**
@@ -198,7 +198,7 @@ public abstract class SmartMechanism
    */
   public Mechanism2d getMechanismWindow()
   {
-    return mechanismWindow;
+    return m_mechanismWindow;
   }
 
   /**

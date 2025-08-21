@@ -2,10 +2,13 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -36,13 +39,14 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import java.util.List;
 import java.util.Optional;
-import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.simulation.DCMotorSimSupplier;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
@@ -63,7 +67,7 @@ public class NovaWrapper extends SmartMotorController
   /**
    * Sim for ThriftyNova's.
    */
-  private Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
+  private       Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
 
   /**
    * Construct the Nova Wrapper for the generic {@link SmartMotorController}.
@@ -76,7 +80,7 @@ public class NovaWrapper extends SmartMotorController
   {
     m_nova = controller;
     this.m_motor = motor;
-    this.config = config;
+    this.m_config = config;
     setupSimulation();
     applyConfig(config);
   }
@@ -90,139 +94,18 @@ public class NovaWrapper extends SmartMotorController
       if (!setupRan)
       {
         m_dcMotorSim = Optional.of(new DCMotorSim(LinearSystemId.createDCMotorSystem(m_motor,
-                                                                                     0.01,
-                                                                                     config.getGearing().getRotorToMechanismRatio()),
+                                                                                     SingleJointedArmSim.estimateMOI(
+                                                                                         Inches.of(4).in(Meters),
+                                                                                         Pounds.of(1).in(Kilograms)),
+                                                                                     m_config.getGearing()
+                                                                                             .getRotorToMechanismRatio()),
                                                   m_motor,
-                                           1.0 / 1024.0, 0));
+                                                  1.0 / 1024.0, 0));
 
-        setSimSupplier(new SimSupplier()
-        {
-          boolean simUpdated = false;
-          boolean inputFed   = false;
-
-          @Override
-          public void updateSimState()
-          {
-            if (!inputFed)
-            {
-              m_dcMotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
-            }
-            if (!simUpdated)
-            {
-              starveInput();
-              m_dcMotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
-              feedUpdateSim();
-            }
-          }
-
-          @Override
-          public boolean getUpdatedSim()
-          {
-            return simUpdated;
-          }
-
-          @Override
-          public void feedUpdateSim()
-          {
-            simUpdated = true;
-          }
-
-          @Override
-          public void starveUpdateSim()
-          {
-            simUpdated = false;
-          }
-
-          @Override
-          public boolean isInputFed()
-          {
-            return simUpdated;
-          }
-
-          @Override
-          public void feedInput()
-          {
-            inputFed = true;
-          }
-
-          @Override
-          public void starveInput()
-          {
-            inputFed = false;
-          }
-
-          @Override
-          public void setMechanismStatorDutyCycle(double dutyCycle)
-          {
-            inputFed = true;
-            m_dcMotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
-          }
-
-          @Override
-          public Voltage getMechanismSupplyVoltage()
-          {
-            return Volts.of(RoboRioSim.getVInVoltage());
-          }
-
-          @Override
-          public Voltage getMechanismStatorVoltage()
-          {
-            return Volts.of(m_motor.getVoltage(m_dcMotorSim.get().getTorqueNewtonMeters(),
-                                               m_dcMotorSim.get().getAngularVelocityRadPerSec()));
-          }
-
-          @Override
-          public void setMechanismStatorVoltage(Voltage volts)
-          {
-            inputFed = true;
-            m_dcMotorSim.get().setInputVoltage(volts.in(Volts));
-          }
-
-          @Override
-          public Angle getMechanismPosition()
-          {
-            return m_dcMotorSim.get().getAngularPosition();
-          }
-
-          @Override
-          public void setMechanismPosition(Angle position)
-          {
-            m_dcMotorSim.get().setAngle(position.in(Radians));
-          }
-
-          @Override
-          public Angle getRotorPosition()
-          {
-            return getMechanismPosition().times(config.getGearing().getMechanismToRotorRatio());
-          }
-
-          @Override
-          public AngularVelocity getMechanismVelocity()
-          {
-            return m_dcMotorSim.get().getAngularVelocity();
-          }
-
-          @Override
-          public void setMechanismVelocity(AngularVelocity velocity)
-          {
-            m_dcMotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
-          }
-
-          @Override
-          public AngularVelocity getRotorVelocity()
-          {
-            return getMechanismVelocity().times(config.getGearing().getMechanismToRotorRatio());
-          }
-
-          @Override
-          public Current getCurrentDraw()
-          {
-            return Amps.of(m_dcMotorSim.get().getCurrentDrawAmps());
-          }
-        });
+        setSimSupplier(new DCMotorSimSupplier(m_dcMotorSim.get(), this));
       }
 
-      config.getStartingPosition().ifPresent(mechPos -> {
+      m_config.getStartingPosition().ifPresent(mechPos -> {
         m_dcMotorSim.get().setAngle(mechPos.in(Radians));
       });
     }
@@ -285,7 +168,7 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setEncoderPosition(Distance distance)
   {
-    setEncoderPosition(config.convertToMechanism(distance));
+    setEncoderPosition(m_config.convertToMechanism(distance));
   }
 
   @Override
@@ -297,13 +180,13 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setPosition(Distance distance)
   {
-    setPosition(config.convertToMechanism(distance));
+    setPosition(m_config.convertToMechanism(distance));
   }
 
   @Override
   public void setVelocity(LinearVelocity velocity)
   {
-    setVelocity(config.convertToMechanism(velocity));
+    setVelocity(m_config.convertToMechanism(velocity));
   }
 
   @Override
@@ -315,38 +198,38 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
-    this.config = config;
-    pidController = config.getClosedLoopController();
+    this.m_config = config;
+    m_pidController = config.getClosedLoopController();
 
     // Handle simple pid vs profile pid controller.
-    if (pidController.isEmpty())
+    if (m_pidController.isEmpty())
     {
-      simplePidController = config.getSimpleClosedLoopController();
-      if (simplePidController.isEmpty())
+      m_simplePidController = config.getSimpleClosedLoopController();
+      if (m_simplePidController.isEmpty())
       {
         throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
       }
     }
 
     // Handle closed loop controller thread
-    if (closedLoopControllerThread == null)
+    if (m_closedLoopControllerThread == null)
     {
-      closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+      m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
 
     } else
     {
-      closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.stop();
     }
     if (config.getTelemetryName().isPresent())
     {
-      closedLoopControllerThread.setName(getName());
+      m_closedLoopControllerThread.setName(getName());
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
+      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
     } else
     {
-      closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.stop();
     }
 
     // Ramp rates
@@ -502,13 +385,13 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public LinearVelocity getMeasurementVelocity()
   {
-    return config.convertFromMechanism(getMechanismVelocity());
+    return m_config.convertFromMechanism(getMechanismVelocity());
   }
 
   @Override
   public Distance getMeasurementPosition()
   {
-    return config.convertFromMechanism(getMechanismPosition());
+    return m_config.convertFromMechanism(getMechanismPosition());
   }
 
   @Override
@@ -518,9 +401,9 @@ public class NovaWrapper extends SmartMotorController
     {
       return m_simSupplier.get().getMechanismVelocity();
     }
-    if (config.getUseExternalFeedback() && config.getExternalEncoder().isPresent())
+    if (m_config.getUseExternalFeedback() && m_config.getExternalEncoder().isPresent())
     {
-      Object externalEncoder = config.getExternalEncoder().get();
+      Object externalEncoder = m_config.getExternalEncoder().get();
       if (externalEncoder == EncoderType.ABS)
       {
         // Do nothing since attached absolute encoders do not give their velocity.
@@ -529,10 +412,10 @@ public class NovaWrapper extends SmartMotorController
       {
         // There should be an alert thrown here; but Alerts are not thread-safe.
         return RotationsPerSecond.of(
-            m_nova.getVelocityQuad() * config.getExternalEncoderGearing().getRotorToMechanismRatio());
+            m_nova.getVelocityQuad() * m_config.getExternalEncoderGearing().getRotorToMechanismRatio());
       }
     }
-    return getRotorVelocity().times(config.getGearing().getRotorToMechanismRatio());
+    return getRotorVelocity().times(m_config.getGearing().getRotorToMechanismRatio());
   }
 
   @Override
@@ -542,18 +425,18 @@ public class NovaWrapper extends SmartMotorController
     {
       return m_simSupplier.get().getMechanismPosition();
     }
-    if (config.getUseExternalFeedback() && config.getExternalEncoder().isPresent())
+    if (m_config.getUseExternalFeedback() && m_config.getExternalEncoder().isPresent())
     {
-      Object externalEncoder = config.getExternalEncoder().get();
+      Object externalEncoder = m_config.getExternalEncoder().get();
       if (externalEncoder == EncoderType.ABS)
       {
-        return Rotations.of(m_nova.getPositionAbs() * config.getExternalEncoderGearing().getRotorToMechanismRatio());
+        return Rotations.of(m_nova.getPositionAbs() * m_config.getExternalEncoderGearing().getRotorToMechanismRatio());
       } else if (externalEncoder == EncoderType.QUAD)
       {
-        return Rotations.of(m_nova.getPositionQuad() * config.getExternalEncoderGearing().getRotorToMechanismRatio());
+        return Rotations.of(m_nova.getPositionQuad() * m_config.getExternalEncoderGearing().getRotorToMechanismRatio());
       }
     }
-    return getRotorPosition().times(config.getGearing().getRotorToMechanismRatio());
+    return getRotorPosition().times(m_config.getGearing().getRotorToMechanismRatio());
   }
 
   @Override
@@ -579,90 +462,90 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setMotorInverted(boolean inverted)
   {
-    config.withMotorInverted(inverted);
+    m_config.withMotorInverted(inverted);
     m_nova.setInverted(inverted);
   }
 
   @Override
   public void setEncoderInverted(boolean inverted)
   {
-    config.withEncoderInverted(inverted);
+    m_config.withEncoderInverted(inverted);
     m_nova.setInverted(inverted);
   }
 
   @Override
   public void setMotionProfileMaxVelocity(LinearVelocity maxVelocity)
   {
-    if (pidController.isPresent())
+    if (m_pidController.isPresent())
     {
-      ProfiledPIDController ctr = pidController.get();
+      ProfiledPIDController ctr = m_pidController.get();
       ctr.setConstraints(new Constraints(maxVelocity.in(MetersPerSecond), ctr.getConstraints().maxAcceleration));
-      config.withClosedLoopController(ctr);
-      pidController = Optional.of(ctr);
+      m_config.withClosedLoopController(ctr);
+      m_pidController = Optional.of(ctr);
     }
   }
 
   @Override
   public void setMotionProfileMaxAcceleration(LinearAcceleration maxAcceleration)
   {
-    if (pidController.isPresent())
+    if (m_pidController.isPresent())
     {
-      ProfiledPIDController ctr = pidController.get();
+      ProfiledPIDController ctr = m_pidController.get();
       ctr.setConstraints(new Constraints(ctr.getConstraints().maxVelocity,
                                          maxAcceleration.in(MetersPerSecondPerSecond)));
-      config.withClosedLoopController(ctr);
-      pidController = Optional.of(ctr);
+      m_config.withClosedLoopController(ctr);
+      m_pidController = Optional.of(ctr);
     }
   }
 
   @Override
   public void setMotionProfileMaxVelocity(AngularVelocity maxVelocity)
   {
-    if (pidController.isPresent())
+    if (m_pidController.isPresent())
     {
-      ProfiledPIDController ctr = pidController.get();
+      ProfiledPIDController ctr = m_pidController.get();
       ctr.setConstraints(new Constraints(maxVelocity.in(RotationsPerSecond), ctr.getConstraints().maxAcceleration));
-      config.withClosedLoopController(ctr);
-      pidController = Optional.of(ctr);
+      m_config.withClosedLoopController(ctr);
+      m_pidController = Optional.of(ctr);
     }
   }
 
   @Override
   public void setMotionProfileMaxAcceleration(AngularAcceleration maxAcceleration)
   {
-    if (pidController.isPresent())
+    if (m_pidController.isPresent())
     {
-      ProfiledPIDController ctr = pidController.get();
+      ProfiledPIDController ctr = m_pidController.get();
       ctr.setConstraints(new Constraints(ctr.getConstraints().maxVelocity,
                                          maxAcceleration.in(RotationsPerSecondPerSecond)));
-      config.withClosedLoopController(ctr);
-      pidController = Optional.of(ctr);
+      m_config.withClosedLoopController(ctr);
+      m_pidController = Optional.of(ctr);
     }
   }
 
   @Override
   public void setKp(double kP)
   {
-    simplePidController.ifPresent(simplePidController -> {
+    m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setP(kP);
-      config.withClosedLoopController(simplePidController);
+      m_config.withClosedLoopController(simplePidController);
     });
-    pidController.ifPresent(pidController -> {
+    m_pidController.ifPresent(pidController -> {
       pidController.setP(kP);
-      config.withClosedLoopController(pidController);
+      m_config.withClosedLoopController(pidController);
     });
   }
 
   @Override
   public void setKi(double kI)
   {
-    simplePidController.ifPresent(simplePidController -> {
+    m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setI(kI);
-      config.withClosedLoopController(simplePidController);
+      m_config.withClosedLoopController(simplePidController);
     });
-    pidController.ifPresent(pidController -> {
+    m_pidController.ifPresent(pidController -> {
       pidController.setI(kI);
-      config.withClosedLoopController(pidController);
+      m_config.withClosedLoopController(pidController);
     });
 
   }
@@ -670,13 +553,13 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setKd(double kD)
   {
-    simplePidController.ifPresent(simplePidController -> {
+    m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setP(kD);
-      config.withClosedLoopController(simplePidController);
+      m_config.withClosedLoopController(simplePidController);
     });
-    pidController.ifPresent(pidController -> {
+    m_pidController.ifPresent(pidController -> {
       pidController.setP(kD);
-      config.withClosedLoopController(pidController);
+      m_config.withClosedLoopController(pidController);
     });
   }
 
@@ -691,64 +574,64 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setKs(double kS)
   {
-    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+    m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKs(kS);
-      config.withFeedforward(simpleMotorFeedforward);
+      m_config.withFeedforward(simpleMotorFeedforward);
     });
-    config.getArmFeedforward().ifPresent(armFeedforward -> {
+    m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKs(kS);
-      config.withFeedforward(armFeedforward);
+      m_config.withFeedforward(armFeedforward);
     });
-    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+    m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKs(kS);
-      config.withFeedforward(elevatorFeedforward);
+      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
   @Override
   public void setKv(double kV)
   {
-    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+    m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKv(kV);
-      config.withFeedforward(simpleMotorFeedforward);
+      m_config.withFeedforward(simpleMotorFeedforward);
     });
-    config.getArmFeedforward().ifPresent(armFeedforward -> {
+    m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKv(kV);
-      config.withFeedforward(armFeedforward);
+      m_config.withFeedforward(armFeedforward);
     });
-    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+    m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKv(kV);
-      config.withFeedforward(elevatorFeedforward);
+      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
   @Override
   public void setKa(double kA)
   {
-    config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+    m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKa(kA);
-      config.withFeedforward(simpleMotorFeedforward);
+      m_config.withFeedforward(simpleMotorFeedforward);
     });
-    config.getArmFeedforward().ifPresent(armFeedforward -> {
+    m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKs(kA);
-      config.withFeedforward(armFeedforward);
+      m_config.withFeedforward(armFeedforward);
     });
-    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+    m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKa(kA);
-      config.withFeedforward(elevatorFeedforward);
+      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
   @Override
   public void setKg(double kG)
   {
-    config.getArmFeedforward().ifPresent(armFeedforward -> {
+    m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKg(kG);
-      config.withFeedforward(armFeedforward);
+      m_config.withFeedforward(armFeedforward);
     });
-    config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+    m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKg(kG);
-      config.withFeedforward(elevatorFeedforward);
+      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
@@ -764,21 +647,21 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setStatorCurrentLimit(Current currentLimit)
   {
-    config.withStatorCurrentLimit(currentLimit);
+    m_config.withStatorCurrentLimit(currentLimit);
     m_nova.setMaxCurrent(CurrentType.STATOR, currentLimit.in(Amps));
   }
 
   @Override
   public void setSupplyCurrentLimit(Current currentLimit)
   {
-    config.withSupplyCurrentLimit(currentLimit);
+    m_config.withSupplyCurrentLimit(currentLimit);
     m_nova.setMaxCurrent(CurrentType.SUPPLY, currentLimit.in(Amps));
   }
 
   @Override
   public void setClosedLoopRampRate(Time rampRate)
   {
-    config.withClosedLoopRampRate(rampRate);
+    m_config.withClosedLoopRampRate(rampRate);
     m_nova.setRampUp(rampRate.in(Seconds));
     m_nova.setRampDown(rampRate.in(Seconds));
   }
@@ -792,34 +675,34 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void setMeasurementUpperLimit(Distance upperLimit)
   {
-    if (config.getMechanismCircumference().isPresent() && config.getMechanismLowerLimit().isPresent())
+    if (m_config.getMechanismCircumference().isPresent() && m_config.getMechanismLowerLimit().isPresent())
     {
-      config.withSoftLimit(config.convertFromMechanism(config.getMechanismLowerLimit().get()), upperLimit);
+      m_config.withSoftLimit(m_config.convertFromMechanism(m_config.getMechanismLowerLimit().get()), upperLimit);
     }
   }
 
   @Override
   public void setMeasurementLowerLimit(Distance lowerLimit)
   {
-    if (config.getMechanismCircumference().isPresent() && config.getMechanismUpperLimit().isPresent())
+    if (m_config.getMechanismCircumference().isPresent() && m_config.getMechanismUpperLimit().isPresent())
     {
-      config.withSoftLimit(lowerLimit, config.convertFromMechanism(config.getMechanismUpperLimit().get()));
+      m_config.withSoftLimit(lowerLimit, m_config.convertFromMechanism(m_config.getMechanismUpperLimit().get()));
     }
   }
 
   @Override
   public void setMechanismUpperLimit(Angle upperLimit)
   {
-    config.getMechanismLowerLimit().ifPresent(lowerLimit -> {
-      config.withSoftLimit(lowerLimit, upperLimit);
+    m_config.getMechanismLowerLimit().ifPresent(lowerLimit -> {
+      m_config.withSoftLimit(lowerLimit, upperLimit);
     });
   }
 
   @Override
   public void setMechanismLowerLimit(Angle lowerLimit)
   {
-    config.getMechanismUpperLimit().ifPresent(upperLimit -> {
-      config.withSoftLimit(lowerLimit, upperLimit);
+    m_config.getMechanismUpperLimit().ifPresent(upperLimit -> {
+      m_config.withSoftLimit(lowerLimit, upperLimit);
     });
   }
 
@@ -832,7 +715,7 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public SmartMotorControllerConfig getConfig()
   {
-    return config;
+    return m_config;
   }
 
   @Override

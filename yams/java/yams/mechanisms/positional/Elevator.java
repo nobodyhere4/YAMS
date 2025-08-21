@@ -71,16 +71,16 @@ public class Elevator extends SmartPositionalMechanism
   public Elevator(ElevatorConfig config)
   {
     m_config = config;
-    m_motor = config.getMotor();
-    DCMotor                    dcMotor   = m_motor.getDCMotor();
-    MechanismGearing           gearing   = m_motor.getConfig().getGearing();
-    SmartMotorControllerConfig smcConfig = m_motor.getConfig();
+    m_smc = config.getMotor();
+    DCMotor                    dcMotor   = m_smc.getDCMotor();
+    MechanismGearing           gearing   = m_smc.getConfig().getGearing();
+    SmartMotorControllerConfig smcConfig = m_smc.getConfig();
     m_subsystem = config.getMotor().getConfig().getSubsystem();
     if (config.getTelemetryName().isPresent())
     {
       // TODO: Add telemetry units to config.
       m_telemetry.setupTelemetry(getName(),
-                                 m_motor);
+                                 m_smc);
     }
     config.applyConfig();
 
@@ -121,7 +121,7 @@ public class Elevator extends SmartPositionalMechanism
                                           true,
                                           config.getStartingHeight().get().in(Meters),
                                           0.01 / 4096, 0.01 / 4096));
-      m_motor.setSimSupplier(new SimSupplier()
+      m_smc.setSimSupplier(new SimSupplier()
       {
         final Supplier<Double> pos = m_sim.get()::getPositionMeters;
         final Supplier<Double> mps = m_sim.get()::getVelocityMetersPerSecond;
@@ -133,12 +133,12 @@ public class Elevator extends SmartPositionalMechanism
         {
           if (!isInputFed())
           {
-            m_sim.get().setInput(m_motor.getDutyCycle() * RoboRioSim.getVInVoltage());
+            m_sim.get().setInput(m_smc.getDutyCycle() * RoboRioSim.getVInVoltage());
           }
           if (!updatedSim)
           {
             starveInput();
-            m_sim.get().update(m_motor.getConfig().getClosedLoopControlPeriod().in(Seconds));
+            m_sim.get().update(m_smc.getConfig().getClosedLoopControlPeriod().in(Seconds));
             feedUpdateSim();
           }
         }
@@ -250,65 +250,65 @@ public class Elevator extends SmartPositionalMechanism
           return Amps.of(m_sim.get().getCurrentDrawAmps());
         }
       });
-      mechanismWindow = new Mechanism2d(config.getMaximumHeight().get().in(Meters) * 2,
+      m_mechanismWindow = new Mechanism2d(config.getMaximumHeight().get().in(Meters) * 2,
                                         config.getMaximumHeight().get().in(Meters) * 2);
 
-      if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
+      if (m_smc.getConfig().getMechanismLowerLimit().isPresent())
       {
-        mechanismWindow.getRoot(
+        m_mechanismWindow.getRoot(
                            "MinSoft",
                            config.getMaximumHeight().get().minus(Inches.of(6)).in(Meters), 0)
-                       .append(new MechanismLigament2d(
-                           "Limit",
-                           m_motor.getConfig().convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())
+                         .append(new MechanismLigament2d(
+                             "Limit",
+                             m_smc.getConfig().convertFromMechanism(m_smc.getConfig().getMechanismLowerLimit().get())
                                   .in(Meters),
-                           config.getAngle().in(Degrees),
-                           3,
-                           new Color8Bit(Color.kYellow)
+                             config.getAngle().in(Degrees),
+                             3,
+                             new Color8Bit(Color.kYellow)
                        ));
       }
-      if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
+      if (m_smc.getConfig().getMechanismUpperLimit().isPresent())
       {
-        mechanismWindow.getRoot(
+        m_mechanismWindow.getRoot(
                            "MaxSoft",
                            config.getMaximumHeight().get().plus(Inches.of(6)).in(Meters), 0)
-                       .append(new MechanismLigament2d(
-                           "Limit",
-                           m_motor.getConfig().convertFromMechanism(m_motor.getConfig().getMechanismUpperLimit().get())
+                         .append(new MechanismLigament2d(
+                             "Limit",
+                             m_smc.getConfig().convertFromMechanism(m_smc.getConfig().getMechanismUpperLimit().get())
                                   .in(Meters),
-                           config.getAngle().in(Degrees),
-                           3,
-                           new Color8Bit(Color.kHotPink)
+                             config.getAngle().in(Degrees),
+                             3,
+                             new Color8Bit(Color.kHotPink)
                        ));
       }
-      mechanismWindow.getRoot(
+      m_mechanismWindow.getRoot(
                          "MinHard",
                          config.getMaximumHeight().get().minus(Inches.of(8)).in(Meters), 0)
-                     .append(new MechanismLigament2d(
+                       .append(new MechanismLigament2d(
                          "Limit",
                          config.getMinimumHeight().get().in(Meters),
                          config.getAngle().in(Degrees),
                          3,
                          new Color8Bit(Color.kRed)
                      ));
-      mechanismWindow.getRoot(
+      m_mechanismWindow.getRoot(
                          "MaxHard",
                          config.getMaximumHeight().get().plus(Inches.of(8)).in(Meters), 0)
-                     .append(new MechanismLigament2d(
+                       .append(new MechanismLigament2d(
                          "Limit",
                          config.getMaximumHeight().get().in(Meters),
                          config.getAngle().in(Degrees),
                          3,
                          new Color8Bit(Color.kLimeGreen)
                      ));
-      mechanismRoot = mechanismWindow.getRoot(getName() + "Root",
-                                              config.getMaximumHeight().get().in(Meters), 0);
-      mechanismLigament = mechanismRoot.append(new MechanismLigament2d(getName(),
-                                                                       config.getStartingHeight().get().in(Meters),
-                                                                       config.getAngle().in(Degrees),
-                                                                       6,
-                                                                       config.getSimColor()));
-      SmartDashboard.putData(getName() + "/mechanism", mechanismWindow);
+      m_mechanismRoot = m_mechanismWindow.getRoot(getName() + "Root",
+                                                  config.getMaximumHeight().get().in(Meters), 0);
+      m_mechanismLigament = m_mechanismRoot.append(new MechanismLigament2d(getName(),
+                                                                           config.getStartingHeight().get().in(Meters),
+                                                                           config.getAngle().in(Degrees),
+                                                                           6,
+                                                                           config.getSimColor()));
+      SmartDashboard.putData(getName() + "/mechanism", m_mechanismWindow);
     }
   }
 
@@ -317,17 +317,17 @@ public class Elevator extends SmartPositionalMechanism
   {
 //    m_telemetry.updatePosition(getHeight());
 //    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
-    m_motor.updateTelemetry();
+    m_smc.updateTelemetry();
   }
 
   @Override
   public void simIterate()
   {
-    if (m_sim.isPresent() && m_motor.getSimSupplier().isPresent())
+    if (m_sim.isPresent() && m_smc.getSimSupplier().isPresent())
     {
-      m_motor.getSimSupplier().get().updateSimState();
-      m_motor.simIterate();
-      m_motor.getSimSupplier().get().starveUpdateSim();
+      m_smc.getSimSupplier().get().updateSimState();
+      m_smc.simIterate();
+      m_smc.getSimSupplier().get().starveUpdateSim();
       // It is impossible for an elevator to go bellow the minimum height, it would break...
       if (m_config.getMinimumHeight().isPresent() && getHeight().lt(m_config.getMinimumHeight().get()))
       {
@@ -347,7 +347,7 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public void visualizationUpdate()
   {
-    mechanismLigament.setLength(getHeight().in(Meters));
+    m_mechanismLigament.setLength(getHeight().in(Meters));
   }
 
   /**
@@ -360,11 +360,11 @@ public class Elevator extends SmartPositionalMechanism
   public Translation3d getRelativeMechanismPosition()
   {
     Plane movementPlane = m_config.getMechanismPositionConfig().getMovementPlane();
-    Translation3d mechanismTranslation = new Translation3d(mechanismLigament.getLength(),
+    Translation3d mechanismTranslation = new Translation3d(m_mechanismLigament.getLength(),
                                                            new Rotation3d(
-                                                               Plane.YZ == movementPlane ? mechanismLigament.getAngle()
+                                                               Plane.YZ == movementPlane ? m_mechanismLigament.getAngle()
                                                                                          : 0,
-                                                               Plane.XZ == movementPlane ? mechanismLigament.getAngle()
+                                                               Plane.XZ == movementPlane ? m_mechanismLigament.getAngle()
                                                                                          : 0, 0));
     if (m_config.getMechanismPositionConfig().getRelativePosition().isPresent())
     {
@@ -388,7 +388,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Command setHeight(Distance height)
   {
-    return Commands.run(() -> m_motor.setPosition(height), m_subsystem).withName(m_subsystem.getName() + " SetHeight");
+    return Commands.run(() -> m_smc.setPosition(height), m_subsystem).withName(m_subsystem.getName() + " SetHeight");
   }
 
   /**
@@ -399,7 +399,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Command setHeight(Supplier<Distance> height)
   {
-    return Commands.run(() -> m_motor.setPosition(height.get()), m_subsystem).withName(
+    return Commands.run(() -> m_smc.setPosition(height.get()), m_subsystem).withName(
         m_subsystem.getName() + " SetHeight Supplier");
   }
 
@@ -411,7 +411,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public Distance getHeight()
   {
-    return m_motor.getMeasurementPosition();
+    return m_smc.getMeasurementPosition();
   }
 
   /**
@@ -421,7 +421,7 @@ public class Elevator extends SmartPositionalMechanism
    */
   public LinearVelocity getVelocity()
   {
-    return m_motor.getMeasurementVelocity();
+    return m_smc.getMeasurementVelocity();
   }
 
 
@@ -440,10 +440,10 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public Trigger max()
   {
-    if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
+    if (m_smc.getConfig().getMechanismUpperLimit().isPresent())
     {
-      return new Trigger(gte(m_motor.getConfig()
-                                    .convertFromMechanism(m_motor.getConfig().getMechanismUpperLimit().get())));
+      return new Trigger(gte(m_smc.getConfig()
+                                  .convertFromMechanism(m_smc.getConfig().getMechanismUpperLimit().get())));
     }
     if (m_config.getMaximumHeight().isEmpty())
     {
@@ -457,10 +457,10 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public Trigger min()
   {
-    if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
+    if (m_smc.getConfig().getMechanismLowerLimit().isPresent())
     {
-      return new Trigger(gte(m_motor.getConfig()
-                                    .convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())));
+      return new Trigger(gte(m_smc.getConfig()
+                                  .convertFromMechanism(m_smc.getConfig().getMechanismLowerLimit().get())));
     }
     if (m_config.getMinimumHeight().isEmpty())
     {
@@ -509,13 +509,13 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public Command sysId(Voltage maximumVoltage, Velocity<VoltageUnit> step, Time duration)
   {
-    SysIdRoutine               routine     = m_motor.sysId(maximumVoltage, step, duration);
-    SmartMotorControllerConfig motorConfig = m_motor.getConfig();
+    SysIdRoutine               routine     = m_smc.sysId(maximumVoltage, step, duration);
+    SmartMotorControllerConfig motorConfig = m_smc.getConfig();
     Distance                   max;
     Distance                   min;
-    if (m_motor.getConfig().getMechanismUpperLimit().isPresent())
+    if (m_smc.getConfig().getMechanismUpperLimit().isPresent())
     {
-      max = motorConfig.convertFromMechanism(m_motor.getConfig().getMechanismUpperLimit().get())
+      max = motorConfig.convertFromMechanism(m_smc.getConfig().getMechanismUpperLimit().get())
                        .minus(Centimeters.of(1));
     } else if (m_config.getMaximumHeight().isPresent())
     {
@@ -527,9 +527,9 @@ public class Elevator extends SmartPositionalMechanism
                                                "withHardLimits(Distance,Distance)");
 
     }
-    if (m_motor.getConfig().getMechanismLowerLimit().isPresent())
+    if (m_smc.getConfig().getMechanismLowerLimit().isPresent())
     {
-      min = motorConfig.convertFromMechanism(m_motor.getConfig().getMechanismLowerLimit().get())
+      min = motorConfig.convertFromMechanism(m_smc.getConfig().getMechanismLowerLimit().get())
                        .plus(Centimeters.of(10));
     } else if (m_config.getMinimumHeight().isPresent())
     {
@@ -544,12 +544,12 @@ public class Elevator extends SmartPositionalMechanism
     Trigger minTrigger = lte(min);
 
     Command group = Commands.print("Starting SysId!")
-                            .beforeStarting(Commands.runOnce(m_motor::stopClosedLoopController))
+                            .beforeStarting(Commands.runOnce(m_smc::stopClosedLoopController))
                             .andThen(routine.dynamic(Direction.kForward).until(maxTrigger).withTimeout(3))
                             .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
                             .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
                             .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger).withTimeout(3))
-                            .finallyDo(m_motor::startClosedLoopController);
+                            .finallyDo(m_smc::startClosedLoopController);
     if (m_config.getTelemetryName().isPresent())
     {
       group = group.andThen(Commands.print(getName() + " SysId test done."));

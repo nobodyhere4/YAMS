@@ -83,6 +83,6 @@ public abstract class SmartVelocityMechanism extends SmartMechanism
    */
   public SmartMotorController getMotor()
   {
-    return m_motor;
+    return m_smc;
   }
 }

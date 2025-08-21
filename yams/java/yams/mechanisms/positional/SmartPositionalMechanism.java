@@ -20,11 +20,11 @@ public abstract class SmartPositionalMechanism extends SmartMechanism
   /**
    * The root point of the Mechanism.
    */
-  protected MechanismRoot2d     mechanismRoot;
+  protected MechanismRoot2d     m_mechanismRoot;
   /**
    * The ligament that is being moved.
    */
-  protected MechanismLigament2d mechanismLigament;
+  protected MechanismLigament2d m_mechanismLigament;
 
   /**
    * {@link SmartPositionalMechanism} is at max, defined by the soft limit or hard limit on the
@@ -63,7 +63,7 @@ public abstract class SmartPositionalMechanism extends SmartMechanism
    */
   public MechanismLigament2d getMechanismLigament()
   {
-    return mechanismLigament;
+    return m_mechanismLigament;
   }
 
   /**
@@ -73,7 +73,7 @@ public abstract class SmartPositionalMechanism extends SmartMechanism
    */
   public MechanismRoot2d getMechanismRoot()
   {
-    return mechanismRoot;
+    return m_mechanismRoot;
   }
 
   /**
@@ -83,6 +83,6 @@ public abstract class SmartPositionalMechanism extends SmartMechanism
    */
   public SmartMotorController getMotor()
   {
-    return m_motor;
+    return m_smc;
   }
 }
