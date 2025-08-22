@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -50,15 +48,14 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.simulation.DCMotorSimSupplier;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
@@ -180,148 +177,7 @@ public class SparkWrapper extends SmartMotorController
                                                                                              .getRotorToMechanismRatio()),
                                                   m_motor,
                                                   1.0 / 1024.0, 0));
-        setSimSupplier(new SimSupplier()
-        {
-          boolean simUpdated = false;
-          boolean inputFed   = false;
-
-          @Override
-          public void updateSimState()
-          {
-            if (!inputFed)
-            {
-              m_dcMotorSim.get().setInput(getDutyCycle() * RoboRioSim.getVInVoltage());
-            }
-            if (!simUpdated)
-            {
-              starveInput();
-              m_dcMotorSim.get().update(getConfig().getClosedLoopControlPeriod().in(Seconds));
-              try
-              {
-                Thread.sleep(1);
-              } catch (Exception e)
-              {
-              }
-              feedUpdateSim();
-            }
-          }
-
-          @Override
-          public boolean getUpdatedSim()
-          {
-            return simUpdated;
-          }
-
-          @Override
-          public void feedUpdateSim()
-          {
-            simUpdated = true;
-          }
-
-          @Override
-          public void starveUpdateSim()
-          {
-            simUpdated = false;
-          }
-
-          @Override
-          public boolean isInputFed()
-          {
-            return inputFed;
-          }
-
-          @Override
-          public void feedInput()
-          {
-            inputFed = true;
-          }
-
-          @Override
-          public void starveInput()
-          {
-            inputFed = false;
-          }
-
-          @Override
-          public void setMechanismStatorDutyCycle(double dutyCycle)
-          {
-            inputFed = true;
-            sparkSim.get().setAppliedOutput(dutyCycle);
-            m_dcMotorSim.get().setInputVoltage(dutyCycle * getMechanismSupplyVoltage().in(Volts));
-
-          }
-
-          @Override
-          public Voltage getMechanismSupplyVoltage()
-          {
-            return Volts.of(RoboRioSim.getVInVoltage());
-          }
-
-          @Override
-          public Voltage getMechanismStatorVoltage()
-          {
-            return Volts.of(m_motor.getVoltage(m_dcMotorSim.get().getTorqueNewtonMeters(),
-                                               m_dcMotorSim.get().getAngularVelocityRadPerSec()));
-            //getMechanismSupplyVoltage().times(sparkSim.get().getAppliedOutput());
-          }
-
-          @Override
-          public void setMechanismStatorVoltage(Voltage volts)
-          {
-            inputFed = true;
-            m_dcMotorSim.get().setInputVoltage(volts.in(Volts));
-            sparkSim.get().setAppliedOutput(volts.in(Volts) / RoboRioSim.getVInVoltage());
-          }
-
-          @Override
-          public Angle getMechanismPosition()
-          {
-//            return setpointPosition.orElseGet(() -> Degrees.of(0));
-            return m_dcMotorSim.get().getAngularPosition();
-
-          }
-
-          @Override
-          public void setMechanismPosition(Angle position)
-          {
-            m_dcMotorSim.get().setAngle(position.in(Radians));
-
-          }
-
-          @Override
-          public Angle getRotorPosition()
-          {
-            return getMechanismPosition().times(m_config.getGearing().getMechanismToRotorRatio());
-          }
-
-          @Override
-          public AngularVelocity getMechanismVelocity()
-          {
-            return m_dcMotorSim.get().getAngularVelocity();
-
-//            return setpointVelocity.orElseGet(() -> DegreesPerSecond.of(0));
-          }
-
-          @Override
-          public void setMechanismVelocity(AngularVelocity velocity)
-          {
-            m_dcMotorSim.get().setAngularVelocity(velocity.in(RadiansPerSecond));
-
-          }
-
-          @Override
-          public AngularVelocity getRotorVelocity()
-          {
-            return getMechanismVelocity().times(m_config.getGearing().getMechanismToRotorRatio());
-          }
-
-          @Override
-          public Current getCurrentDraw()
-          {
-//            return Amps.of(sparkSim.get().getMotorCurrent());
-            return Amps.of(m_dcMotorSim.get().getCurrentDrawAmps());
-          }
-        });
+        setSimSupplier(new DCMotorSimSupplier(m_dcMotorSim.get(), this));
       }
       m_config.getStartingPosition().ifPresent(startingPos -> {
         sparkSim.get().setPosition(startingPos.in(Rotations));
