@@ -272,6 +272,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism
 //    m_telemetry.updatePosition(getAngle());
 //    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_lowerSMC.updateTelemetry();
+    m_upperSMC.updateTelemetry();
   }
 
   @Override
