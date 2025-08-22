@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Arrays;
@@ -82,6 +83,18 @@ public class SmartMotorControllerConfig
    */
   private       Optional<ArmFeedforward>                      armFeedforward                     = Optional.empty();
   /**
+   * Simple feedforward for the motor controller.
+   */
+  private       Optional<SimpleMotorFeedforward>              sim_simpleFeedforward                  = Optional.empty();
+  /**
+   * Elevator feedforward for the motor controller.
+   */
+  private       Optional<ElevatorFeedforward>                 sim_elevatorFeedforward                = Optional.empty();
+  /**
+   * Arm feedforward for the motor controller.
+   */
+  private       Optional<ArmFeedforward>                      sim_armFeedforward                     = Optional.empty();
+  /**
    * Controller for the {@link SmartMotorController}.
    */
   private       Optional<ProfiledPIDController>               controller                         = Optional.empty();
@@ -89,6 +102,15 @@ public class SmartMotorControllerConfig
    * Controller for the {@link SmartMotorController}.
    */
   private       Optional<PIDController>                       simpleController                   = Optional.empty();
+
+  /**
+   * Controller for the {@link SmartMotorController}.
+   */
+  private       Optional<ProfiledPIDController>               sim_controller                         = Optional.empty();
+  /**
+   * Controller for the {@link SmartMotorController}.
+   */
+  private       Optional<PIDController>                       sim_simpleController                   = Optional.empty();
   /**
    * Gearing for the {@link SmartMotorController}.
    */
@@ -829,7 +851,29 @@ public class SmartMotorControllerConfig
    */
   public Optional<ArmFeedforward> getArmFeedforward()
   {
+    if(RobotBase.isSimulation() && sim_armFeedforward.isPresent())
+      return sim_armFeedforward;
     return armFeedforward;
+  }
+
+  /**
+   * Configure the {@link ArmFeedforward} for the
+   *
+   * @param armFeedforward Arm feedforward for the {@link SmartMotorController}
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimFeedforward(ArmFeedforward armFeedforward)
+  {
+    if (armFeedforward == null)
+    {
+      this.sim_armFeedforward = Optional.empty();
+    } else
+    {
+      this.sim_elevatorFeedforward = Optional.empty();
+      this.sim_simpleFeedforward = Optional.empty();
+      this.sim_armFeedforward = Optional.of(armFeedforward);
+    }
+    return this;
   }
 
   /**
@@ -859,7 +903,29 @@ public class SmartMotorControllerConfig
    */
   public Optional<ElevatorFeedforward> getElevatorFeedforward()
   {
+    if(RobotBase.isSimulation() && sim_elevatorFeedforward.isPresent())
+      return sim_elevatorFeedforward;
     return elevatorFeedforward;
+  }
+
+  /**
+   * Configure {@link ElevatorFeedforward} for the {@link SmartMotorController}
+   *
+   * @param elevatorFeedforward {@link ElevatorFeedforward} to set.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimFeedforward(ElevatorFeedforward elevatorFeedforward)
+  {
+    if (elevatorFeedforward == null)
+    {
+      this.sim_elevatorFeedforward = Optional.empty();
+    } else
+    {
+      this.sim_armFeedforward = Optional.empty();
+      this.sim_simpleFeedforward = Optional.empty();
+      this.sim_elevatorFeedforward = Optional.of(elevatorFeedforward);
+    }
+    return this;
   }
 
   /**
@@ -889,7 +955,105 @@ public class SmartMotorControllerConfig
    */
   public Optional<SimpleMotorFeedforward> getSimpleFeedforward()
   {
+    if(RobotBase.isSimulation() && sim_simpleFeedforward.isPresent())
+      return sim_simpleFeedforward;
     return simpleFeedforward;
+  }
+
+  /**
+   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations and
+   * outputs are in Rotations.
+   *
+   * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations and output is
+   *                   Voltage.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimClosedLoopController(ProfiledPIDController controller)
+  {
+    this.sim_controller = Optional.ofNullable(controller);
+    this.sim_simpleController = Optional.empty();
+    return this;
+  }
+
+  /**
+   * Set the closed loop controller for the {@link SmartMotorController}.
+   *
+   * @param kP KP scalar for the PID Controller.
+   * @param kI KI scalar for the PID Controller.
+   * @param kD KD scalar for the PID Controller.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD)
+  {
+    this.sim_controller = Optional.empty();
+    this.sim_simpleController = Optional.of(new PIDController(kP, kI, kD));
+    return this;
+  }
+
+  /**
+   * Set the closed loop controller for the {@link SmartMotorController}
+   *
+   * @param controller {@link PIDController} to use.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimClosedLoopController(PIDController controller)
+  {
+    this.sim_controller = Optional.empty();
+    this.sim_simpleController = Optional.ofNullable(controller);
+    return this;
+  }
+
+  /**
+   * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
+   *
+   * @param kP              KP scalar for the PID Controller.
+   * @param kI              KI scalar for the PID Controller.
+   * @param kD              KD scalar for the PID Controller.
+   * @param maxVelocity     Maximum linear velocity for the Trapazoidal profile.
+   * @param maxAcceleration Maximum linear acceleration for the Trapazoidal profile.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD,
+                                                             LinearVelocity maxVelocity,
+                                                             LinearAcceleration maxAcceleration)
+  {
+    if (mechanismCircumference.isEmpty())
+    {
+      throw new SmartMotorControllerConfigurationException("Mechanism circumference is undefined",
+                                                           "Closed loop controller cannot be created.",
+                                                           "withMechanismCircumference(Distance)");
+    }
+    this.sim_simpleController = Optional.empty();
+    this.sim_controller = Optional.of(new ProfiledPIDController(kP,
+                                                            kI,
+                                                            kD,
+                                                            new Constraints(maxVelocity.in(MetersPerSecond),
+                                                                            maxAcceleration.in(MetersPerSecondPerSecond))));
+    return this;
+  }
+
+  /**
+   * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
+   *
+   * @param kP              KP scalar for the PID Controller.
+   * @param kI              KI scalar for the PID Controller.
+   * @param kD              KD scalar for the PID Controller.
+   * @param maxVelocity     Maximum angular velocity for the Trapazoidal profile.
+   * @param maxAcceleration Maximum angular acceleration for the Trapazoidal profile.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD,
+                                                             AngularVelocity maxVelocity,
+                                                             AngularAcceleration maxAcceleration)
+  {
+    this.sim_simpleController = Optional.empty();
+    this.sim_controller = Optional.of(new ProfiledPIDController(kP,
+                                                            kI,
+                                                            kD,
+                                                            new Constraints(maxVelocity.in(RotationsPerSecond),
+                                                                            maxAcceleration.in(
+                                                                                RotationsPerSecondPerSecond))));
+    return this;
   }
 
   /**
@@ -995,6 +1159,10 @@ public class SmartMotorControllerConfig
    */
   public Optional<ProfiledPIDController> getClosedLoopController()
   {
+    if(RobotBase.isSimulation() && sim_controller.isPresent())
+    {
+      return sim_controller;
+    }
     return controller;
   }
 
@@ -1005,9 +1173,31 @@ public class SmartMotorControllerConfig
    */
   public Optional<PIDController> getSimpleClosedLoopController()
   {
+    if(RobotBase.isSimulation() && sim_simpleController.isPresent())
+    {
+      return sim_simpleController;
+    }
     return simpleController;
   }
-
+  /**
+   * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
+   *
+   * @param simpleFeedforward {@link SimpleMotorFeedforward}
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withSimFeedforward(SimpleMotorFeedforward simpleFeedforward)
+  {
+    if (simpleFeedforward == null)
+    {
+      this.sim_simpleFeedforward = Optional.empty();
+    } else
+    {
+      this.sim_armFeedforward = Optional.empty();
+      this.sim_elevatorFeedforward = Optional.empty();
+      this.sim_simpleFeedforward = Optional.of(simpleFeedforward);
+    }
+    return this;
+  }
   /**
    * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
    *
