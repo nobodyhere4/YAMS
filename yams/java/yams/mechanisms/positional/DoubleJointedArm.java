@@ -1,5 +1,9 @@
 package yams.mechanisms.positional;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.VoltageUnit;
@@ -26,8 +30,6 @@ import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.simulation.ArmSimSupplier;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Arm mechanism.
@@ -240,33 +242,89 @@ public class DoubleJointedArm extends SmartPositionalMechanism
    *
    * @return {@link Translation2d} of the double jointed arm.
    */
-  public Translation2d getTranslation()
+  public Translation2d getPosition()
   {
     return getJoint(m_upperArmLength,
                     m_upperSMC.getMechanismPosition(),
                     getJoint(m_lowerArmLength, m_lowerSMC.getMechanismPosition(), Translation2d.kZero));
   }
 
+  /**
+   * Enum for the elbow request.
+   */
   public enum ElbowRequest
   {
-    UP, DOWN
+    /**
+     * Elbow request is to move up.
+     */
+    UP,
+    /**
+     * Elbow request is to move down.
+     */
+    DOWN
   }
 
-  public Command setTranslation(Translation2d translation, ElbowRequest elbowRequest)
+  private boolean reachable(Translation2d translation)
   {
     var distance = Meters.of(translation.getNorm());
+    return m_lowerArmLength.minus(m_upperArmLength).abs(Meters) <= distance.in(Meters) &&
+           distance.in(Meters) <= m_lowerArmLength.plus(m_upperArmLength).in(Meters);
+  }
 
-    if (m_lowerArmLength.minus(m_upperArmLength).abs(Meters) <= distance.in(Meters) &&
-        distance.in(Meters) <= m_lowerArmLength.plus(m_upperArmLength).in(Meters))
-    {
-      var elbowAngle = Radians.of(Math.acos((Math.pow(translation.getX(), 2) + Math.pow(translation.getX(), 2) -
-                        Math.pow(m_lowerArmLength.in(Meters), 2) - Math.pow(m_upperArmLength.in(Meters), 2)) /
-                       (2 * m_lowerArmLength.in(Meters) * m_upperArmLength.in(Meters))));
-      if(elbowRequest == ElbowRequest.UP)
-        elbowAngle = elbowAngle.times(-1);
+  private Angle getElbowAngle(Distance x, Distance y)
+  {
+    return Radians.of(Math.acos((Math.pow(x.in(Meters), 2) + Math.pow(y.in(Meters), 2) -
+                                 Math.pow(m_lowerArmLength.in(Meters), 2) -
+                                 Math.pow(m_upperArmLength.in(Meters), 2)) /
+                                (2 * m_lowerArmLength.in(Meters) *
+                                 m_upperArmLength.in(Meters))));
+  }
 
-    }
-    return null;
+  private Angle getShoulderAngle(Distance x, Distance y, Angle elbowAngle)
+  {
+    var mew = Math.atan2(y.in(Meters), x.in(Meters));
+    var roh = Math.atan2(m_upperArmLength.in(Meters) * Math.sin(elbowAngle.in(Radians)),
+                         m_lowerArmLength.in(Meters) +
+                         m_upperArmLength.in(Meters) * Math.cos(elbowAngle.in(Radians)));
+    return Radians.of(mew - roh);
+  }
+
+  public Command setTranslation(Translation2d translation, ElbowRequest elbowRequest, boolean optimal)
+  {
+    return Commands.deferredProxy(() -> {
+      if (!reachable(translation))
+      {return Commands.none();}
+
+      var x = Meters.of(translation.getX());
+      var y = Meters.of(translation.getY());
+
+      var elbowAngle = getElbowAngle(x, y);
+      var shoulderAngle = getShoulderAngle(x, y, elbowAngle);
+
+      if (elbowRequest == ElbowRequest.UP)
+      {elbowAngle = elbowAngle.times(-1);}
+
+      if (optimal)
+      {
+        var elbowAngle2 = elbowAngle.times(-1);
+        var shoulderAngle2 = getShoulderAngle(x, y, elbowAngle2);
+
+        var d1 = Math.abs(shoulderAngle.minus(getLowerAngle()).in(Radians)) +
+                 Math.abs(elbowAngle.minus(getUpperAngle())
+                                    .in(Radians));
+        var d2 = Math.abs(shoulderAngle2.minus(getLowerAngle()).in(Radians)) +
+                 Math.abs(elbowAngle2.minus(getUpperAngle()).in(Radians));
+        if (d1 < d2)
+        {
+          return setAngle(shoulderAngle, elbowAngle);
+        } else
+        {
+          return setAngle(shoulderAngle2, elbowAngle2);
+        }
+      }
+      return setAngle(elbowAngle, shoulderAngle);
+
+    });
   }
 
   @Override
@@ -303,7 +361,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism
   @Override
   public void visualizationUpdate()
   {
-    var lowerArmAngle = m_lowerSMC.getMechanismPosition();
+    var lowerArmAngle = getLowerAngle();
     var upperArmAngle = m_upperSMC.getMechanismPosition();
     var jointPos      = getJoint(m_lowerArmLength, lowerArmAngle, m_lowerArmRootPos);
     m_lowerLigament.setAngle(lowerArmAngle.in(Degrees));
@@ -337,28 +395,36 @@ public class DoubleJointedArm extends SmartPositionalMechanism
   }
 
   // TODO Probably getting replaced with joint requests.
-  public Angle getLowerAngle() {
+  public Angle getLowerAngle()
+  {
     return m_lowerSMC.getMechanismPosition();
   }
 
-  public Command setAngle(Angle lowerAngle,  Angle upperAngle) {
+  public Angle getUpperAngle()
+  {
+    return m_upperSMC.getMechanismPosition();
+  }
+
+  public Command setAngle(Angle lowerAngle, Angle upperAngle)
+  {
     return Commands.run(() -> {
       if (lowerAngle != null) {m_lowerSMC.setPosition(lowerAngle);}
       if (upperAngle != null) {m_upperSMC.setPosition(upperAngle);}
     }, m_subsystem).withName(m_subsystem.getName() + " SetAngle");
   }
 
-  public Command set(Double lowerDutycycle, Double upperDutycycle) {
+  public Command set(Double lowerDutycycle, Double upperDutycycle)
+  {
     return Commands.startRun(() -> {
       if (lowerDutycycle != null) {m_lowerSMC.stopClosedLoopController();}
       if (upperDutycycle != null) {m_upperSMC.stopClosedLoopController();}
-      }, () -> {
+    }, () -> {
       if (lowerDutycycle != null) {m_lowerSMC.setDutyCycle(lowerDutycycle);}
       if (upperDutycycle != null) {m_upperSMC.setDutyCycle(upperDutycycle);}
-      }, m_subsystem).finallyDo(() -> {
-        if (lowerDutycycle != null) {m_lowerSMC.startClosedLoopController();}
-        if (upperDutycycle != null) {m_upperSMC.startClosedLoopController();}
-      }).withName(m_subsystem.getName() + " SetDutyCycle");
+    }, m_subsystem).finallyDo(() -> {
+      if (lowerDutycycle != null) {m_lowerSMC.startClosedLoopController();}
+      if (upperDutycycle != null) {m_upperSMC.startClosedLoopController();}
+    }).withName(m_subsystem.getName() + " SetDutyCycle");
   }
 
   @Override
