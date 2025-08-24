@@ -785,7 +785,7 @@ public class TalonFXWrapper extends SmartMotorController
       throw new IllegalArgumentException("[ERROR] VoltageCompensation is not supported");
     }
 
-    return m_configurator.apply(m_talonConfig).isOK();
+    return forceConfigApply().isOK();
   }
 
   @Override
@@ -890,7 +890,7 @@ public class TalonFXWrapper extends SmartMotorController
     m_config.withMotorInverted(inverted);
     m_talonConfig.MotorOutput.Inverted =
         inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -912,7 +912,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
     }
     m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(m_config.convertToMechanism(maxVelocity));
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -926,7 +926,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
     }
     m_talonConfig.MotionMagic.withMotionMagicAcceleration(m_config.convertToMechanism(maxAcceleration));
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -939,7 +939,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
     }
     m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(maxVelocity);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -953,7 +953,21 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
     }
     m_talonConfig.MotionMagic.withMotionMagicAcceleration(maxAcceleration);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
+  }
+
+  /**
+   * Ensure setting is applied.
+   */
+  public StatusCode forceConfigApply()
+  {
+    StatusCode status = m_configurator.apply(m_talonConfig);
+    while (!status.isOK())
+    {
+      Timer.delay(Milliseconds.of(10).in(Seconds));
+      status = m_configurator.apply(m_talonConfig);
+    }
+    return status;
   }
 
   @Override
@@ -969,7 +983,7 @@ public class TalonFXWrapper extends SmartMotorController
     });
     m_talonConfig.Slot0.kP = kP;
     System.out.println("setKp: " + kP);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -984,7 +998,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(pidController);
     });
     m_talonConfig.Slot0.kI = kI;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -999,7 +1013,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withClosedLoopController(pidController);
     });
     m_talonConfig.Slot0.kD = kD;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1026,7 +1040,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withFeedforward(elevatorFeedforward);
     });
     m_talonConfig.Slot0.kS = kS;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1046,7 +1060,7 @@ public class TalonFXWrapper extends SmartMotorController
     });
     m_talonConfig.MotionMagic.MotionMagicExpo_kV = kV;
     m_talonConfig.Slot0.kV = kV;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1066,7 +1080,7 @@ public class TalonFXWrapper extends SmartMotorController
     });
     m_talonConfig.MotionMagic.MotionMagicExpo_kA = kA;
     m_talonConfig.Slot0.kA = kA;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1081,7 +1095,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withFeedforward(elevatorFeedforward);
     });
     m_talonConfig.Slot0.kG = kG;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1099,7 +1113,7 @@ public class TalonFXWrapper extends SmartMotorController
     m_config.withStatorCurrentLimit(currentLimit);
     m_talonConfig.CurrentLimits.withStatorCurrentLimit(currentLimit);
     m_talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Deprecated
@@ -1107,7 +1121,7 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_talonConfig.CurrentLimits.withSupplyCurrentLimit(currentLimit);
     m_talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1115,7 +1129,7 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.withClosedLoopRampRate(rampRate);
     m_talonConfig.ClosedLoopRamps.withDutyCycleClosedLoopRampPeriod(rampRate);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1123,7 +1137,7 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.withOpenLoopRampRate(rampRate);
     m_talonConfig.OpenLoopRamps.withDutyCycleOpenLoopRampPeriod(rampRate);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1133,7 +1147,7 @@ public class TalonFXWrapper extends SmartMotorController
     {
       m_config.withSoftLimit(m_config.convertFromMechanism(m_config.getMechanismLowerLimit().get()), upperLimit);
       m_talonConfig.SoftwareLimitSwitch.withForwardSoftLimitThreshold(m_config.convertToMechanism(upperLimit));
-      m_configurator.apply(m_talonConfig);
+      forceConfigApply();
     }
   }
 
@@ -1144,7 +1158,7 @@ public class TalonFXWrapper extends SmartMotorController
     {
       m_config.withSoftLimit(lowerLimit, m_config.convertFromMechanism(m_config.getMechanismUpperLimit().get()));
       m_talonConfig.SoftwareLimitSwitch.withReverseSoftLimitThreshold(m_config.convertToMechanism(lowerLimit));
-      m_configurator.apply(m_talonConfig);
+      forceConfigApply();
     }
   }
 
@@ -1155,7 +1169,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withSoftLimit(lowerLimit, upperLimit);
     });
     m_talonConfig.SoftwareLimitSwitch.withForwardSoftLimitThreshold(upperLimit);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override
@@ -1165,7 +1179,7 @@ public class TalonFXWrapper extends SmartMotorController
       m_config.withSoftLimit(lowerLimit, upperLimit);
     });
     m_talonConfig.SoftwareLimitSwitch.withReverseSoftLimitThreshold(lowerLimit);
-    m_configurator.apply(m_talonConfig);
+    forceConfigApply();
   }
 
   @Override

@@ -173,12 +173,14 @@ public class SmartMotorControllerTelemetryConfig
       doubleFields.get(DoubleTelemetryField.MotionProfileMaxVelocity).setDefaultValue(e.getConstraints().maxVelocity);
     });
     config.getArmFeedforward().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kG).enable();
       doubleFields.get(DoubleTelemetryField.kS).setDefaultValue(e.getKs());
       doubleFields.get(DoubleTelemetryField.kV).setDefaultValue(e.getKv());
       doubleFields.get(DoubleTelemetryField.kA).setDefaultValue(e.getKa());
       doubleFields.get(DoubleTelemetryField.kG).setDefaultValue(e.getKg());
     });
     config.getElevatorFeedforward().ifPresent(e -> {
+      doubleFields.get(DoubleTelemetryField.kG).enable();
       doubleFields.get(DoubleTelemetryField.kS).setDefaultValue(e.getKs());
       doubleFields.get(DoubleTelemetryField.kV).setDefaultValue(e.getKv());
       doubleFields.get(DoubleTelemetryField.kA).setDefaultValue(e.getKa());

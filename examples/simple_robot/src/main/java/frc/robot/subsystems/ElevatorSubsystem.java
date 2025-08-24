@@ -52,7 +52,7 @@ public class ElevatorSubsystem extends SubsystemBase
       .withMotorInverted(false)
 //      .withClosedLoopRampRate(Seconds.of(0.25))
 //      .withOpenLoopRampRate(Seconds.of(0.25))
-      .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
+      .withFeedforward(new ElevatorFeedforward(0, 0.1, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor              = new TalonFXWrapper(elevatorMotor,
                                                                                    DCMotor.getNEO(1),
