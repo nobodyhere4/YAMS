@@ -752,16 +752,13 @@ public class TalonFXWrapper extends SmartMotorController
         if (follower.getFirst() instanceof TalonFXS)
         {
           ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                   follower.getSecond()).withUpdateFreqHz(
-              config.getClosedLoopControlPeriod()
-                    .in(Second)));
+                                                                   follower.getSecond())));
+              
 
         } else if (follower.getFirst() instanceof TalonFX)
         {
           ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                  follower.getSecond()).withUpdateFreqHz(
-              config.getClosedLoopControlPeriod()
-                    .in(Second)));
+                                                                  follower.getSecond())));
         } else
         {
           throw new IllegalArgumentException(
