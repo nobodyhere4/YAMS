@@ -3,14 +3,17 @@ package yams.motorcontrollers.remote;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
@@ -51,6 +54,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
@@ -487,11 +491,15 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                                     m_talonfxs.getDeviceID() + ")"));
       }
 
+      m_talonConfig.Slot0.kP = controller.getP();
+      m_talonConfig.Slot0.kI = controller.getI();
+      m_talonConfig.Slot0.kD = controller.getD();
+
       if (config.getMechanismCircumference().isPresent())
       {
-        m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
-        m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
-        m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
+//        m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
+//        m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
+//        m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
         m_talonConfig.MotionMagic
             .withMotionMagicCruiseVelocity(
                 config.convertToMechanism(MetersPerSecond.of(controller.getConstraints().maxVelocity)));
@@ -501,9 +509,6 @@ public class TalonFXSWrapper extends SmartMotorController
                 config.convertToMechanism(MetersPerSecondPerSecond.of(controller.getConstraints().maxAcceleration)));
       } else
       {
-        m_talonConfig.Slot0.kP = controller.getP();
-        m_talonConfig.Slot0.kI = controller.getI();
-        m_talonConfig.Slot0.kD = controller.getD();
         m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(controller.getConstraints().maxAcceleration));
         m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
 
@@ -741,15 +746,16 @@ public class TalonFXSWrapper extends SmartMotorController
       if (config.getStartingPosition().isPresent())
       {
         m_configurator.apply(m_talonConfig);
-        if (!RobotBase.isSimulation())
-        {
-          m_talonfxs.setPosition(config.getStartingPosition().get());
-        } else
+        if (RobotBase.isSimulation())
         {
           m_talonfxs.getSimState().setRawRotorPosition(config.getStartingPosition().get()
                                                              .times(config.getGearing().getMechanismToRotorRatio()));
-          m_talonfxs.setPosition(config.getStartingPosition().get());
         }
+        StatusCode applied;
+        do{
+          applied = m_talonfxs.setPosition(config.getStartingPosition().get());
+          Timer.delay(Milliseconds.of(100).in(Seconds));
+        }while(!applied.equals(StatusCode.OK));
       }
       // Discontinuity point
       if (config.getDiscontinuityPoint().isPresent())

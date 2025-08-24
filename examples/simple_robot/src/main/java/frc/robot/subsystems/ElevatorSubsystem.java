@@ -12,8 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -28,17 +27,18 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.SparkWrapper;
+import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-  private final SparkMax                   elevatorMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
+
+  private final TalonFX                    elevatorMotor      = new TalonFX(2);//, SparkLowLevel.MotorType.kBrushless);
   //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
 //          .withMechanismLowerLimit()
 //          .withMechanismUpperLimit();
-  private final SmartMotorControllerConfig motorConfig   = new SmartMotorControllerConfig(this)
+  private final SmartMotorControllerConfig motorConfig        = new SmartMotorControllerConfig(this)
       .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
       .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
       .withSoftLimit(Meters.of(0), Meters.of(2))
@@ -54,20 +54,20 @@ public class ElevatorSubsystem extends SubsystemBase
 //      .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ElevatorFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController       motor         = new SparkWrapper(elevatorMotor,
-                                                                            DCMotor.getNEO(1),
-                                                                            motorConfig);
-  private final MechanismPositionConfig m_robotToMechanism = new MechanismPositionConfig()
+  private final SmartMotorController       motor              = new TalonFXWrapper(elevatorMotor,
+                                                                                   DCMotor.getNEO(1),
+                                                                                   motorConfig);
+  private final MechanismPositionConfig    m_robotToMechanism = new MechanismPositionConfig()
       .withMaxRobotHeight(Meters.of(1.5))
       .withMaxRobotLength(Meters.of(0.75))
       .withRelativePosition(new Translation3d(Meters.of(-0.25), Meters.of(0), Meters.of(0.5)));
-  private       ElevatorConfig          m_config           = new ElevatorConfig(motor)
+  private       ElevatorConfig             m_config           = new ElevatorConfig(motor)
       .withStartingHeight(Meters.of(0.5))
       .withHardLimits(Meters.of(0), Meters.of(3))
       .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
       .withMechanismPositionConfig(m_robotToMechanism)
       .withMass(Pounds.of(16));
-  private final Elevator                m_elevator         = new Elevator(m_config);
+  private final Elevator                   m_elevator         = new Elevator(m_config);
 
   public ElevatorSubsystem()
   {
