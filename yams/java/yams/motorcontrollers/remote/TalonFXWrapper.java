@@ -740,9 +740,9 @@ public class TalonFXWrapper extends SmartMotorController
     }
 
     // Control loop frequency.
-    m_velocityReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
-    m_trapPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
-    m_expoPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().in(Second));
+    m_velocityReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().asFrequency());
+    m_trapPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().asFrequency());
+    m_expoPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().asFrequency());
 
     // Configure follower motors
     if (config.getFollowers().isPresent())
