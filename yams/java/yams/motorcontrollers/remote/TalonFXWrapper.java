@@ -709,7 +709,7 @@ public class TalonFXWrapper extends SmartMotorController
         do
         {
           applied = m_talonfx.setPosition(config.getStartingPosition().get());
-          Timer.delay(Milliseconds.of(100).in(Seconds));
+          Timer.delay(Milliseconds.of(10).in(Seconds));
         }while(!applied.equals(StatusCode.OK));
 
       }
@@ -752,13 +752,13 @@ public class TalonFXWrapper extends SmartMotorController
         if (follower.getFirst() instanceof TalonFXS)
         {
           ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                   follower.getSecond())));
+                                                                   follower.getSecond()));
               
 
         } else if (follower.getFirst() instanceof TalonFX)
         {
           ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                  follower.getSecond())));
+                                                                  follower.getSecond()));
         } else
         {
           throw new IllegalArgumentException(
