@@ -343,6 +343,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
     }
 
     @Override
+    @Deprecated
     public Trigger max() {
         throw new RuntimeException("Unimplemented");
     }
@@ -412,31 +413,37 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
     }
 
     @Override
+    @Deprecated
     public Command set(double dutycycle) {
         throw new RuntimeException("Unimplemented");
     }
 
     @Override
+    @Deprecated
     public Command set(Supplier<Double> dutycyle) {
         throw new RuntimeException("Unimplemented");
     }
 
     @Override
+    @Deprecated
     public Command setVoltage(Voltage volts) {
         throw new RuntimeException("Unimplemented");
     }
 
     @Override
+    @Deprecated
     public Command setVoltage(Supplier<Voltage> volts) {
         throw new RuntimeException("Unimplemented");
     }
 
     @Override
+    @Deprecated
     public Trigger min() {
         throw new RuntimeException("Unimplemented");
     }
 
     @Override
+    @Deprecated
     public Command sysId(Voltage maximumVoltage, Velocity<VoltageUnit> step, Time duration) {
         throw new RuntimeException("Unimplemented");
     }
