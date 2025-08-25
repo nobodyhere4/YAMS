@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -782,20 +781,26 @@ public class TalonFXSWrapper extends SmartMotorController
     {
       for (Pair<Object, Boolean> follower : config.getFollowers().get())
       {
-        if (follower.getFirst() instanceof TalonFXS)
+        StatusCode applied;
+        do
         {
-          ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
-                                                                   follower.getSecond()));
 
-        } else if (follower.getFirst() instanceof TalonFX)
-        {
-          ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
-                                                                  follower.getSecond()));
-        } else
-        {
-          throw new IllegalArgumentException(
-              "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
-        }
+          if (follower.getFirst() instanceof TalonFXS)
+          {
+            applied = ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
+                                                                               follower.getSecond()));
+
+          } else if (follower.getFirst() instanceof TalonFX)
+          {
+            applied = ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
+                                                                              follower.getSecond()));
+          } else
+          {
+            throw new IllegalArgumentException(
+                "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
+          }
+          Timer.delay(Milliseconds.of(10).in(Seconds));
+        }while (!applied.isOK());
       }
       config.clearFollowers();
     }

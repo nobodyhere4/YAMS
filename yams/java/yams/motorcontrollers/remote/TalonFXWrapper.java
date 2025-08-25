@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -710,7 +709,7 @@ public class TalonFXWrapper extends SmartMotorController
         {
           applied = m_talonfx.setPosition(config.getStartingPosition().get());
           Timer.delay(Milliseconds.of(10).in(Seconds));
-        }while(!applied.equals(StatusCode.OK));
+        } while (!applied.isOK());
 
       }
       // Discontinuity point
@@ -749,21 +748,26 @@ public class TalonFXWrapper extends SmartMotorController
     {
       for (Pair<Object, Boolean> follower : config.getFollowers().get())
       {
-        if (follower.getFirst() instanceof TalonFXS)
+        StatusCode applied;
+        do
         {
-          ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                   follower.getSecond()));
-              
+          if (follower.getFirst() instanceof TalonFXS)
+          {
+            applied = ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
+                                                                               follower.getSecond()));
 
-        } else if (follower.getFirst() instanceof TalonFX)
-        {
-          ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                  follower.getSecond()));
-        } else
-        {
-          throw new IllegalArgumentException(
-              "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
-        }
+
+          } else if (follower.getFirst() instanceof TalonFX)
+          {
+            applied = ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
+                                                                              follower.getSecond()));
+          } else
+          {
+            throw new IllegalArgumentException(
+                "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
+          }
+          Timer.delay(Milliseconds.of(10).in(Seconds));
+        } while (!applied.equals(StatusCode.OK));
       }
       config.clearFollowers();
     }
