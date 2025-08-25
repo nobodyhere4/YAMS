@@ -252,7 +252,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
 
         var theta1 = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(theta2), l1 + l2 * Math.cos(theta2));
         if (m_lowerArmConfig.getStartingAngle().isPresent() && invert) {
-            theta2 += m_lowerArmConfig.getStartingAngle().get().in(Radians);
+            theta2 += Degrees.of(90).in(Radians);
         }
         return Pair.of(Radians.of(theta1), Radians.of(theta2));
     }

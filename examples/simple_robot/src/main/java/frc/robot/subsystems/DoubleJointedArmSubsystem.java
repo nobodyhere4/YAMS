@@ -45,7 +45,7 @@ public class DoubleJointedArmSubsystem extends SubsystemBase
           .withHardLimit(Degrees.of(-720), Degrees.of(720))
           .withTelemetry("LowerArm", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
           .withMass(Pounds.of(5))
-          .withStartingPosition(Degrees.of(90));
+          .withStartingPosition(Degrees.of(45));
   private final SparkMax                   upperMotor  = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
   private final SmartMotorControllerConfig upperConfig = new SmartMotorControllerConfig(this)
           .withClosedLoopController(16, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
