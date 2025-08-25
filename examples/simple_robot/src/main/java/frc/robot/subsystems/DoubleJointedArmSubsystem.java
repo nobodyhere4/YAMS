@@ -1,18 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
-
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -26,10 +13,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.DoubleJointedArm;
-import yams.mechanisms.positional.DoubleJointedArm.ElbowRequest;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.local.SparkWrapper;
+
+import static edu.wpi.first.units.Units.*;
+import static yams.mechanisms.SmartMechanism.gearbox;
+import static yams.mechanisms.SmartMechanism.gearing;
 
 public class DoubleJointedArmSubsystem extends SubsystemBase
 {
@@ -52,7 +42,7 @@ public class DoubleJointedArmSubsystem extends SubsystemBase
           lowerConfig);
   private final ArmConfig        lowerArmConfig = new ArmConfig(lowerSMC)
           .withLength(Feet.of(2))
-          .withHardLimit(Degrees.of(-360), Degrees.of(360))
+          .withHardLimit(Degrees.of(-720), Degrees.of(720))
           .withTelemetry("LowerArm", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
           .withMass(Pounds.of(5))
           .withStartingPosition(Degrees.of(90));
@@ -75,20 +65,20 @@ public class DoubleJointedArmSubsystem extends SubsystemBase
                                                                           upperConfig);
   private final ArmConfig        upperArmConfig = new ArmConfig(upperSMC)
       .withLength(Feet.of(2))
-      .withHardLimit(Degrees.of(-360), Degrees.of(360))
+      .withHardLimit(Degrees.of(-720), Degrees.of(720))
       .withTelemetry("UpperArm", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(2))
       .withSimColor(new Color8Bit(Color.kDarkRed))
-      .withStartingPosition(Degrees.of(0));
+      .withStartingPosition(Degrees.of(45));
   private final DoubleJointedArm jointedArm     = new DoubleJointedArm(lowerArmConfig, upperArmConfig);
 
   public DoubleJointedArmSubsystem()
   {
   }
 
-  public Command setPosition(Distance x, Distance y, ElbowRequest elbowRequest, boolean optimal)
+  public Command setPosition(Distance x, Distance y, boolean elbowRequest)
   {
-    return jointedArm.setTranslation(new Translation2d(x.in(Meters), y.in(Meters)), elbowRequest, optimal);
+    return jointedArm.setPosition(new Translation2d(x.in(Meters), y.in(Meters)), elbowRequest);
   }
 
 
