@@ -247,12 +247,13 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
         var y = Meters.of(translation.getY()).in(Meters);
         var l1 = m_lowerArmLength.in(Meters);
         var l2 = m_upperArmLength.in(Meters);
-        var theta2 = Math.acos((x * x + y * y - (l1 * l1 + l2 * l2)) / (2 * l1 * l2));
+        var theta2 = Math.acos(((x * x) + (y * y) - ((l1 * l1) + (l2 * l2))) / (2 * l1 * l2));
         theta2 = invert ? -theta2 : theta2;
 
-        var theta1 = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(theta2), l1 + l2 * Math.cos(theta2));
+        var theta1 = Math.atan2(y, x) -
+                Math.atan2(l2 * Math.sin(theta2), l1 + (l2 * Math.cos(theta2)));
         if (invert) {
-            theta2 += Degrees.of(90).in(Radians);
+            theta2 += Math.PI / 2;
         }
         return Pair.of(Radians.of(theta1), Radians.of(theta2));
     }
@@ -315,7 +316,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
     @Override
     public void visualizationUpdate() {
         var lowerArmAngle = getLowerAngle();
-        var upperArmAngle = m_upperSMC.getMechanismPosition();
+        var upperArmAngle = getUpperAngle();
         var jointPos = getJoint(m_lowerArmLength, lowerArmAngle, m_lowerArmRootPos);
         m_lowerLigament.setAngle(lowerArmAngle.in(Degrees));
         m_upperLigament.setAngle(upperArmAngle.in(Degrees));
@@ -350,6 +351,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
 
     /**
      * Get the shoulder angle of the DoubleJointedArm.
+     *
      * @return {@link Angle} of the shoulder.
      */
     public Angle getLowerAngle() {
@@ -358,6 +360,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
 
     /**
      * Get the elbow angle of the DoubleJointedArm
+     *
      * @return {@link Angle} of the elbow.
      */
     public Angle getUpperAngle() {
@@ -366,6 +369,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
 
     /**
      * Set the shoulder and elbow angle of the DoubleJointedArm.
+     *
      * @param lowerAngle {@link Angle} of the shoulder.
      * @param upperAngle {@link Angle} of the elbow.
      * @return {@link Command} that will set the angles.
@@ -383,6 +387,7 @@ public class DoubleJointedArm extends SmartPositionalMechanism {
 
     /**
      * Simple duty cycle command.
+     *
      * @param lowerDutycycle Dutycycle of the shoulder.
      * @param upperDutycycle DutyCycle of the elbow.
      * @return {@link Command} to set the DutyCycle.

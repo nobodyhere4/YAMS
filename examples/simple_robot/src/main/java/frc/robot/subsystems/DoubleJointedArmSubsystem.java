@@ -64,7 +64,7 @@ public class DoubleJointedArmSubsystem extends SubsystemBase
                                                                           DCMotor.getNEO(1),
                                                                           upperConfig);
   private final ArmConfig        upperArmConfig = new ArmConfig(upperSMC)
-      .withLength(Feet.of(2))
+      .withLength(Feet.of(2.5))
       .withHardLimit(Degrees.of(-720), Degrees.of(720))
       .withTelemetry("UpperArm", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(2))
