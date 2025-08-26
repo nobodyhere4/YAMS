@@ -65,7 +65,7 @@ public class GearBox
     {
       throw new NoStagesGivenException();
     }
-    double gearBox = 1 / reductionStages[0];
+    double gearBox = 1.0 / reductionStages[0];
     for (int i = 1; i < reductionStages.length; i++)
     {
       gearBox *= (1.0 / reductionStages[i]);
