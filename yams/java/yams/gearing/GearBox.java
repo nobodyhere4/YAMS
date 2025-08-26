@@ -68,7 +68,7 @@ public class GearBox
     double gearBox = 1 / reductionStages[0];
     for (int i = 1; i < reductionStages.length; i++)
     {
-      gearBox *= (1 / reductionStages[i]);
+      gearBox *= (1.0 / reductionStages[i]);
     }
     gearReductionRatio = gearBox;
   }
