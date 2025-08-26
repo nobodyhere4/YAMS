@@ -53,7 +53,7 @@ public class DoubleJointedArmSubsystem extends SubsystemBase
           .withGearing(gearing(gearbox(3, 4, 5)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
           .withIdleMode(SmartMotorControllerConfig.MotorMode.BRAKE)
-          .withTelemetry("LowerMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
+          .withTelemetry("UpperMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
           .withStatorCurrentLimit(Amps.of(40))
           .withMotorInverted(false)
           .withClosedLoopRampRate(Seconds.of(0.25))
