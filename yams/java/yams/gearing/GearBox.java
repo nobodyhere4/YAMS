@@ -74,6 +74,28 @@ public class GearBox
   }
 
   /**
+   * Multiply the gear reduction ratio by X.
+   * @param x X to multiply by.
+   * @return {@link GearBox} for chaining.
+   */
+  public GearBox times(double x)
+  {
+    gearReductionRatio *= x;
+    return this;
+  }
+
+  /**
+   * Divide the gear reduction ratio by X.
+   * @param x X to divide by.
+   * @return {@link GearBox} for chaining.
+   */
+  public GearBox div(double x)
+  {
+    gearReductionRatio /= x;
+    return this;
+  }
+
+  /**
    * Get the conversion factor to transform the gearbox input into the gear box output rotations.
    *
    * @return OUT/IN or OUT:IN

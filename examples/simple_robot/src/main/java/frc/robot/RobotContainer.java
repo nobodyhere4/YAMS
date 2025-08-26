@@ -44,9 +44,6 @@ public class RobotContainer
     xboxController.button(4).whileTrue(m_diffyMechSubsystem.set(0.5,0));
     xboxController.button(5).whileTrue(m_diffyMechSubsystem.set(0,0.5));
 
-
-
-
 //    xboxController.button(1).whileTrue(jointedArm.setPosition(Meters.of(0.5), Meters.of(0.5), false));
 //    xboxController.button(2).whileTrue(jointedArm.setPosition(Meters.of(0.5), Meters.of(0.5), true));
 
