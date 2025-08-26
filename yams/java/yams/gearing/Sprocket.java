@@ -72,6 +72,28 @@ public class Sprocket
   }
 
   /**
+   * Multiply the sprocket reduction ratio by X.
+   * @param x X to multiply by.
+   * @return {@link Sprocket} for chaining.
+   */
+  public Sprocket times(double x)
+  {
+    sprocketReductionRatio *= x;
+    return this;
+  }
+
+  /**
+   * Divide the sprocket reduction ratio by X.
+   * @param x X to divide by.
+   * @return {@link Sprocket}
+   */
+  public Sprocket div(double x)
+  {
+    sprocketReductionRatio /= x;
+    return this;
+  }
+
+  /**
    * Get the conversion factor to transform the sprocket input into the sprocket output rotations.
    *
    * @return OUT/IN or OUT:IN
