@@ -228,6 +228,17 @@ public class DifferentialMechanismConfig {
         return this;
     }
 
+    /**
+     * Aet the gearing for the differential mechanism if it isnt 1:1. Separate from gearing to the bevel gears.
+     *
+     * @param gearing Gearing for the bevel gears.
+     * @return {@link DifferentialMechanismConfig} for chaining
+     */
+    public DifferentialMechanismConfig withGearing(MechanismGearing gearing) {
+        twistGearing = gearing
+        return this;
+    }
+
 
     /**
      * Set the {@link DifferentialMechanism} twist starting position.
