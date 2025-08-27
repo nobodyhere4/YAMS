@@ -235,7 +235,7 @@ public class DifferentialMechanismConfig {
      * @return {@link DifferentialMechanismConfig} for chaining
      */
     public DifferentialMechanismConfig withGearing(MechanismGearing gearing) {
-        twistGearing = gearing
+        twistGearing = gearing;
         return this;
     }
 
