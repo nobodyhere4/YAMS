@@ -1,5 +1,5 @@
 ---
-description: Welcome to your team’s developer platform
+description: Welcome to Yet Another Mechanism Systems! A modern and easy solution to mechanism programming!
 layout:
   width: wide
   title:
@@ -16,7 +16,7 @@ layout:
     visible: true
 ---
 
-# Developer Platform
+# Yet Another Mechanism Systems Documentation
 
 <h2 align="center">Yet Another Mechanism System</h2>
 
