@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millisecond;
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static yams.mechanisms.SmartMechanism.gearbox;
@@ -150,7 +151,7 @@ public class PivotTest
     if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
       TestWithScheduler.cycle(Seconds.of(1), () -> {
-        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().in(Millisecond));} catch (Exception e) {}
+        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().orElse(Milliseconds.of(1)).in(Millisecond));} catch (Exception e) {}
       });
 
     } else
