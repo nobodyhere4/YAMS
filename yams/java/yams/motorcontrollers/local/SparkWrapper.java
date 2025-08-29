@@ -226,18 +226,18 @@ public class SparkWrapper extends SmartMotorController
         m_simSupplier.get().updateSimState();
         m_simSupplier.get().starveUpdateSim();
       }
+      Time controlLoop = m_config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20));
       m_simSupplier.ifPresent(mSimSupplier -> {
         sparkSim.ifPresent(sim -> sim.iterate(mSimSupplier.getMechanismVelocity().in(RotationsPerSecond),
                                               mSimSupplier.getMechanismSupplyVoltage().in(Volts),
-                                              m_config.getClosedLoopControlPeriod().in(Second)));
+                                              controlLoop.in(Second)));
         sparkRelativeEncoderSim.ifPresent(sim -> sim.iterate(mSimSupplier.getMechanismVelocity()
                                                                          .in(RotationsPerSecond),
-                                                             m_config.getClosedLoopControlPeriod().in(Seconds)));
+                                                             controlLoop.in(Seconds)));
         m_sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim ->
                                               absoluteEncoderSim.iterate(mSimSupplier.getMechanismVelocity()
                                                                                      .in(RotationsPerSecond),
-                                                                         m_config.getClosedLoopControlPeriod()
-                                                                                 .in(Seconds)));
+                                                                         controlLoop.in(Seconds)));
       });
     }
   }
@@ -336,7 +336,7 @@ public class SparkWrapper extends SmartMotorController
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().in(Second));
+      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Second));
     } else
     {
       m_closedLoopControllerThread.stop();

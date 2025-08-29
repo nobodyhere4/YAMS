@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -128,7 +127,7 @@ public class SmartMotorControllerConfig
   /**
    * PID Controller period for robot controller based PIDs
    */
-  private       Time                                          controlPeriod                      = Milliseconds.of(20);
+  private       Optional<Time>                                          controlPeriod                      = Optional.empty();
   /**
    * Open loop ramp rate, amount of time to go from 0 to 100 speed..
    */
@@ -840,7 +839,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopControlPeriod(Time time)
   {
-    controlPeriod = time;
+    controlPeriod = Optional.of(time);
     return this;
   }
 
@@ -1223,7 +1222,7 @@ public class SmartMotorControllerConfig
    *
    * @return {@link SmartMotorController} closed loop controller period.
    */
-  public Time getClosedLoopControlPeriod()
+  public Optional<Time> getClosedLoopControlPeriod()
   {
     return controlPeriod;
   }
