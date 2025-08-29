@@ -1,17 +1,24 @@
 package yams.motorcontrollers.simulation;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import java.util.function.Supplier;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SimSupplier;
 import yams.motorcontrollers.SmartMotorController;
-
-import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * ArmSim Supplier
@@ -38,7 +45,7 @@ public class ArmSimSupplier implements SimSupplier {
         sim = simulation;
         motorDutyCycleSupplier = smartMotorController::getDutyCycle;
         mechGearing = config.getGearing();
-        period = config.getClosedLoopControlPeriod();
+        period = config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20));
         motor = smartMotorController.getDCMotor();
     }
 

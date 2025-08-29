@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -138,7 +139,7 @@ public class Elevator extends SmartPositionalMechanism
           if (!updatedSim)
           {
             starveInput();
-            m_sim.get().update(m_smc.getConfig().getClosedLoopControlPeriod().in(Seconds));
+            m_sim.get().update(smcConfig.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Seconds));
             feedUpdateSim();
           }
         }

@@ -1,5 +1,13 @@
 package yams.motorcontrollers;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
@@ -7,7 +15,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +33,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -23,12 +44,6 @@ import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static edu.wpi.first.units.Units.*;
 
 /**
  * Smart motor controller wrapper for motor controllers.
@@ -202,7 +217,7 @@ public abstract class SmartMotorController
                                                    getMeasurementVelocity().in(MetersPerSecond)));
       });
       m_closedLoopControllerThread.stop();
-      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().in(Seconds));
+      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Seconds));
     }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
       closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);

@@ -1,6 +1,7 @@
 package yams.motorcontrollers.simulation;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -46,7 +47,7 @@ public class DCMotorSimSupplier implements SimSupplier
     sim = simulation;
     motorDutyCycleSupplier = smartMotorController::getDutyCycle;
     mechGearing = config.getGearing();
-    period = config.getClosedLoopControlPeriod();
+    period = config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20));
     motor = smartMotorController.getDCMotor();
   }
 
