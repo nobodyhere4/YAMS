@@ -160,7 +160,7 @@ public class ElevatorTest
     if (smc instanceof TalonFXSWrapper || smc instanceof TalonFXWrapper)
     {
       TestWithScheduler.cycle(Seconds.of(1), () -> {
-        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().orElse(Milliseconds.of(1)).in(Millisecond));} catch (Exception e) {}
+        try {Thread.sleep((long) smc.getConfig().getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Millisecond));} catch (Exception e) {}
       });
 
     } else
