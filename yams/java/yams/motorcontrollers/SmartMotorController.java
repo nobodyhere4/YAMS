@@ -588,6 +588,7 @@ public abstract class SmartMotorController
    */
   public void setupTelemetry(NetworkTable telemetry, NetworkTable tuning)
   {
+    System.out.println("=====================================================\nSETUP TELEMETRY\n=====================================================");
     if (parentTable.isEmpty())
     {
       parentTable = Optional.of(telemetry);
@@ -597,11 +598,10 @@ public abstract class SmartMotorController
         tuningTable = Optional.of(tuning.getSubTable(getName()));
         if (m_config.getSmartControllerTelemetryConfig().isPresent())
         {
-          this.telemetry.setupTelemetry(this, telemetry, tuning, m_config.getSmartControllerTelemetryConfig().get());
+          this.telemetry.setupTelemetry(this, telemetryTable.get(), tuningTable.get(), m_config.getSmartControllerTelemetryConfig().get());
         } else
         {
-          this.telemetry.setupTelemetry(this, telemetry,
-                                        tuning,
+          this.telemetry.setupTelemetry(this,telemetryTable.get(), tuningTable.get(),
                                         new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(m_config.getVerbosity()
                                                                                                                  .orElse(
                                                                                                                      TelemetryVerbosity.HIGH)));
@@ -613,7 +613,7 @@ public abstract class SmartMotorController
                                                 "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
         liveTuningCommand.setName("LiveTuning");
         liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetry.getPath() + "/LiveTuning", liveTuningCommand);
+        SmartDashboard.putData(telemetryTable.get().getPath() + "/LiveTuning", liveTuningCommand);
       }
     }
   }
