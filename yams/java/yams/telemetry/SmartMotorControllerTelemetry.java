@@ -517,7 +517,7 @@ public class SmartMotorControllerTelemetry
     /**
      * Closed loop dutycyle ramp rate.
      */
-    ClosedloopRampRate("ramprate/dutycyle/closedloop", 0, true),
+    ClosedloopRampRate("ramprate/dutycycle/closedloop", 0, true),
     /**
      * Open loop dutycycle ramp rate.
      */

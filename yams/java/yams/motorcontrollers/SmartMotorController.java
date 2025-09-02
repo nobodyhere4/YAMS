@@ -613,7 +613,8 @@ public abstract class SmartMotorController
                                                 "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
         liveTuningCommand.setName("LiveTuning");
         liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath() + "/LiveTuning", liveTuningCommand);
+        System.out.println("SmartDashboard/"+telemetryTable.get().getPath().substring(1));
+        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/LiveTuning", liveTuningCommand);
       }
     }
   }
