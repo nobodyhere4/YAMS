@@ -1,5 +1,7 @@
 ---
-description: Welcome to Yet Another Mechanism Systems! A modern and easy solution to mechanism programming!
+description: >-
+  Welcome to Yet Another Mechanism Systems! A modern and easy solution to
+  mechanism programming!
 layout:
   width: wide
   title:
@@ -16,26 +18,28 @@ layout:
     visible: true
 ---
 
-# Yet Another Mechanism Systems Documentation
+# Yet Another Mechanisms System
 
 <h2 align="center">Yet Another Mechanism System</h2>
 
 <p align="center">Welcome to your team’s new mechanism system</p>
 
-<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td><h4><i class="fa-leaf">:leaf:</i></h4></td><td><strong>Easy interface</strong></td><td>Get started with the developer platform in 5 minutes.</td><td><a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/">Documentation</a></td><td><a href=".gitbook/assets/no-code.jpg">no-code.jpg</a></td></tr><tr><td><h4><i class="fa-terminal">:terminal:</i></h4></td><td><strong>API reference</strong></td><td>Browse, test, and implement APIs.</td><td><a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/">API Reference</a></td><td><a href=".gitbook/assets/api-reference.jpg">api-reference.jpg</a></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th><th data-hidden data-card-cover data-type="image">Cover image</th></tr></thead><tbody><tr><td><i class="fa-leaf">:leaf:</i></td><td><strong>Easy interface</strong></td><td>Get started with the developer platform in 5 minutes.</td><td><a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/">Documentation</a></td><td><a href="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwxfHxjb2RlfGVufDB8fHx8MTc1NjgzODk4Nnww&#x26;ixlib=rb-4.1.0&#x26;q=85">https://images.unsplash.com/photo-1515879218367-8466d910aaa4?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwxfHxjb2RlfGVufDB8fHx8MTc1NjgzODk4Nnww&#x26;ixlib=rb-4.1.0&#x26;q=85</a></td></tr><tr><td><i class="fa-terminal">:terminal:</i></td><td><strong>API reference</strong></td><td>Browse, test, and implement APIs.</td><td><a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/">API Reference</a></td><td><a href="https://images.unsplash.com/photo-1509475826633-fed577a2c71b?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxEb2N1bWVudGF0aW9ufGVufDB8fHx8MTc1NjgzOTQzOXww&#x26;ixlib=rb-4.1.0&#x26;q=85">https://images.unsplash.com/photo-1509475826633-fed577a2c71b?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxEb2N1bWVudGF0aW9ufGVufDB8fHx8MTc1NjgzOTQzOXww&#x26;ixlib=rb-4.1.0&#x26;q=85</a></td></tr></tbody></table>
 
 {% columns %}
-{% column width="41.66666666666667%" %}
-### Get started in 5 minutes
+{% column %}
+#### Get started in 30 minutes
 
-No guesswork, no complexity—just your first successful call, fast.
+Less guesswork, no complexity—just your first successful mecanism, fast.
 
-Setting up your first API call should be the easiest part of getting started. With clear endpoints, copy-paste-ready examples, and quick authentication, you’ll be up and running in minutes—not hours.
+Setting up your first mechanism should be easy and painles and thats exactly what YAMS aims to provide.&#x20;
+
+YAMS provides an effortless programming experience by neatly dividing the process into distinct steps: SmartMotorController Configuration, SmartMotorController creation, Mechanism configuration, and Mechanism creation. This structured approach simplifies the integration of mechanisms like Arms, Elevators, Turrets, and more, allowing developers to effortlessly manage and control them using commands from Mechanism classes. Built exclusively for WPILib command-based programming, YAMS also offers sophisticated features such as advanced telemetry and live tuning, ensuring a streamlined and efficient development process for all supported mechanisms.
 
 <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button primary" data-icon="rocket-launch">Get started</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ezOwaXLQ3h1N7tr3zYnj/" class="button secondary" data-icon="terminal">API reference</a>
 {% endcolumn %}
 
-{% column width="58.33333333333333%" %}
+{% column %}
 {% code title="ArmSubsystem.java" %}
 ```java
 // Create your motor controller config
@@ -74,11 +78,11 @@ Arm                        arm = new Arm(config);
 
 {% columns %}
 {% column %}
-<figure><img src="https://gitbookio.github.io/onboarding-template-images/placeholder.png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/YAMS.png" alt=""><figcaption></figcaption></figure>
 {% endcolumn %}
 
 {% column %}
-### Learn more about Yet Another Mechanism System
+#### Learn more about Yet Another Mechanism System
 
 Read guides, watch tutorials, and learn more about working with the developer platform and integrating it with your own stack.
 
@@ -90,4 +94,4 @@ Read guides, watch tutorials, and learn more about working with the developer pl
 
 <p align="center">Join our Discord community or create your first PR in just a few steps.</p>
 
-<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th></th><th></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td><h4><i class="fa-discord">:discord:</i></h4></td><td><strong>Discord community</strong></td><td>Join our Discord community to post questions, get help, and share resources with over 3,000 like-minded developers.</td><td><a href="https://discord.gg/yagsl" class="button secondary">Join Discord</a></td><td></td></tr><tr><td><h4><i class="fa-github">:github:</i></h4></td><td><strong>GitHub</strong></td><td>Our product is 100% open source and built by developers just like you. Head to our GitHub repository to learn how to submit your first PR.</td><td><a href="https://github.com/Yet-Another-Software-Suite/YAMS/pulls" class="button secondary">Submit a PR</a></td><td></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th></th><th></th><th data-hidden data-card-cover data-type="image">Cover image</th></tr></thead><tbody><tr><td><i class="fa-discord">:discord:</i></td><td><strong>Discord community</strong></td><td>Join our Discord community to post questions, get help, and share resources with over 3,000 like-minded developers.</td><td><a href="https://discord.gg/yagsl" class="button secondary">Join Discord</a></td><td><a href="https://images.unsplash.com/photo-1679057001914-59ab4131dfff?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwyfHxkaXNjb3JkfGVufDB8fHx8MTc1NjgzODk5M3ww&#x26;ixlib=rb-4.1.0&#x26;q=85">https://images.unsplash.com/photo-1679057001914-59ab4131dfff?crop=entropy&#x26;cs=srgb&#x26;fm=jpg&#x26;ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwyfHxkaXNjb3JkfGVufDB8fHx8MTc1NjgzODk5M3ww&#x26;ixlib=rb-4.1.0&#x26;q=85</a></td></tr><tr><td><i class="fa-github">:github:</i></td><td><strong>GitHub</strong></td><td>Our product is 100% open source and built by developers just like you. Head to our GitHub repository to learn how to submit your first PR.</td><td><a href="https://github.com/Yet-Another-Software-Suite/YAMS/pulls" class="button secondary">Submit a PR</a></td><td><a href=".gitbook/assets/YASS_LOGO.png">YASS_LOGO.png</a></td></tr></tbody></table>
