@@ -1,3 +1,3 @@
 # Table of contents
 
-* [Yet Another Mechanisms System](README.md)
+* [Yet Another Mechanism System](README.md)
