@@ -1,6 +1,6 @@
 ---
 description: >-
-  Welcome to Yet Another Mechanism Systems! A modern and easy solution to
+  Welcome to Yet Another Mechanism System! A modern and easy solution to
   mechanism programming!
 layout:
   width: wide
@@ -18,7 +18,7 @@ layout:
     visible: true
 ---
 
-# Yet Another Mechanisms System
+# Yet Another Mechanism System
 
 <h2 align="center">Yet Another Mechanism System</h2>
 
