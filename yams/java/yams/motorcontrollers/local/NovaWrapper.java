@@ -15,6 +15,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.thethriftybot.ThriftyNova;
 import com.thethriftybot.ThriftyNova.CurrentType;
 import com.thethriftybot.ThriftyNova.EncoderType;
+import com.thethriftybot.ThriftyNova.ExternalEncoder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -219,7 +220,8 @@ public class NovaWrapper extends SmartMotorController
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Seconds));
+      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
+                                                       .in(Seconds));
     } else
     {
       m_closedLoopControllerThread.stop();
@@ -273,12 +275,25 @@ public class NovaWrapper extends SmartMotorController
     if (config.getExternalEncoder().isPresent())
     {
       Object externalEncoder = config.getExternalEncoder().get();
-      if (externalEncoder == EncoderType.QUAD)
+      if (externalEncoder instanceof EncoderType)
       {
-        m_nova.useEncoderType(EncoderType.QUAD);
-      } else if (externalEncoder == EncoderType.ABS)
+        if (externalEncoder == EncoderType.QUAD)
+        {
+          m_nova.useEncoderType(EncoderType.QUAD);
+        } else if (externalEncoder == EncoderType.ABS)
+        {
+          m_nova.useEncoderType(EncoderType.ABS);
+        }
+        if (config.getStartingPosition().isEmpty())
+        {
+          if (externalEncoder == EncoderType.ABS)
+          {
+            m_nova.setEncoderPosition(m_nova.getPositionAbs());
+          }
+        }
+      }else if (externalEncoder instanceof ExternalEncoder)
       {
-        m_nova.useEncoderType(EncoderType.ABS);
+        m_nova.setExternalEncoder((ExternalEncoder) externalEncoder);
       } else
       {
         throw new IllegalArgumentException(
@@ -286,13 +301,13 @@ public class NovaWrapper extends SmartMotorController
             ".\n\tPlease use an `EncoderType` instead.");
       }
 
-      if (config.getStartingPosition().isEmpty())
-      {
-        if (externalEncoder == EncoderType.ABS)
-        {
-          m_nova.setEncoderPosition(m_nova.getPositionAbs());
-        }
-      }
+
+    }
+
+    if (config.getZeroOffset().isPresent())
+    {
+      DriverStation.reportError("[ERROR] ThriftyNova does not support zero offset, or we have not implemented this.",
+                                true);
     }
 
     if (config.getFollowers().isPresent())
@@ -309,12 +324,6 @@ public class NovaWrapper extends SmartMotorController
               "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
         }
       }
-    }
-
-    if (config.getZeroOffset().isPresent())
-    {
-      DriverStation.reportError("[ERROR] ThriftyNova does not support zero offset, or we have not implemented this.",
-                                true);
     }
 
     if (config.getDiscontinuityPoint().isPresent())

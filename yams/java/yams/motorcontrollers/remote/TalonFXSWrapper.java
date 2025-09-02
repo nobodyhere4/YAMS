@@ -173,28 +173,41 @@ public class TalonFXSWrapper extends SmartMotorController
     m_rotorVelocity = m_talonfxs.getRotorVelocity();
     m_deviceTemperature = m_talonfxs.getDeviceTemp();
     m_closedLoopControllerThread = null;
-
-    DCMotor minion = new DCMotor(12, 3.1, 200.46, 1.43, RPM.of(7200).in(RadiansPerSecond), 1);
-    if (isMotor(motor, minion))
+    boolean found = false;
+    for (int i = 0; i < 6; i++)
     {
-      m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Enabled);
-      m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.Minion_JST);
-    } else
-    {
-      m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Disabled);
-      if (isMotor(motor, DCMotor.getNEO(1)))
+      DCMotor minion = new DCMotor(12, 3.1, 200.46, 1.43, RPM.of(7200).in(RadiansPerSecond), i);
+      if (isMotor(motor, minion))
       {
-        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
-      } else if (isMotor(motor, DCMotor.getNeo550(1)))
-      {
-        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO550_JST);
-      } else if (isMotor(motor, DCMotor.getNeoVortex(1)))
-      {
-        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
+        m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Enabled);
+        m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.Minion_JST);
+        found = true;
+        break;
       } else
       {
-        throw new IllegalArgumentException("Unknown motor for TalonFXS(" + m_talonfxs.getDeviceID() + "): " + motor);
+        m_talonConfig.Commutation.withAdvancedHallSupport(AdvancedHallSupportValue.Disabled);
+        if (isMotor(motor, DCMotor.getNEO(i)))
+        {
+          m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
+          found = true;
+          break;
+        } else if (isMotor(motor, DCMotor.getNeo550(i)))
+        {
+          m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO550_JST);
+          found = true;
+          break;
+        } else if (isMotor(motor, DCMotor.getNeoVortex(i)))
+        {
+          m_talonConfig.Commutation.withMotorArrangement(MotorArrangementValue.NEO_JST);
+          found = true;
+          break;
+        }
       }
+    }
+
+    if (!found)
+    {
+      throw new IllegalArgumentException("Unknown motor for TalonFXS(" + m_talonfxs.getDeviceID() + "): " + motor);
     }
     forceConfigApply();
 
@@ -287,7 +300,8 @@ public class TalonFXSWrapper extends SmartMotorController
         cancoderSim.setVelocity(m_simSupplier.get().getMechanismVelocity()
                                              .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
         cancoderSim.setRawPosition(m_simSupplier.get().getMechanismPosition()
-                                                .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
+                                                .times(m_config.getExternalEncoderGearing()
+                                                               .getMechanismToRotorRatio()));
         cancoderSim.setMagnetHealth(MagnetHealthValue.Magnet_Green);
       }
       if (m_candi.isPresent())
@@ -298,16 +312,20 @@ public class TalonFXSWrapper extends SmartMotorController
         {
           candiSim.setPwm1Connected(true);
           candiSim.setPwm1Position(m_simSupplier.get().getMechanismPosition()
-                                                .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
+                                                .times(m_config.getExternalEncoderGearing()
+                                                               .getMechanismToRotorRatio()));
           candiSim.setPwm1Velocity(m_simSupplier.get().getMechanismVelocity()
-                                                .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
+                                                .times(m_config.getExternalEncoderGearing()
+                                                               .getMechanismToRotorRatio()));
         } else if (useCANdiPWM2())
         {
           candiSim.setPwm2Connected(true);
           candiSim.setPwm2Position(m_simSupplier.get().getMechanismPosition()
-                                                .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
+                                                .times(m_config.getExternalEncoderGearing()
+                                                               .getMechanismToRotorRatio()));
           candiSim.setPwm2Velocity(m_simSupplier.get().getMechanismVelocity()
-                                                .times(m_config.getExternalEncoderGearing().getMechanismToRotorRatio()));
+                                                .times(m_config.getExternalEncoderGearing()
+                                                               .getMechanismToRotorRatio()));
         }
       }
     }
@@ -742,10 +760,11 @@ public class TalonFXSWrapper extends SmartMotorController
                                                              .times(config.getGearing().getMechanismToRotorRatio()));
         }
         StatusCode applied;
-        do{
+        do
+        {
           applied = m_talonfxs.setPosition(config.getStartingPosition().get());
           Timer.delay(Milliseconds.of(10).in(Seconds));
-        }while(!applied.equals(StatusCode.OK));
+        } while (!applied.equals(StatusCode.OK));
       }
       // Discontinuity point
       if (config.getDiscontinuityPoint().isPresent())
@@ -763,7 +782,7 @@ public class TalonFXSWrapper extends SmartMotorController
     }
 
     // Control loop frequency.
-    if(config.getClosedLoopControlPeriod().isPresent())
+    if (config.getClosedLoopControlPeriod().isPresent())
     {
       m_velocityReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().get().asFrequency());
       m_trapPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().get().asFrequency());
@@ -793,7 +812,7 @@ public class TalonFXSWrapper extends SmartMotorController
                 "[ERROR] Unknown follower type: " + follower.getFirst().getClass().getSimpleName());
           }
           Timer.delay(Milliseconds.of(10).in(Seconds));
-        }while (!applied.isOK());
+        } while (!applied.isOK());
       }
       config.clearFollowers();
     }

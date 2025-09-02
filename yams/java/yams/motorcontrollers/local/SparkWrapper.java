@@ -68,19 +68,19 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark configuration retry count.
    */
-  private final int                               CONFIG_RETRIES          = 4;
+  private final int                               CONFIG_RETRIES            = 4;
   /**
    * Spark configuration retry delay.
    */
-  private final double    CONFIG_RETRY_DELAY      = Milliseconds.of(5).in(Seconds);
+  private final double                            CONFIG_RETRY_DELAY        = Milliseconds.of(5).in(Seconds);
   /**
    * Spark motor controller
    */
-  private final SparkBase m_spark;
+  private final SparkBase                         m_spark;
   /**
    * Motor type.
    */
-  private final DCMotor   m_motor;
+  private final DCMotor                           m_motor;
   /**
    * Spark base configuration.
    */
@@ -92,7 +92,7 @@ public class SparkWrapper extends SmartMotorController
   /**
    * Spark relative encoder sim object.
    */
-  private       Optional<SparkRelativeEncoderSim> sparkRelativeEncoderSim = Optional.empty();
+  private       Optional<SparkRelativeEncoderSim> sparkRelativeEncoderSim   = Optional.empty();
   /**
    * Spark simulation.
    */
@@ -208,7 +208,7 @@ public class SparkWrapper extends SmartMotorController
         if (!Rotations.of(m_sparkRelativeEncoder.getPosition()).isNear(Rotations.of(m_sparkAbsoluteEncoder.get()
                                                                                                           .getPosition()),
                                                                        m_config.getFeedbackSynchronizationThreshold()
-                                                                             .get()))
+                                                                               .get()))
         {
           seedRelativeEncoder();
         }
@@ -235,9 +235,9 @@ public class SparkWrapper extends SmartMotorController
                                                                          .in(RotationsPerSecond),
                                                              controlLoop.in(Seconds)));
         m_sparkAbsoluteEncoderSim.ifPresent(absoluteEncoderSim ->
-                                              absoluteEncoderSim.iterate(mSimSupplier.getMechanismVelocity()
-                                                                                     .in(RotationsPerSecond),
-                                                                         controlLoop.in(Seconds)));
+                                                absoluteEncoderSim.iterate(mSimSupplier.getMechanismVelocity()
+                                                                                       .in(RotationsPerSecond),
+                                                                           controlLoop.in(Seconds)));
       });
     }
   }
@@ -336,7 +336,8 @@ public class SparkWrapper extends SmartMotorController
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Second));
+      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
+                                                       .in(Second));
     } else
     {
       m_closedLoopControllerThread.stop();
@@ -392,6 +393,11 @@ public class SparkWrapper extends SmartMotorController
         m_sparkBaseConfig.absoluteEncoder.velocityConversionFactor(absoluteEncoderConversionFactor / 60);
         m_sparkBaseConfig.absoluteEncoder.inverted(config.getExternalEncoderInverted());
 
+        if (config.getZeroOffset().isPresent())
+        {
+          m_sparkBaseConfig.absoluteEncoder.zeroOffset(config.getZeroOffset().get().in(Rotations));
+        }
+
         if (RobotBase.isSimulation())
         {
           if (m_spark instanceof SparkMax)
@@ -403,7 +409,12 @@ public class SparkWrapper extends SmartMotorController
           }
           if (config.getStartingPosition().isPresent())
           {
-            m_sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setPosition(config.getStartingPosition().get().in(Rotations)));
+            m_sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setPosition(config.getStartingPosition().get()
+                                                                             .in(Rotations)));
+          }
+          if (config.getZeroOffset().isPresent())
+          {
+            m_sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setZeroOffset(config.getZeroOffset().get().in(Rotations)));
           }
         }
       } else
@@ -416,6 +427,14 @@ public class SparkWrapper extends SmartMotorController
       if (config.getStartingPosition().isEmpty())
       {
         m_sparkRelativeEncoder.setPosition(m_sparkAbsoluteEncoder.get().getPosition());
+      }
+    } else
+    {
+
+      if (config.getZeroOffset().isPresent())
+      {
+        DriverStation.reportError("[ERROR] Zero offset is not supported on Sparks without Absolute Encoders!",
+                                  false);
       }
     }
 
@@ -449,12 +468,6 @@ public class SparkWrapper extends SmartMotorController
     {
       throw new IllegalArgumentException(
           "[ERROR] Discontinuity point is not supported on Sparks, or we have not implemented this!");
-    }
-
-    if (config.getZeroOffset().isPresent())
-    {
-      DriverStation.reportError("[ERROR] Zero offset is not supported on Sparks, or we have not implemented this!",
-                                false);
     }
 
     return configureSpark(() -> m_spark.configure(m_sparkBaseConfig,
@@ -543,17 +556,14 @@ public class SparkWrapper extends SmartMotorController
     {
       pos = Rotations.of(m_sparkAbsoluteEncoder.get().getPosition());
     }
-    if (m_config.getZeroOffset().isPresent())
-    {
-      pos = pos.minus(m_config.getZeroOffset().get());
-    }
     return pos;
   }
 
   @Override
   public AngularVelocity getRotorVelocity()
   {
-    return RotationsPerSecond.of(getMechanismPosition().in(Rotations) * m_config.getGearing().getMechanismToRotorRatio());
+    return RotationsPerSecond.of(
+        getMechanismPosition().in(Rotations) * m_config.getGearing().getMechanismToRotorRatio());
   }
 
   @Override

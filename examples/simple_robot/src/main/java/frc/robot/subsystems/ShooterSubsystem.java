@@ -13,7 +13,7 @@ import static yams.mechanisms.SmartMechanism.gearing;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,23 +49,43 @@ public class ShooterSubsystem extends SubsystemBase
       .withMotorInverted(false)
       .withClosedLoopRampRate(Seconds.of(0.25))
       .withOpenLoopRampRate(Seconds.of(0.25))
-      .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
+      .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
   private final ShooterConfig shooterConfig = new ShooterConfig(motor)
+      // Diameter of the flywheel.
       .withDiameter(Inches.of(4))
+      // Mass of the flywheel.
       .withMass(Pounds.of(1))
-      .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH)
-      .withUpperSoftLimit(RPM.of(1000));
+      // Maximum speed of the flywheel.
+      .withUpperSoftLimit(RPM.of(1000))
+      .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
   private final Shooter       shooter       = new Shooter(shooterConfig);
 
   public ShooterSubsystem() {}
 
+  /**
+   * Gets the current velocity of the shooter.
+   *
+   * @return Shooter velocity.
+   */
   public AngularVelocity getVelocity() {return shooter.getSpeed();}
 
+  /**
+   * Set the shooter velocity.
+   *
+   * @param speed Speed to set.
+   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
+   */
   public Command setVelocity(AngularVelocity speed) {return shooter.setSpeed(speed);}
 
-  public Command setDutyCycle(double dutyCycle) {return shooter.set(dutyCycle);}
+  /**
+   * Set the dutycycle of the shooter.
+   *
+   * @param dutyCycle DutyCycle to set.
+   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
+   */
+  public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
 
   public Command setVelocity(Supplier<AngularVelocity> speed) {return shooter.setSpeed(speed);}
 
