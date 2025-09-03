@@ -492,6 +492,12 @@ public class TalonFXSWrapper extends SmartMotorController
     m_configurator.refresh(m_talonConfig);
     this.m_config = config;
     // Closed loop controllers.
+    if (config.getClosedLoopController().isPresent() && config.getSimpleClosedLoopController().isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException("ProfiledPIDController and PIDController defined",
+                                                           "Cannot have both PID Controllers.",
+                                                           ".withClosedLoopController");
+    }
     if (config.getClosedLoopController().isPresent())
     {
       ProfiledPIDController controller = config.getClosedLoopController().get();
@@ -549,24 +555,23 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                                   : "TalonFXS(" +
                                                                                     m_talonfxs.getDeviceID() + ")"));
       }
-    } else if (config.getClosedLoopController().isPresent() && config.getSimpleClosedLoopController().isPresent())
-    {
-      throw new SmartMotorControllerConfigurationException("ProfiledPIDController and PIDController defined",
-                                                           "Cannot have both PID Controllers.",
-                                                           ".withClosedLoopController");
     } else
     {
       throw new IllegalArgumentException("[ERROR] No closed loop configuration available!");
     }
 
-    if(config.getClosedLoopTolerance().isPresent())
+    if (config.getClosedLoopTolerance().isPresent())
     {
-      throw new SmartMotorControllerConfigurationException("Closed loop tolerance is not available on TalonFXS", "Cannot set closed loop tolerance on TalonFXS", ".withClosedLoopTolerance");
+      throw new SmartMotorControllerConfigurationException("Closed loop tolerance is not available on TalonFXS",
+                                                           "Cannot set closed loop tolerance on TalonFXS",
+                                                           ".withClosedLoopTolerance");
     }
 
-    if(m_config.getMotorControllerMode() == ControlMode.OPEN_LOOP)
+    if (m_config.getMotorControllerMode() == ControlMode.OPEN_LOOP)
     {
-      throw new SmartMotorControllerConfigurationException("Open loop mode is the same as Closed Loop Mode", "Cannot set motor controller mode to Open Loop on TalonFX", ".withOpenLoopMode");
+      throw new SmartMotorControllerConfigurationException("Open loop mode is the same as Closed Loop Mode",
+                                                           "Cannot set motor controller mode to Open Loop on TalonFX",
+                                                           ".withOpenLoopMode");
     }
 
     // Feedforwards
