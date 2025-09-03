@@ -334,6 +334,7 @@ public class NovaWrapper extends SmartMotorController
           "[ERROR] ThriftyNova does not support discontinuity points, or we have not implemented this.");
     }
 
+    iterateClosedLoopController();
     config.validateBasicOptions();
     return true;
   }
