@@ -464,16 +464,17 @@ public class SparkWrapper extends SmartMotorController
 
       if(config.getExternalEncoderInverted())
       {
-        throw new SmartMotorControllerConfigurationException("External encoder cannot be inverted because no external encoder exists", "External encoder could not be inverted", ".withExternalEncoderInverted");
+        throw new SmartMotorControllerConfigurationException("External encoder cannot be inverted because no external encoder exists", "External encoder could not be inverted", "withExternalEncoderInverted");
       }
 
       if(config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
       {
-        throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", ".withExternalEncoderGearing");
+        throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", "withExternalEncoderGearing");
       }
       if(config.getUseExternalFeedback())
       {
-        throw new SmartMotorControllerConfigurationException("External feedback is only available for external encoders", "External feedback could not be enabled", ".withUseExternalFeedback");
+        // Do nothing
+//        throw new SmartMotorControllerConfigurationException("External feedback is only available for external encoders", "External feedback could not be enabled", "withUseExternalFeedback");
       }
     }
 

@@ -367,7 +367,8 @@ public class NovaWrapper extends SmartMotorController
       }
       if(config.getUseExternalFeedback())
       {
-        throw new SmartMotorControllerConfigurationException("External feedback is only available for external encoders", "External feedback could not be enabled", ".withUseExternalFeedback");
+        // Do nothing
+//        throw new SmartMotorControllerConfigurationException("External feedback is only available for external encoders", "External feedback could not be enabled", ".withUseExternalFeedback");
       }
     }
 
