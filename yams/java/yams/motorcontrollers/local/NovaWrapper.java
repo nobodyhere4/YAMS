@@ -202,7 +202,6 @@ public class NovaWrapper extends SmartMotorController
 
     this.m_config = config;
     m_config.resetValidationCheck();
-    iterateClosedLoopController();
     m_gearing = config.getGearing();
     m_pidController = config.getClosedLoopController();
 
@@ -242,6 +241,8 @@ public class NovaWrapper extends SmartMotorController
           "Cannot configure ThriftyNova with a feedback synchronization threshold.",
           ".withFeedbackSynchronizationThreshold");
     }
+
+    iterateClosedLoopController();
 
     // Handle closed loop controller thread
     if (m_closedLoopControllerThread == null)
