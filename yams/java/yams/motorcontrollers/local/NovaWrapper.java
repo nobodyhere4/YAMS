@@ -235,6 +235,14 @@ public class NovaWrapper extends SmartMotorController
     });
     iterateClosedLoopController();
 
+    if (config.getFeedbackSynchronizationThreshold().isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "Feedback synchronization threshold is not supported on ThriftyNovas",
+          "Cannot configure ThriftyNova with a feedback synchronization threshold.",
+          ".withFeedbackSynchronizationThreshold");
+    }
+
     // Handle closed loop controller thread
     if (m_closedLoopControllerThread == null)
     {
