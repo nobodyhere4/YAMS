@@ -199,9 +199,10 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
-    config.resetValidationCheck();
 
     this.m_config = config;
+    m_config.resetValidationCheck();
+    iterateClosedLoopController();
     m_gearing = config.getGearing();
     m_pidController = config.getClosedLoopController();
 
@@ -233,7 +234,6 @@ public class NovaWrapper extends SmartMotorController
         m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
       }
     });
-    iterateClosedLoopController();
 
     if (config.getFeedbackSynchronizationThreshold().isPresent())
     {
