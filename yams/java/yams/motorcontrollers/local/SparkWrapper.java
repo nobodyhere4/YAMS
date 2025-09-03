@@ -339,6 +339,9 @@ public class SparkWrapper extends SmartMotorController
       }
     });
 
+    iterateClosedLoopController();
+
+
     // Handle closed loop controller thread
     if (m_closedLoopControllerThread == null)
     {
@@ -492,7 +495,6 @@ public class SparkWrapper extends SmartMotorController
           "[ERROR] Discontinuity point is not supported on Sparks, or we have not implemented this!");
     }
 
-    iterateClosedLoopController();
     config.validateBasicOptions();
 
     return configureSpark(() -> m_spark.configure(m_sparkBaseConfig,

@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
+import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -66,6 +67,10 @@ public class NovaWrapper extends SmartMotorController
    * Sim for ThriftyNova's.
    */
   private       Optional<DCMotorSim> m_dcMotorSim = Optional.empty();
+  /**
+   * Gearing for the {@link ThriftyNova}.
+   */
+  private       MechanismGearing     m_gearing;
 
   /**
    * Construct the Nova Wrapper for the generic {@link SmartMotorController}.
@@ -197,6 +202,7 @@ public class NovaWrapper extends SmartMotorController
     config.resetValidationCheck();
 
     this.m_config = config;
+    m_gearing = config.getGearing();
     m_pidController = config.getClosedLoopController();
 
     // Handle simple pid vs profile pid controller.
@@ -215,15 +221,19 @@ public class NovaWrapper extends SmartMotorController
     }
 
     config.getClosedLoopTolerance().ifPresent(tolerance -> {
-      if(config.getMechanismCircumference().isPresent())
+      if (config.getMechanismCircumference().isPresent())
       {
-        m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
-        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
-      } else {
+        m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance)
+                                                                                    .in(Meters)));
+        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
+            tolerance).in(Meters)));
+      } else
+      {
         m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
         m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
       }
     });
+    iterateClosedLoopController();
 
     // Handle closed loop controller thread
     if (m_closedLoopControllerThread == null)
@@ -311,7 +321,7 @@ public class NovaWrapper extends SmartMotorController
             m_nova.setEncoderPosition(m_nova.getPositionAbs());
           }
         }
-      }else if (externalEncoder instanceof ExternalEncoder)
+      } else if (externalEncoder instanceof ExternalEncoder)
       {
         m_nova.setExternalEncoder((ExternalEncoder) externalEncoder);
       } else
@@ -352,7 +362,6 @@ public class NovaWrapper extends SmartMotorController
           "[ERROR] ThriftyNova does not support discontinuity points, or we have not implemented this.");
     }
 
-    iterateClosedLoopController();
     config.validateBasicOptions();
     return true;
   }
@@ -439,7 +448,7 @@ public class NovaWrapper extends SmartMotorController
             m_nova.getVelocityQuad() * m_config.getExternalEncoderGearing().getRotorToMechanismRatio());
       }
     }
-    return getRotorVelocity().times(m_config.getGearing().getRotorToMechanismRatio());
+    return getRotorVelocity().times(m_gearing.getRotorToMechanismRatio());
   }
 
   @Override
@@ -460,7 +469,7 @@ public class NovaWrapper extends SmartMotorController
         return Rotations.of(m_nova.getPositionQuad() * m_config.getExternalEncoderGearing().getRotorToMechanismRatio());
       }
     }
-    return getRotorPosition().times(m_config.getGearing().getRotorToMechanismRatio());
+    return getRotorPosition().times(m_gearing.getRotorToMechanismRatio());
   }
 
   @Override
