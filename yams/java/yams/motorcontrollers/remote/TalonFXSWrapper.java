@@ -656,7 +656,7 @@ public class TalonFXSWrapper extends SmartMotorController
     }
 
     // Configure external encoders
-    if (config.getExternalEncoder().isPresent())
+    if (config.getExternalEncoder().isPresent() && config.getUseExternalFeedback())
     {
       // Starting position
       if (config.getStartingPosition().isPresent())
