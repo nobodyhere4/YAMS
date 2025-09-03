@@ -121,12 +121,12 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public void synchronizeRelativeEncoder()
   {
-    if (!RobotBase.isSimulation())
-    {
-      DriverStation.reportWarning(
-          "[WARNING] NovaWrapper.synchronizeRelativeEncoder() is not supported on ThriftyNova's.",
-          false);
-    }
+//    if (!RobotBase.isSimulation())
+//    {
+//      DriverStation.reportWarning(
+//          "[WARNING] NovaWrapper.synchronizeRelativeEncoder() is not supported on ThriftyNova's.",
+//          false);
+//    }
   }
 
   @Override
