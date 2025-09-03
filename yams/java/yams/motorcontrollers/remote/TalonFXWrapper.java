@@ -446,6 +446,7 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
+    config.resetValidationCheck();
     m_configurator.refresh(m_talonConfig);
     this.m_config = config;
     // Closed loop controllers.
@@ -693,6 +694,8 @@ public class TalonFXWrapper extends SmartMotorController
         }
         configurator.apply(cfg);
       }
+
+      config.validateExternalEncoderOptions();
     } else
     {
       m_talonConfig.Feedback.RotorToSensorRatio = 1.0;
@@ -791,6 +794,7 @@ public class TalonFXWrapper extends SmartMotorController
       throw new IllegalArgumentException("[ERROR] VoltageCompensation is not supported");
     }
 
+    config.validateBasicOptions();
     return forceConfigApply().isOK();
   }
 

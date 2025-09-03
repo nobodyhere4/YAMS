@@ -34,9 +34,11 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -48,178 +50,235 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 public class SmartMotorControllerConfig
 {
 
+  private enum BasicOptions
+  {
+    ControlMode,
+    FeedbackSynchronizationThreshold,
+    ClosedLoopControllerMaximumVoltage,
+    StartingPosition,
+
+    EncoderInverted,
+    MotorInverted,
+    TemperatureCutoff,
+
+    DiscontinuityPoint, ///  Continuous Wrapping.
+    ClosedLoopTolerance,
+
+//    Telemetry,
+//    TelemetryVerbosity,
+//    SpecifiedTelemetryConfig,
+
+    UpperLimit,
+    LowerLimit,
+    MomentOfInertia,
+
+    IdleMode,
+    VoltageCompensation,
+    Followers,
+    StatorCurrentLimit,
+    SupplyCurrentLimit,
+    ClosedLoopRampRate,
+    OpenLoopRampRate,
+    ExternalEncoder,
+    Gearing,
+    //    MechanismCircumference,
+    ClosedLoopControlPeriod,
+    SimpleFeedforward,
+    ArmFeedforward,
+    ElevatorFeedforward,
+    SimpleClosedLoopController,
+    ClosedLoopController,
+
+  }
+
+  private enum ExternalEncoderOptions
+  {
+    ZeroOffset,
+    UseExternalFeedbackEncoder,
+    ExternalGearing,
+    ExternalEncoderInverted
+  }
+
+  /**
+   * Validation set to confirm all options have been applied to the Smart Motor Controller.
+   */
+  private       Set<BasicOptions>                 basicOptions            = EnumSet.allOf(BasicOptions.class);
+  /**
+   * Validation set to confirm all options have been applied to the Smart Motor Controller's external encoder.
+   */
+  private       Set<ExternalEncoderOptions>       externalEncoderOptions  = EnumSet.allOf(ExternalEncoderOptions.class);
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private final Subsystem                                     subsystem;
+  private final Subsystem                         subsystem;
   /**
    * Missing options that would be decremented for each motor application.
    */
-  private final List<SmartMotorControllerOptions>             missingOptions                     = Arrays.asList(
+  private final List<SmartMotorControllerOptions> missingOptions          = Arrays.asList(
       SmartMotorControllerOptions.values());
   /**
    * External encoder.
    */
-  private       Optional<Object>                              externalEncoder                    = Optional.empty();
+  private       Optional<Object>                  externalEncoder         = Optional.empty();
   /**
    * External encoder inversion state.
    */
-  private       boolean                                       externalEncoderInverted            = false;
+  private       boolean                           externalEncoderInverted = false;
   /**
    * Follower motors and inversion.
    */
-  private       Optional<Pair<Object, Boolean>[]>             followers                          = Optional.empty();
+  private       Optional<Pair<Object, Boolean>[]> followers               = Optional.empty();
   /**
    * Simple feedforward for the motor controller.
    */
-  private       Optional<SimpleMotorFeedforward>              simpleFeedforward                  = Optional.empty();
+  private       Optional<SimpleMotorFeedforward>  simpleFeedforward       = Optional.empty();
   /**
    * Elevator feedforward for the motor controller.
    */
-  private       Optional<ElevatorFeedforward>                 elevatorFeedforward                = Optional.empty();
+  private       Optional<ElevatorFeedforward>     elevatorFeedforward     = Optional.empty();
   /**
    * Arm feedforward for the motor controller.
    */
-  private       Optional<ArmFeedforward>                      armFeedforward                     = Optional.empty();
+  private       Optional<ArmFeedforward>          armFeedforward          = Optional.empty();
   /**
    * Simple feedforward for the motor controller.
    */
-  private       Optional<SimpleMotorFeedforward>              sim_simpleFeedforward                  = Optional.empty();
+  private       Optional<SimpleMotorFeedforward>  sim_simpleFeedforward   = Optional.empty();
   /**
    * Elevator feedforward for the motor controller.
    */
-  private       Optional<ElevatorFeedforward>                 sim_elevatorFeedforward                = Optional.empty();
+  private       Optional<ElevatorFeedforward>     sim_elevatorFeedforward = Optional.empty();
   /**
    * Arm feedforward for the motor controller.
    */
-  private       Optional<ArmFeedforward>                      sim_armFeedforward                     = Optional.empty();
+  private       Optional<ArmFeedforward>          sim_armFeedforward      = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ProfiledPIDController>               controller                         = Optional.empty();
+  private       Optional<ProfiledPIDController>   controller              = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<PIDController>                       simpleController                   = Optional.empty();
+  private       Optional<PIDController>           simpleController        = Optional.empty();
 
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ProfiledPIDController>               sim_controller                         = Optional.empty();
+  private Optional<ProfiledPIDController>               sim_controller                     = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<PIDController>                       sim_simpleController                   = Optional.empty();
+  private Optional<PIDController>                       sim_simpleController               = Optional.empty();
   /**
    * Gearing for the {@link SmartMotorController}.
    */
-  private       MechanismGearing                              gearing;
+  private MechanismGearing                              gearing;
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private       MechanismGearing                              externalEncoderGearing             = new MechanismGearing(
+  private MechanismGearing                              externalEncoderGearing             = new MechanismGearing(
       new GearBox(
           new double[]{1.0}));
   /**
    * Mechanism Circumference for distance calculations.
    */
-  private       Optional<Distance>                            mechanismCircumference             = Optional.empty();
+  private Optional<Distance>                            mechanismCircumference             = Optional.empty();
   /**
    * PID Controller period for robot controller based PIDs
    */
-  private       Optional<Time>                                          controlPeriod                      = Optional.empty();
+  private Optional<Time>                                controlPeriod                      = Optional.empty();
   /**
    * Open loop ramp rate, amount of time to go from 0 to 100 speed..
    */
-  private       Time                                          openLoopRampRate                   = Seconds.of(0);
+  private Time                                          openLoopRampRate                   = Seconds.of(0);
   /**
    * Closed loop ramp rate, amount of time to go from 0 to 100 speed.
    */
-  private       Time                                          closeLoopRampRate                  = Seconds.of(0);
+  private Time                                          closeLoopRampRate                  = Seconds.of(0);
   /**
    * Set the stator current limit in Amps for the {@link SmartMotorController}
    */
-  private       OptionalInt                                   statorStallCurrentLimit            = OptionalInt.empty();
+  private OptionalInt                                   statorStallCurrentLimit            = OptionalInt.empty();
   /**
    * The supply current limit in Amps for the {@link SmartMotorController}
    */
-  private       OptionalInt                                   supplyStallCurrentLimit            = OptionalInt.empty();
+  private OptionalInt                                   supplyStallCurrentLimit            = OptionalInt.empty();
   /**
    * The voltage compensation.
    */
-  private       Optional<Voltage>                             voltageCompensation                = Optional.empty();
+  private Optional<Voltage>                             voltageCompensation                = Optional.empty();
   /**
    * Set the {@link MotorMode} for the {@link SmartMotorController}.
    */
-  private       Optional<MotorMode>                           idleMode                           = Optional.empty();
+  private Optional<MotorMode>                           idleMode                           = Optional.empty();
   /**
    * Mechanism lower limit to prevent movement below.
    */
-  private       Optional<Angle>                               mechanismLowerLimit                = Optional.empty();
+  private Optional<Angle>                               mechanismLowerLimit                = Optional.empty();
   /**
    * High distance soft limit to prevent movement above.
    */
-  private       Optional<Angle>                               mechanismUpperLimit                = Optional.empty();
+  private Optional<Angle>                               mechanismUpperLimit                = Optional.empty();
   /**
    * Name for the {@link SmartMotorController} telemetry.
    */
-  private       Optional<String>                              telemetryName                      = Optional.empty();
+  private Optional<String>                              telemetryName                      = Optional.empty();
   /**
    * Telemetry verbosity setting.
    */
-  private       Optional<TelemetryVerbosity>                  verbosity                          = Optional.empty();
+  private Optional<TelemetryVerbosity>                  verbosity                          = Optional.empty();
   /**
    * Optional config for custom telemetry setup.
    */
-  private       Optional<SmartMotorControllerTelemetryConfig> specifiedTelemetryConfig           = Optional.empty();
+  private Optional<SmartMotorControllerTelemetryConfig> specifiedTelemetryConfig           = Optional.empty();
   /**
    * Zero offset of the {@link SmartMotorController}
    */
-  private       Optional<Angle>                               zeroOffset                         = Optional.empty();
+  private Optional<Angle>                               zeroOffset                         = Optional.empty();
   /**
    * Temperature cutoff for the {@link SmartMotorController} to prevent running if above.
    */
-  private       Optional<Temperature>                         temperatureCutoff                  = Optional.empty();
+  private Optional<Temperature>                         temperatureCutoff                  = Optional.empty();
   /**
    * The encoder readings are inverted.
    */
-  private       boolean                                       encoderInverted                    = false;
+  private boolean                                       encoderInverted                    = false;
   /**
    * The motor is inverted.
    */
-  private       boolean                                       motorInverted                      = false;
+  private boolean                                       motorInverted                      = false;
   /**
    * Use the provided external encoder if set.
    */
-  private       boolean                                       useExternalEncoder                 = true;
+  private boolean                                       useExternalEncoder                 = true;
   /**
    * {@link SmartMotorController} starting angle.
    */
-  private       Optional<Angle>                               startingPosition                   = Optional.empty();
+  private Optional<Angle>                               startingPosition                   = Optional.empty();
   /**
    * Maximum voltage output for the motor controller while using the closed loop controller.
    */
-  private       Optional<Voltage>                             closedLoopControllerMaximumVoltage = Optional.empty();
+  private Optional<Voltage>                             closedLoopControllerMaximumVoltage = Optional.empty();
   /**
    * Feedback synchronization threshhold.
    */
-  private       Optional<Angle>                               feedbackSynchronizationThreshold   = Optional.empty();
+  private Optional<Angle>                               feedbackSynchronizationThreshold   = Optional.empty();
   /**
    * The motor controller mode.
    */
-  private       ControlMode                                   motorControllerMode                = ControlMode.CLOSED_LOOP;
+  private ControlMode                                   motorControllerMode                = ControlMode.CLOSED_LOOP;
   /**
    * Encoder discontinuity point.
    */
-  private       Optional<Angle>                               maxDiscontinuityPoint              = Optional.empty();
+  private Optional<Angle>                               maxDiscontinuityPoint              = Optional.empty();
   /**
    * Encoder discontinuity point.
    */
-  private       Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
+  private Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
   /**
    * Moment of inertia for DCSim
    */
-  private       Double                                        moi                                = SingleJointedArmSim
+  private Double                                        moi                                = SingleJointedArmSim
       .estimateMOI(Inches.of(4).in(Meters),
                    Pounds.of(1).in(Kilograms));
 
@@ -511,8 +570,8 @@ public class SmartMotorControllerConfig
    * @param telemetryConfig Config that specifies what to log.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withSpecificTelemetry(String telemetryName,
-                                                          SmartMotorControllerTelemetryConfig telemetryConfig)
+  public SmartMotorControllerConfig withTelemetry(String telemetryName,
+                                                  SmartMotorControllerTelemetryConfig telemetryConfig)
   {
     this.telemetryName = Optional.ofNullable(telemetryName);
     this.verbosity = Optional.of(TelemetryVerbosity.HIGH);
@@ -537,6 +596,7 @@ public class SmartMotorControllerConfig
    */
   public OptionalInt getStatorStallCurrentLimit()
   {
+    basicOptions.remove(BasicOptions.StatorCurrentLimit);
     return statorStallCurrentLimit;
   }
 
@@ -619,6 +679,7 @@ public class SmartMotorControllerConfig
    */
   public OptionalInt getSupplyStallCurrentLimit()
   {
+    basicOptions.remove(BasicOptions.SupplyCurrentLimit);
     return supplyStallCurrentLimit;
   }
 
@@ -629,6 +690,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Voltage> getVoltageCompensation()
   {
+    basicOptions.remove(BasicOptions.VoltageCompensation);
     return voltageCompensation;
   }
 
@@ -639,6 +701,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<MotorMode> getIdleMode()
   {
+    basicOptions.remove(BasicOptions.IdleMode);
     return idleMode;
   }
 
@@ -648,7 +711,10 @@ public class SmartMotorControllerConfig
    *
    * @return Moment of Inertia in JKgMetersSquared.
    */
-  public double getMOI() {return moi;}
+  public double getMOI() {
+    basicOptions.remove(BasicOptions.MomentOfInertia);
+    return moi;
+  }
 
   /**
    * Lower limit of the mechanism.
@@ -657,6 +723,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Angle> getMechanismLowerLimit()
   {
+    basicOptions.remove(BasicOptions.LowerLimit);
     return mechanismLowerLimit;
   }
 
@@ -667,6 +734,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Angle> getMechanismUpperLimit()
   {
+    basicOptions.remove(BasicOptions.UpperLimit);
     return mechanismUpperLimit;
   }
 
@@ -788,6 +856,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Pair<Object, Boolean>[]> getFollowers()
   {
+    basicOptions.remove(BasicOptions.Followers);
     return followers;
   }
 
@@ -850,8 +919,9 @@ public class SmartMotorControllerConfig
    */
   public Optional<ArmFeedforward> getArmFeedforward()
   {
-    if(RobotBase.isSimulation() && sim_armFeedforward.isPresent())
-      return sim_armFeedforward;
+    basicOptions.remove(BasicOptions.ArmFeedforward);
+    if (RobotBase.isSimulation() && sim_armFeedforward.isPresent())
+    {return sim_armFeedforward;}
     return armFeedforward;
   }
 
@@ -902,8 +972,9 @@ public class SmartMotorControllerConfig
    */
   public Optional<ElevatorFeedforward> getElevatorFeedforward()
   {
-    if(RobotBase.isSimulation() && sim_elevatorFeedforward.isPresent())
-      return sim_elevatorFeedforward;
+    basicOptions.remove(BasicOptions.ElevatorFeedforward);
+    if (RobotBase.isSimulation() && sim_elevatorFeedforward.isPresent())
+    {return sim_elevatorFeedforward;}
     return elevatorFeedforward;
   }
 
@@ -954,8 +1025,9 @@ public class SmartMotorControllerConfig
    */
   public Optional<SimpleMotorFeedforward> getSimpleFeedforward()
   {
-    if(RobotBase.isSimulation() && sim_simpleFeedforward.isPresent())
-      return sim_simpleFeedforward;
+    basicOptions.remove(BasicOptions.SimpleFeedforward);
+    if (RobotBase.isSimulation() && sim_simpleFeedforward.isPresent())
+    {return sim_simpleFeedforward;}
     return simpleFeedforward;
   }
 
@@ -1013,8 +1085,8 @@ public class SmartMotorControllerConfig
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD,
-                                                             LinearVelocity maxVelocity,
-                                                             LinearAcceleration maxAcceleration)
+                                                                LinearVelocity maxVelocity,
+                                                                LinearAcceleration maxAcceleration)
   {
     if (mechanismCircumference.isEmpty())
     {
@@ -1024,10 +1096,11 @@ public class SmartMotorControllerConfig
     }
     this.sim_simpleController = Optional.empty();
     this.sim_controller = Optional.of(new ProfiledPIDController(kP,
-                                                            kI,
-                                                            kD,
-                                                            new Constraints(maxVelocity.in(MetersPerSecond),
-                                                                            maxAcceleration.in(MetersPerSecondPerSecond))));
+                                                                kI,
+                                                                kD,
+                                                                new Constraints(maxVelocity.in(MetersPerSecond),
+                                                                                maxAcceleration.in(
+                                                                                    MetersPerSecondPerSecond))));
     return this;
   }
 
@@ -1042,16 +1115,16 @@ public class SmartMotorControllerConfig
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD,
-                                                             AngularVelocity maxVelocity,
-                                                             AngularAcceleration maxAcceleration)
+                                                                AngularVelocity maxVelocity,
+                                                                AngularAcceleration maxAcceleration)
   {
     this.sim_simpleController = Optional.empty();
     this.sim_controller = Optional.of(new ProfiledPIDController(kP,
-                                                            kI,
-                                                            kD,
-                                                            new Constraints(maxVelocity.in(RotationsPerSecond),
-                                                                            maxAcceleration.in(
-                                                                                RotationsPerSecondPerSecond))));
+                                                                kI,
+                                                                kD,
+                                                                new Constraints(maxVelocity.in(RotationsPerSecond),
+                                                                                maxAcceleration.in(
+                                                                                    RotationsPerSecondPerSecond))));
     return this;
   }
 
@@ -1158,7 +1231,8 @@ public class SmartMotorControllerConfig
    */
   public Optional<ProfiledPIDController> getClosedLoopController()
   {
-    if(RobotBase.isSimulation() && sim_controller.isPresent())
+    basicOptions.remove(BasicOptions.ClosedLoopController);
+    if (RobotBase.isSimulation() && sim_controller.isPresent())
     {
       return sim_controller;
     }
@@ -1172,12 +1246,14 @@ public class SmartMotorControllerConfig
    */
   public Optional<PIDController> getSimpleClosedLoopController()
   {
-    if(RobotBase.isSimulation() && sim_simpleController.isPresent())
+    basicOptions.remove(BasicOptions.SimpleClosedLoopController);
+    if (RobotBase.isSimulation() && sim_simpleController.isPresent())
     {
       return sim_simpleController;
     }
     return simpleController;
   }
+
   /**
    * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
    *
@@ -1197,6 +1273,7 @@ public class SmartMotorControllerConfig
     }
     return this;
   }
+
   /**
    * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
    *
@@ -1224,6 +1301,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Time> getClosedLoopControlPeriod()
   {
+    basicOptions.remove(BasicOptions.ClosedLoopControlPeriod);
     return controlPeriod;
   }
 
@@ -1235,6 +1313,7 @@ public class SmartMotorControllerConfig
    */
   public MechanismGearing getGearing()
   {
+    basicOptions.remove(BasicOptions.Gearing);
     return gearing;
   }
 
@@ -1245,6 +1324,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Object> getExternalEncoder()
   {
+    basicOptions.remove(BasicOptions.ExternalEncoder);
     return externalEncoder;
   }
 
@@ -1255,6 +1335,7 @@ public class SmartMotorControllerConfig
    */
   public Time getOpenLoopRampRate()
   {
+    basicOptions.remove(BasicOptions.OpenLoopRampRate);
     return openLoopRampRate;
   }
 
@@ -1265,6 +1346,7 @@ public class SmartMotorControllerConfig
    */
   public Time getClosedLoopRampRate()
   {
+    basicOptions.remove(BasicOptions.ClosedLoopRampRate);
     return closeLoopRampRate;
   }
 
@@ -1416,6 +1498,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Angle> getZeroOffset()
   {
+    externalEncoderOptions.remove(ExternalEncoderOptions.ZeroOffset);
     return zeroOffset;
   }
 
@@ -1426,6 +1509,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Temperature> getTemperatureCutoff()
   {
+    basicOptions.remove(BasicOptions.TemperatureCutoff);
     return temperatureCutoff;
   }
 
@@ -1436,6 +1520,7 @@ public class SmartMotorControllerConfig
    */
   public boolean getEncoderInverted()
   {
+    basicOptions.remove(BasicOptions.EncoderInverted);
     return encoderInverted;
   }
 
@@ -1446,6 +1531,7 @@ public class SmartMotorControllerConfig
    */
   public boolean getMotorInverted()
   {
+    basicOptions.remove(BasicOptions.MotorInverted);
     return motorInverted;
   }
 
@@ -1456,6 +1542,7 @@ public class SmartMotorControllerConfig
    */
   public boolean getUseExternalFeedback()
   {
+    externalEncoderOptions.remove(ExternalEncoderOptions.UseExternalFeedbackEncoder);
     return useExternalEncoder;
   }
 
@@ -1466,6 +1553,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Angle> getStartingPosition()
   {
+    basicOptions.remove(BasicOptions.StartingPosition);
     return startingPosition;
   }
 
@@ -1476,6 +1564,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Voltage> getClosedLoopControllerMaximumVoltage()
   {
+    basicOptions.remove(BasicOptions.ClosedLoopControllerMaximumVoltage);
     return closedLoopControllerMaximumVoltage;
   }
 
@@ -1486,6 +1575,7 @@ public class SmartMotorControllerConfig
    */
   public Optional<Angle> getFeedbackSynchronizationThreshold()
   {
+    basicOptions.remove(BasicOptions.FeedbackSynchronizationThreshold);
     return feedbackSynchronizationThreshold;
   }
 
@@ -1496,6 +1586,7 @@ public class SmartMotorControllerConfig
    */
   public ControlMode getMotorControllerMode()
   {
+    basicOptions.remove(BasicOptions.ControlMode);
     return motorControllerMode;
   }
 
@@ -1506,6 +1597,7 @@ public class SmartMotorControllerConfig
    */
   public MechanismGearing getExternalEncoderGearing()
   {
+    externalEncoderOptions.remove(ExternalEncoderOptions.ExternalGearing);
     return externalEncoderGearing;
   }
 
@@ -1538,8 +1630,52 @@ public class SmartMotorControllerConfig
                                                                     .in(Rotations) + "),Rotations.of(" +
                                                            maxDiscontinuityPoint.get().in(Rotations) + ")) instead ");
     }
+    basicOptions.remove(BasicOptions.DiscontinuityPoint);
     return maxDiscontinuityPoint;
 
+  }
+
+  /**
+   * Reset the validation checks for all required options to be applied to {@link SmartMotorController} from
+   * {@link SmartMotorController#applyConfig(SmartMotorControllerConfig)}.
+   */
+  public void resetValidationCheck()
+  {
+    basicOptions = EnumSet.allOf(BasicOptions.class);
+    externalEncoderOptions = EnumSet.allOf(ExternalEncoderOptions.class);
+  }
+
+  /**
+   * Validate all required options are at least fetched and handled in each {@link SmartMotorController} wrapper.
+   */
+  public void validateBasicOptions()
+  {
+    if(!basicOptions.isEmpty())
+    {
+      System.err.println("========= Basic Option Validation FAILED ==========");
+      for(BasicOptions option : basicOptions)
+      {
+        System.err.println("Missing required option: " + option);
+      }
+      throw new SmartMotorControllerConfigurationException("Basic options are not applied",
+                                                           "Cannot validate basic options.",
+                                                           "get");
+    }
+  }
+
+  public void validateExternalEncoderOptions()
+  {
+    if(!externalEncoderOptions.isEmpty())
+    {
+      System.err.println("========= External Encoder Option Validation FAILED ==========");
+      for(ExternalEncoderOptions option : externalEncoderOptions)
+      {
+        System.err.println("Missing required option: " + option);
+      }
+      throw new SmartMotorControllerConfigurationException("External encoder options are not applied",
+                                                           "Cannot validate external encoder options.",
+                                                           "get");
+    }
   }
 
   /**
@@ -1549,6 +1685,7 @@ public class SmartMotorControllerConfig
    */
   public boolean getExternalEncoderInverted()
   {
+    externalEncoderOptions.remove(ExternalEncoderOptions.ExternalEncoderInverted);
     return externalEncoderInverted;
   }
 

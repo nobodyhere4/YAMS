@@ -303,6 +303,8 @@ public class SparkWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
+    config.resetValidationCheck();
+
     if (m_spark.isFollower())
     {
       m_spark.pauseFollowerMode();
@@ -428,6 +430,8 @@ public class SparkWrapper extends SmartMotorController
       {
         m_sparkRelativeEncoder.setPosition(m_sparkAbsoluteEncoder.get().getPosition());
       }
+
+      config.validateExternalEncoderOptions();
     } else
     {
 
@@ -469,6 +473,8 @@ public class SparkWrapper extends SmartMotorController
       throw new IllegalArgumentException(
           "[ERROR] Discontinuity point is not supported on Sparks, or we have not implemented this!");
     }
+
+    config.validateBasicOptions();
 
     return configureSpark(() -> m_spark.configure(m_sparkBaseConfig,
                                                   ResetMode.kNoResetSafeParameters,

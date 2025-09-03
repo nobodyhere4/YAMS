@@ -192,6 +192,8 @@ public class NovaWrapper extends SmartMotorController
   @Override
   public boolean applyConfig(SmartMotorControllerConfig config)
   {
+    config.resetValidationCheck();
+
     this.m_config = config;
     m_pidController = config.getClosedLoopController();
 
@@ -301,7 +303,7 @@ public class NovaWrapper extends SmartMotorController
             ".\n\tPlease use an `EncoderType` instead.");
       }
 
-
+      config.validateExternalEncoderOptions();
     }
 
     if (config.getZeroOffset().isPresent())
@@ -332,6 +334,7 @@ public class NovaWrapper extends SmartMotorController
           "[ERROR] ThriftyNova does not support discontinuity points, or we have not implemented this.");
     }
 
+    config.validateBasicOptions();
     return true;
   }
 
