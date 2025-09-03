@@ -769,7 +769,6 @@ public class TalonFXSWrapper extends SmartMotorController
         }
         configurator.apply(cfg);
       }
-      config.validateExternalEncoderOptions();
     } else
     {
       m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;//config.getGearing().getRotorToMechanismRatio();
@@ -864,6 +863,8 @@ public class TalonFXSWrapper extends SmartMotorController
     }
 
     config.validateBasicOptions();
+    config.validateExternalEncoderOptions();
+
     return forceConfigApply().isOK();
   }
 

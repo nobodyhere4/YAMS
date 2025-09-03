@@ -248,11 +248,15 @@ public class NovaWrapper extends SmartMotorController
     if (m_closedLoopControllerThread == null)
     {
       m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
-
+      startClosedLoopController();
     } else
     {
+      stopClosedLoopController();
       m_closedLoopControllerThread.stop();
+      m_closedLoopControllerThread.close();
+      m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
     }
+
     if (config.getTelemetryName().isPresent())
     {
       m_closedLoopControllerThread.setName(getName());
@@ -340,7 +344,6 @@ public class NovaWrapper extends SmartMotorController
             ".\n\tPlease use an `EncoderType` instead.");
       }
 
-      config.validateExternalEncoderOptions();
     }
 
     if (config.getZeroOffset().isPresent())
@@ -372,6 +375,7 @@ public class NovaWrapper extends SmartMotorController
     }
 
     config.validateBasicOptions();
+    config.validateExternalEncoderOptions();
     return true;
   }
 

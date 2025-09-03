@@ -346,8 +346,10 @@ public class SparkWrapper extends SmartMotorController
     if (m_closedLoopControllerThread == null)
     {
       m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+      startClosedLoopController();
     } else
     {
+      stopClosedLoopController();
       m_closedLoopControllerThread.stop();
       m_closedLoopControllerThread.close();
       m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
@@ -452,7 +454,6 @@ public class SparkWrapper extends SmartMotorController
         m_sparkRelativeEncoder.setPosition(m_sparkAbsoluteEncoder.get().getPosition());
       }
 
-      config.validateExternalEncoderOptions();
     } else
     {
 
@@ -496,7 +497,7 @@ public class SparkWrapper extends SmartMotorController
     }
 
     config.validateBasicOptions();
-
+    config.validateExternalEncoderOptions();
     return configureSpark(() -> m_spark.configure(m_sparkBaseConfig,
                                                   ResetMode.kNoResetSafeParameters,
                                                   PersistMode.kPersistParameters));
