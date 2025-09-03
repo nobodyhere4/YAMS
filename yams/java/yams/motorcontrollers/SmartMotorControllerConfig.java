@@ -61,7 +61,8 @@ public class SmartMotorControllerConfig
     MotorInverted,
     TemperatureCutoff,
 
-    DiscontinuityPoint, ///  Continuous Wrapping.
+    DiscontinuityPoint,
+    ///  Continuous Wrapping.
     ClosedLoopTolerance,
 
 //    Telemetry,
@@ -275,6 +276,10 @@ public class SmartMotorControllerConfig
    * Encoder discontinuity point.
    */
   private Optional<Angle>                               minDiscontinuityPoint              = Optional.empty();
+  /**
+   * Closed loop controller tolerance.
+   */
+  private Optional<Angle>                               closedLoopTolerance                = Optional.empty();
   /**
    * Moment of inertia for DCSim
    */
@@ -494,10 +499,11 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withClosedLoopTolerance(Angle tolerance)
   {
+    closedLoopTolerance = Optional.ofNullable(tolerance);
     if (tolerance != null)
     {
-      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(tolerance.in(Rotations)));
-      simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(getClosedLoopTolerance().orElse(tolerance).in(Rotations)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(getClosedLoopTolerance().orElse(tolerance).in(Rotations)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("No PID controller used",
@@ -524,8 +530,10 @@ public class SmartMotorControllerConfig
     }
     if (tolerance != null)
     {
-      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(tolerance.in(Meters)));
-      simpleController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Meters)));
+      Angle toleranceAngle = convertToMechanism(tolerance);
+      closedLoopTolerance = Optional.ofNullable(toleranceAngle);
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(convertFromMechanism(getClosedLoopTolerance().orElse(toleranceAngle)).in(Meters)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(convertFromMechanism(getClosedLoopTolerance().orElse(toleranceAngle)).in(Meters)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("No PID controller used",
@@ -534,6 +542,17 @@ public class SmartMotorControllerConfig
       }
     }
     return this;
+  }
+
+  /**
+   * Get the {@link SmartMotorController} closed loop controller tolerance.
+   *
+   * @return {@link Angle} tolerance.
+   */
+  public Optional<Angle> getClosedLoopTolerance()
+  {
+    basicOptions.remove(BasicOptions.ClosedLoopTolerance);
+    return closedLoopTolerance;
   }
 
   /**
@@ -711,7 +730,8 @@ public class SmartMotorControllerConfig
    *
    * @return Moment of Inertia in JKgMetersSquared.
    */
-  public double getMOI() {
+  public double getMOI()
+  {
 //    basicOptions.remove(BasicOptions.MomentOfInertia);
     return moi;
   }
@@ -1650,10 +1670,10 @@ public class SmartMotorControllerConfig
    */
   public void validateBasicOptions()
   {
-    if(!basicOptions.isEmpty())
+    if (!basicOptions.isEmpty())
     {
       System.err.println("========= Basic Option Validation FAILED ==========");
-      for(BasicOptions option : basicOptions)
+      for (BasicOptions option : basicOptions)
       {
         System.err.println("Missing required option: " + option);
       }
@@ -1665,10 +1685,10 @@ public class SmartMotorControllerConfig
 
   public void validateExternalEncoderOptions()
   {
-    if(!externalEncoderOptions.isEmpty())
+    if (!externalEncoderOptions.isEmpty())
     {
       System.err.println("========= External Encoder Option Validation FAILED ==========");
-      for(ExternalEncoderOptions option : externalEncoderOptions)
+      for (ExternalEncoderOptions option : externalEncoderOptions)
       {
         System.err.println("Missing required option: " + option);
       }

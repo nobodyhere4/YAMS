@@ -2,6 +2,7 @@ package yams.motorcontrollers.local;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -38,6 +39,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import java.util.List;
 import java.util.Optional;
+import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -205,7 +207,23 @@ public class NovaWrapper extends SmartMotorController
       {
         throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
       }
+    } else if (config.getSimpleClosedLoopController().isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException("ProfiledPIDController and PIDController defined",
+                                                           "Cannot have both PID Controllers.",
+                                                           ".withClosedLoopController");
     }
+
+    config.getClosedLoopTolerance().ifPresent(tolerance -> {
+      if(config.getMechanismCircumference().isPresent())
+      {
+        m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
+        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
+      } else {
+        m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+      }
+    });
 
     // Handle closed loop controller thread
     if (m_closedLoopControllerThread == null)
