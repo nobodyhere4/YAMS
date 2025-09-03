@@ -50,53 +50,144 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 public class SmartMotorControllerConfig
 {
 
+  /**
+   * Basic Options that should be applied to every {@link SmartMotorController}
+   */
   private enum BasicOptions
   {
+    /**
+     * Control Mode
+     */
     ControlMode,
+    /**
+     * Feedback Synchronization for encoder seeding.
+     */
     FeedbackSynchronizationThreshold,
+    /**
+     * Closed loop controller maximum voltage
+     */
     ClosedLoopControllerMaximumVoltage,
+    /**
+     * Starting mechanism position of the {@link SmartMotorController}
+     */
     StartingPosition,
-
+    /**
+     * Integrated Encoder Inverted
+     */
     EncoderInverted,
+    /**
+     * Motor inversion state
+     */
     MotorInverted,
+    /**
+     * Temperature Cutoff
+     */
     TemperatureCutoff,
-
+    /**
+     * Continuous Wrapping
+     */
     DiscontinuityPoint,
-    ///  Continuous Wrapping.
+    /**
+     * Closed Loop Tolerance
+     */
     ClosedLoopTolerance,
 
 //    Telemetry,
 //    TelemetryVerbosity,
 //    SpecifiedTelemetryConfig,
-
+    /**
+     * Closed loop controller upper limit.
+     */
     UpperLimit,
+    /**
+     * Closed loop controller lower limit.
+     */
     LowerLimit,
 //    MomentOfInertia,
-
+    /**
+     * Motor idle mode.
+     */
     IdleMode,
+    /**
+     * Voltage compensation.
+     */
     VoltageCompensation,
+    /**
+     * Follower motors
+     */
     Followers,
+    /**
+     * Stator current limits.
+     */
     StatorCurrentLimit,
+    /**
+     * Supply current limits.
+     */
     SupplyCurrentLimit,
+    /**
+     * Closed loop ramp rate.
+     */
     ClosedLoopRampRate,
+    /**
+     * Open loop ramp rate.
+     */
     OpenLoopRampRate,
+    /**
+     * External encoder used.
+     */
     ExternalEncoder,
+    /**
+     * Mechanism gearing from rotor to mechanisms.
+     */
     Gearing,
     //    MechanismCircumference,
+    /**
+     * Closed loop control period
+     */
     ClosedLoopControlPeriod,
+    /**
+     * Simple motor feedforward
+     */
     SimpleFeedforward,
+    /**
+     * Arm feedforward.
+     */
     ArmFeedforward,
+    /**
+     * Elevator feedforward
+     */
     ElevatorFeedforward,
+    /**
+     * Simple closed loop controller.
+     */
     SimpleClosedLoopController,
+    /**
+     * Motion profiled closed loop controller.
+     */
     ClosedLoopController,
 
   }
 
+  /**
+   * External encoder options
+   */
   private enum ExternalEncoderOptions
   {
+    /**
+     * External encoder offset.
+     */
     ZeroOffset,
+    /**
+     * Use the encoder as a feedback device.
+     */
     UseExternalFeedbackEncoder,
+    /**
+     * External gearing.
+     */
     ExternalGearing,
+    /**
+     * External encoder inversion.
+     */
     ExternalEncoderInverted
   }
 
@@ -502,8 +593,10 @@ public class SmartMotorControllerConfig
     closedLoopTolerance = Optional.ofNullable(tolerance);
     if (tolerance != null)
     {
-      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(getClosedLoopTolerance().orElse(tolerance).in(Rotations)));
-      simpleController.ifPresent(pidController -> pidController.setTolerance(getClosedLoopTolerance().orElse(tolerance).in(Rotations)));
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(getClosedLoopTolerance().orElse(
+          tolerance).in(Rotations)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(getClosedLoopTolerance().orElse(tolerance)
+                                                                                                     .in(Rotations)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("No PID controller used",
@@ -532,8 +625,10 @@ public class SmartMotorControllerConfig
     {
       Angle toleranceAngle = convertToMechanism(tolerance);
       closedLoopTolerance = Optional.ofNullable(toleranceAngle);
-      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(convertFromMechanism(getClosedLoopTolerance().orElse(toleranceAngle)).in(Meters)));
-      simpleController.ifPresent(pidController -> pidController.setTolerance(convertFromMechanism(getClosedLoopTolerance().orElse(toleranceAngle)).in(Meters)));
+      controller.ifPresent(profiledPIDController -> profiledPIDController.setTolerance(convertFromMechanism(
+          getClosedLoopTolerance().orElse(toleranceAngle)).in(Meters)));
+      simpleController.ifPresent(pidController -> pidController.setTolerance(convertFromMechanism(getClosedLoopTolerance().orElse(
+          toleranceAngle)).in(Meters)));
       if (controller.isEmpty() && simpleController.isEmpty())
       {
         throw new SmartMotorControllerConfigurationException("No PID controller used",
