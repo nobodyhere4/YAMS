@@ -315,7 +315,8 @@ public class NovaWrapper extends SmartMotorController
     }
 
     // External Encoder
-    if (config.getExternalEncoder().isPresent() && config.getUseExternalFeedback())
+    boolean useExt = config.getUseExternalFeedback();
+    if (config.getExternalEncoder().isPresent() && useExt)
     {
       Object externalEncoder = config.getExternalEncoder().get();
       if (externalEncoder instanceof EncoderType)

@@ -407,7 +407,8 @@ public class SparkWrapper extends SmartMotorController
       m_sparkRelativeEncoder.setPosition(config.getStartingPosition().get().in(Rotations));
     }
     // Setup external encoder.
-    if (config.getExternalEncoder().isPresent() && config.getUseExternalFeedback())
+    boolean useExternalEncoder = config.getUseExternalFeedback();
+    if (config.getExternalEncoder().isPresent() && useExternalEncoder)
     {
       Object externalEncoder = config.getExternalEncoder().get();
       if (externalEncoder instanceof SparkAbsoluteEncoder)
