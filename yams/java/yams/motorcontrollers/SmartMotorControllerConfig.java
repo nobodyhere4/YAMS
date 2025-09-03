@@ -70,7 +70,7 @@ public class SmartMotorControllerConfig
 
     UpperLimit,
     LowerLimit,
-    MomentOfInertia,
+//    MomentOfInertia,
 
     IdleMode,
     VoltageCompensation,
@@ -712,7 +712,7 @@ public class SmartMotorControllerConfig
    * @return Moment of Inertia in JKgMetersSquared.
    */
   public double getMOI() {
-    basicOptions.remove(BasicOptions.MomentOfInertia);
+//    basicOptions.remove(BasicOptions.MomentOfInertia);
     return moi;
   }
 
