@@ -346,7 +346,6 @@ public class SparkWrapper extends SmartMotorController
     if (m_closedLoopControllerThread == null)
     {
       m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
-      startClosedLoopController();
     } else
     {
       stopClosedLoopController();
@@ -361,8 +360,7 @@ public class SparkWrapper extends SmartMotorController
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
-                                                       .in(Second));
+      startClosedLoopController();
     } else
     {
       m_closedLoopControllerThread.stop();

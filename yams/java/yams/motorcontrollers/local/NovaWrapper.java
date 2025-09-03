@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -248,7 +247,6 @@ public class NovaWrapper extends SmartMotorController
     if (m_closedLoopControllerThread == null)
     {
       m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
-      startClosedLoopController();
     } else
     {
       stopClosedLoopController();
@@ -263,8 +261,7 @@ public class NovaWrapper extends SmartMotorController
     }
     if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
-      m_closedLoopControllerThread.startPeriodic(config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
-                                                       .in(Seconds));
+      startClosedLoopController();
     } else
     {
       m_closedLoopControllerThread.stop();
