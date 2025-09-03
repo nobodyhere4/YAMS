@@ -30,8 +30,11 @@ import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -55,6 +58,7 @@ import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.simulation.DCMotorSimSupplier;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
@@ -496,35 +500,54 @@ public class TalonFXWrapper extends SmartMotorController
                                                                                   : "TalonFX(" +
                                                                                     m_talonfx.getDeviceID() + ")"));
       }
+    }else if (config.getClosedLoopController().isPresent() && config.getSimpleClosedLoopController().isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException("ProfiledPIDController and PIDController defined",
+                                                           "Cannot have both PID Controllers.",
+                                                           ".withClosedLoopController");
     } else
     {
       throw new IllegalArgumentException("[ERROR] No closed loop configuration available!");
     }
+
+    if(config.getClosedLoopTolerance().isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException("Closed loop tolerance is not available on TalonFX", "Cannot set closed loop tolerance on TalonFX", ".withClosedLoopTolerance");
+    }
+
+    if( m_config.getMotorControllerMode() == ControlMode.OPEN_LOOP)
+    {
+      throw new SmartMotorControllerConfigurationException("Open loop mode is the same as Closed Loop Mode", "Cannot set motor controller mode to Open Loop on TalonFX", ".withOpenLoopMode");
+    }
+
     // Feedforwards
-    if (config.getArmFeedforward().isPresent() || config.getElevatorFeedforward().isPresent() ||
-        config.getSimpleFeedforward().isPresent())
+    Optional<ArmFeedforward>         armFeedforward         = m_config.getArmFeedforward();
+    Optional<ElevatorFeedforward>    elevatorFeedforward    = m_config.getElevatorFeedforward();
+    Optional<SimpleMotorFeedforward> simpleMotorFeedforward = m_config.getSimpleFeedforward();
+    if (armFeedforward.isPresent() || elevatorFeedforward.isPresent() ||
+        simpleMotorFeedforward.isPresent())
     {
       double kS = 0, kV = 0, kA = 0, kG = 0;
-      if (config.getArmFeedforward().isPresent())
+      if (armFeedforward.isPresent())
       {
-        var ff = config.getArmFeedforward().get();
+        var ff = armFeedforward.get();
         kS = ff.getKs();
         kV = ff.getKv();
         kA = ff.getKa();
         kG = ff.getKg();
         m_talonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-      } else if (config.getElevatorFeedforward().isPresent())
+      } else if (elevatorFeedforward.isPresent())
       {
-        var ff = config.getElevatorFeedforward().get();
+        var ff = elevatorFeedforward.get();
         kS = ff.getKs();
         kV = ff.getKv();
         kA = ff.getKa();
         kG = ff.getKg();
         m_talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-      } else if (config.getSimpleFeedforward().isPresent())
+      } else
       {
-        var ff = config.getSimpleFeedforward().get();
+        var ff = simpleMotorFeedforward.get();
         kS = ff.getKs();
         kV = ff.getKv();
         kA = ff.getKa();
