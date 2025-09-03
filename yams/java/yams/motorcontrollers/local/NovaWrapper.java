@@ -344,13 +344,35 @@ public class NovaWrapper extends SmartMotorController
             ".\n\tPlease use an `EncoderType` instead.");
       }
 
+      if(config.getZeroOffset().isPresent())
+      {
+        throw new SmartMotorControllerConfigurationException("Zero offset is unavailable for ThriftyNova", "Zero offset could not be applied", ".withZeroOffset");
+//        m_nova.setAbsOffset(config.getZeroOffset().get().in(Rotations));
+      }
+      if(config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
+      {
+        // Do nothing, applied later.
+      }
+
+    }
+    else {
+      if (config.getZeroOffset().isPresent())
+      {
+        throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders", "Zero offset could not be applied", ".withZeroOffset");
+      }
+
+      if(config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
+      {
+        throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", ".withExternalEncoderGearing");
+      }
     }
 
-    if (config.getZeroOffset().isPresent())
+    if(config.getExternalEncoderInverted())
     {
-      DriverStation.reportError("[ERROR] ThriftyNova does not support zero offset, or we have not implemented this.",
-                                true);
+      throw new SmartMotorControllerConfigurationException("External encoder cannot be inverted because no external encoder exists", "External encoder could not be inverted", ".withExternalEncoderInverted");
     }
+
+
 
     if (config.getFollowers().isPresent())
     {

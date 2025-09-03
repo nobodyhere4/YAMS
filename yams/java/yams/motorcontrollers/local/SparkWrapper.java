@@ -459,8 +459,17 @@ public class SparkWrapper extends SmartMotorController
 
       if (config.getZeroOffset().isPresent())
       {
-        DriverStation.reportError("[ERROR] Zero offset is not supported on Sparks without Absolute Encoders!",
-                                  false);
+        throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders", "Zero offset could not be applied", ".withZeroOffset");
+      }
+
+      if(config.getExternalEncoderInverted())
+      {
+        throw new SmartMotorControllerConfigurationException("External encoder cannot be inverted because no external encoder exists", "External encoder could not be inverted", ".withExternalEncoderInverted");
+      }
+
+      if(config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
+      {
+        throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", ".withExternalEncoderGearing");
       }
     }
 
