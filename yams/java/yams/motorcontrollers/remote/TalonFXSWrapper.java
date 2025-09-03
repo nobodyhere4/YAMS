@@ -772,6 +772,16 @@ public class TalonFXSWrapper extends SmartMotorController
       }
     } else
     {
+      if(config.getExternalEncoderInverted())
+      {
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be inverted if not present!","External encoder is not inverted!","withExternalEncoderInverted(false)");
+      }
+
+      if(config.getExternalEncoderGearing().getMechanismToRotorRatio() != 1.0)
+      {
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be set if not present!","External encoder gearing is not 1.0!","withExternalEncoderGearing(Rotations.of(1.0))");
+      }
+
       m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;//config.getGearing().getRotorToMechanismRatio();
       m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getGearing().getMechanismToRotorRatio();
       // Zero offset.
