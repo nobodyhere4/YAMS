@@ -471,6 +471,10 @@ public class SparkWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", ".withExternalEncoderGearing");
       }
+      if(config.getUseExternalFeedback())
+      {
+        throw new SmartMotorControllerConfigurationException("External feedback is only available for external encoders", "External feedback could not be enabled", ".withUseExternalFeedback");
+      }
     }
 
     // Configure follower motors
