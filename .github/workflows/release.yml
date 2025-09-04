@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      pages: read
     env:
       releaseVersion: ${{ inputs.releaseVersion }}
       workingDirectory: ${{github.workspace}}/vendordep
