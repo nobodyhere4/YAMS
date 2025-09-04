@@ -47,6 +47,8 @@ jobs:
 #          pr_title: "Automatically add YAMS version ${{inputs.releaseVersion}}"
 #          pr_branch: "publish_yams_${{inputs.releaseVersion}}"
 #        continue-on-error: true
+      - name: Output Pages Tree
+        run: find ${{ env.workingDirectory }}/build/maven/ -type f
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
