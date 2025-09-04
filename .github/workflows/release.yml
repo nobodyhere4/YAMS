@@ -18,6 +18,7 @@ jobs:
       releaseVersion: ${{ inputs.releaseVersion }}
       workingDirectory: ${{github.workspace}}/vendordep
     steps:
+      - run: git config --global user.name "thenetworkgrinch" && git config --global user.email "thenetworkgrinch@noreply.users.github.com"
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
