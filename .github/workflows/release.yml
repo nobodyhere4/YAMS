@@ -13,6 +13,7 @@ jobs:
       contents: read
       actions: read
       pages: read
+      deployments: read
     env:
       releaseVersion: ${{ inputs.releaseVersion }}
       workingDirectory: ${{github.workspace}}/vendordep
@@ -30,12 +31,11 @@ jobs:
       - name: Build vendordep
         run: ./gradlew build
         working-directory: ${{ env.workingDirectory }}
-      - name: Download Maven Repository
-        uses: actions/download-artifact@v4
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
         with:
-          name: github-pages
+          ref: gh-pages
           path: ${{ env.workingDirectory }}/build/maven/
-        continue-on-error: true
       - name: Publish vendordep
         run: ./gradlew publish
         working-directory: ${{ env.workingDirectory }}
@@ -52,6 +52,9 @@ jobs:
 #        continue-on-error: true
       - name: Output Pages Tree
         run: find ${{ env.workingDirectory }}/build/maven/ -type f
+      - name: Upload pages
+        run: git add . && git commit -m "Automatically add YAMS version ${{inputs.releaseVersion}}" && git push
+        working-directory: ${{ env.workingDirectory }}/build/maven/
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
