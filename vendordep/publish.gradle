@@ -187,11 +187,11 @@ publishing {
     }
 }
 
-task cleanReleaseRepo(type: Delete) {
-    delete releasesRepoUrl
-}
-
-tasks.matching {it != cleanReleaseRepo}.all {it.dependsOn cleanReleaseRepo}
+//task cleanReleaseRepo(type: Delete) {
+//    delete releasesRepoUrl
+//}
+//
+//tasks.matching {it != cleanReleaseRepo}.all {it.dependsOn cleanReleaseRepo}
 
 model {
     publishing {
