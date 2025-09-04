@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
     env:
       releaseVersion: ${{ inputs.releaseVersion }}
       workingDirectory: ${{github.workspace}}/vendordep
@@ -55,6 +56,8 @@ jobs:
       - name: Upload vendordep json, maven repository, and javadocs
         uses: actions/upload-pages-artifact@v3
         with:
+          name: 'github-pages'
+          retention-days: '90'
           path: ${{ env.workingDirectory }}/build/maven/
 
   deploy:
