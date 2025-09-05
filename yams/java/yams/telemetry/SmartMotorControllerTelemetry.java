@@ -70,16 +70,17 @@ public class SmartMotorControllerTelemetry
     {
       dataNetworkTable = publishTable;
       tuningNetworkTable = tuningTable;
+      SmartMotorControllerConfig smcConfig = smartMotorController.getConfig();
       this.config = config;
       doubleFields = config.getDoubleFields(smartMotorController);
       boolFields = config.getBoolFields(smartMotorController);
       for (Map.Entry<DoubleTelemetryField, DoubleTelemetry> entry : doubleFields.entrySet())
       {
-        entry.getValue().setupNetworkTables(dataNetworkTable, tuningNetworkTable);
+        entry.getValue().transformUnit(smcConfig).setupNetworkTables(dataNetworkTable, tuningNetworkTable);
       }
       for (Map.Entry<DoubleTelemetryField, DoubleTelemetry> entry : doubleFields.entrySet())
       {
-        entry.getValue().setupNetworkTables(dataNetworkTable, tuningNetworkTable);
+        entry.getValue().transformUnit(smcConfig).setupNetworkTables(dataNetworkTable, tuningNetworkTable);
       }
 
     }
@@ -401,137 +402,147 @@ public class SmartMotorControllerTelemetry
     /**
      * Motion profile maximum velocity, could be in MPS or RPS
      */
-    MotionProfileMaxVelocity("closedloop/motionprofile/maxVelocity", 0, true),
+    MotionProfileMaxVelocity("closedloop/motionprofile/maxVelocity", 0, true, "velocity"),
     /**
      * Motion profile maximum accelerartion, could be in MPS^2 or RPS^2
      */
-    MotionProfileMaxAcceleration("closedloop/motionprofile/maxAcceleration", 0, true),
+    MotionProfileMaxAcceleration("closedloop/motionprofile/maxAcceleration", 0, true, "acceleration"),
     /**
      * kS
      */
-    kS("closedloop/feedforward/kS", 0, true),
+    kS("closedloop/feedforward/kS", 0, true, "none"),
     /**
      * kV
      */
-    kV("closedloop/feedforward/kV", 0, true),
+    kV("closedloop/feedforward/kV", 0, true, "none"),
     /**
      * kA
      */
-    kA("closedloop/feedforward/kA", 0, true),
+    kA("closedloop/feedforward/kA", 0, true, "none"),
     /**
      * kG
      */
-    kG("closedloop/feedforward/kG", 0, true),
+    kG("closedloop/feedforward/kG", 0, true, "none"),
     /**
      * kP
      */
-    kP("closedloop/feedback/kP", 0, true),
+    kP("closedloop/feedback/kP", 0, true, "none"),
     /**
      * kI
      */
-    kI("closedloop/feedback/kI", 0, true),
+    kI("closedloop/feedback/kI", 0, true, "none"),
     /**
      * kD
      */
-    kD("closedloop/feedback/kD", 0, true),
+    kD("closedloop/feedback/kD", 0, true, "none"),
     /**
      * Setpoint position
      */
-    TunableSetpointPosition("closedloop/setpoint/position", 0, true),
+    TunableSetpointPosition("closedloop/setpoint/position", 0, true, "position"),
     /**
      * Setpoint position
      */
-    SetpointPosition("closedloop/setpoint/position", 0, false),
+    SetpointPosition("closedloop/setpoint/position", 0, false, "position"),
     /**
      * Setpoint velocity
      */
-    TunableSetpointVelocity("closedloop/setpoint/velocity", 0, true),
+    TunableSetpointVelocity("closedloop/setpoint/velocity", 0, true, "velocity"),
     /**
      * Setpoint velocity
      */
-    SetpointVelocity("closedloop/setpoint/velocity", 0, false),
+    SetpointVelocity("closedloop/setpoint/velocity", 0, false, "velocity"),
     /**
      * Voltage supplied to the motor.
      */
-    OutputVoltage("motor/outputVoltage", 0, false),
+    OutputVoltage("motor/outputVoltage", 0, false, "volts"),
     /**
      * Stator current.
      */
-    StatorCurrent("current/stator", 0, false),
+    StatorCurrent("current/stator", 0, false, "amps"),
     /**
      * Supply current limit.
      */
-    StatorCurrentLimit("current/limit/stator", 0, true),
+    StatorCurrentLimit("current/limit/stator", 0, true, "amps"),
     /**
      * Supply current.
      */
-    SupplyCurrent("current/supply", 0, false),
+    SupplyCurrent("current/supply", 0, false, "amps"),
     /**
      * Supply current limit.
      */
-    SupplyCurrentLimit("current/limit/supply", 0, true),
+    SupplyCurrentLimit("current/limit/supply", 0, true, "amps"),
     /**
      * Motor temperature
      */
-    MotorTemperature("motor/temperature", 0, false),
+    MotorTemperature("motor/temperature", 0, false, "fahrenheit"),
     /**
      * Measurement position
      */
-    MeasurementPosition("measurement/position (meters)", 0, false),
+    MeasurementPosition("measurement/position", 0, false, "meters"),
     /**
      * Measurement velocity.
      */
-    MeasurementVelocity("measurement/velocity (meters per second)", 0, false),
+    MeasurementVelocity("measurement/velocity", 0, false, "meters_per_second"),
     /**
      * Measurement lower limit.
      */
-    MeasurementLowerLimit("measurement/limit/lower (meters)", 0, true),
+    MeasurementLowerLimit("measurement/limit/lower", 0, true, "meters"),
     /**
      * Measurement upper limit.
      */
-    MeasurementUpperLimit("measurement/limit/upper (meters)", 0, true),
+    MeasurementUpperLimit("measurement/limit/upper", 0, true, "meters"),
     /**
      * Mechanism position in rotations.
      */
-    MechanismPosition("mechanism/position (rotations)", 0, false),
+    MechanismPosition("mechanism/position", 0, false, "rotations"),
     /**
      * Mechanism velocity in rotations per second.
      */
-    MechanismVelocity("mechanism/velocity (rotations per second)", 0, false),
+    MechanismVelocity("mechanism/velocity", 0, false, "rotations_per_second"),
     /**
      * Mechanism lower limit in rotations.
      */
-    MechanismLowerLimit("mechanism/limit/lower (rotations)", 0, true),
+    MechanismLowerLimit("mechanism/limit/lower", 0, true, "rotations"),
     /**
      * Mechanism upper limit in rotations.
      */
-    MechanismUpperLimit("mechanism/limit/upper (rotations)", 0, true),
+    MechanismUpperLimit("mechanism/limit/upper", 0, true, "rotations"),
     /**
      * Rotor position in rotations.
      */
-    RotorPosition("rotor/position (rotations)", 0, false),
+    RotorPosition("rotor/position", 0, false, "rotations"),
     /**
      * Rotor velocity in rotations.
      */
-    RotorVelocity("rotor/velocity (rotations per second)", 0, false),
+    RotorVelocity("rotor/velocity", 0, false, "rotations_per_second"),
     /**
      * Closed loop dutycyle ramp rate.
      */
-    ClosedloopRampRate("ramprate/dutycycle/closedloop", 0, true),
+    ClosedloopRampRate("ramprate/dutycycle/closedloop", 0, true, "none"),
     /**
      * Open loop dutycycle ramp rate.
      */
-    OpenloopRampRate("ramprate/dutycycle/openloop", 0, true);
+    OpenloopRampRate("ramprate/dutycycle/openloop", 0, true, "none");
 
     private final double  defaultVal;
     private final String  key;
     private final boolean tunable;
+    private final String  unit;
 
-    DoubleTelemetryField(String fieldName, double defaultValue, boolean tunable)
+    /**
+     * Create double telemetry field.
+     *
+     * @param fieldName    NT Field Name
+     * @param defaultValue Default value
+     * @param tunable      Tunable places it only in the Tuning Table.
+     * @param unit         Unit of the telemetry field. Special types are "position", velocity", and "acceleration".
+     */
+    DoubleTelemetryField(String fieldName, double defaultValue, boolean tunable, String unit)
     {
       key = fieldName;
       defaultVal = defaultValue;
       this.tunable = tunable;
+      this.unit = unit;
     }
 
     /**
@@ -541,7 +552,7 @@ public class SmartMotorControllerTelemetry
      */
     public DoubleTelemetry create()
     {
-      return new DoubleTelemetry(key, defaultVal, this, tunable);
+      return new DoubleTelemetry(key, defaultVal, this, tunable, unit);
     }
 
   }

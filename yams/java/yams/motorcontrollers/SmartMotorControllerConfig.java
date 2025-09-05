@@ -1147,10 +1147,10 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations and
-   * outputs are in Rotations.
+   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations (or Meters if Mechanism Circumference is configured), and
+   * outputs are in Volts.
    *
-   * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations and output is
+   * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), and output is
    *                   Voltage.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
@@ -1162,7 +1162,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).
    *
    * @param kP KP scalar for the PID Controller.
    * @param kI KI scalar for the PID Controller.
@@ -1177,7 +1177,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).
    *
    * @param controller {@link PIDController} to use.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1220,13 +1220,13 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
+   * Set the closed loop controller for the {@link SmartMotorController}. Units are Rotations.
    *
-   * @param kP              KP scalar for the PID Controller.
-   * @param kI              KI scalar for the PID Controller.
-   * @param kD              KD scalar for the PID Controller.
-   * @param maxVelocity     Maximum angular velocity for the Trapazoidal profile.
-   * @param maxAcceleration Maximum angular acceleration for the Trapazoidal profile.
+   * @param kP              KP scalar for the PID Controller, the units passed in are in Rotations.
+   * @param kI              KI scalar for the PID Controller, the units passed in are in Rotations.
+   * @param kD              KD scalar for the PID Controller, the units passed in are in Rotations.
+   * @param maxVelocity     Maximum angular velocity for the Trapezoidal profile.
+   * @param maxAcceleration Maximum angular acceleration for the Trapezoidal profile.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withSimClosedLoopController(double kP, double kI, double kD,
@@ -1244,8 +1244,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations and
-   * outputs are in Rotations.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured),
+   * outputs are in Volts.
    *
    * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations and output is
    *                   Voltage.
@@ -1259,11 +1259,11 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
    *
-   * @param kP KP scalar for the PID Controller.
-   * @param kI KI scalar for the PID Controller.
-   * @param kD KD scalar for the PID Controller.
+   * @param kP KP scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * @param kI KI scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * @param kD KD scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withClosedLoopController(double kP, double kI, double kD)
@@ -1274,9 +1274,9 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
    *
-   * @param controller {@link PIDController} to use.
+   * @param controller {@link PIDController} to use, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withClosedLoopController(PIDController controller)
@@ -1289,9 +1289,9 @@ public class SmartMotorControllerConfig
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
    *
-   * @param kP              KP scalar for the PID Controller.
-   * @param kI              KI scalar for the PID Controller.
-   * @param kD              KD scalar for the PID Controller.
+   * @param kP              KP scalar for the PID Controller, the units passed in are in Meters and output is Voltage.
+   * @param kI              KI scalar for the PID Controller, the units passed in are in Meters and output is Voltage.
+   * @param kD              KD scalar for the PID Controller, the units passed in are in Meters and output is Voltage.
    * @param maxVelocity     Maximum linear velocity for the Trapazoidal profile.
    * @param maxAcceleration Maximum linear acceleration for the Trapazoidal profile.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1318,9 +1318,9 @@ public class SmartMotorControllerConfig
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
    *
-   * @param kP              KP scalar for the PID Controller.
-   * @param kI              KI scalar for the PID Controller.
-   * @param kD              KD scalar for the PID Controller.
+   * @param kP              KP scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
+   * @param kI              KI scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
+   * @param kD              KD scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
    * @param maxVelocity     Maximum angular velocity for the Trapazoidal profile.
    * @param maxAcceleration Maximum angular acceleration for the Trapazoidal profile.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1340,7 +1340,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Get the controller for the {@link SmartMotorController}
+   * Get the controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
    *
    * @return {@link ProfiledPIDController}
    */
@@ -1370,7 +1370,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
+   * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}, units are in Rotations.
    *
    * @param simpleFeedforward {@link SimpleMotorFeedforward}
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1390,7 +1390,7 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}
+   * Set the {@link SimpleMotorFeedforward} for {@link SmartMotorController}, units are in Rotations
    *
    * @param simpleFeedforward {@link SimpleMotorFeedforward}
    * @return {@link SmartMotorControllerConfig} for chaining.

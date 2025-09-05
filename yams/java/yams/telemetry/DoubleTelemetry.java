@@ -6,11 +6,12 @@ package yams.telemetry;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.DoubleTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.PubSub;
-import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
-
 import java.util.Optional;
+import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
  * Add your docs here.
@@ -30,6 +31,10 @@ public class DoubleTelemetry
    * Tunable?
    */
   private final boolean                    tunable;
+  /**
+   * Unit to display.
+   */
+  private       String                     unit;
   /**
    * Enabled?
    */
@@ -57,11 +62,12 @@ public class DoubleTelemetry
   /**
    * Tuning table
    */
-  private Optional<NetworkTable> tuningTable = Optional.empty();
+  private       Optional<NetworkTable>     tuningTable  = Optional.empty();
   /**
    * Data table.
    */
-  private Optional<NetworkTable> dataTable = Optional.empty();
+  private       Optional<NetworkTable>     dataTable    = Optional.empty();
+  private       DoubleTopic                topic;
 
 
   /**
@@ -71,13 +77,15 @@ public class DoubleTelemetry
    * @param defaultVal Default value.
    * @param field      Field representing.
    * @param tunable    Tunable.
+   * @param unit       Unit to display.
    */
-  public DoubleTelemetry(String keyString, double defaultVal, DoubleTelemetryField field, boolean tunable)
+  public DoubleTelemetry(String keyString, double defaultVal, DoubleTelemetryField field, boolean tunable, String unit)
   {
     key = keyString;
     cachedValue = defaultValue = defaultVal;
     this.field = field;
     this.tunable = tunable;
+    this.unit = unit;
   }
 
   /**
@@ -102,17 +110,46 @@ public class DoubleTelemetry
     this.dataTable = Optional.ofNullable(dataTable);
     if (tuningTable != null && tunable)
     {
-      var topic = tuningTable.getDoubleTopic(key);
+      topic = tuningTable.getDoubleTopic(key);
       subscriber = Optional.of(topic.subscribe(defaultValue));
       subPublisher = topic.publish();
+      if (!unit.equals("none"))
+      {topic.setProperties("{\"unit\":\""+ unit+"\"}");}
       subPublisher.setDefault(defaultValue);
     } else
     {
-      var topic = dataTable.getDoubleTopic(key);
+      assert dataTable != null;
+      topic = dataTable.getDoubleTopic(key);
       publisher = topic.publish();
+      if (!unit.equals("none"))
+      {topic.setProperties("{\"unit\": \""+ unit+"\"}");}
       publisher.setDefault(defaultValue);
     }
   }
+
+  /**
+   * Set the unit.
+   *
+   * @return {@link DoubleTelemetry} for chaining.
+   */
+  public DoubleTelemetry transformUnit(SmartMotorControllerConfig cfg)
+  {
+    switch (unit)
+    {
+      case "position":
+        unit = cfg.getMechanismCircumference().isPresent() ? "meters" : "rotations";
+        break;
+      case "velocity":
+        unit = cfg.getMechanismCircumference().isPresent() ? "meters_per_second" : "rotations_per_second";
+        break;
+      case "acceleration":
+        unit = cfg.getMechanismCircumference().isPresent() ? "meters_per_second_per_second"
+                                                           : "rotations_per_second_per_second";
+        break;
+    }
+    return this;
+  }
+
 
   /**
    * Setup network tables.
@@ -222,10 +259,10 @@ public class DoubleTelemetry
   public void close()
   {
     subscriber.ifPresent(PubSub::close);
-    if(subPublisher != null)
-      subPublisher.close();
-    if(publisher != null)
-      publisher.close();
+    if (subPublisher != null)
+    {subPublisher.close();}
+    if (publisher != null)
+    {publisher.close();}
     dataTable.ifPresent(table -> table.getEntry(key).unpublish());
     tuningTable.ifPresent(table -> table.getEntry(key).unpublish());
   }
