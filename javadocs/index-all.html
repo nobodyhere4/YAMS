@@ -329,7 +329,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Add your docs here.</div>
 </dd>
-<dt><a href="yams/telemetry/DoubleTelemetry.html#%3Cinit%3E(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean)" class="member-name-link">DoubleTelemetry(String, double, SmartMotorControllerTelemetry.DoubleTelemetryField, boolean)</a> - Constructor for class yams.telemetry.<a href="yams/telemetry/DoubleTelemetry.html" title="class in yams.telemetry">DoubleTelemetry</a></dt>
+<dt><a href="yams/telemetry/DoubleTelemetry.html#%3Cinit%3E(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean,java.lang.String)" class="member-name-link">DoubleTelemetry(String, double, SmartMotorControllerTelemetry.DoubleTelemetryField, boolean, String)</a> - Constructor for class yams.telemetry.<a href="yams/telemetry/DoubleTelemetry.html" title="class in yams.telemetry">DoubleTelemetry</a></dt>
 <dd>
 <div class="block">Setup double telemetry for a field.</div>
 </dd>
@@ -488,7 +488,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getClosedLoopController()" class="member-name-link">getClosedLoopController()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Get the controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+<div class="block">Get the controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getClosedLoopControllerMaximumVoltage()" class="member-name-link">getClosedLoopControllerMaximumVoltage()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -2746,6 +2746,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Multiply the sprocket reduction ratio by X.</div>
 </dd>
+<dt><a href="yams/telemetry/DoubleTelemetry.html#transformUnit(yams.motorcontrollers.SmartMotorControllerConfig)" class="member-name-link">transformUnit(SmartMotorControllerConfig)</a> - Method in class yams.telemetry.<a href="yams/telemetry/DoubleTelemetry.html" title="class in yams.telemetry">DoubleTelemetry</a></dt>
+<dd>
+<div class="block">Set the unit.</div>
+</dd>
 <dt><a href="yams/telemetry/BooleanTelemetry.html#tunable()" class="member-name-link">tunable()</a> - Method in class yams.telemetry.<a href="yams/telemetry/BooleanTelemetry.html" title="class in yams.telemetry">BooleanTelemetry</a></dt>
 <dd>
 <div class="block">Check to see if the value has changed.</div>
@@ -2942,7 +2946,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopController(double,double,double)" class="member-name-link">withClosedLoopController(double, double, double)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopController(double,double,double,edu.wpi.first.units.measure.AngularVelocity,edu.wpi.first.units.measure.AngularAcceleration)" class="member-name-link">withClosedLoopController(double, double, double, AngularVelocity, AngularAcceleration)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -2954,11 +2958,12 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withClosedLoopController(PIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopController(edu.wpi.first.math.controller.ProfiledPIDController)" class="member-name-link">withClosedLoopController(ProfiledPIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured),
+ outputs are in Volts.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopControllerMaximumVoltage(edu.wpi.first.units.measure.Voltage)" class="member-name-link">withClosedLoopControllerMaximumVoltage(Voltage)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -3031,7 +3036,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withFeedforward(edu.wpi.first.math.controller.SimpleMotorFeedforward)" class="member-name-link">withFeedforward(SimpleMotorFeedforward)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/SimpleMotorFeedforward.html" title="class or interface in edu.wpi.first.math.controller" class="external-link"><code>SimpleMotorFeedforward</code></a> for <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+<div class="block">Set the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/SimpleMotorFeedforward.html" title="class or interface in edu.wpi.first.math.controller" class="external-link"><code>SimpleMotorFeedforward</code></a> for <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, units are in Rotations</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withFollowers(edu.wpi.first.math.Pair...)" class="member-name-link">withFollowers(Pair&lt;Object, Boolean&gt;...)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -3228,7 +3233,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(double,double,double)" class="member-name-link">withSimClosedLoopController(double, double, double)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(double,double,double,edu.wpi.first.units.measure.AngularVelocity,edu.wpi.first.units.measure.AngularAcceleration)" class="member-name-link">withSimClosedLoopController(double, double, double, AngularVelocity, AngularAcceleration)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -3240,7 +3245,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withSimClosedLoopController(PIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(edu.wpi.first.math.controller.ProfiledPIDController)" class="member-name-link">withSimClosedLoopController(ProfiledPIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -3276,7 +3281,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimFeedforward(edu.wpi.first.math.controller.SimpleMotorFeedforward)" class="member-name-link">withSimFeedforward(SimpleMotorFeedforward)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/SimpleMotorFeedforward.html" title="class or interface in edu.wpi.first.math.controller" class="external-link"><code>SimpleMotorFeedforward</code></a> for <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+<div class="block">Set the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/SimpleMotorFeedforward.html" title="class or interface in edu.wpi.first.math.controller" class="external-link"><code>SimpleMotorFeedforward</code></a> for <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, units are in Rotations.</div>
 </dd>
 <dt><a href="yams/telemetry/SmartMotorControllerTelemetryConfig.html#withSimpleFeedforward()" class="member-name-link">withSimpleFeedforward()</a> - Method in class yams.telemetry.<a href="yams/telemetry/SmartMotorControllerTelemetryConfig.html" title="class in yams.telemetry">SmartMotorControllerTelemetryConfig</a></dt>
 <dd>

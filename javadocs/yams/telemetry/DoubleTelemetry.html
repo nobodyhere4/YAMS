@@ -107,10 +107,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean)" class="member-name-link">DoubleTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;keyString,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean,java.lang.String)" class="member-name-link">DoubleTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;keyString,
  double&nbsp;defaultVal,
  <a href="SmartMotorControllerTelemetry.DoubleTelemetryField.html" title="enum class in yams.telemetry">SmartMotorControllerTelemetry.DoubleTelemetryField</a>&nbsp;field,
- boolean&nbsp;tunable)</code></div>
+ boolean&nbsp;tunable,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;unit)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Setup double telemetry for a field.</div>
 </div>
@@ -179,9 +180,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Setup network tables.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tunable()" class="member-name-link">tunable</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DoubleTelemetry.html" title="class in yams.telemetry">DoubleTelemetry</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#transformUnit(yams.motorcontrollers.SmartMotorControllerConfig)" class="member-name-link">transformUnit</a><wbr>(<a href="../motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a>&nbsp;cfg)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Set the unit.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tunable()" class="member-name-link">tunable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Check to see if the value has changed.</div>
 </div>
 </div>
@@ -217,12 +223,13 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean)">
+<section class="detail" id="&lt;init&gt;(java.lang.String,double,yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField,boolean,java.lang.String)">
 <h3>DoubleTelemetry</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">DoubleTelemetry</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;keyString,
  double&nbsp;defaultVal,
  <a href="SmartMotorControllerTelemetry.DoubleTelemetryField.html" title="enum class in yams.telemetry">SmartMotorControllerTelemetry.DoubleTelemetryField</a>&nbsp;field,
- boolean&nbsp;tunable)</span></div>
+ boolean&nbsp;tunable,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;unit)</span></div>
 <div class="block">Setup double telemetry for a field.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -230,6 +237,7 @@ loadScripts(document, 'script');</script>
 <dd><code>defaultVal</code> - Default value.</dd>
 <dd><code>field</code> - Field representing.</dd>
 <dd><code>tunable</code> - Tunable.</dd>
+<dd><code>unit</code> - Unit to display.</dd>
 </dl>
 </section>
 </li>
@@ -262,6 +270,17 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>dataTable</code> - Data tables.</dd>
 <dd><code>tuningTable</code> - Tuning table.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="transformUnit(yams.motorcontrollers.SmartMotorControllerConfig)">
+<h3>transformUnit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DoubleTelemetry.html" title="class in yams.telemetry">DoubleTelemetry</a></span>&nbsp;<span class="element-name">transformUnit</span><wbr><span class="parameters">(<a href="../motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a>&nbsp;cfg)</span></div>
+<div class="block">Set the unit.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><a href="DoubleTelemetry.html" title="class in yams.telemetry"><code>DoubleTelemetry</code></a> for chaining.</dd>
 </dl>
 </section>
 </li>
