@@ -50,7 +50,7 @@ public class DoubleTelemetry
   /**
    * Publisher.
    */
-  private       DoublePublisher            publisher    = null;
+  private       Optional<DoublePublisher>  publisher    = Optional.empty();
   /**
    * Subscriber.
    */
@@ -108,22 +108,24 @@ public class DoubleTelemetry
   {
     this.tuningTable = Optional.ofNullable(tuningTable);
     this.dataTable = Optional.ofNullable(dataTable);
+    if (!enabled)
+    {return;}
     if (tuningTable != null && tunable)
     {
       topic = tuningTable.getDoubleTopic(key);
       subscriber = Optional.of(topic.subscribe(defaultValue));
       subPublisher = topic.publish();
       if (!unit.equals("none"))
-      {topic.setProperties("{\"unit\":\""+ unit+"\"}");}
+      {topic.setProperties("{\"unit\":\"" + unit + "\"}");}
       subPublisher.setDefault(defaultValue);
     } else
     {
       assert dataTable != null;
       topic = dataTable.getDoubleTopic(key);
-      publisher = topic.publish();
+      publisher = Optional.of(topic.publish());
       if (!unit.equals("none"))
-      {topic.setProperties("{\"unit\": \""+ unit+"\"}");}
-      publisher.setDefault(defaultValue);
+      {topic.setProperties("{\"unit\": \"" + unit + "\"}");}
+      publisher.get().setDefault(defaultValue);
     }
   }
 
@@ -169,6 +171,8 @@ public class DoubleTelemetry
    */
   public boolean set(double value)
   {
+    if (!enabled)
+    {return false;}
     if (subscriber.isPresent())
     {
       double tuningValue = subscriber.get().get(defaultValue);
@@ -177,9 +181,9 @@ public class DoubleTelemetry
         return false;
       }
     }
-    if (publisher != null)
+    if (publisher.isPresent())
     {
-      publisher.accept(value);
+      publisher.get().accept(value);
     }
     return true;
   }
@@ -191,6 +195,8 @@ public class DoubleTelemetry
    */
   public double get()
   {
+    if (!enabled)
+    {return defaultValue;}
     if (subscriber.isPresent())
     {
       return subscriber.get().get(defaultValue);
@@ -223,6 +229,8 @@ public class DoubleTelemetry
   public void enable()
   {
     enabled = true;
+    if ((publisher.isEmpty() || subscriber.isEmpty()) && (tuningTable.isPresent() || dataTable.isPresent()))
+    {setupNetworkTables(dataTable.get(), tuningTable.get());}
   }
 
   /**
@@ -262,7 +270,7 @@ public class DoubleTelemetry
     if (subPublisher != null)
     {subPublisher.close();}
     if (publisher != null)
-    {publisher.close();}
+    {publisher.get().close();}
     dataTable.ifPresent(table -> table.getEntry(key).unpublish());
     tuningTable.ifPresent(table -> table.getEntry(key).unpublish());
   }

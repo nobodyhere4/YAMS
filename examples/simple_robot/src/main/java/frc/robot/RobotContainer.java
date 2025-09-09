@@ -6,20 +6,22 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer
 {
 //  private final ArmSubsystem              arm = new ArmSubsystem();
 //  private final DiffyMechSubsystem m_diffyMechSubsystem = new DiffyMechSubsystem();
 //  private final DoubleJointedArmSubsystem jointedArm = new DoubleJointedArmSubsystem();
-  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-//  private final ShooterSubsystem          shooter = new ShooterSubsystem();
+//  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private final ShooterSubsystem shooter = new ShooterSubsystem();
 //  private final TurretSubsystem           turret         = new TurretSubsystem();
 
   private final CommandXboxController     xboxController = new CommandXboxController(0);
@@ -37,6 +39,10 @@ public class RobotContainer
 
   private void configureBindings()
   {
+    xboxController.button(1).whileTrue(shooter.setVelocity(RPM.of(1000)));
+    xboxController.button(2).whileTrue(shooter.setVelocity(RPM.of(-1000)));
+    xboxController.button(3).whileTrue(shooter.set(0));
+    xboxController.button(4).whileTrue(shooter.set(0.5));
 
 //    xboxController.button(1).whileTrue(m_diffyMechSubsystem.setAngle(Degrees.of(15), Degrees.of(15)));
 //    xboxController.button(2).whileTrue(m_diffyMechSubsystem.setAngle(Degrees.of(30), Degrees.of(45)));
@@ -47,11 +53,11 @@ public class RobotContainer
 //    xboxController.button(1).whileTrue(jointedArm.setPosition(Meters.of(0.5), Meters.of(0.5), false));
 //    xboxController.button(2).whileTrue(jointedArm.setPosition(Meters.of(0.5), Meters.of(0.5), true));
 
-    xboxController.button(1).whileTrue(elevator.setHeight(Meters.of(1)));
-    xboxController.button(2).whileTrue(elevator.setHeight(Meters.of(0)));
-    xboxController.button(3).whileTrue(elevator.sysId());
-    xboxController.button(4).whileTrue(elevator.elevCmd(-0.5));
-    xboxController.button(5).whileTrue(elevator.elevCmd(0.5));
+//    xboxController.button(1).whileTrue(elevator.setHeight(Meters.of(1)));
+//    xboxController.button(2).whileTrue(elevator.setHeight(Meters.of(0)));
+//    xboxController.button(3).whileTrue(elevator.sysId());
+//    xboxController.button(4).whileTrue(elevator.elevCmd(-0.5));
+//    xboxController.button(5).whileTrue(elevator.elevCmd(0.5));
 
 //    xboxController.button(1).whileTrue(jointedArm.setAngle(Degrees.of(90), null));
 //    xboxController.button(2).whileTrue(jointedArm.set(null, 1.0));

@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
@@ -37,8 +38,7 @@ public class ShooterSubsystem extends SubsystemBase
 //          .withMechanismLowerLimit()
 //          .withMechanismUpperLimit();
   private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
-      .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
-      .withSoftLimit(Degrees.of(-30), Degrees.of(100))
+      .withClosedLoopController(1, 0, 0, RPM.of(10000), RPM.per(Second).of(60))
       .withGearing(gearing(gearbox(3, 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.COAST)
@@ -57,8 +57,6 @@ public class ShooterSubsystem extends SubsystemBase
       .withDiameter(Inches.of(4))
       // Mass of the flywheel.
       .withMass(Pounds.of(1))
-      // Maximum speed of the flywheel.
-      .withUpperSoftLimit(RPM.of(1000))
       .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
   private final Shooter       shooter       = new Shooter(shooterConfig);
 
@@ -90,4 +88,16 @@ public class ShooterSubsystem extends SubsystemBase
   public Command setVelocity(Supplier<AngularVelocity> speed) {return shooter.setSpeed(speed);}
 
   public Command setDutyCycle(Supplier<Double> dutyCycle) {return shooter.set(dutyCycle);}
+
+  @Override
+  public void simulationPeriodic()
+  {
+    shooter.simIterate();
+  }
+
+  @Override
+  public void periodic()
+  {
+    shooter.updateTelemetry();
+  }
 }

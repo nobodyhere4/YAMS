@@ -142,6 +142,8 @@ public class SmartMotorControllerTelemetryConfig
     {
       doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit).disable();
       doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit).disable();
+      doubleFields.get(DoubleTelemetryField.MeasurementPosition).disable();
+      doubleFields.get(DoubleTelemetryField.MeasurementVelocity).disable();
     } else
     {
       config.getMechanismUpperLimit()
