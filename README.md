@@ -18,7 +18,7 @@
 
 ---
 
-## 📦 Installation (WPILib VendorDep)
+## 📦 Installation (WPILib Vendordep)
 
 1. In **VS Code** with WPILib extension:
    - Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
@@ -118,8 +118,8 @@ It integrates with:
 
 ## 📜 License
 
-**This project is licensed under the GNU General Public License v3.0**.
-You are free to use, modify, and redistribute the software, provided that any derivative work is also licensed under GPLv3.
+**This project is licensed under the Lesser GNU General Public License v3.0**.
+You are free to use, modify, and redistribute the software, provided that any derivative work is also licensed under LGPLv3.
 
 See [`LICENSE`](./LICENSE.txt) for full details.
 
@@ -129,6 +129,8 @@ See [`LICENSE`](./LICENSE.txt) for full details.
 
 We welcome feedback and contributions!
 Open an issue for bug reports or feature requests, or fork and open a pull request to contribute.
+
+Inspire by [Manip-Liv](https://github.com/frc5517/Manip-Lib). 
 
 ---
 
