@@ -57,7 +57,7 @@ public abstract class SmartMotorController
   /**
    * Telemetry.
    */
-  protected SmartMotorControllerTelemetry                 telemetry                    = new SmartMotorControllerTelemetry();
+  protected SmartMotorControllerTelemetry                 telemetry                     = new SmartMotorControllerTelemetry();
   /**
    * {@link SmartMotorControllerConfig} for the motor.
    */
@@ -65,47 +65,47 @@ public abstract class SmartMotorController
   /**
    * Profiled PID controller for the motor controller.
    */
-  protected Optional<ProfiledPIDController>               m_pidController              = Optional.empty();
+  protected Optional<ProfiledPIDController>               m_pidController               = Optional.empty();
   /**
    * Simple PID controller for the motor controller.
    */
-  protected Optional<PIDController>                       m_simplePidController        = Optional.empty();
+  protected Optional<PIDController>                       m_simplePidController         = Optional.empty();
   /**
    * Setpoint position
    */
-  protected Optional<Angle>                               setpointPosition             = Optional.empty();
+  protected Optional<Angle>                               setpointPosition              = Optional.empty();
   /**
    * Setpoint velocity.
    */
-  protected Optional<AngularVelocity>                     setpointVelocity             = Optional.empty();
+  protected Optional<AngularVelocity>                     setpointVelocity              = Optional.empty();
   /**
    * Thread of the closed loop controller.
    */
-  protected Notifier                                      m_closedLoopControllerThread = null;
+  protected Notifier                                      m_closedLoopControllerThread  = null;
   /**
    * Running status of the closed loop controller.
    */
-  private boolean m_closedLoopControllerRunning = false;
+  private   boolean                                       m_closedLoopControllerRunning = false;
   /**
    * Parent table for telemetry.
    */
-  protected Optional<NetworkTable>                        parentTable                  = Optional.empty();
+  protected Optional<NetworkTable>                        parentTable                   = Optional.empty();
   /**
    * {@link SmartMotorController} telemetry table.
    */
-  protected Optional<NetworkTable>                        telemetryTable               = Optional.empty();
+  protected Optional<NetworkTable>                        telemetryTable                = Optional.empty();
   /**
    * {@link SmartMotorController} tuning table.
    */
-  protected Optional<NetworkTable>                        tuningTable                  = Optional.empty();
+  protected Optional<NetworkTable>                        tuningTable                   = Optional.empty();
   /**
    * Config for publishing specific telemetry.
    */
-  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig              = Optional.empty();
+  protected Optional<SmartMotorControllerTelemetryConfig> telemetryConfig               = Optional.empty();
   /**
    * {@link SimSupplier} for the mechanism.
    */
-  protected Optional<SimSupplier>                         m_simSupplier                = Optional.empty();
+  protected Optional<SimSupplier>                         m_simSupplier                 = Optional.empty();
 
 
   /**
@@ -225,7 +225,8 @@ public abstract class SmartMotorController
                                                    getMeasurementVelocity().in(MetersPerSecond)));
       });
       m_closedLoopControllerThread.stop();
-      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20)).in(Seconds));
+      m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
+                                                         .in(Seconds));
       m_closedLoopControllerRunning = true;
     }/* else if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
     {
@@ -239,20 +240,20 @@ public abstract class SmartMotorController
    */
   public void iterateClosedLoopController()
   {
-    AtomicReference<Double> pidOutputVoltage = new AtomicReference<>((double) 0);
-    double                  feedforward      = 0.0;
-    Optional<Angle> mechLowerLimit = m_config.getMechanismLowerLimit();
-    Optional<Angle> mechUpperLimit = m_config.getMechanismUpperLimit();
-    Optional<ArmFeedforward>      armFeedforward      = m_config.getArmFeedforward();
-    Optional<ElevatorFeedforward> elevatorFeedforward = m_config.getElevatorFeedforward();
+    AtomicReference<Double>          pidOutputVoltage       = new AtomicReference<>((double) 0);
+    double                           feedforward            = 0.0;
+    Optional<Angle>                  mechLowerLimit         = m_config.getMechanismLowerLimit();
+    Optional<Angle>                  mechUpperLimit         = m_config.getMechanismUpperLimit();
+    Optional<ArmFeedforward>         armFeedforward         = m_config.getArmFeedforward();
+    Optional<ElevatorFeedforward>    elevatorFeedforward    = m_config.getElevatorFeedforward();
     Optional<SimpleMotorFeedforward> simpleMotorFeedforward = m_config.getSimpleFeedforward();
-    Optional<Temperature> temperatureCutoff = m_config.getTemperatureCutoff();
-    Optional<Voltage> maximumVoltage = m_config.getClosedLoopControllerMaximumVoltage();
+    Optional<Temperature>            temperatureCutoff      = m_config.getTemperatureCutoff();
+    Optional<Voltage>                maximumVoltage         = m_config.getClosedLoopControllerMaximumVoltage();
 
     synchronizeRelativeEncoder();
 
-    if(!m_closedLoopControllerRunning)
-      return;
+    if (!m_closedLoopControllerRunning)
+    {return;}
 
     if (setpointPosition.isPresent())
     {
@@ -287,10 +288,10 @@ public abstract class SmartMotorController
         pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
                                                              setpointPosition.get().in(Rotations)));
         feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
-                                                                                 getMechanismVelocity().in(
-                                                                                     RotationsPerSecond),
-                                                                                 m_pidController.get()
-                                                                                                .getSetpoint().velocity);
+                                                                   getMechanismVelocity().in(
+                                                                       RotationsPerSecond),
+                                                                   m_pidController.get()
+                                                                                  .getSetpoint().velocity);
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMeasurementPosition().in(Meters),
@@ -444,6 +445,20 @@ public abstract class SmartMotorController
   public abstract void setVelocity(AngularVelocity angle);
 
   /**
+   * Get the SysIdConfig which may need to have modifications based on the SmartMotorController, like TalonFX and
+   * TalonFXS to record states correctly.
+   *
+   * @param maxVoltage   Maximum voltage of the {@link SysIdRoutine}.
+   * @param stepVoltage  Step voltage for the dynamic test in {@link SysIdRoutine}.
+   * @param testDuration Duration of each {@link SysIdRoutine} run.
+   * @return {@link Config} of the {@link SysIdRoutine} to run.
+   */
+  protected Config getSysIdConfig(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
+  {
+    return new Config(stepVoltage, maxVoltage, testDuration);
+  }
+
+  /**
    * Run the  {@link SysIdRoutine} which runs to the maximum MEASUREMENT at the step voltage then down to the minimum
    * MEASUREMENT with the step voltage then up to the maximum MEASUREMENT increasing each second by the step voltage
    * generated via the {@link SmartMotorControllerConfig}.
@@ -463,9 +478,10 @@ public abstract class SmartMotorController
                                                            "Cannot create SysIdRoutine",
                                                            "withTelemetry(String,TelemetryVerbosity)");
     }
+    Config sysIdConfig = getSysIdConfig(maxVoltage, stepVoltage, testDuration);
     if (m_config.getMechanismCircumference().isPresent())
     {
-      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
+      sysIdRoutine = new SysIdRoutine(sysIdConfig,
                                       new SysIdRoutine.Mechanism(
                                           this::setVoltage,
                                           log -> {
@@ -478,7 +494,7 @@ public abstract class SmartMotorController
                                           m_config.getSubsystem()));
     } else
     {
-      sysIdRoutine = new SysIdRoutine(new Config(stepVoltage, maxVoltage, testDuration),
+      sysIdRoutine = new SysIdRoutine(sysIdConfig,
                                       new SysIdRoutine.Mechanism(
                                           this::setVoltage,
                                           log -> {
@@ -608,7 +624,8 @@ public abstract class SmartMotorController
    */
   public void setupTelemetry(NetworkTable telemetry, NetworkTable tuning)
   {
-    System.out.println("=====================================================\nSETUP TELEMETRY\n=====================================================");
+    System.out.println(
+        "=====================================================\nSETUP TELEMETRY\n=====================================================");
     if (parentTable.isEmpty())
     {
       parentTable = Optional.of(telemetry);
@@ -618,10 +635,13 @@ public abstract class SmartMotorController
         tuningTable = Optional.of(tuning.getSubTable(getName()));
         if (m_config.getSmartControllerTelemetryConfig().isPresent())
         {
-          this.telemetry.setupTelemetry(this, telemetryTable.get(), tuningTable.get(), m_config.getSmartControllerTelemetryConfig().get());
+          this.telemetry.setupTelemetry(this,
+                                        telemetryTable.get(),
+                                        tuningTable.get(),
+                                        m_config.getSmartControllerTelemetryConfig().get());
         } else
         {
-          this.telemetry.setupTelemetry(this,telemetryTable.get(), tuningTable.get(),
+          this.telemetry.setupTelemetry(this, telemetryTable.get(), tuningTable.get(),
                                         new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(m_config.getVerbosity()
                                                                                                                  .orElse(
                                                                                                                      TelemetryVerbosity.HIGH)));
@@ -633,7 +653,7 @@ public abstract class SmartMotorController
                                                 "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
         liveTuningCommand.setName("LiveTuning");
         liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
-        System.out.println("SmartDashboard/"+telemetryTable.get().getPath().substring(1));
+        System.out.println("SmartDashboard/" + telemetryTable.get().getPath().substring(1));
         SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/LiveTuning", liveTuningCommand);
       }
     }

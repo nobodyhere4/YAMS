@@ -127,7 +127,7 @@ public class ArmSimSupplier implements SimSupplier {
 
     @Override
     public void setMechanismPosition(Angle position) {
-        sim.setState(position.in(Radians), sim.getVelocityRadPerSec());;//.times(config.getGearing().getMechanismToRotorRatio()).in(Radians));
+        sim.setState(position.in(Radians), sim.getVelocityRadPerSec());//.times(config.getGearing().getMechanismToRotorRatio()).in(Radians));
     }
 
     @Override
