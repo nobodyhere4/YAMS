@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -86,7 +87,23 @@ public class SwerveDriveConfig
   /**
    * Rotation PID controller.
    */
-  private       Optional<PIDController>             rotationController             = Optional.empty();
+  private       Optional<PIDController>             rotationController            = Optional.empty();
+  /**
+   * Simulated translation PID controller.
+   */
+  private       Optional<PIDController>             simTranslationController      = Optional.empty();
+  /**
+   * Simulated rotation PID controller.
+   */
+  private       Optional<PIDController>             simRotationController         = Optional.empty();
+  /**
+   * Discretization time for the pose estimation.
+   */
+  private       Optional<Time>                      simDiscretizationSeconds      = Optional.empty();
+  /**
+   * Angular velocity scale factor.
+   */
+  private       OptionalDouble                      simAngularVelocityScaleFactor = OptionalDouble.empty();
   /**
    * Swerve drive subsystem.
    */
@@ -101,6 +118,30 @@ public class SwerveDriveConfig
   {
     subsystem = swerveSubsystem;
     this.modules = modules;
+  }
+
+  /**
+   * Set the translation PID controller.
+   *
+   * @param controller {@link PIDController} for the translation, input units are meters.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withSimTranslationController(PIDController controller)
+  {
+    simTranslationController = Optional.ofNullable(controller);
+    return this;
+  }
+
+  /**
+   * Set the rotation PID controller.
+   *
+   * @param controller {@link PIDController} for the rotation, input units are radians.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withSimRotationController(PIDController controller)
+  {
+    simRotationController = Optional.ofNullable(controller);
+    return this;
   }
 
   /**
@@ -149,6 +190,30 @@ public class SwerveDriveConfig
   public SwerveDriveConfig withCenterOfRotation(Distance forward, Distance left)
   {
     this.centerOfRotation = Optional.ofNullable(new Translation2d(forward, left));
+    return this;
+  }
+
+  /**
+   * Set the discretization time for the pose estimation.
+   *
+   * @param dt Discretization time for the pose estimation.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withSimDiscretizationTime(Time dt)
+  {
+    simDiscretizationSeconds = Optional.ofNullable(dt);
+    return this;
+  }
+
+  /**
+   * Set the angular velocity scale factor to improve the accuracy of the pose estimation.
+   *
+   * @param scaleFactor Scale factor to apply to the gyro angular velocity, [0, 1].
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withSimGyroAngularVelocityScaleFactor(double scaleFactor)
+  {
+    simAngularVelocityScaleFactor = OptionalDouble.of(scaleFactor);
     return this;
   }
 
@@ -368,7 +433,9 @@ public class SwerveDriveConfig
   private ChassisSpeeds angularVelocitySkewCorrection(ChassisSpeeds robotRelativeVelocity)
   {
     var angularVelocity = new Rotation2d(gyroAngularVelocitySupplier.orElseThrow().get().in(RadiansPerSecond) *
-                                         angularVelocityScaleFactor.orElseThrow());
+                                         (RobotBase.isSimulation() ?
+                                          simAngularVelocityScaleFactor.orElse(angularVelocityScaleFactor.orElseThrow()) :
+                                          angularVelocityScaleFactor.orElseThrow()));
     if (angularVelocity.getRadians() != 0.0)
     {
       var           gyroRotation          = new Rotation2d(gyroSupplier.orElseThrow().get());
@@ -393,7 +460,9 @@ public class SwerveDriveConfig
     }
     if (discretizationSeconds.isPresent())
     {
-      speeds = ChassisSpeeds.discretize(speeds, discretizationSeconds.get().in(Seconds));
+      speeds = ChassisSpeeds.discretize(speeds, (RobotBase.isSimulation() ?
+                                                 simDiscretizationSeconds.orElse(discretizationSeconds.get()) :
+                                                 discretizationSeconds.get()).in(Seconds));
     }
     return speeds;
   }
@@ -415,7 +484,8 @@ public class SwerveDriveConfig
    */
   public PIDController getTranslationPID()
   {
-    return translationController.orElseThrow();
+    return (RobotBase.isSimulation() ? simTranslationController.orElse(translationController.orElseThrow())
+                                     : translationController.orElseThrow());
   }
 
   /**
@@ -425,7 +495,8 @@ public class SwerveDriveConfig
    */
   public PIDController getRotationPID()
   {
-    return rotationController.orElseThrow();
+    return (RobotBase.isSimulation() ? simRotationController.orElse(rotationController.orElseThrow())
+                                     : rotationController.orElseThrow());
   }
 
   /**

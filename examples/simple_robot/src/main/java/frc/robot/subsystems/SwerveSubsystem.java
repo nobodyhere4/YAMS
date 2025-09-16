@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -44,13 +45,15 @@ public class SwerveSubsystem extends SubsystemBase
     PIDController    azimuthPIDController = new PIDController(1, 0, 0);
     SmartMotorControllerConfig driveCfg = new SmartMotorControllerConfig(this)
         .withWheelDiameter(Inches.of(4))
-        .withClosedLoopController(1, 0, 0, MetersPerSecond.of(4), MetersPerSecondPerSecond.of(1))
-        .withTelemetry("driveMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
-        .withGearing(driveGearing);
+        .withClosedLoopController(4, 0, 0, MetersPerSecond.of(4), MetersPerSecondPerSecond.of(1))
+        .withGearing(driveGearing)
+        .withStatorCurrentLimit(Amps.of(40))
+        .withTelemetry("driveMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH);
     SmartMotorControllerConfig azimuthCfg = new SmartMotorControllerConfig(this)
         .withClosedLoopController(1, 0, 0)
-        .withTelemetry("angleMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH)
-        .withGearing(azimuthGearing);
+        .withGearing(azimuthGearing)
+        .withStatorCurrentLimit(Amps.of(20))
+        .withTelemetry("angleMotor", SmartMotorControllerConfig.TelemetryVerbosity.HIGH);
     SmartMotorController driveSMC   = new SparkWrapper(drive, DCMotor.getNEO(1), driveCfg);
     SmartMotorController azimuthSMC = new SparkWrapper(azimuth, DCMotor.getNEO(1), azimuthCfg);
     SwerveModuleConfig moduleConfig = new SwerveModuleConfig(driveSMC, azimuthSMC)
@@ -91,9 +94,19 @@ public class SwerveSubsystem extends SubsystemBase
     SmartDashboard.putData("Field", field);
   }
 
+  public Command setRobotRelativeChassisSpeeds(ChassisSpeeds speeds)
+  {
+    return run(() -> drive.setRobotRelativeChassisSpeeds(speeds));
+  }
+
   public Command driveRobotRelative(Supplier<ChassisSpeeds> speedsSupplier)
   {
     return drive.drive(speedsSupplier);
+  }
+
+  public Command lock()
+  {
+    return run(drive::lockPose);
   }
 
   @Override

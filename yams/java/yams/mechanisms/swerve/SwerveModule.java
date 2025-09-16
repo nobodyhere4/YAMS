@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
+import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.mechanisms.config.SwerveModuleConfig;
 import yams.motorcontrollers.SmartMotorController;
 import yams.telemetry.MechanismTelemetry;
@@ -50,9 +52,28 @@ public class SwerveModule
     {
       throw new IllegalArgumentException("SwerveModuleConfig must have a position!");
     }
+    if (m_azimuthMotorController.getConfig().getExternalEncoder().isPresent() &&
+        !m_azimuthMotorController.getConfig().getUseExternalFeedback())
+    {
+      throw new SmartMotorControllerConfigurationException("External encoder cannot be used without external feedback",
+                                                           "External encoder could not be used",
+                                                           "withUseExternalFeedbackEncoder(true)");
+    }
     m_telemetry.setupTelemetry("swerve/" + getName() + "/drive", m_dirveMotorController);
     m_telemetry.setupTelemetry("swerve/" + getName() + "/azimuth", m_azimuthMotorController);
-    // TODO: Synchronize the azimuth with the absolute encoder
+    seedAzimuthEncoder();
+  }
+
+  /**
+   * Seed the azimuth encoder with the absolute encoder angle.
+   */
+  public void seedAzimuthEncoder()
+  {
+    if (RobotBase.isReal() && (m_azimuthMotorController.getConfig().getExternalEncoder().isEmpty() ||
+                               !m_azimuthMotorController.getConfig().getUseExternalFeedback()))
+    {
+      m_azimuthMotorController.setEncoderPosition(m_config.getAbsoluteEncoderAngle());
+    }
   }
 
   /**

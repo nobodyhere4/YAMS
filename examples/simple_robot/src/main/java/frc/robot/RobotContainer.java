@@ -8,12 +8,14 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer
 {
@@ -21,7 +23,8 @@ public class RobotContainer
 //  private final DiffyMechSubsystem m_diffyMechSubsystem = new DiffyMechSubsystem();
 //  private final DoubleJointedArmSubsystem jointedArm = new DoubleJointedArmSubsystem();
 //  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-  private final ShooterSubsystem shooter = new ShooterSubsystem();
+  private final SwerveSubsystem  drive   = new SwerveSubsystem();
+//  private final ShooterSubsystem shooter = new ShooterSubsystem();
 //  private final TurretSubsystem           turret         = new TurretSubsystem();
 
   private final CommandXboxController     xboxController = new CommandXboxController(0);
@@ -34,15 +37,21 @@ public class RobotContainer
 //    jointedArm.setDefaultCommand(jointedArm.setAngle(Degrees.of(90), Degrees.of(0)));
 //    elevator.setDefaultCommand(elevator.elevCmd(0));
 //    turret.setDefaultCommand(turret.turretCmd(0.0));
+    drive.setDefaultCommand(drive.setRobotRelativeChassisSpeeds(new ChassisSpeeds()));
     configureBindings();
   }
 
   private void configureBindings()
   {
-    xboxController.button(1).whileTrue(shooter.setVelocity(RPM.of(1000)));
-    xboxController.button(2).whileTrue(shooter.setVelocity(RPM.of(-1000)));
-    xboxController.button(3).whileTrue(shooter.set(0));
-    xboxController.button(4).whileTrue(shooter.set(0.5));
+//    xboxController.button(1).whileTrue(shooter.setVelocity(RPM.of(1000)));
+//    xboxController.button(2).whileTrue(shooter.setVelocity(RPM.of(-1000)));
+//    xboxController.button(3).whileTrue(shooter.set(0));
+//    xboxController.button(4).whileTrue(shooter.set(0.5));
+
+    xboxController.button(1).whileTrue(drive.setRobotRelativeChassisSpeeds(new ChassisSpeeds(0.5, 0, 0)));
+    xboxController.button(2).whileTrue(drive.setRobotRelativeChassisSpeeds(new ChassisSpeeds(-0.5, 0, 0)));
+    xboxController.button(3).whileTrue(drive.setRobotRelativeChassisSpeeds(new ChassisSpeeds(0, 0.5, 0)));
+    xboxController.button(4).whileTrue(drive.setRobotRelativeChassisSpeeds(new ChassisSpeeds(0, -0.5, 0)));
 
 //    xboxController.button(1).whileTrue(m_diffyMechSubsystem.setAngle(Degrees.of(15), Degrees.of(15)));
 //    xboxController.button(2).whileTrue(m_diffyMechSubsystem.setAngle(Degrees.of(30), Degrees.of(45)));
