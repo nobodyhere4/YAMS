@@ -52,6 +52,7 @@ public class SwerveModule
     }
     m_telemetry.setupTelemetry("swerve/" + getName() + "/drive", m_dirveMotorController);
     m_telemetry.setupTelemetry("swerve/" + getName() + "/azimuth", m_azimuthMotorController);
+    // TODO: Synchronize the azimuth with the absolute encoder
   }
 
   /**
