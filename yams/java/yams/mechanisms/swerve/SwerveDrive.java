@@ -120,6 +120,7 @@ public class SwerveDrive
   public void setRobotRelativeChassisSpeeds(ChassisSpeeds robotRelativeChassisSpeeds)
   {
     robotRelativeChassisSpeeds = m_config.optimizeRobotRelativeChassisSpeeds(robotRelativeChassisSpeeds);
+    // TODO: Add center of rotation meters here
     var states = m_kinematics.toSwerveModuleStates(robotRelativeChassisSpeeds);
     for (int i = 0; i < states.length; i++)
     {
@@ -182,7 +183,6 @@ public class SwerveDrive
     ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(new ChassisSpeeds(0, 0, 0),
                                                                               new Rotation2d(m_config.getGyroAngle()));
     m_kinematics.toSwerveModuleStates(robotRelativeSpeeds);
-
   }
 
   /**
