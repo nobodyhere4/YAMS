@@ -53,7 +53,7 @@ public class SwerveDrive
   private       StructTopic<Pose2d>                     m_poseTopic;
   private       StructPublisher<Pose2d>                 m_posePublisher;
   private       DoublePublisher                         m_gyroPublisher;
-
+  // TODO: Add desired and current ChassisSpeeds.
 
   /**
    * Create a SwerveDrive.
