@@ -17,6 +17,9 @@ import java.util.function.Supplier;
 import yams.mechanisms.swerve.SwerveModule;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/**
+ * Swerve Drive Configuration
+ */
 public class SwerveDriveConfig
 {
 
@@ -68,7 +71,11 @@ public class SwerveDriveConfig
    * Angular velocity scale factor.
    */
   private       OptionalDouble                      angularVelocityScaleFactor    = OptionalDouble.empty();
-
+  /**
+   * Center of Rotation 
+   */
+  private       Optional<Translation2d>             centerOfRotation              = Optional.empty();
+  
   /**
    * Create the {@link SwerveDriveConfig} for the {@link yams.mechanisms.swerve.SwerveDrive}
    *
@@ -78,6 +85,8 @@ public class SwerveDriveConfig
   {
     this.modules = modules;
   }
+
+  // TODO: Set the Translation2d for the centerOfRotation in meters
 
   /**
    * Set the discretization time for the pose estimation.
