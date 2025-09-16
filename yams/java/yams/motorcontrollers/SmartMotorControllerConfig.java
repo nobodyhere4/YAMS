@@ -1007,7 +1007,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withWheelRadius(Distance radius)
   {
-    mechanismCircumference = Optional.ofNullable(radius.times(2));
+    mechanismCircumference = Optional.ofNullable(radius.times(2).times(Math.PI));
     return this;
   }
 
@@ -1019,7 +1019,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withWheelDiameter(Distance diameter)
   {
-    mechanismCircumference = Optional.ofNullable(diameter);
+    mechanismCircumference = Optional.ofNullable(diameter.times(Math.PI));
     return this;
   }
 
