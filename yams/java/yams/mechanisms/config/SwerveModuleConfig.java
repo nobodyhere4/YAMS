@@ -95,8 +95,8 @@ public class SwerveModuleConfig
   /**
    * Set the distance from the center of rotation for the {@link yams.mechanisms.swerve.SwerveModule}.
    *
-   * @param front Distance from the front of the robot, will be converted to Meters. (The X position)
-   * @param left  Distance from the left of the robot, will be converted to Meters. (The Y position)
+   * @param front Distance from the front of the robot, will be converted to Meters. (The X location)
+   * @param left  Distance from the left of the robot, will be converted to Meters. (The Y location)
    * @return {@link SwerveModuleConfig} for chaining.
    */
   public SwerveModuleConfig withDistanceFromCenterOfRotation(Distance front, Distance left)
@@ -105,26 +105,39 @@ public class SwerveModuleConfig
     return this;
   }
 
+
+  /**
+   * Set the location for the {@link yams.mechanisms.swerve.SwerveModule} in Meters from the center of rotation.
+   *
+   * @param location Location of the {@link yams.mechanisms.swerve.SwerveModule} in meters from the center of rotation.
+   * @return {@link SwerveModuleConfig} for chaining.
+   */
+  public SwerveModuleConfig withLocation(Translation2d location)
+  {
+    distanceFromCenterOfRotation = Optional.of(location);
+    return this;
+  }
+
   /**
    * Set the distance from the center of rotation for the {@link yams.mechanisms.swerve.SwerveModule}.
    *
-   * @param front Distance from the front of the robot, will be converted to meters. (The X position)
-   * @param left  Distance from the left of the robot, will be converted to meters. (The Y position)
+   * @param front Distance from the front of the robot, will be converted to meters. (The X location)
+   * @param left  Distance from the left of the robot, will be converted to meters. (The Y location)
    * @return {@link SwerveModuleConfig} for chaining.
    */
-  public SwerveModuleConfig withPosition(Distance front, Distance left)
+  public SwerveModuleConfig withLocation(Distance front, Distance left)
   {
     return withDistanceFromCenterOfRotation(front, left);
   }
 
   /**
-   * Set the position for the {@link yams.mechanisms.swerve.SwerveModule} using polar coordinates.
+   * Set the location for the {@link yams.mechanisms.swerve.SwerveModule} using polar coordinates.
    *
    * @param distance Distance from the center of rotation will be converted to meters.
    * @param angle    Angle from the center of rotation.
    * @return {@link SwerveModuleConfig} for chaining.
    */
-  public SwerveModuleConfig withPosition(Distance distance, Angle angle)
+  public SwerveModuleConfig withLocation(Distance distance, Angle angle)
   {
     distanceFromCenterOfRotation = Optional.of(new Translation2d(distance.in(Meters), new Rotation2d(angle)));
     return this;
@@ -133,12 +146,12 @@ public class SwerveModuleConfig
   /**
    * Supply a non-alike vendor absolute encoder for the azimuth {@link SmartMotorController}.
    *
-   * @param positionProvider Provides the Rotation for the azimuth {@link SmartMotorController}.
+   * @param locationProvider Provides the Rotation for the azimuth {@link SmartMotorController}.
    * @return {@link SwerveModuleConfig} for chaining.
    */
-  public SwerveModuleConfig withAbsoluteEncoder(Supplier<Angle> positionProvider)
+  public SwerveModuleConfig withAbsoluteEncoder(Supplier<Angle> locationProvider)
   {
-    absoluteEncoderSupplier = Optional.ofNullable(positionProvider);
+    absoluteEncoderSupplier = Optional.ofNullable(locationProvider);
     return this;
   }
 
@@ -375,11 +388,11 @@ public class SwerveModuleConfig
   }
 
   /**
-   * Get the position of the {@link yams.mechanisms.swerve.SwerveModule} in meters from the center of rotation.
+   * Get the location of the {@link yams.mechanisms.swerve.SwerveModule} in meters from the center of rotation.
    *
    * @return {@link Translation2d} of the {@link yams.mechanisms.swerve.SwerveModule}
    */
-  public Optional<Translation2d> getPosition()
+  public Optional<Translation2d> getLocation()
   {
     return distanceFromCenterOfRotation;
   }

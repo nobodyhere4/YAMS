@@ -4,14 +4,17 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
@@ -73,25 +76,82 @@ public class SwerveDriveConfig
    */
   private       OptionalDouble                      angularVelocityScaleFactor    = OptionalDouble.empty();
   /**
-   * Center of Rotation 
+   * Center of Rotation
    */
   private       Optional<Translation2d>             centerOfRotation              = Optional.empty();
-  
-  // TODO: Add translation PID controller
-  // TODO: Add azimuth PID controller
+  /**
+   * Translation PID controller.
+   */
+  private       Optional<PIDController>             translationController         = Optional.empty();
+  /**
+   * Rotation PID controller.
+   */
+  private       Optional<PIDController>             rotationController             = Optional.empty();
+  /**
+   * Swerve drive subsystem.
+   */
+  private       Subsystem                           subsystem;
 
   /**
    * Create the {@link SwerveDriveConfig} for the {@link yams.mechanisms.swerve.SwerveDrive}
    *
    * @param modules {@link SwerveModule}s for the {@link yams.mechanisms.swerve.SwerveDrive}
    */
-  public SwerveDriveConfig(SwerveModule... modules)
+  public SwerveDriveConfig(Subsystem swerveSubsystem, SwerveModule... modules)
   {
+    subsystem = swerveSubsystem;
     this.modules = modules;
   }
 
-  // TODO: Set the Translation2d for the centerOfRotation in meters
-  
+  /**
+   * Set the translation PID controller.
+   *
+   * @param controller {@link PIDController} for the translation, input units are meters.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withTranslationController(PIDController controller)
+  {
+    translationController = Optional.ofNullable(controller);
+    return this;
+  }
+
+  /**
+   * Set the rotation PID controller.
+   *
+   * @param controller {@link PIDController} for the rotation, input units are radians.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withRotationController(PIDController controller)
+  {
+    rotationController = Optional.ofNullable(controller);
+    return this;
+  }
+
+  /**
+   * Set the center of rotation; 0,0 is the center of the robot.
+   *
+   * @param centerOfRotation {@link Translation2d} of the center of rotation in Meters, X is forward, Y is left.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withCenterOfRotation(Translation2d centerOfRotation)
+  {
+    this.centerOfRotation = Optional.ofNullable(centerOfRotation);
+    return this;
+  }
+
+  /**
+   * Set the center of rotation; 0,0 is the center of the robot.
+   *
+   * @param forward Forward distance from the center of robot.
+   * @param left    Left distance from the center of robot.
+   * @return {@link SwerveDriveConfig} for chaining.
+   */
+  public SwerveDriveConfig withCenterOfRotation(Distance forward, Distance left)
+  {
+    this.centerOfRotation = Optional.ofNullable(new Translation2d(forward, left));
+    return this;
+  }
+
   /**
    * Set the discretization time for the pose estimation.
    *
@@ -214,6 +274,15 @@ public class SwerveDriveConfig
     return this;
   }
 
+  /**
+   * Get the center of rotation.
+   *
+   * @return {@link Translation2d} of the center of rotation in Meters, X is forward, Y is left.
+   */
+  public Optional<Translation2d> getCenterOfRotation()
+  {
+    return centerOfRotation;
+  }
 
   /**
    * Get the telemetry verbosity for the {@link yams.mechanisms.swerve.SwerveModule}.
@@ -337,5 +406,35 @@ public class SwerveDriveConfig
   public Angle getGyroOffset()
   {
     return gyroOffset.orElse(Rotations.of(0));
+  }
+
+  /**
+   * Get the translation PID controller.
+   *
+   * @return Translation PID controller.
+   */
+  public PIDController getTranslationPID()
+  {
+    return translationController.orElseThrow();
+  }
+
+  /**
+   * Get the rotation PID controller.
+   *
+   * @return Rotation PID controller.
+   */
+  public PIDController getRotationPID()
+  {
+    return rotationController.orElseThrow();
+  }
+
+  /**
+   * Get the swerve drive subsystem.
+   *
+   * @return Swerve drive subsystem.
+   */
+  public Subsystem getSubsystem()
+  {
+    return subsystem;
   }
 }

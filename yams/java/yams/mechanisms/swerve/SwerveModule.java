@@ -46,7 +46,7 @@ public class SwerveModule
     {
       throw new IllegalArgumentException("SwerveModuleConfig must have a telemetry name!");
     }
-    if (m_config.getPosition().isEmpty())
+    if (m_config.getLocation().isEmpty())
     {
       throw new IllegalArgumentException("SwerveModuleConfig must have a position!");
     }
