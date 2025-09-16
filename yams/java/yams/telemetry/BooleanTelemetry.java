@@ -10,7 +10,7 @@ import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
 import java.util.Optional;
 
 /**
- * Add your docs here.
+ * Boolean Telemetry for SmartMotorControllers.
  */
 public class BooleanTelemetry
 {
@@ -30,7 +30,7 @@ public class BooleanTelemetry
   /**
    * Enabled?
    */
-  protected     boolean                     enabled    = false;
+  protected     boolean                     enabled     = false;
   /**
    * Default value.
    */
@@ -42,27 +42,27 @@ public class BooleanTelemetry
   /**
    * Publisher.
    */
-  private       BooleanPublisher            publisher  = null;
+  private       BooleanPublisher            publisher   = null;
   /**
    * Subscriber.
    */
-  private       Optional<BooleanSubscriber> subscriber = Optional.empty();
+  private       Optional<BooleanSubscriber> subscriber  = Optional.empty();
   /**
    * Sub publisher.
    */
-  private       BooleanPublisher            pubSub     = null;
+  private       BooleanPublisher            pubSub      = null;
   /**
    * pub or sub topic.
    */
-  private BooleanTopic topic;
+  private       BooleanTopic                topic;
   /**
    * Tuning table
    */
-  private Optional<NetworkTable> tuningTable = Optional.empty();
+  private       Optional<NetworkTable>      tuningTable = Optional.empty();
   /**
    * Data table.
    */
-  private Optional<NetworkTable> dataTable = Optional.empty();
+  private       Optional<NetworkTable>      dataTable   = Optional.empty();
 
   /**
    * Setup boolean telemetry for a field.
@@ -224,10 +224,10 @@ public class BooleanTelemetry
   public void close()
   {
     subscriber.ifPresent(PubSub::close);
-    if(pubSub != null)
-      pubSub.close();
-    if(publisher != null)
-      publisher.close();
+    if (pubSub != null)
+    {pubSub.close();}
+    if (publisher != null)
+    {publisher.close();}
     dataTable.ifPresent(table -> table.getEntry(key).unpublish());
     tuningTable.ifPresent(table -> table.getEntry(key).unpublish());
   }

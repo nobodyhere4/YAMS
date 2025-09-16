@@ -33,4 +33,17 @@ public class MechanismTelemetry
                                        .getSubTable(mechanismTelemetryName);
     motorController.setupTelemetry(networkTable, tuningNetworkTable);
   }
+
+  /**
+   * Setup telemetry for the Mechanism and motor controller.
+   *
+   * @param mechanismTelemetryName Mechanism Telemetry Name.
+   */
+  public void setupTelemetry(String mechanismTelemetryName)
+  {
+    tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning")
+                                             .getSubTable(mechanismTelemetryName);
+    networkTable = NetworkTableInstance.getDefault().getTable("Mechanisms")
+                                       .getSubTable(mechanismTelemetryName);
+  }
 }

@@ -995,13 +995,31 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig withMechanismCircumference(Distance circumference)
   {
-    if (circumference == null)
-    {
-      mechanismCircumference = Optional.empty();
-    } else
-    {
-      mechanismCircumference = Optional.of(circumference);
-    }
+    mechanismCircumference = Optional.ofNullable(circumference);
+    return this;
+  }
+
+  /**
+   * Set the wheel radius for the mechanism.
+   *
+   * @param radius Radius of the wheels as {@link Distance}
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withWheelRadius(Distance radius)
+  {
+    mechanismCircumference = Optional.ofNullable(radius.times(2));
+    return this;
+  }
+
+  /**
+   * Set the wheel diameter for the mechanism.
+   *
+   * @param diameter Diameter of the wheels as {@link Distance}
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withWheelDiameter(Distance diameter)
+  {
+    mechanismCircumference = Optional.ofNullable(diameter);
     return this;
   }
 
@@ -1147,11 +1165,11 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations (or Meters if Mechanism Circumference is configured), and
-   * outputs are in Volts.
+   * Set the closed loop controller for the {@link SmartMotorController}. The units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured), and outputs are in Volts.
    *
-   * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), and output is
-   *                   Voltage.
+   * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations (or Meters if
+   *                   Mechanism Circumference is configured), and output is Voltage.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withSimClosedLoopController(ProfiledPIDController controller)
@@ -1162,7 +1180,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured).
    *
    * @param kP KP scalar for the PID Controller.
    * @param kI KI scalar for the PID Controller.
@@ -1177,7 +1196,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured).
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured).
    *
    * @param controller {@link PIDController} to use.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1244,8 +1264,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured),
-   * outputs are in Volts.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured), outputs are in Volts.
    *
    * @param controller {@link ProfiledPIDController} to use, the units passed in are in Rotations and output is
    *                   Voltage.
@@ -1259,11 +1279,15 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured), the outputs are in Volts.
    *
-   * @param kP KP scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
-   * @param kI KI scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
-   * @param kD KD scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * @param kP KP scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism
+   *           Circumference is configured), the outputs are in Volts.
+   * @param kI KI scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism
+   *           Circumference is configured), the outputs are in Volts.
+   * @param kD KD scalar for the PID Controller, the units passed in are in Rotations (or Meters if Mechanism
+   *           Circumference is configured), the outputs are in Volts.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withClosedLoopController(double kP, double kI, double kD)
@@ -1274,9 +1298,11 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
+   * Meters if Mechanism Circumference is configured), the outputs are in Volts.
    *
-   * @param controller {@link PIDController} to use, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * @param controller {@link PIDController} to use, the units passed in are in Rotations (or Meters if Mechanism
+   *                   Circumference is configured), the outputs are in Volts.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
   public SmartMotorControllerConfig withClosedLoopController(PIDController controller)
@@ -1318,9 +1344,12 @@ public class SmartMotorControllerConfig
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
    *
-   * @param kP              KP scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
-   * @param kI              KI scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
-   * @param kD              KD scalar for the PID Controller, the units passed in are in Rotations and output is Voltage.
+   * @param kP              KP scalar for the PID Controller, the units passed in are in Rotations and output is
+   *                        Voltage.
+   * @param kI              KI scalar for the PID Controller, the units passed in are in Rotations and output is
+   *                        Voltage.
+   * @param kD              KD scalar for the PID Controller, the units passed in are in Rotations and output is
+   *                        Voltage.
    * @param maxVelocity     Maximum angular velocity for the Trapazoidal profile.
    * @param maxAcceleration Maximum angular acceleration for the Trapazoidal profile.
    * @return {@link SmartMotorControllerConfig} for chaining.
@@ -1340,7 +1369,8 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Get the controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if Mechanism Circumference is configured), the outputs are in Volts.
+   * Get the controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if
+   * Mechanism Circumference is configured), the outputs are in Volts.
    *
    * @return {@link ProfiledPIDController}
    */

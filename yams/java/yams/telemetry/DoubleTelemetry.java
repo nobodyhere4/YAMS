@@ -14,7 +14,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField;
 
 /**
- * Add your docs here.
+ * Double Telemetry for SmartMotorControllers.
  */
 public class DoubleTelemetry
 {
