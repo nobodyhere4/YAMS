@@ -77,6 +77,9 @@ public class SwerveDriveConfig
    */
   private       Optional<Translation2d>             centerOfRotation              = Optional.empty();
   
+  // TODO: Add translation PID controller
+  // TODO: Add azimuth PID controller
+
   /**
    * Create the {@link SwerveDriveConfig} for the {@link yams.mechanisms.swerve.SwerveDrive}
    *
@@ -88,7 +91,7 @@ public class SwerveDriveConfig
   }
 
   // TODO: Set the Translation2d for the centerOfRotation in meters
-
+  
   /**
    * Set the discretization time for the pose estimation.
    *
