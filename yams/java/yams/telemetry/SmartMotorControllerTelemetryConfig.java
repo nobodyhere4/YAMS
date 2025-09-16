@@ -44,7 +44,6 @@ public class SmartMotorControllerTelemetryConfig
       case HIGH:
         boolFields.get(BooleanTelemetryField.MechanismLowerLimit).enable();
         boolFields.get(BooleanTelemetryField.MechanismUpperLimit).enable();
-
         boolFields.get(BooleanTelemetryField.TemperatureLimit).enable();
         boolFields.get(BooleanTelemetryField.VelocityControl).enable();
         boolFields.get(BooleanTelemetryField.ElevatorFeedForward).enable();
@@ -53,39 +52,39 @@ public class SmartMotorControllerTelemetryConfig
         boolFields.get(BooleanTelemetryField.MotionProfile).enable();
         boolFields.get(BooleanTelemetryField.MotorInversion).enable();
         boolFields.get(BooleanTelemetryField.EncoderInversion).enable();
-        doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
-        doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
         doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enable();
         doubleFields.get(DoubleTelemetryField.TunableSetpointVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.MotorTemperature).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismLowerLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MechanismUpperLimit).enable();
+        doubleFields.get(DoubleTelemetryField.StatorCurrentLimit).enable();
+        doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit).enable();
+        doubleFields.get(DoubleTelemetryField.OpenloopRampRate).enable();
+        doubleFields.get(DoubleTelemetryField.ClosedloopRampRate).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit).enable();
+        doubleFields.get(DoubleTelemetryField.MotionProfileMaxAcceleration).enable();
+        doubleFields.get(DoubleTelemetryField.MotionProfileMaxVelocity).enable();
+        doubleFields.get(DoubleTelemetryField.kS).enable();
+        doubleFields.get(DoubleTelemetryField.kV).enable();
+        doubleFields.get(DoubleTelemetryField.kG).enable();
+        doubleFields.get(DoubleTelemetryField.kA).enable();
+        doubleFields.get(DoubleTelemetryField.kP).enable();
+        doubleFields.get(DoubleTelemetryField.kI).enable();
+        doubleFields.get(DoubleTelemetryField.kD).enable();
+      case MID:
+        doubleFields.get(DoubleTelemetryField.OutputVoltage).enable();
         doubleFields.get(DoubleTelemetryField.StatorCurrent).enable();
         doubleFields.get(DoubleTelemetryField.SupplyCurrent).enable();
-        doubleFields.get(DoubleTelemetryField.MotorTemperature).enable();
+      case LOW:
+        doubleFields.get(DoubleTelemetryField.SetpointPosition).enable();
+        doubleFields.get(DoubleTelemetryField.SetpointVelocity).enable();
         doubleFields.get(DoubleTelemetryField.MeasurementPosition).enable();
         doubleFields.get(DoubleTelemetryField.MeasurementVelocity).enable();
         doubleFields.get(DoubleTelemetryField.MechanismPosition).enable();
         doubleFields.get(DoubleTelemetryField.MechanismVelocity).enable();
         doubleFields.get(DoubleTelemetryField.RotorPosition).enable();
         doubleFields.get(DoubleTelemetryField.RotorVelocity).enable();
-        doubleFields.get(DoubleTelemetryField.MechanismLowerLimit).enable();
-        doubleFields.get(DoubleTelemetryField.MechanismUpperLimit).enable();
-        doubleFields.get(DoubleTelemetryField.kP).enable();
-        doubleFields.get(DoubleTelemetryField.OutputVoltage).enable();
-        doubleFields.get(DoubleTelemetryField.kG).enable();
-        doubleFields.get(DoubleTelemetryField.StatorCurrentLimit).enable();
-        doubleFields.get(DoubleTelemetryField.OpenloopRampRate).enable();
-        doubleFields.get(DoubleTelemetryField.kV).enable();
-        doubleFields.get(DoubleTelemetryField.MeasurementLowerLimit).enable();
-        doubleFields.get(DoubleTelemetryField.MeasurementUpperLimit).enable();
-        doubleFields.get(DoubleTelemetryField.ClosedloopRampRate).enable();
-        doubleFields.get(DoubleTelemetryField.kI).enable();
-        doubleFields.get(DoubleTelemetryField.MotionProfileMaxAcceleration).enable();
-        doubleFields.get(DoubleTelemetryField.SupplyCurrentLimit).enable();
-        doubleFields.get(DoubleTelemetryField.MotionProfileMaxVelocity).enable();
-        doubleFields.get(DoubleTelemetryField.kS).enable();
-        doubleFields.get(DoubleTelemetryField.kA).enable();
-        doubleFields.get(DoubleTelemetryField.kD).enable();
-      case MID:
-      case LOW:
     }
     if (verbosity == TelemetryVerbosity.HIGH)
     {
