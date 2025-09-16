@@ -1,5 +1,7 @@
 package yams.mechanisms.swerve;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,6 +13,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructArrayTopic;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.StructTopic;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Arrays;
 import yams.mechanisms.config.SwerveDriveConfig;
@@ -22,23 +29,31 @@ public class SwerveDrive
   /**
    * The modules of the drive.
    */
-  private final SwerveModule[]           m_modules;
+  private final SwerveModule[]                          m_modules;
   /**
    * The config for the drive.
    */
-  private       SwerveDriveConfig        m_config;
+  private       SwerveDriveConfig                       m_config;
   /**
    * The pose estimator for the drive.
    */
-  private final SwerveDrivePoseEstimator m_poseEstimator;
+  private final SwerveDrivePoseEstimator                m_poseEstimator;
   /**
    * The kinematics for the drive.
    */
-  private final SwerveDriveKinematics    m_kinematics;
+  private final SwerveDriveKinematics                   m_kinematics;
   /**
    * Mechanism telemetry.
    */
-  private       MechanismTelemetry       m_telemetry = new MechanismTelemetry();
+  private       MechanismTelemetry                      m_telemetry = new MechanismTelemetry();
+  private       StructArrayTopic<SwerveModuleState>     m_desiredModuleStatesTopic;
+  private       StructArrayPublisher<SwerveModuleState> m_desiredModuleStatesPublisher;
+  private       StructArrayTopic<SwerveModuleState>     m_currentModuleStatesTopic;
+  private       StructArrayPublisher<SwerveModuleState> m_currentModuleStatesPublisher;
+  private       StructTopic<Pose2d>                     m_poseTopic;
+  private       StructPublisher<Pose2d>                 m_posePublisher;
+  private       DoublePublisher                         m_gyroPublisher;
+
 
   /**
    * Create a SwerveDrive.
@@ -57,6 +72,18 @@ public class SwerveDrive
                                                    getModulePositions(),
                                                    m_config.getInitialPose());
     m_telemetry.setupTelemetry(getName());
+    m_desiredModuleStatesTopic = m_telemetry.getDataTable().getStructArrayTopic("states/desired",
+                                                                                SwerveModuleState.struct);
+    m_currentModuleStatesTopic = m_telemetry.getDataTable().getStructArrayTopic("states/current",
+                                                                                SwerveModuleState.struct);
+    m_poseTopic = m_telemetry.getDataTable().getStructTopic("pose", Pose2d.struct);
+    var gyroTopic = m_telemetry.getDataTable().getDoubleTopic("gyro");
+    gyroTopic.setProperties("{\"unit\":\"degrees\"}");
+    m_gyroPublisher = gyroTopic.publish();
+    m_posePublisher = m_poseTopic.publish();
+    m_desiredModuleStatesPublisher = m_desiredModuleStatesTopic.publish();
+    m_currentModuleStatesPublisher = m_currentModuleStatesTopic.publish();
+
   }
 
   /**
@@ -202,6 +229,9 @@ public class SwerveDrive
   public void updateTelemetry()
   {
     m_poseEstimator.update(new Rotation2d(m_config.getGyroAngle()), getModulePositions());
+    m_gyroPublisher.accept(m_config.getGyroAngle().in(Degrees));
+    m_currentModuleStatesPublisher.accept(getModuleStates());
+    m_posePublisher.accept(getPose());
     Arrays.stream(m_modules).forEach(SwerveModule::updateTelemetry);
   }
 

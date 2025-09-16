@@ -46,4 +46,24 @@ public class MechanismTelemetry
     networkTable = NetworkTableInstance.getDefault().getTable("Mechanisms")
                                        .getSubTable(mechanismTelemetryName);
   }
+
+  /**
+   * Get the telemetry NetworkTable.
+   *
+   * @return Telemetry NetworkTable.
+   */
+  public NetworkTable getDataTable()
+  {
+    return networkTable;
+  }
+
+  /**
+   * Get the tuning NetworkTable.
+   *
+   * @return Tuning NetworkTable.
+   */
+  public NetworkTable getTuningTable()
+  {
+    return tuningNetworkTable;
+  }
 }
