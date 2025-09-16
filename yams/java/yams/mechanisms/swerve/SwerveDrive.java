@@ -87,6 +87,14 @@ public class SwerveDrive
   }
 
   /**
+   * Get the Gyro Angle.
+   */
+  public Angle getGyroAngle()
+  {
+    return m_config.getGyroAngle();
+  }
+
+  /**
    * Point all modules toward the robot center, thus making the robot very difficult to move. Forcing the robot to keep
    * the current pose.
    */
