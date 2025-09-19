@@ -106,10 +106,25 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String,yams.motorcontrollers.SmartMotorController)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName,
- <a href="../motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a>&nbsp;motorController)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/networktables/NetworkTable.html" title="class or interface in edu.wpi.first.networktables" class="external-link">NetworkTable</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDataTable()" class="member-name-link">getDataTable</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the telemetry NetworkTable.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/networktables/NetworkTable.html" title="class or interface in edu.wpi.first.networktables" class="external-link">NetworkTable</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTuningTable()" class="member-name-link">getTuningTable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the tuning NetworkTable.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Setup telemetry for the Mechanism and motor controller.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String,yams.motorcontrollers.SmartMotorController)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName,
+ <a href="../motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a>&nbsp;motorController)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Setup telemetry for the Mechanism and motor controller.</div>
 </div>
 </div>
@@ -153,6 +168,39 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>mechanismTelemetryName</code> - Mechanism Telemetry Name.</dd>
 <dd><code>motorController</code> - <a href="../motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a> to setup telemetry for.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setupTelemetry(java.lang.String)">
+<h3>setupTelemetry</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setupTelemetry</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName)</span></div>
+<div class="block">Setup telemetry for the Mechanism and motor controller.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>mechanismTelemetryName</code> - Mechanism Telemetry Name.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getDataTable()">
+<h3>getDataTable</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/networktables/NetworkTable.html" title="class or interface in edu.wpi.first.networktables" class="external-link">NetworkTable</a></span>&nbsp;<span class="element-name">getDataTable</span>()</div>
+<div class="block">Get the telemetry NetworkTable.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>Telemetry NetworkTable.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTuningTable()">
+<h3>getTuningTable</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/networktables/NetworkTable.html" title="class or interface in edu.wpi.first.networktables" class="external-link">NetworkTable</a></span>&nbsp;<span class="element-name">getTuningTable</span>()</div>
+<div class="block">Get the tuning NetworkTable.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>Tuning NetworkTable.</dd>
 </dl>
 </section>
 </li>

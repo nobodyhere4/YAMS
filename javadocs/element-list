@@ -4,6 +4,8 @@ yams.math
 yams.mechanisms
 yams.mechanisms.config
 yams.mechanisms.positional
+yams.mechanisms.swerve
+yams.mechanisms.swerve.utility
 yams.mechanisms.velocity
 yams.motorcontrollers
 yams.motorcontrollers.local
