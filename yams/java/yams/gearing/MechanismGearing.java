@@ -68,4 +68,16 @@ public class MechanismGearing
     }
     return ratio;
   }
+
+  /**
+   * Divide the gearbox reduction ratio by i.
+   *
+   * @param i Numerator.
+   * @return {@link MechanismGearing}
+   */
+  public MechanismGearing div(double i)
+  {
+    gearBox.div(i);
+    return this;
+  }
 }

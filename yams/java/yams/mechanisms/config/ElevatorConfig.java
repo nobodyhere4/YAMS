@@ -152,6 +152,20 @@ public class ElevatorConfig
   }
 
   /**
+   * Change the {@link SmartMotorControllerConfig} gear ratio to be divided by the number of stages given, will reapply
+   * it if already done manually.
+   *
+   * @param stages Stages given
+   * @return {@link ElevatorConfig} for chaining.
+   */
+  public ElevatorConfig withCascadingElevatorStages(int stages)
+  {
+    var smcConfig = motor.getConfig();
+    smcConfig.withGearing(smcConfig.getGearing().div(2));
+    return this;
+  }
+
+  /**
    * Set the elevator mechnism position configuration.
    *
    * @param mechanismPositionConfig {@link MechanismPositionConfig} for the {@link yams.mechanisms.positional.Elevator}
