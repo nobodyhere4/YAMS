@@ -684,11 +684,9 @@ public class SparkWrapper extends SmartMotorController
   {
     m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setP(kP);
-      m_config.withClosedLoopController(simplePidController);
     });
     m_pidController.ifPresent(pidController -> {
       pidController.setP(kP);
-      m_config.withClosedLoopController(pidController);
     });
   }
 
@@ -697,11 +695,9 @@ public class SparkWrapper extends SmartMotorController
   {
     m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setI(kI);
-      m_config.withClosedLoopController(simplePidController);
     });
     m_pidController.ifPresent(pidController -> {
       pidController.setI(kI);
-      m_config.withClosedLoopController(pidController);
     });
 
   }
@@ -711,11 +707,9 @@ public class SparkWrapper extends SmartMotorController
   {
     m_simplePidController.ifPresent(simplePidController -> {
       simplePidController.setP(kD);
-      m_config.withClosedLoopController(simplePidController);
     });
     m_pidController.ifPresent(pidController -> {
       pidController.setP(kD);
-      m_config.withClosedLoopController(pidController);
     });
   }
 
@@ -732,15 +726,12 @@ public class SparkWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKs(kS);
-      m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKs(kS);
-      m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKs(kS);
-      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
@@ -749,15 +740,12 @@ public class SparkWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKv(kV);
-      m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKv(kV);
-      m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKv(kV);
-      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
@@ -766,15 +754,12 @@ public class SparkWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKa(kA);
-      m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKs(kA);
-      m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKa(kA);
-      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
@@ -783,11 +768,9 @@ public class SparkWrapper extends SmartMotorController
   {
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKg(kG);
-      m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKg(kG);
-      m_config.withFeedforward(elevatorFeedforward);
     });
   }
 
