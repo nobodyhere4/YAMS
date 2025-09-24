@@ -28,11 +28,11 @@ layout:
 
 {% columns %}
 {% column %}
-#### Get started in 30 minutes
+**Get started in 30 minutes**
 
 Less guesswork, no complexity—just your first successful mechanism, fast.
 
-Setting up your first mechanism should be easy and painless and thats exactly what YAMS aims to provide.&#x20;
+Setting up your first mechanism should be easy and painless and thats exactly what YAMS aims to provide.
 
 YAMS provides an effortless programming experience by neatly dividing the process into distinct steps: SmartMotorController Configuration, SmartMotorController creation, Mechanism configuration, and Mechanism creation. This structured approach simplifies the integration of mechanisms like Arms, Elevators, Turrets, and more, allowing developers to effortlessly manage and control them using commands from Mechanism classes. Built exclusively for WPILib command-based programming, YAMS also offers sophisticated features such as advanced telemetry and live tuning, ensuring a streamlined and efficient development process for all supported mechanisms.
 
@@ -82,11 +82,11 @@ Arm                        arm = new Arm(config);
 {% endcolumn %}
 
 {% column %}
-#### Learn more about Yet Another Mechanism System
+**Learn more about Yet Another Mechanism System**
 
 Read guides, watch tutorials, and learn more about working with the developer platform and integrating it with your own stack.
 
-<a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/unoQcLkz5R1wNeAuLySo/" class="button primary" data-icon="book-open">Guides</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button secondary" data-icon="book">Documentation</a>
+<a href="https://app.gitbook.com/s/ZM0CFmYiQzcrY4zDcTtZ/tutorials" class="button primary" data-icon="book-open">Guides</a> <a href="https://app.gitbook.com/o/MwECAyhaWCMK5V9K79gd/s/ZM0CFmYiQzcrY4zDcTtZ/" class="button secondary" data-icon="book">Documentation</a>
 {% endcolumn %}
 {% endcolumns %}
 
