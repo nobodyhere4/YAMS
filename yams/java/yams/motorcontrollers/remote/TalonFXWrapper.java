@@ -787,13 +787,6 @@ public class TalonFXWrapper extends SmartMotorController
                                                            "withEncoderInverted(false)");
     }
 
-    // Control loop frequency.
-    if (config.getClosedLoopControlPeriod().isPresent())
-    {
-      m_velocityReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().get().asFrequency());
-      m_trapPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().get().asFrequency());
-      m_expoPositionReq.withUpdateFreqHz(config.getClosedLoopControlPeriod().get().asFrequency());
-    }
     // Configure follower motors
     if (config.getFollowers().isPresent())
     {
@@ -824,6 +817,10 @@ public class TalonFXWrapper extends SmartMotorController
     }
 
     // Unsupported options.
+    if (config.getClosedLoopControlPeriod().isPresent())
+    {
+      throw new IllegalArgumentException("[ERROR] ClosedLoopControlPeriod is not supported");
+    }
     if (config.getTemperatureCutoff().isPresent())
     {
       throw new IllegalArgumentException("[ERROR] TemperatureCutoff is not supported");
