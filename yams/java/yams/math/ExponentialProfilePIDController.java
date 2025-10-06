@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.ExponentialProfile;
 import edu.wpi.first.math.trajectory.ExponentialProfile.Constraints;
 import edu.wpi.first.math.trajectory.ExponentialProfile.State;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -225,6 +227,8 @@ public class ExponentialProfilePIDController
 
   /**
    * Reset the controller, set the next setpoint to empty.
+   *
+   * @param measurement Measurement in Rotations, and Rotations per Second.
    */
   public void reset(State measurement)
   {
@@ -334,6 +338,46 @@ public class ExponentialProfilePIDController
   public State getCurrentState()
   {
     return currentState;
+  }
+
+  /**
+   * Get the current angle.
+   *
+   * @return {@link Angle} from {@link ExponentialProfile}
+   */
+  public Angle getCurrentAngle()
+  {
+    return Rotations.of(currentState.position);
+  }
+
+  /**
+   * Get the next angle from the {@link ExponentialProfile}
+   *
+   * @return {@link Angle} from {@link ExponentialProfile}
+   */
+  public Angle getNextAngle()
+  {
+    return Rotations.of(nextState.orElseThrow().position);
+  }
+
+  /**
+   * Get the current velocity from {@link ExponentialProfile}.
+   *
+   * @return {@link AngularVelocity} from {@link ExponentialProfile}
+   */
+  public AngularVelocity getCurrentVelocitySetpoint()
+  {
+    return RotationsPerSecond.of(currentState.velocity);
+  }
+
+  /**
+   * Get the next velocity from {@link ExponentialProfile}
+   *
+   * @return Next {@link AngularVelocity} from {@link ExponentialProfile}
+   */
+  public AngularVelocity getNextVelocitySetpoint()
+  {
+    return RotationsPerSecond.of(nextState.orElseThrow().velocity);
   }
 
   /**

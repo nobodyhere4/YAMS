@@ -297,27 +297,34 @@ public abstract class SmartMotorController
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMechanismPosition().in(Rotations),
                                                                  setpointPosition.get().in(Rotations)));
         feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
-                                                                   m_expoPidController.get().getCurrentState().velocity,
-                                                                   m_expoPidController.get().getNextState()
-                                                                                      .orElseThrow().velocity);
+                                                                   m_expoPidController.get()
+                                                                                      .getCurrentVelocitySetpoint()
+                                                                                      .in(RotationsPerSecond),
+                                                                   m_expoPidController.get().getNextVelocitySetpoint()
+                                                                                      .in(RotationsPerSecond));
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMeasurementPosition().in(Meters),
                                                                  m_config.convertFromMechanism(setpointPosition.get())
                                                                          .in(Meters)));
-        feedforward = elevatorFeedforward.get().calculateWithVelocities(m_expoPidController.get()
-                                                                                           .getCurrentState().velocity,
-                                                                        m_expoPidController.get().getNextState()
-                                                                                           .orElseThrow().velocity);
+        feedforward = elevatorFeedforward.get().calculateWithVelocities(m_config.convertFromMechanism(
+                                                                            m_expoPidController.get()
+                                                                                               .getCurrentVelocitySetpoint()).in(MetersPerSecond),
+                                                                        m_config.convertFromMechanism(
+                                                                                    m_expoPidController.get()
+                                                                                                       .getNextVelocitySetpoint())
+                                                                                .in(MetersPerSecond));
 
       } else if (simpleMotorFeedforward.isPresent())
       {
-        pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
-                                                             setpointPosition.get().in(Rotations)));
+        pidOutputVoltage.set(m_expoPidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                                 setpointPosition.get().in(Rotations)));
         feedforward = simpleMotorFeedforward.get().calculateWithVelocities(m_expoPidController.get()
-                                                                                              .getCurrentState().velocity,
-                                                                           m_expoPidController.get().getNextState()
-                                                                                              .orElseThrow().velocity);
+                                                                                              .getCurrentVelocitySetpoint()
+                                                                                              .in(RotationsPerSecond),
+                                                                           m_expoPidController.get()
+                                                                                              .getNextVelocitySetpoint()
+                                                                                              .in(RotationsPerSecond));
 
       }
     } else if (m_pidController.isPresent() && setpointPosition.isPresent())
@@ -347,7 +354,7 @@ public abstract class SmartMotorController
             RotationsPerSecond), m_pidController.get().getSetpoint().velocity);
 
       }
-    }
+    } else
     {
       if (setpointPosition.isPresent())
       {
