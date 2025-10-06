@@ -472,6 +472,7 @@ public class TalonFXWrapper extends SmartMotorController
                                                            "Cannot have both PID Controllers.",
                                                            ".withClosedLoopController");
     }
+
     if (config.getExponentiallyProfiledClosedLoopController().isPresent())
     {
       ExponentialProfilePIDController controller = config.getExponentiallyProfiledClosedLoopController().get();

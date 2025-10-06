@@ -203,14 +203,14 @@ public class NovaWrapper extends SmartMotorController
     m_config.resetValidationCheck();
     m_gearing = config.getGearing();
     m_expoPidController = config.getExponentiallyProfiledClosedLoopController();
+    m_pidController = config.getClosedLoopController();
+    m_simplePidController = config.getSimpleClosedLoopController();
 
     // Handle simple pid vs profile pid controller.
     if (m_expoPidController.isEmpty())
     {
-      m_pidController = config.getClosedLoopController();
       if (m_pidController.isEmpty())
       {
-        m_simplePidController = config.getSimpleClosedLoopController();
         if (m_simplePidController.isEmpty())
         {
           throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");

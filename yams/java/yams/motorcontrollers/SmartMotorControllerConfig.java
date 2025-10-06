@@ -1443,11 +1443,11 @@ public class SmartMotorControllerConfig
    * Get the controller for the {@link SmartMotorController}, the units passed in are in Rotations (or Meters if
    * Mechanism Circumference is configured), the outputs are in Volts.
    *
-   * @return {@link ProfiledPIDController}
+   * @return {@link ExponentialProfilePIDController}
    */
   public Optional<ExponentialProfilePIDController> getExponentiallyProfiledClosedLoopController()
   {
-    basicOptions.remove(BasicOptions.ClosedLoopController);
+    basicOptions.remove(BasicOptions.SimpleClosedLoopController);
     if (RobotBase.isSimulation() && sim_expoController.isPresent())
     {
       return sim_expoController;
