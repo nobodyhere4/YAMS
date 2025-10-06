@@ -66,6 +66,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.List;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
+import yams.math.ExponentialProfilePIDController;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -100,6 +101,10 @@ public class TalonFXSWrapper extends SmartMotorController
    * Position with trapazoidal profiling request.
    */
   private final MotionMagicVoltage            m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
+  /**
+   * Exponent profile enabled.
+   */
+  private boolean expEnabled = false;
   /**
    * Position with exponential profiling request.
    */
@@ -448,7 +453,7 @@ public class TalonFXSWrapper extends SmartMotorController
     setpointPosition = Optional.ofNullable(angle);
     if (angle != null)
     {
-      m_talonfxs.setControl(m_trapPositionReq.withPosition(angle));
+      m_talonfxs.setControl(expEnabled ? m_expoPositionReq.withPosition(angle) : m_trapPositionReq.withPosition(angle));
     }
   }
 
@@ -502,7 +507,37 @@ public class TalonFXSWrapper extends SmartMotorController
                                                            "Cannot have both PID Controllers.",
                                                            ".withClosedLoopController");
     }
-    if (config.getClosedLoopController().isPresent())
+    if (config.getExponentiallyProfiledClosedLoopController().isPresent())
+    {
+      ExponentialProfilePIDController controller = config.getExponentiallyProfiledClosedLoopController().get();
+      if (controller.getPositionTolerance() != 0.05)
+      {
+        throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
+                                           (config.getTelemetryName().isPresent() ? getName()
+                                                                                  : "TalonFXS(" +
+                                                                                    m_talonfxs.getDeviceID() + ")"));
+      }
+
+      m_talonConfig.Slot0.kP = controller.getP();
+      m_talonConfig.Slot0.kI = controller.getI();
+      m_talonConfig.Slot0.kD = controller.getD();
+      m_talonConfig.MotionMagic
+          .withMotionMagicExpo_kV(controller.getKv())
+          .withMotionMagicExpo_kA(controller.getKa());
+      expEnabled = true;
+//      if (config.getMechanismCircumference().isPresent())
+//      {
+//        //m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
+//        //m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
+//        //m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
+//
+//      } else
+//      {
+//        m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(controller.getConstraints().maxAcceleration));
+//        m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
+//
+//      }
+    }else if (config.getClosedLoopController().isPresent())
     {
       ProfiledPIDController controller = config.getClosedLoopController().get();
       if (controller.getPositionTolerance() != new ProfiledPIDController(0,
@@ -827,7 +862,7 @@ public class TalonFXSWrapper extends SmartMotorController
           config.getEncoderInverted() ? SensorPhaseValue.Opposed : SensorPhaseValue.Aligned);
     }
 
-    
+
     // Configure follower motors
     if (config.getFollowers().isPresent())
     {

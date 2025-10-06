@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
+import yams.math.ExponentialProfilePIDController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
@@ -66,6 +67,10 @@ public abstract class SmartMotorController
    * Profiled PID controller for the motor controller.
    */
   protected Optional<ProfiledPIDController>               m_pidController               = Optional.empty();
+  /**
+   * Exponential profile PID controller for the motor controller.
+   */
+  protected Optional<ExponentialProfilePIDController>     m_expoPidController           = Optional.empty();
   /**
    * Simple PID controller for the motor controller.
    */
@@ -220,9 +225,13 @@ public abstract class SmartMotorController
       m_simplePidController.ifPresent(PIDController::reset);
       m_pidController.ifPresent(pid -> pid.reset(getMechanismPosition().in(Rotations),
                                                  getMechanismVelocity().in(RotationsPerSecond)));
+      m_expoPidController.ifPresent(pid -> pid.reset(getMechanismPosition().in(Rotations),
+                                                     getMechanismVelocity().in(RotationsPerSecond)));
       m_config.getMechanismCircumference().ifPresent(circumference -> {
         m_pidController.ifPresent(pid -> pid.reset(getMeasurementPosition().in(Meters),
                                                    getMeasurementVelocity().in(MetersPerSecond)));
+        m_expoPidController.ifPresent(pid -> pid.reset(getMeasurementPosition().in(Meters),
+                                                       getMeasurementVelocity().in(MetersPerSecond)));
       });
       m_closedLoopControllerThread.stop();
       m_closedLoopControllerThread.startPeriodic(m_config.getClosedLoopControlPeriod().orElse(Milliseconds.of(20))
@@ -281,7 +290,37 @@ public abstract class SmartMotorController
       }
     }
 
-    if (m_pidController.isPresent() && setpointPosition.isPresent())
+    if (m_expoPidController.isPresent() && setpointPosition.isPresent())
+    {
+      if (armFeedforward.isPresent())
+      {
+        pidOutputVoltage.set(m_expoPidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                                 setpointPosition.get().in(Rotations)));
+        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+                                                                   m_expoPidController.get().getCurrentState().velocity,
+                                                                   m_expoPidController.get().getNextState()
+                                                                                      .orElseThrow().velocity);
+      } else if (elevatorFeedforward.isPresent())
+      {
+        pidOutputVoltage.set(m_expoPidController.get().calculate(getMeasurementPosition().in(Meters),
+                                                                 m_config.convertFromMechanism(setpointPosition.get())
+                                                                         .in(Meters)));
+        feedforward = elevatorFeedforward.get().calculateWithVelocities(m_expoPidController.get()
+                                                                                           .getCurrentState().velocity,
+                                                                        m_expoPidController.get().getNextState()
+                                                                                           .orElseThrow().velocity);
+
+      } else if (simpleMotorFeedforward.isPresent())
+      {
+        pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
+                                                             setpointPosition.get().in(Rotations)));
+        feedforward = simpleMotorFeedforward.get().calculateWithVelocities(m_expoPidController.get()
+                                                                                              .getCurrentState().velocity,
+                                                                           m_expoPidController.get().getNextState()
+                                                                                              .orElseThrow().velocity);
+
+      }
+    } else if (m_pidController.isPresent() && setpointPosition.isPresent())
     {
       if (armFeedforward.isPresent())
       {
@@ -308,7 +347,7 @@ public abstract class SmartMotorController
             RotationsPerSecond), m_pidController.get().getSetpoint().velocity);
 
       }
-    } else
+    }
     {
       if (setpointPosition.isPresent())
       {

@@ -61,6 +61,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.List;
 import java.util.Optional;
 import yams.exceptions.SmartMotorControllerConfigurationException;
+import yams.math.ExponentialProfilePIDController;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -95,6 +96,10 @@ public class TalonFXWrapper extends SmartMotorController
    * Position with trapazoidal profiling request.
    */
   private final MotionMagicVoltage            m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
+  /**
+   * Exponential profiled velocity control request enabled.
+   */
+  private boolean expEnabled = false;
   /**
    * Position with exponential profiling request.
    */
@@ -414,7 +419,10 @@ public class TalonFXWrapper extends SmartMotorController
   public void setPosition(Angle angle)
   {
     setpointPosition = Optional.ofNullable(angle);
-    m_talonfx.setControl(m_trapPositionReq.withPosition(angle));
+    if(angle != null)
+    {
+      m_talonfx.setControl(expEnabled ? m_expoPositionReq.withPosition(angle) : m_trapPositionReq.withPosition(angle));
+    }
   }
 
   @Override
@@ -465,13 +473,40 @@ public class TalonFXWrapper extends SmartMotorController
                                                            "Cannot have both PID Controllers.",
                                                            ".withClosedLoopController");
     }
-    if (config.getClosedLoopController().isPresent())
+    if (config.getExponentiallyProfiledClosedLoopController().isPresent())
+    {
+      ExponentialProfilePIDController controller = config.getExponentiallyProfiledClosedLoopController().get();
+      if (controller.getPositionTolerance() != 0.05)
+      {
+        throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
+                                           (config.getTelemetryName().isPresent() ? getName()
+                                                                                  : "TalonFX(" +
+                                                                                    m_talonfx.getDeviceID() + ")"));
+      }
+
+      m_talonConfig.Slot0.kP = controller.getP();
+      m_talonConfig.Slot0.kI = controller.getI();
+      m_talonConfig.Slot0.kD = controller.getD();
+      m_talonConfig.MotionMagic
+          .withMotionMagicExpo_kV(controller.getKv())
+          .withMotionMagicExpo_kA(controller.getKa());
+      expEnabled = true;
+//      if (config.getMechanismCircumference().isPresent())
+//      {
+//        //m_talonConfig.Slot0.kP = config.convertToMechanism(Meters.of(controller.getP())).in(Rotations);
+//        //m_talonConfig.Slot0.kI = config.convertToMechanism(Meters.of(controller.getI())).in(Rotations);
+//        //m_talonConfig.Slot0.kD = config.convertToMechanism(Meters.of(controller.getD())).in(Rotations);
+//
+//      } else
+//      {
+//        m_talonConfig.MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(controller.getConstraints().maxAcceleration));
+//        m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
+//
+//      }
+    }else if (config.getClosedLoopController().isPresent())
     {
       ProfiledPIDController controller = config.getClosedLoopController().get();
-      if (controller.getPositionTolerance() != new ProfiledPIDController(0,
-                                                                         0,
-                                                                         0,
-                                                                         new Constraints(0, 0)).getPositionTolerance())
+      if (controller.getPositionTolerance() != 0.05)
       {
         throw new IllegalArgumentException("[ERROR] Cannot set closed-loop controller error tolerance on " +
                                            (config.getTelemetryName().isPresent() ? getName()
