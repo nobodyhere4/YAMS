@@ -56,7 +56,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import java.util.List;
 import java.util.Optional;
@@ -99,7 +98,7 @@ public class TalonFXWrapper extends SmartMotorController
   /**
    * Exponential profiled velocity control request enabled.
    */
-  private boolean expEnabled = false;
+  private       boolean                       expEnabled        = false;
   /**
    * Position with exponential profiling request.
    */
@@ -419,7 +418,7 @@ public class TalonFXWrapper extends SmartMotorController
   public void setPosition(Angle angle)
   {
     setpointPosition = Optional.ofNullable(angle);
-    if(angle != null)
+    if (angle != null)
     {
       m_talonfx.setControl(expEnabled ? m_expoPositionReq.withPosition(angle) : m_trapPositionReq.withPosition(angle));
     }
@@ -488,8 +487,8 @@ public class TalonFXWrapper extends SmartMotorController
       m_talonConfig.Slot0.kI = controller.getI();
       m_talonConfig.Slot0.kD = controller.getD();
       m_talonConfig.MotionMagic
-          .withMotionMagicExpo_kV(controller.getKv())
-          .withMotionMagicExpo_kA(controller.getKa());
+          .withMotionMagicExpo_kV(controller.getKv().in(RotationsPerSecond))
+          .withMotionMagicExpo_kA(controller.getKa().in(RotationsPerSecondPerSecond));
       expEnabled = true;
 //      if (config.getMechanismCircumference().isPresent())
 //      {
@@ -503,7 +502,7 @@ public class TalonFXWrapper extends SmartMotorController
 //        m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
 //
 //      }
-    }else if (config.getClosedLoopController().isPresent())
+    } else if (config.getClosedLoopController().isPresent())
     {
       ProfiledPIDController controller = config.getClosedLoopController().get();
       if (controller.getPositionTolerance() != 0.05)
@@ -766,14 +765,18 @@ public class TalonFXWrapper extends SmartMotorController
 
     } else
     {
-      if(config.getExternalEncoderInverted())
+      if (config.getExternalEncoderInverted())
       {
-        throw new SmartMotorControllerConfigurationException("External Encoder cannot be inverted if not present!","External encoder is not inverted!","withExternalEncoderInverted(false)");
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be inverted if not present!",
+                                                             "External encoder is not inverted!",
+                                                             "withExternalEncoderInverted(false)");
       }
 
-      if(config.getExternalEncoderGearing().getMechanismToRotorRatio() != 1.0)
+      if (config.getExternalEncoderGearing().getMechanismToRotorRatio() != 1.0)
       {
-        throw new SmartMotorControllerConfigurationException("External Encoder cannot be set if not present!","External encoder gearing is not 1.0!","withExternalEncoderGearing(Rotations.of(1.0))");
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be set if not present!",
+                                                             "External encoder gearing is not 1.0!",
+                                                             "withExternalEncoderGearing(Rotations.of(1.0))");
       }
 
       m_talonConfig.Feedback.RotorToSensorRatio = 1.0;
@@ -1302,6 +1305,9 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   protected Config getSysIdConfig(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
-    return new Config(stepVoltage, maxVoltage, testDuration, state -> SignalLogger.writeString("state", state.toString()));
+    return new Config(stepVoltage,
+                      maxVoltage,
+                      testDuration,
+                      state -> SignalLogger.writeString("state", state.toString()));
   }
 }

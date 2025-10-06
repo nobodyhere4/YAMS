@@ -2,7 +2,13 @@ package yams.math;
 
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,6 +18,8 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.ExponentialProfile;
 import edu.wpi.first.math.trajectory.ExponentialProfile.Constraints;
 import edu.wpi.first.math.trajectory.ExponentialProfile.State;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
@@ -58,11 +66,11 @@ public class ExponentialProfilePIDController
   private       Constraints                        constraints  = null;
 
   /**
-   * Get the Kv constant.
+   * Get the velocity gain as constant.
    *
    * @return kV with (-A/B)
    */
-  public double getKv()
+  public AngularVelocity getKv()
   {
     if (constraints == null)
     {
@@ -70,15 +78,15 @@ public class ExponentialProfilePIDController
     }
     var A = constraints.A;
     var B = constraints.B;
-    return -A / B;
+    return RotationsPerSecond.of(-A / B);
   }
 
   /**
-   * Get the Ka constant.
+   * Get the acceleration gain kA
    *
-   * @return kA with (1.0/B)
+   * @return kA interpreted as (1.0/B)
    */
-  public double getKa()
+  public AngularAcceleration getKa()
   {
     if (constraints == null)
     {
@@ -86,7 +94,7 @@ public class ExponentialProfilePIDController
     }
     var A = constraints.A;
     var B = constraints.B;
-    return 1.0 / B;
+    return RotationsPerSecondPerSecond.of(1.0 / B);
   }
 
   /**
@@ -107,10 +115,16 @@ public class ExponentialProfilePIDController
                                                     mass.in(Kilograms),
                                                     drumRadius.in(Meters),
                                                     gearing.getMechanismToRotorRatio());
-    var A = sysid.getA(0, 0);
-    var B = sysid.getB(0, 0);
-//    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts), -A/B, 1.0/B);
-    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A, B);
+    var circumference = (2.0 * Math.PI * drumRadius.in(Meters));
+
+    var A  = sysid.getA(0, 0);
+    var B  = sysid.getB(0, 0);
+    var kV = MetersPerSecond.of(-A / B);
+    var kA = MetersPerSecondPerSecond.of(1.0 / B);
+    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts),
+                                                              kV.in(MetersPerSecond) / circumference,
+                                                              kA.in(MetersPerSecondPerSecond) / circumference);
+//    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A, B);
   }
 
   /**
@@ -131,10 +145,14 @@ public class ExponentialProfilePIDController
                                                             SingleJointedArmSim.estimateMOI(length.in(Meters),
                                                                                             mass.in(Kilograms)),
                                                             gearing.getMechanismToRotorRatio());
-    var A = sysid.getA(0, 0);
-    var B = sysid.getB(0, 0);
-    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A, B);
-//    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts), -A/B, 1.0/B);
+    var A  = sysid.getA(0, 0); // radians
+    var B  = sysid.getB(0, 0); // radians
+    var kV = RadiansPerSecond.of(-A / B);
+    var kA = RadiansPerSecondPerSecond.of(1.0 / B);
+//    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A, B);
+    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts),
+                                                              kV.in(RotationsPerSecond),
+                                                              kA.in(RotationsPerSecondPerSecond));
   }
 
   /**
@@ -150,14 +168,15 @@ public class ExponentialProfilePIDController
   public static ExponentialProfile.Constraints createFlywheelConstraints(Voltage maxVolts, DCMotor motor, Mass mass,
                                                                          Distance radius, MechanismGearing gearing)
   {
-    var sysid = LinearSystemId.createFlywheelSystem(motor,
-                                                    SingleJointedArmSim.estimateMOI(radius.in(Meters),
-                                                                                    mass.in(Kilograms)),
-                                                    gearing.getMechanismToRotorRatio());
-    var A = sysid.getA(0, 0);
-    var B = sysid.getB(0, 0);
-    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A, B);
-//    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts), -A/B, 1.0/B);
+    return createArmConstraints(maxVolts, motor, mass, radius, gearing);
+//    var sysid = LinearSystemId.createFlywheelSystem(motor,
+//                                                    SingleJointedArmSim.estimateMOI(radius.in(Meters),
+//                                                                                    mass.in(Kilograms)),
+//                                                    gearing.getMechanismToRotorRatio());
+//    var A = RadiansPerSecond.of(sysid.getA(0, 0));
+//    var B = RadiansPerSecondPerSecond.of(sysid.getB(0, 0));
+//    return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts), A.in(RotationsPerSecond), B.in(RotationsPerSecondPerSecond));
+////    return ExponentialProfile.Constraints.fromCharacteristics(maxVolts.in(Volts), -A/B, 1.0/B);
   }
 
   /**
@@ -168,12 +187,13 @@ public class ExponentialProfilePIDController
    * @param maxAcceleration Maximum acceleration.
    * @return {@link ExponentialProfile.Constraints}
    */
-  public static Constraints createConstraints(Voltage maxVolts, double maxVelocity, double maxAcceleration)
+  public static Constraints createConstraints(Voltage maxVolts, AngularVelocity maxVelocity,
+                                              AngularAcceleration maxAcceleration)
   {
     var maxV = maxVolts.in(Volts);
     return ExponentialProfile.Constraints.fromStateSpace(maxVolts.in(Volts),
-                                                         maxV / maxVelocity,
-                                                         maxV / maxAcceleration);
+                                                         maxV / maxVelocity.in(RotationsPerSecond),
+                                                         maxV / maxAcceleration.in(RotationsPerSecondPerSecond));
   }
 
   /**

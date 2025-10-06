@@ -522,8 +522,8 @@ public class TalonFXSWrapper extends SmartMotorController
       m_talonConfig.Slot0.kI = controller.getI();
       m_talonConfig.Slot0.kD = controller.getD();
       m_talonConfig.MotionMagic
-          .withMotionMagicExpo_kV(controller.getKv())
-          .withMotionMagicExpo_kA(controller.getKa());
+          .withMotionMagicExpo_kV(controller.getKv().in(RotationsPerSecond))
+          .withMotionMagicExpo_kA(controller.getKa().in(RotationsPerSecondPerSecond));
       expEnabled = true;
 //      if (config.getMechanismCircumference().isPresent())
 //      {
