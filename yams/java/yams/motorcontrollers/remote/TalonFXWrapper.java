@@ -1066,11 +1066,12 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getClosedLoopController().ifPresent(simplePidController -> {
       simplePidController.setP(kP);
-      //m_config.withClosedLoopController(simplePidController);
     });
     m_config.getSimpleClosedLoopController().ifPresent(pidController -> {
       pidController.setP(kP);
-      //m_config.withClosedLoopController(pidController);
+    });
+    m_config.getExponentiallyProfiledClosedLoopController().ifPresent(pidController -> {
+      pidController.setP(kP);
     });
     m_talonConfig.Slot0.kP = kP;
     System.out.println("setKp: " + kP);
@@ -1082,11 +1083,12 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getClosedLoopController().ifPresent(simplePidController -> {
       simplePidController.setI(kI);
-      //m_config.withClosedLoopController(simplePidController);
     });
     m_config.getSimpleClosedLoopController().ifPresent(pidController -> {
       pidController.setI(kI);
-      //m_config.withClosedLoopController(pidController);
+    });
+    m_config.getExponentiallyProfiledClosedLoopController().ifPresent(pidController -> {
+      pidController.setI(kI);
     });
     m_talonConfig.Slot0.kI = kI;
     forceConfigApply();
@@ -1097,11 +1099,12 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getClosedLoopController().ifPresent(simplePidController -> {
       simplePidController.setD(kD);
-      //m_config.withClosedLoopController(simplePidController);
     });
     m_config.getSimpleClosedLoopController().ifPresent(pidController -> {
       pidController.setD(kD);
-      //m_config.withClosedLoopController(pidController);
+    });
+    m_config.getExponentiallyProfiledClosedLoopController().ifPresent(pidController -> {
+      pidController.setD(kD);
     });
     m_talonConfig.Slot0.kD = kD;
     forceConfigApply();
@@ -1110,9 +1113,25 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public void setFeedback(double kP, double kI, double kD)
   {
-    setKp(kP);
-    setKi(kI);
-    setKd(kD);
+    m_simplePidController.ifPresent(simplePidController -> {
+      simplePidController.setP(kP);
+      simplePidController.setI(kI);
+      simplePidController.setD(kD);
+    });
+    m_pidController.ifPresent(pidController -> {
+      pidController.setP(kP);
+      pidController.setI(kI);
+      pidController.setD(kD);
+    });
+    m_expoPidController.ifPresent(expoPidController -> {
+      expoPidController.setP(kP);
+      expoPidController.setI(kI);
+      expoPidController.setD(kD);
+    });
+    m_talonConfig.Slot0.kP = kP;
+    m_talonConfig.Slot0.kI = kI;
+    m_talonConfig.Slot0.kD = kD;
+    forceConfigApply();
   }
 
   @Override
@@ -1120,15 +1139,12 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKs(kS);
-      //m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKs(kS);
-      //m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKs(kS);
-      //m_config.withFeedforward(elevatorFeedforward);
     });
     m_talonConfig.Slot0.kS = kS;
     forceConfigApply();
@@ -1139,17 +1155,13 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKv(kV);
-      //m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKv(kV);
-      //m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKv(kV);
-      //m_config.withFeedforward(elevatorFeedforward);
     });
-    m_talonConfig.MotionMagic.MotionMagicExpo_kV = kV;
     m_talonConfig.Slot0.kV = kV;
     forceConfigApply();
   }
@@ -1159,17 +1171,14 @@ public class TalonFXWrapper extends SmartMotorController
   {
     m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
       simpleMotorFeedforward.setKa(kA);
-      //m_config.withFeedforward(simpleMotorFeedforward);
     });
     m_config.getArmFeedforward().ifPresent(armFeedforward -> {
       armFeedforward.setKa(kA);
-      //m_config.withFeedforward(armFeedforward);
     });
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKa(kA);
       m_config.withFeedforward(elevatorFeedforward);
     });
-    m_talonConfig.MotionMagic.MotionMagicExpo_kA = kA;
     m_talonConfig.Slot0.kA = kA;
     forceConfigApply();
   }
@@ -1192,10 +1201,30 @@ public class TalonFXWrapper extends SmartMotorController
   @Override
   public void setFeedforward(double kS, double kV, double kA, double kG)
   {
-    setKs(kS);
-    setKv(kV);
-    setKa(kA);
-    setKg(kG);
+    m_config.getSimpleFeedforward().ifPresent(simpleMotorFeedforward -> {
+      simpleMotorFeedforward.setKs(kS);
+      simpleMotorFeedforward.setKv(kV);
+      simpleMotorFeedforward.setKa(kA);
+    });
+    m_config.getArmFeedforward().ifPresent(armFeedforward -> {
+      armFeedforward.setKs(kS);
+      armFeedforward.setKv(kV);
+      armFeedforward.setKa(kA);
+      armFeedforward.setKg(kG);
+      m_talonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    });
+    m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
+      elevatorFeedforward.setKs(kS);
+      elevatorFeedforward.setKv(kV);
+      elevatorFeedforward.setKa(kA);
+      elevatorFeedforward.setKg(kG);
+      m_talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    });
+    m_talonConfig.Slot0.kS = kS;
+    m_talonConfig.Slot0.kV = kV;
+    m_talonConfig.Slot0.kA = kA;
+    m_talonConfig.Slot0.kG = kG;
+    forceConfigApply();
   }
 
   @Override
