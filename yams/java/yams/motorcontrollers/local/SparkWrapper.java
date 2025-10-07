@@ -802,6 +802,8 @@ public class SparkWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
       m_pidController = Optional.of(ctr);
     }
+    m_sparkBaseConfig.closedLoop.maxMotion.cruiseVelocity(m_config.convertToMechanism(maxVelocity).in(RotationsPerSecond));
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -815,6 +817,8 @@ public class SparkWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
       m_pidController = Optional.of(ctr);
     }
+    m_sparkBaseConfig.closedLoop.maxMotion.maxAcceleration(m_config.convertToMechanism(maxAcceleration).in(RotationsPerSecondPerSecond));
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -827,6 +831,8 @@ public class SparkWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
       m_pidController = Optional.of(ctr);
     }
+    m_sparkBaseConfig.closedLoop.maxMotion.cruiseVelocity(maxVelocity.in(RotationsPerSecond));
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -840,6 +846,8 @@ public class SparkWrapper extends SmartMotorController
       m_config.withClosedLoopController(ctr);
       m_pidController = Optional.of(ctr);
     }
+    m_sparkBaseConfig.closedLoop.maxMotion.maxAcceleration(maxAcceleration.in(RotationsPerSecondPerSecond));
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -852,6 +860,8 @@ public class SparkWrapper extends SmartMotorController
       pidController.setP(kP);
     });
     m_expoPidController.ifPresent(expoPidController -> {expoPidController.setP(kP);});
+    m_sparkBaseConfig.closedLoop.p(kP);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -864,7 +874,8 @@ public class SparkWrapper extends SmartMotorController
       pidController.setI(kI);
     });
     m_expoPidController.ifPresent(expoPidController -> {expoPidController.setI(kI);});
-
+    m_sparkBaseConfig.closedLoop.i(kI);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
@@ -878,7 +889,8 @@ public class SparkWrapper extends SmartMotorController
       pidController.setD(kD);
     });
     m_expoPidController.ifPresent(expoPidController -> {expoPidController.setD(kD);});
-
+    m_sparkBaseConfig.closedLoop.d(kD);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -901,6 +913,8 @@ public class SparkWrapper extends SmartMotorController
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKs(kS);
     });
+    m_sparkBaseConfig.closedLoop.feedForward.kS(kS);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -915,6 +929,8 @@ public class SparkWrapper extends SmartMotorController
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKv(kV);
     });
+    m_sparkBaseConfig.closedLoop.feedForward.kV(kV);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -929,6 +945,8 @@ public class SparkWrapper extends SmartMotorController
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKa(kA);
     });
+    m_sparkBaseConfig.closedLoop.feedForward.kA(kA);
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -940,6 +958,15 @@ public class SparkWrapper extends SmartMotorController
     m_config.getElevatorFeedforward().ifPresent(elevatorFeedforward -> {
       elevatorFeedforward.setKg(kG);
     });
+    if(m_config.getArmFeedforward().isEmpty())
+    {
+      m_sparkBaseConfig.closedLoop.feedForward.kG(kG);
+    }
+    else
+    {
+      m_sparkBaseConfig.closedLoop.feedForward.kCos(kG);
+    }
+    m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
