@@ -50,18 +50,18 @@ public class ElevatorSubsystem extends SubsystemBase
                                      Pounds.of(16),
                                      Meters.of(Inches.of(0.25).in(Meters) * 22).div(2 * Math.PI),
                                      new MechanismGearing(GearBox.fromReductionStages(3, 4)))))
-//      .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
+//      .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5)) // Trapazoidal Profile PID Controller
       .withSoftLimit(Meters.of(0), Meters.of(2))
       .withGearing(gearing(gearbox(3, 4)))
-//      .withExternalEncoder(armMotor.getAbsoluteEncoder())
+//      .withExternalEncoder(armMotor.getAbsoluteEncoder()) // External Encoder if you need one, really shouldnt be used for Elevators
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
-//      .withSpecificTelemetry("ElevatorMotor", motorTelemetryConfig)
+//      .withSpecificTelemetry("ElevatorMotor", motorTelemetryConfig) // Specific Telemetry
       .withStatorCurrentLimit(Amps.of(40))
-//      .withVoltageCompensation(Volts.of(12))
+//      .withVoltageCompensation(Volts.of(12)) // Voltage compensation isnt available on all controllers
       .withMotorInverted(false)
-//      .withClosedLoopRampRate(Seconds.of(0.25))
-//      .withOpenLoopRampRate(Seconds.of(0.25))
+//      .withClosedLoopRampRate(Seconds.of(0.25)) // Closed Loop Ramp Rate not necessary
+//      .withOpenLoopRampRate(Seconds.of(0.25)) // Open Loop Ramp Rate not necessary
       .withFeedforward(new ElevatorFeedforward(0, 0.1, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor              = new SparkWrapper(elevatorMotor,
