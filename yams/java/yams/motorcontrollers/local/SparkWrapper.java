@@ -415,6 +415,9 @@ public class SparkWrapper extends SmartMotorController
     m_sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor)
                              .velocityConversionFactor(velocityConversionFactor);
 
+    // Control mode is ignored
+    config.getMotorControllerMode();
+
     // Set motion profile and PID values.
     config.getClosedLoopController().ifPresent(pidController -> {
       var maxAccel = pidController.getConstraints().maxAcceleration;
@@ -510,6 +513,14 @@ public class SparkWrapper extends SmartMotorController
     {
       m_sparkRelativeEncoder.setPosition(config.getStartingPosition().get().in(Rotations));
     }
+    // PID Wrapping
+    if (config.getDiscontinuityPoint().isPresent())
+    {
+      m_sparkBaseConfig.closedLoop
+          .positionWrappingMaxInput(config.getDiscontinuityPoint().get().in(Rotations))
+          .positionWrappingEnabled(true);
+    }
+
     // Setup external encoder.
     boolean useExternalEncoder = config.getUseExternalFeedback();
     if (config.getExternalEncoder().isPresent() && useExternalEncoder)
@@ -613,10 +624,12 @@ public class SparkWrapper extends SmartMotorController
           "withExternalEncoderGearing");
     }
 
-    if (config.getDiscontinuityPoint().isPresent())
+    if (config.getClosedLoopControlPeriod().isPresent() && m_expoPidController.isEmpty())
     {
-      throw new IllegalArgumentException(
-          "[ERROR] Discontinuity point is not supported on Sparks, or we have not implemented this!");
+      throw new SmartMotorControllerConfigurationException(
+          "Closed loop control period is unsupported without Exponential Profiles",
+          "Closed loop control period does not take affect",
+          ".withClosedLoopControlPeriod");
     }
 
     if (config.getClosedLoopControllerMaximumVoltage().isPresent() &&
