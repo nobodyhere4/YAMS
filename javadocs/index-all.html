@@ -155,6 +155,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Construct the ArmSim supplier</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#atSetpoint()" class="member-name-link">atSetpoint()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Returns true if the error is within the tolerance of the setpoint.</div>
+</dd>
 <dt><a href="yams/mechanisms/swerve/utility/SwerveInputStream.html#atTargetPose(double)" class="member-name-link">atTargetPose(double)</a> - Method in class yams.mechanisms.swerve.utility.<a href="yams/mechanisms/swerve/utility/SwerveInputStream.html" title="class in yams.mechanisms.swerve.utility">SwerveInputStream</a></dt>
 <dd>
 <div class="block">When the <a href="yams/mechanisms/swerve/utility/SwerveInputStream.html" title="class in yams.mechanisms.swerve.utility"><code>SwerveInputStream</code></a> is in <code>SwerveInputStream.SwerveInputMode.DRIVE_TO_POSE</code> this function will return if the
@@ -198,6 +202,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
+<dt><a href="yams/math/ExponentialProfilePIDController.html#calculate(double,double)" class="member-name-link">calculate(double, double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Calculate the feedback, assuming no setpoint velocity.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#calculate(double,double,double)" class="member-name-link">calculate(double, double, double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Calculate the feedback, assuming previous state velocity.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorController.html#checkConfigSafety()" class="member-name-link">checkConfigSafety()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></dt>
 <dd>
 <div class="block">Check config for safe values.</div>
@@ -284,6 +296,22 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/motorcontrollers/SmartMotorFactory.html#create(java.lang.Object,java.lang.Object...)" class="member-name-link">create(Object, Object...)</a> - Static method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorFactory.html" title="class in yams.motorcontrollers">SmartMotorFactory</a></dt>
 <dd>
 <div class="block">Create a motor controller instance.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#createArmConstraints(edu.wpi.first.units.measure.Voltage,edu.wpi.first.math.system.plant.DCMotor,edu.wpi.first.units.measure.Mass,edu.wpi.first.units.measure.Distance,yams.gearing.MechanismGearing)" class="member-name-link">createArmConstraints(Voltage, DCMotor, Mass, Distance, MechanismGearing)</a> - Static method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.Constraints.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile.Constraints</code></a> for an arm.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#createConstraints(edu.wpi.first.units.measure.Voltage,edu.wpi.first.units.measure.AngularVelocity,edu.wpi.first.units.measure.AngularAcceleration)" class="member-name-link">createConstraints(Voltage, AngularVelocity, AngularAcceleration)</a> - Static method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Create a generic constraints object.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#createElevatorConstraints(edu.wpi.first.units.measure.Voltage,edu.wpi.first.math.system.plant.DCMotor,edu.wpi.first.units.measure.Mass,edu.wpi.first.units.measure.Distance,yams.gearing.MechanismGearing)" class="member-name-link">createElevatorConstraints(Voltage, DCMotor, Mass, Distance, MechanismGearing)</a> - Static method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.Constraints.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile.Constraints</code></a> for an elevator.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#createFlywheelConstraints(edu.wpi.first.units.measure.Voltage,edu.wpi.first.math.system.plant.DCMotor,edu.wpi.first.units.measure.Mass,edu.wpi.first.units.measure.Distance,yams.gearing.MechanismGearing)" class="member-name-link">createFlywheelConstraints(Voltage, DCMotor, Mass, Distance, MechanismGearing)</a> - Static method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.Constraints.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile.Constraints</code></a> for a flywheel.</div>
 </dd>
 <dt><a href="yams/mechanisms/swerve/utility/SwerveInputStream.html#cubeRotationControllerAxis(boolean)" class="member-name-link">cubeRotationControllerAxis(boolean)</a> - Method in class yams.mechanisms.swerve.utility.<a href="yams/mechanisms/swerve/utility/SwerveInputStream.html" title="class in yams.mechanisms.swerve.utility">SwerveInputStream</a></dt>
 <dd>
@@ -467,6 +495,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Encoder inversion.</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html" class="type-name-link" title="class in yams.math">ExponentialProfilePIDController</a> - Class in <a href="yams/math/package-summary.html">yams.math</a></dt>
+<dd>
+<div class="block">Exponential profile PID controller.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#%3Cinit%3E(double,double,double,edu.wpi.first.math.trajectory.ExponentialProfile.Constraints)" class="member-name-link">ExponentialProfilePIDController(double, double, double, ExponentialProfile.Constraints)</a> - Constructor for class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#%3Cinit%3E(edu.wpi.first.math.controller.PIDController,edu.wpi.first.math.trajectory.ExponentialProfile.Constraints)" class="member-name-link">ExponentialProfilePIDController(PIDController, ExponentialProfile.Constraints)</a> - Constructor for class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
@@ -493,6 +533,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/motorcontrollers/remote/TalonFXWrapper.html#forceConfigApply()" class="member-name-link">forceConfigApply()</a> - Method in class yams.motorcontrollers.remote.<a href="yams/motorcontrollers/remote/TalonFXWrapper.html" title="class in yams.motorcontrollers.remote">TalonFXWrapper</a></dt>
 <dd>
 <div class="block">Ensure setting is applied.</div>
+</dd>
+<dt><a href="yams/gearing/GearBox.html#fromReductionStages(double...)" class="member-name-link">fromReductionStages(double...)</a> - Static method in class yams.gearing.<a href="yams/gearing/GearBox.html" title="class in yams.gearing">GearBox</a></dt>
+<dd>
+<div class="block">Create the gearbox given the reduction stages of the gearbox.</div>
+</dd>
+<dt><a href="yams/gearing/GearBox.html#fromStages(java.lang.String...)" class="member-name-link">fromStages(String...)</a> - Static method in class yams.gearing.<a href="yams/gearing/GearBox.html" title="class in yams.gearing">GearBox</a></dt>
+<dd>
+<div class="block">Create the gearbox given the reduction stages of the gearbox.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:G">G</h2>
@@ -630,6 +678,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the <a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers"><code>SmartMotorControllerConfig</code></a> for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getConstraints()" class="member-name-link">getConstraints()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the constraints.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getCurrentAngle()" class="member-name-link">getCurrentAngle()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the current angle.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SimSupplier.html#getCurrentDraw()" class="member-name-link">getCurrentDraw()</a> - Method in interface yams.motorcontrollers.<a href="yams/motorcontrollers/SimSupplier.html" title="interface in yams.motorcontrollers">SimSupplier</a></dt>
 <dd>
 <div class="block">Get the current draw of from the sim.</div>
@@ -638,6 +694,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="yams/motorcontrollers/simulation/DCMotorSimSupplier.html#getCurrentDraw()" class="member-name-link">getCurrentDraw()</a> - Method in class yams.motorcontrollers.simulation.<a href="yams/motorcontrollers/simulation/DCMotorSimSupplier.html" title="class in yams.motorcontrollers.simulation">DCMotorSimSupplier</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getCurrentState()" class="member-name-link">getCurrentState()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the current state of the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a>.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getCurrentVelocitySetpoint()" class="member-name-link">getCurrentVelocitySetpoint()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the current velocity from <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a>.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getD()" class="member-name-link">getD()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the Differential coefficient.</div>
+</dd>
 <dt><a href="yams/telemetry/MechanismTelemetry.html#getDataTable()" class="member-name-link">getDataTable()</a> - Method in class yams.telemetry.<a href="yams/telemetry/MechanismTelemetry.html" title="class in yams.telemetry">MechanismTelemetry</a></dt>
 <dd>
 <div class="block">Get the telemetry NetworkTable.</div>
@@ -689,6 +757,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getEncoderInverted()" class="member-name-link">getEncoderInverted()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Get the encoder inversion state</div>
+</dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getExponentiallyProfiledClosedLoopController()" class="member-name-link">getExponentiallyProfiledClosedLoopController()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Get the controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or Meters if
+ Mechanism Circumference is configured), the outputs are in Volts.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getExternalEncoder()" class="member-name-link">getExternalEncoder()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -742,6 +815,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the Height of the Elevator.</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getI()" class="member-name-link">getI()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the Integral coefficient.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getIdleMode()" class="member-name-link">getIdleMode()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Get the idle mode for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
@@ -757,6 +834,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/gearing/Sprocket.html#getInputToOutputConversionFactor()" class="member-name-link">getInputToOutputConversionFactor()</a> - Method in class yams.gearing.<a href="yams/gearing/Sprocket.html" title="class in yams.gearing">Sprocket</a></dt>
 <dd>
 <div class="block">Get the conversion factor to transform the sprocket input into the sprocket output rotations.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getKa()" class="member-name-link">getKa()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the acceleration gain kA</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getKv()" class="member-name-link">getKv()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the velocity gain as constant.</div>
 </dd>
 <dt><a href="yams/mechanisms/config/DifferentialMechanismConfig.html#getLeftMechanismPosition(edu.wpi.first.units.measure.Angle,edu.wpi.first.units.measure.Angle)" class="member-name-link">getLeftMechanismPosition(Angle, Angle)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/DifferentialMechanismConfig.html" title="class in yams.mechanisms.config">DifferentialMechanismConfig</a></dt>
 <dd>
@@ -1116,6 +1201,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getNextAngle()" class="member-name-link">getNextAngle()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the next angle from the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a></div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getNextState()" class="member-name-link">getNextState()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the next state of the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a>.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getNextVelocitySetpoint()" class="member-name-link">getNextVelocitySetpoint()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the next velocity from <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a></div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getOpenLoopRampRate()" class="member-name-link">getOpenLoopRampRate()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Get the open loop ramp rate.</div>
@@ -1132,6 +1229,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the conversion factor to transform the sprocket output value into the sprocket input value.</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getP()" class="member-name-link">getP()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the Proportional coefficient.</div>
+</dd>
 <dt><a href="yams/mechanisms/positional/Pivot.html#getPivotConfig()" class="member-name-link">getPivotConfig()</a> - Method in class yams.mechanisms.positional.<a href="yams/mechanisms/positional/Pivot.html" title="class in yams.mechanisms.positional">Pivot</a></dt>
 <dd>
 <div class="block">Get the <a href="yams/mechanisms/config/PivotConfig.html" title="class in yams.mechanisms.config"><code>PivotConfig</code></a> object for this <a href="yams/mechanisms/positional/Pivot.html" title="class in yams.mechanisms.positional"><code>Pivot</code></a></div>
@@ -1147,6 +1248,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/mechanisms/swerve/SwerveModule.html#getPosition()" class="member-name-link">getPosition()</a> - Method in class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a></dt>
 <dd>
 <div class="block">Get the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/kinematics/SwerveModulePosition.html" title="class or interface in edu.wpi.first.math.kinematics" class="external-link"><code>SwerveModulePosition</code></a> of the module.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getPositionTolerance()" class="member-name-link">getPositionTolerance()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Returns the error tolerance of this controller.</div>
 </dd>
 <dt><a href="yams/mechanisms/positional/Arm.html#getRelativeMechanismPosition()" class="member-name-link">getRelativeMechanismPosition()</a> - Method in class yams.mechanisms.positional.<a href="yams/mechanisms/positional/Arm.html" title="class in yams.mechanisms.positional">Arm</a></dt>
 <dd>
@@ -1246,6 +1351,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/motorcontrollers/SmartMotorController.html#getRotorVelocity()" class="member-name-link">getRotorVelocity()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></dt>
 <dd>
 <div class="block">Gets the angular velocity of the motor.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#getSetpoint()" class="member-name-link">getSetpoint()</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Get the setpoint.</div>
 </dd>
 <dt><a href="yams/mechanisms/velocity/Shooter.html#getShooterConfig()" class="member-name-link">getShooterConfig()</a> - Method in class yams.mechanisms.velocity.<a href="yams/mechanisms/velocity/Shooter.html" title="class in yams.mechanisms.velocity">Shooter</a></dt>
 <dd>
@@ -1719,6 +1828,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block"><a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers"><code>SmartMotorControllerConfig</code></a> for the motor.</div>
 </dd>
+<dt><a href="yams/motorcontrollers/SmartMotorController.html#m_expoPidController" class="member-name-link">m_expoPidController</a> - Variable in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></dt>
+<dd>
+<div class="block">Exponential profile PID controller for the motor controller.</div>
+</dd>
 <dt><a href="yams/mechanisms/positional/SmartPositionalMechanism.html#m_mechanismLigament" class="member-name-link">m_mechanismLigament</a> - Variable in class yams.mechanisms.positional.<a href="yams/mechanisms/positional/SmartPositionalMechanism.html" title="class in yams.mechanisms.positional">SmartPositionalMechanism</a></dt>
 <dd>
 <div class="block">The ligament that is being moved.</div>
@@ -2032,6 +2145,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:R">R</h2>
 <dl class="index">
+<dt><a href="yams/math/ExponentialProfilePIDController.html#reset(double,double)" class="member-name-link">reset(double, double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Reset the PID and profile with the given postion and velocity as the measured position and velocity.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#reset(edu.wpi.first.math.trajectory.ExponentialProfile.State)" class="member-name-link">reset(ExponentialProfile.State)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Reset the controller, set the next setpoint to empty.</div>
+</dd>
 <dt><a href="yams/mechanisms/swerve/SwerveDrive.html#resetAzimuthPID()" class="member-name-link">resetAzimuthPID()</a> - Method in class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve">SwerveDrive</a></dt>
 <dd>
 <div class="block">Resets the azimuth PID controller.</div>
@@ -2176,6 +2297,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set the closed loop ramp rate.</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#setConstraints(edu.wpi.first.math.trajectory.ExponentialProfile.Constraints)" class="member-name-link">setConstraints(ExponentialProfile.Constraints)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Sets the constraints for the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile</code></a>.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#setD(double)" class="member-name-link">setD(double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Sets the Differential coefficient of the PID controller gain.</div>
+</dd>
 <dt><a href="yams/telemetry/BooleanTelemetry.html#setDefaultValue(boolean)" class="member-name-link">setDefaultValue(boolean)</a> - Method in class yams.telemetry.<a href="yams/telemetry/BooleanTelemetry.html" title="class in yams.telemetry">BooleanTelemetry</a></dt>
 <dd>
 <div class="block">Set the default value.</div>
@@ -2295,6 +2424,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/mechanisms/positional/Elevator.html#setHeight(java.util.function.Supplier)" class="member-name-link">setHeight(Supplier&lt;Distance&gt;)</a> - Method in class yams.mechanisms.positional.<a href="yams/mechanisms/positional/Elevator.html" title="class in yams.mechanisms.positional">Elevator</a></dt>
 <dd>
 <div class="block">Set the height of the elevator.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#setI(double)" class="member-name-link">setI(double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Sets the Integral coefficient of the PID controller gain.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/local/NovaWrapper.html#setKa(double)" class="member-name-link">setKa(double)</a> - Method in class yams.motorcontrollers.local.<a href="yams/motorcontrollers/local/NovaWrapper.html" title="class in yams.motorcontrollers.local">NovaWrapper</a></dt>
 <dd>&nbsp;</dd>
@@ -2534,6 +2667,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set the open loop ramp rate.</div>
 </dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#setP(double)" class="member-name-link">setP(double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Sets the Proportional coefficient of the PID controller gain.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorController.html#setpointPosition" class="member-name-link">setpointPosition</a> - Variable in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></dt>
 <dd>
 <div class="block">Setpoint position</div>
@@ -2635,6 +2772,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/mechanisms/swerve/SwerveModule.html#setSwerveModuleState(edu.wpi.first.math.kinematics.SwerveModuleState)" class="member-name-link">setSwerveModuleState(SwerveModuleState)</a> - Method in class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a></dt>
 <dd>
 <div class="block">Set the <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/kinematics/SwerveModuleState.html" title="class or interface in edu.wpi.first.math.kinematics" class="external-link"><code>SwerveModuleState</code></a> of the module.</div>
+</dd>
+<dt><a href="yams/math/ExponentialProfilePIDController.html#setTolerance(double)" class="member-name-link">setTolerance(double)</a> - Method in class yams.math.<a href="yams/math/ExponentialProfilePIDController.html" title="class in yams.math">ExponentialProfilePIDController</a></dt>
+<dd>
+<div class="block">Sets the error which is considered tolerable for use with atSetpoint().</div>
 </dd>
 <dt><a href="yams/telemetry/BooleanTelemetry.html#setupNetworkTable(edu.wpi.first.networktables.NetworkTable)" class="member-name-link">setupNetworkTable(NetworkTable)</a> - Method in class yams.telemetry.<a href="yams/telemetry/BooleanTelemetry.html" title="class in yams.telemetry">BooleanTelemetry</a></dt>
 <dd>
@@ -3386,6 +3527,11 @@ the order they are declared.</div>
 <div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>, the units passed in are in Rotations (or
  Meters if Mechanism Circumference is configured), outputs are in Volts.</div>
 </dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopController(yams.math.ExponentialProfilePIDController)" class="member-name-link">withClosedLoopController(ExponentialProfilePIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a> with an exponential profile, the units passed
+ in are in Rotations (or Meters if Mechanism Circumference is configured), outputs are in Volts.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withClosedLoopControllerMaximumVoltage(edu.wpi.first.units.measure.Voltage)" class="member-name-link">withClosedLoopControllerMaximumVoltage(Voltage)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Set the closed loop maximum voltage output.</div>
@@ -3747,6 +3893,10 @@ the order they are declared.</div>
  Meters if Mechanism Circumference is configured).</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(edu.wpi.first.math.controller.ProfiledPIDController)" class="member-name-link">withSimClosedLoopController(ProfiledPIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
+</dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withSimClosedLoopController(yams.math.ExponentialProfilePIDController)" class="member-name-link">withSimClosedLoopController(ExponentialProfilePIDController)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Set the closed loop controller for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
 </dd>
