@@ -35,24 +35,30 @@ import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-
+  private final Distance chainPitch = Inches.of(0.25);
+  private final int toothCount = 22;
+  private final Distance circumference = chainPitch.times(toothCount);
+  private final Distance radius = circumference.div(2 * Math.PI);
+  private final Mass weight = Pounds.of(16);
+  private final DCMotor motors = DCMotor.getNEO(1);
+  private final MechanismGearing gearing = new MechanismGearing(GearBox.fromReductionStages(3, 4));
   private final SparkMax                    elevatorMotor      = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
   //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
 //          .withMechanismLowerLimit()
-//          .withMechanismUpperLimit();
+//          .withMechanismUpperLimit(); // Specific telemetry verbosity
   private final SmartMotorControllerConfig motorConfig        = new SmartMotorControllerConfig(this)
-      .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
+      .withMechanismCircumference(circumference)
       .withClosedLoopController(new ExponentialProfilePIDController(30, 0, 0, ExponentialProfilePIDController
           .createElevatorConstraints(Volts.of(12),
-                                     DCMotor.getNEO(1),
-                                     Pounds.of(16),
-                                     Meters.of(Inches.of(0.25).in(Meters) * 22).div(2 * Math.PI),
-                                     new MechanismGearing(GearBox.fromReductionStages(3, 4)))))
+                                     motors,
+                                     weight,
+                                     radius,
+                                     gearing)))
 //      .withClosedLoopController(4, 0, 0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5)) // Trapazoidal Profile PID Controller
       .withSoftLimit(Meters.of(0), Meters.of(2))
-      .withGearing(gearing(gearbox(3, 4)))
+      .withGearing(gearing)
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder()) // External Encoder if you need one, really shouldnt be used for Elevators
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ElevatorMotor", TelemetryVerbosity.HIGH)
@@ -65,7 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase
       .withFeedforward(new ElevatorFeedforward(0, 0.1, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor              = new SparkWrapper(elevatorMotor,
-                                                                                 DCMotor.getNEO(1),
+                                                                                 motors,
                                                                                  motorConfig);
   private final MechanismPositionConfig    m_robotToMechanism = new MechanismPositionConfig()
       .withMaxRobotHeight(Meters.of(1.5))
@@ -76,7 +82,7 @@ public class ElevatorSubsystem extends SubsystemBase
       .withHardLimits(Meters.of(0), Meters.of(3))
       .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
       .withMechanismPositionConfig(m_robotToMechanism)
-      .withMass(Pounds.of(16));
+      .withMass(weight);
   private final Elevator                   m_elevator         = new Elevator(m_config);
 
   public ElevatorSubsystem()
