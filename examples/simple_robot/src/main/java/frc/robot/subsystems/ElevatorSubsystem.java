@@ -17,6 +17,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -39,8 +40,8 @@ public class ElevatorSubsystem extends SubsystemBase
   private final int toothCount = 22;
   private final Distance circumference = chainPitch.times(toothCount);
   private final Distance radius = circumference.div(2 * Math.PI);
-  private final Mass weight = Pounds.of(16);
-  private final DCMotor motors = DCMotor.getNEO(1);
+  private final Mass     weight = Pounds.of(16);
+  private final DCMotor  motors = DCMotor.getNEO(1);
   private final MechanismGearing gearing = new MechanismGearing(GearBox.fromReductionStages(3, 4));
   private final SparkMax                    elevatorMotor      = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
   //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
