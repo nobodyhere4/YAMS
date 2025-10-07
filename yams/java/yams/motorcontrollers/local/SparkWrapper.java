@@ -18,13 +18,18 @@ import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkSim;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -79,6 +84,10 @@ public class SparkWrapper extends SmartMotorController
    * Spark motor controller
    */
   private final SparkBase                         m_spark;
+  /**
+   * Spark Closed loop controller.
+   */
+  private final SparkClosedLoopController         m_sparkPidController;
   /**
    * Motor type.
    */
@@ -136,6 +145,7 @@ public class SparkWrapper extends SmartMotorController
 
     this.m_motor = motor;
     m_spark = controller;
+    m_sparkPidController = m_spark.getClosedLoopController();
     this.m_config = config;
     m_sparkRelativeEncoder = controller.getEncoder();
     setupSimulation();
@@ -282,6 +292,12 @@ public class SparkWrapper extends SmartMotorController
   public void setPosition(Angle angle)
   {
     setpointPosition = Optional.ofNullable(angle);
+    if (m_expoPidController.isEmpty() && angle != null)
+    {
+      m_sparkPidController.setSetpoint(angle.in(Rotations),
+                                       ControlType.kMAXMotionPositionControl,
+                                       ClosedLoopSlot.kSlot0);
+    }
   }
 
   @Override
@@ -300,6 +316,12 @@ public class SparkWrapper extends SmartMotorController
   public void setVelocity(AngularVelocity angle)
   {
     setpointVelocity = Optional.ofNullable(angle);
+    if (m_expoPidController.isEmpty() && angle != null)
+    {
+      m_sparkPidController.setSetpoint(angle.in(RotationsPerSecond),
+                                       ControlType.kVelocity,
+                                       ClosedLoopSlot.kSlot0);
+    }
   }
 
   @Override
@@ -317,7 +339,8 @@ public class SparkWrapper extends SmartMotorController
     m_simplePidController = config.getSimpleClosedLoopController();
 
     // Handle simple pid vs profile pid controller.
-    if (m_expoPidController.isEmpty()){
+    if (m_expoPidController.isEmpty())
+    {
       if (m_pidController.isEmpty())
       {
         if (m_simplePidController.isEmpty())
@@ -332,59 +355,136 @@ public class SparkWrapper extends SmartMotorController
       }
     }
 
-    config.getClosedLoopTolerance().ifPresent(tolerance -> {
-      if(config.getMechanismCircumference().isPresent())
-      {
-        m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
-        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
-        m_expoPidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance).in(Meters)));
-      } else {
-        m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
-        m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
-        m_expoPidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
-      }
-    });
-
-    iterateClosedLoopController();
-
-
     // Handle closed loop controller thread
-    if (m_closedLoopControllerThread == null)
+    if (m_expoPidController.isPresent())
     {
-      m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
-    } else
-    {
-      stopClosedLoopController();
-      m_closedLoopControllerThread.stop();
-      m_closedLoopControllerThread.close();
-      m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+
+      config.getClosedLoopTolerance().ifPresent(tolerance -> {
+        // Set closed loop tolerance and profile tolerance to the same thing.
+        if (config.getMechanismCircumference().isPresent())
+        {
+          m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance)
+                                                                                      .in(Meters)));
+          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
+              tolerance).in(Meters)));
+          m_expoPidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
+                                                                                              tolerance)
+                                                                                          .in(Meters)));
+        } else
+        {
+          m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+          m_expoPidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+        }
+      });
+
+      iterateClosedLoopController();
+
+      if (m_closedLoopControllerThread == null)
+      {
+        m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+      } else
+      {
+        stopClosedLoopController();
+        m_closedLoopControllerThread.stop();
+        m_closedLoopControllerThread.close();
+        m_closedLoopControllerThread = new Notifier(this::iterateClosedLoopController);
+      }
+
+      if (config.getTelemetryName().isPresent())
+      {
+        m_closedLoopControllerThread.setName(config.getTelemetryName().get());
+      }
+      if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+      {
+        startClosedLoopController();
+      } else
+      {
+        m_closedLoopControllerThread.stop();
+      }
     }
 
-    if (config.getTelemetryName().isPresent())
-    {
-      m_closedLoopControllerThread.setName(config.getTelemetryName().get());
-    }
-    if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
-    {
-      startClosedLoopController();
-    } else
-    {
-      m_closedLoopControllerThread.stop();
-    }
     // Calculate Spark conversion factors
     double positionConversionFactor = config.getGearing().getRotorToMechanismRatio();
     double velocityConversionFactor = config.getGearing().getRotorToMechanismRatio() / 60.0;
 
     // Set base config options
-    m_sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate().in(Seconds));
-    m_sparkBaseConfig.closedLoopRampRate(config.getClosedLoopRampRate().in(Seconds));
-    m_sparkBaseConfig.inverted(config.getMotorInverted());
-    m_sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor);
-    m_sparkBaseConfig.encoder.velocityConversionFactor(velocityConversionFactor);
-    if (config.getEncoderInverted())
-    {
-      throw new IllegalArgumentException("[ERROR] Spark relative encoder cannot be inverted!");
-    }
+    m_sparkBaseConfig.openLoopRampRate(config.getOpenLoopRampRate().in(Seconds))
+                     .closedLoopRampRate(config.getClosedLoopRampRate().in(Seconds))
+                     .inverted(config.getMotorInverted());
+    m_sparkBaseConfig.encoder.positionConversionFactor(positionConversionFactor)
+                             .velocityConversionFactor(velocityConversionFactor);
+
+    // Set motion profile and PID values.
+    config.getClosedLoopController().ifPresent(pidController -> {
+      var maxAccel = pidController.getConstraints().maxAcceleration;
+      var maxVel   = pidController.getConstraints().maxVelocity;
+      // Distance based mechanism, converting from meters to rotations.
+      if (config.getMechanismCircumference().isPresent())
+      {
+        maxVel = config.convertToMechanism(MetersPerSecond.of(maxVel)).in(RotationsPerSecond);
+        maxAccel = config.convertToMechanism(MetersPerSecondPerSecond.of(maxAccel)).in(RotationsPerSecondPerSecond);
+      }
+
+      m_sparkBaseConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .pid(pidController.getP(),
+               pidController.getI(),
+               pidController.getD(),
+               ClosedLoopSlot.kSlot0)
+          .maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+                    .cruiseVelocity(maxVel)
+                    .maxAcceleration(maxAccel);
+    });
+    // Set simple closed loop controller values
+    config.getSimpleClosedLoopController().ifPresent(pidController -> {
+      m_sparkBaseConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .pid(pidController.getP(),
+               pidController.getI(),
+               pidController.getD(),
+               ClosedLoopSlot.kSlot0);
+    });
+
+    // Set feedforward values
+    config.getArmFeedforward().ifPresent(ff -> {
+      m_sparkBaseConfig.closedLoop.feedForward
+          .kS(ff.getKs())
+          .kV(ff.getKv())
+          .kA(ff.getKa())
+          .kCos(ff.getKg());
+    });
+    config.getElevatorFeedforward().ifPresent(ff -> {
+      m_sparkBaseConfig.closedLoop.feedForward
+          .kS(ff.getKs())
+          .kV(ff.getKv())
+          .kA(ff.getKa())
+          .kG(ff.getKg());
+    });
+    config.getSimpleFeedforward().ifPresent(ff -> {
+      m_sparkBaseConfig.closedLoop.feedForward
+          .kS(ff.getKs())
+          .kV(ff.getKv())
+          .kA(ff.getKa());
+    });
+
+    // Set closed loop tolerance and profile tolerance to the same thing.
+    config.getClosedLoopTolerance().ifPresent(tolerance -> {
+      m_sparkBaseConfig.closedLoop.allowedClosedLoopError(tolerance.in(Rotations), ClosedLoopSlot.kSlot0);
+      if (m_pidController.isPresent())
+      {
+        m_sparkBaseConfig.closedLoop.maxMotion.allowedProfileError(tolerance.in(Rotations), ClosedLoopSlot.kSlot0);
+      }
+    });
+
+    // Set Mechanism Limits
+    config.getMechanismLowerLimit().ifPresent(lowerLimit -> {
+      m_sparkBaseConfig.softLimit.reverseSoftLimit(lowerLimit.in(Rotations)).reverseSoftLimitEnabled(true);
+    });
+    config.getMechanismUpperLimit().ifPresent(upperLimit -> {
+      m_sparkBaseConfig.softLimit.forwardSoftLimit(upperLimit.in(Rotations)).forwardSoftLimitEnabled(true);
+    });
+
     // Throw warning about supply stator limits on Spark's
     if (config.getSupplyStallCurrentLimit().isPresent())
     {
@@ -419,9 +519,11 @@ public class SparkWrapper extends SmartMotorController
       {
         double absoluteEncoderConversionFactor = config.getExternalEncoderGearing().getRotorToMechanismRatio();
         m_sparkAbsoluteEncoder = Optional.of((SparkAbsoluteEncoder) externalEncoder);
-        m_sparkBaseConfig.absoluteEncoder.positionConversionFactor(absoluteEncoderConversionFactor);
-        m_sparkBaseConfig.absoluteEncoder.velocityConversionFactor(absoluteEncoderConversionFactor / 60);
-        m_sparkBaseConfig.absoluteEncoder.inverted(config.getExternalEncoderInverted());
+        m_sparkBaseConfig.absoluteEncoder.positionConversionFactor(absoluteEncoderConversionFactor)
+                                         .velocityConversionFactor(absoluteEncoderConversionFactor / 60)
+                                         .inverted(config.getExternalEncoderInverted());
+        // Set the absolute encoder as the primary feedback sensor for closed loop control.
+        m_sparkBaseConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
         if (config.getZeroOffset().isPresent())
         {
@@ -459,23 +561,6 @@ public class SparkWrapper extends SmartMotorController
         m_sparkRelativeEncoder.setPosition(m_sparkAbsoluteEncoder.get().getPosition());
       }
 
-    } else
-    {
-
-      if (config.getZeroOffset().isPresent())
-      {
-        throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders", "Zero offset could not be applied", ".withZeroOffset");
-      }
-
-      if(config.getExternalEncoderInverted())
-      {
-        throw new SmartMotorControllerConfigurationException("External encoder cannot be inverted because no external encoder exists", "External encoder could not be inverted", "withExternalEncoderInverted");
-      }
-
-      if(config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
-      {
-        throw new SmartMotorControllerConfigurationException("External encoder gearing is not supported when there is no external encoder", "External encoder gearing could not be set", "withExternalEncoderGearing");
-      }
     }
 
     // Configure follower motors
@@ -504,10 +589,65 @@ public class SparkWrapper extends SmartMotorController
       config.clearFollowers();
     }
 
+    if (config.getZeroOffset().isPresent() && config.getExternalEncoder().isEmpty() && !useExternalEncoder)
+    {
+      throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders",
+                                                           "Zero offset could not be applied",
+                                                           ".withZeroOffset");
+    }
+
+    if (config.getExternalEncoderInverted() && config.getExternalEncoder().isEmpty() && !useExternalEncoder)
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "External encoder cannot be inverted because no external encoder exists",
+          "External encoder could not be inverted",
+          "withExternalEncoderInverted");
+    }
+
+    if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0 && config.getExternalEncoder().isEmpty() &&
+        !useExternalEncoder)
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "External encoder gearing is not supported when there is no external encoder",
+          "External encoder gearing could not be set",
+          "withExternalEncoderGearing");
+    }
+
     if (config.getDiscontinuityPoint().isPresent())
     {
       throw new IllegalArgumentException(
           "[ERROR] Discontinuity point is not supported on Sparks, or we have not implemented this!");
+    }
+
+    if (config.getClosedLoopControllerMaximumVoltage().isPresent() &&
+        config.getExponentiallyProfiledClosedLoopController().isEmpty())
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "Closed loop controller maximum voltage is only available for Exponential Profiled closed loop controllers",
+          "Closed loop controller maximum voltage could not be applied",
+          "withClosedLoopControllerMaximumVoltage");
+    }
+
+    if (config.getTemperatureCutoff().isPresent() && config.getExponentiallyProfiledClosedLoopController().isEmpty())
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "Temperature cutoff is only available for exponentially profiled closed loop controllers",
+          "Temperature cutoff could not be applied",
+          "withTemperatureCutoff");
+    }
+
+    if (config.getFeedbackSynchronizationThreshold().isPresent() &&
+        config.getExponentiallyProfiledClosedLoopController().isEmpty())
+    {
+      throw new SmartMotorControllerConfigurationException(
+          "Feedback synchronization threshold is only available for exponentially profiled closed loop controllers",
+          "Feedback synchronization threshold could not be applied",
+          "withFeedbackSynchronizationThreshold");
+    }
+
+    if (config.getEncoderInverted())
+    {
+      throw new IllegalArgumentException("[ERROR] Spark relative encoder cannot be inverted!");
     }
 
     config.validateBasicOptions();
