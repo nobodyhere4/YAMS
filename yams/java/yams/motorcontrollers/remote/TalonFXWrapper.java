@@ -303,6 +303,14 @@ public class TalonFXWrapper extends SmartMotorController
     }
   }
 
+  @Override
+  public void setIdleMode(MotorMode mode)
+  {
+    m_talonConfig.MotorOutput.withNeutralMode(
+        mode == MotorMode.BRAKE ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    forceConfigApply();
+  }
+
   /**
    * Check if {@link CANdi} PWM1 is used as the
    * {@link com.ctre.phoenix6.configs.ExternalFeedbackConfigs#ExternalFeedbackSensorSource} in

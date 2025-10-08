@@ -104,7 +104,7 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * Exponent profile enabled.
    */
-  private boolean expEnabled = false;
+  private       boolean                       expEnabled        = false;
   /**
    * Position with exponential profiling request.
    */
@@ -345,6 +345,14 @@ public class TalonFXSWrapper extends SmartMotorController
     }
   }
 
+  @Override
+  public void setIdleMode(MotorMode mode)
+  {
+    m_talonConfig.MotorOutput.withNeutralMode(
+        mode == MotorMode.BRAKE ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    forceConfigApply();
+  }
+
   /**
    * Check if {@link CANdi} PWM1 is used as the
    * {@link com.ctre.phoenix6.configs.ExternalFeedbackConfigs#ExternalFeedbackSensorSource} in
@@ -537,7 +545,7 @@ public class TalonFXSWrapper extends SmartMotorController
 //        m_talonConfig.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(controller.getConstraints().maxAcceleration));
 //
 //      }
-    }else if (config.getClosedLoopController().isPresent())
+    } else if (config.getClosedLoopController().isPresent())
     {
       ProfiledPIDController controller = config.getClosedLoopController().get();
       if (controller.getPositionTolerance() != new ProfiledPIDController(0,
@@ -811,14 +819,18 @@ public class TalonFXSWrapper extends SmartMotorController
       }
     } else
     {
-      if(config.getExternalEncoderInverted())
+      if (config.getExternalEncoderInverted())
       {
-        throw new SmartMotorControllerConfigurationException("External Encoder cannot be inverted if not present!","External encoder is not inverted!","withExternalEncoderInverted(false)");
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be inverted if not present!",
+                                                             "External encoder is not inverted!",
+                                                             "withExternalEncoderInverted(false)");
       }
 
-      if(config.getExternalEncoderGearing().getMechanismToRotorRatio() != 1.0)
+      if (config.getExternalEncoderGearing().getMechanismToRotorRatio() != 1.0)
       {
-        throw new SmartMotorControllerConfigurationException("External Encoder cannot be set if not present!","External encoder gearing is not 1.0!","withExternalEncoderGearing(Rotations.of(1.0))");
+        throw new SmartMotorControllerConfigurationException("External Encoder cannot be set if not present!",
+                                                             "External encoder gearing is not 1.0!",
+                                                             "withExternalEncoderGearing(Rotations.of(1.0))");
       }
 
       m_talonConfig.ExternalFeedback.RotorToSensorRatio = 1.0;//config.getGearing().getRotorToMechanismRatio();
@@ -861,7 +873,6 @@ public class TalonFXSWrapper extends SmartMotorController
       m_talonConfig.ExternalFeedback.withSensorPhase(
           config.getEncoderInverted() ? SensorPhaseValue.Opposed : SensorPhaseValue.Aligned);
     }
-
 
     // Configure follower motors
     if (config.getFollowers().isPresent())
@@ -1369,6 +1380,9 @@ public class TalonFXSWrapper extends SmartMotorController
   @Override
   protected Config getSysIdConfig(Voltage maxVoltage, Velocity<VoltageUnit> stepVoltage, Time testDuration)
   {
-    return new Config(stepVoltage, maxVoltage, testDuration, state -> SignalLogger.writeString("state", state.toString()));
+    return new Config(stepVoltage,
+                      maxVoltage,
+                      testDuration,
+                      state -> SignalLogger.writeString("state", state.toString()));
   }
 }

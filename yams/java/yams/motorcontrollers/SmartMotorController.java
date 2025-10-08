@@ -43,6 +43,7 @@ import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.math.ExponentialProfilePIDController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
@@ -433,6 +434,13 @@ public abstract class SmartMotorController
    * Simulation iteration.
    */
   public abstract void simIterate();
+
+  /**
+   * Set the motor idle mode from COAST or BRAKE.
+   *
+   * @param mode {@link MotorMode} selected.
+   */
+  public abstract void setIdleMode(MotorMode mode);
 
   /**
    * Set the encoder velocity

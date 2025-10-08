@@ -146,6 +146,12 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
+  public void setIdleMode(MotorMode mode)
+  {
+    m_nova.setBrakeMode(mode == MotorMode.BRAKE);
+  }
+
+  @Override
   public void setEncoderVelocity(AngularVelocity velocity)
   {
 //    m_sim.ifPresent(dcMotorSim -> dcMotorSim.setAngularVelocity(velocity.in(RadiansPerSecond)));
