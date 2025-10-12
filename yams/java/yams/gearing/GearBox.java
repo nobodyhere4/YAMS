@@ -32,7 +32,7 @@ public class GearBox
   /**
    * Create the gearbox given the reduction stages of the gearbox.
    *
-   * @param stages Stages in the format of "IN:OUT". For example "3:1"
+   * @param stages Stages in the format of "IN:OUT". For example, "3:1"
    * @return {@link GearBox}
    */
   public static GearBox fromStages(String... stages)
