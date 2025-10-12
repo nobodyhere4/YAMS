@@ -77,6 +77,17 @@ public class YUnits {
   /** Alias for {@link #Hours} to make combined unit definitions read more smoothly. */
   public static final TimeUnit Hour = Hours; // singularized alias
 
+  /** 24 {@link #Hours}. */
+  public static final TimeUnit Days = derive(Hours).aggregate(24).named("Days").symbol("days").make();
+  /** 7 {@link #Days}. */
+  public static final TimeUnit Weeks = derive(Days).aggregate(7).named("Weeks").symbol("weeks").make();
+  /** 2 {@link #Weeks}. */
+  public static final TimeUnit Fortnight = derive(Weeks).aggregate(2).named("Fortnights").symbol("fortnights").make();
+
+  /** 1 {@link #Furlongs} per {@link #Fortnight}. */
+  public static final LinearVelocityUnit FurlongsPerFortnight = Furlongs.per(Fortnight);
+  /** 1 {@link #Furlongs} per {@link #Fortnight}. */
+  public static final LinearVelocityUnit FPF = FurlongsPerFortnight;
   /** 1 {@link #Miles} per {@link #Hour}. */
   public static final LinearVelocityUnit MilesPerHour = Miles.per(Hour);
   /** 1 {@link #Miles} per {@link #Hour}. */
