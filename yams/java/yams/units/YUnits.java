@@ -106,8 +106,6 @@ public class YUnits {
   /** 1 {@link #Miles} per {@link #Hour}. */
   public static final LinearVelocityUnit MPH = MilesPerHour;
 
-  /** 1 {@link edu.wpi.first.units.Units#Inches} per {@link edu.wpi.first.units.Units#Second} per {@link edu.wpi.first.units.Units#Second} */
-  public static final LinearAccelerationUnit  InchesPerSecondPerSecond    = Inches.per(Second).per(Second);
   /** 1 {@link edu.wpi.first.units.Units#RPM} per {@link edu.wpi.first.units.Units#Second} */
   public static final AngularAccelerationUnit RotationsPerMinutePerSecond = RPM.per(Second);
   /** 1 {@link edu.wpi.first.units.Units#RPM} per {@link edu.wpi.first.units.Units#Second} */
