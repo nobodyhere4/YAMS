@@ -3,6 +3,8 @@ package yams.units;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Minutes;
+import static edu.wpi.first.units.Units.Second;
+
 import static edu.wpi.first.units.Units.derive;
 
 import edu.wpi.first.units.DistanceUnit;
@@ -38,6 +40,10 @@ public class YUnits {
   /** 1.8288 {@link edu.wpi.first.units.Units#Meters}s, or 6 {@link edu.wpi.first.units.Units#Feet}. */
   public static final DistanceUnit Fathoms =
       derive(Feet).aggregate(6).named("Fathom").symbol("ftm").make();
+
+  /**1 {@link edu.wpi.first.units.Units#Feet}, or <a href="https://myginosdeli.com/ginos-deli-menu/">Sandwich</a> */
+  public static final DistanceUnit FootlongSandwich = 
+    derive(Feet).named("FootlongSandwich").symbol("1ftsub").make();
 
   /** 1.8288 {@link edu.wpi.first.units.Units#Meters}s, or 6 {@link edu.wpi.first.units.Units#Feet}. */
   public static final DistanceUnit Fathom = Fathoms; // alias
@@ -86,6 +92,10 @@ public class YUnits {
 
   /** 1 {@link #Furlongs} per {@link #Fortnight}. */
   public static final LinearVelocityUnit FurlongsPerFortnight = Furlongs.per(Fortnight);
+
+  /** 1 {@link #FootlongSandwich} per {@link edu.wpi.first.units.Units#Second} */
+  public static final LinearVelocityUnit SandwichPerSecond = FootlongSandwich.per(Second);
+
   /** 1 {@link #Furlongs} per {@link #Fortnight}. */
   public static final LinearVelocityUnit FPF = FurlongsPerFortnight;
   /** 1 {@link #Miles} per {@link #Hour}. */
