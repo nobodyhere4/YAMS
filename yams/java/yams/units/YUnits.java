@@ -102,4 +102,6 @@ public class YUnits {
   public static final LinearVelocityUnit MilesPerHour = Miles.per(Hour);
   /** 1 {@link #Miles} per {@link #Hour}. */
   public static final LinearVelocityUnit MPH = MilesPerHour;
+
+  // TODO: Add InchesPerSecondPerSecond, RPMPerSecond
 }
