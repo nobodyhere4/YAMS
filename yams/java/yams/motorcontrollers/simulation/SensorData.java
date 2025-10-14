@@ -192,6 +192,10 @@ public class SensorData
    * Sim value from Glass.
    */
   private       Optional<SimValue>                               m_glassValue        = Optional.empty();
+  /**
+   * Previous sensor value when override takes place.
+   */
+  private       Optional<HALValue>                               m_prev              = Optional.empty();
 
   /**
    * Sensor data constructor.
@@ -320,6 +324,10 @@ public class SensorData
    */
   public void set(HALValue val)
   {
+    if (m_prev.isEmpty() && m_glassValue.isPresent())
+    {
+      m_prev = Optional.of(m_glassValue.get().getValue());
+    }
     m_glassValue.ifPresent(simValue -> simValue.setValue(val));
   }
 
@@ -359,10 +367,18 @@ public class SensorData
       {
         if (entry.getFirst().getAsBoolean())
         {
-          set(entry.getSecond());
-          return entry.getSecond();
+          var value = entry.getSecond();
+          set(value);
+          return value;
         }
       }
+    }
+
+    // Reset and clear previous value upon change.
+    if (m_prev.isPresent())
+    {
+      set(m_prev.get());
+      m_prev = Optional.empty();
     }
 
     // If no glassValue is present, return the supplier value.

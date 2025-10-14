@@ -93,6 +93,7 @@ public class ArmSubsystem extends SubsystemBase
 
   public void periodic()
   {
+    getBeamBreak();
     arm.updateTelemetry();
   }
 
