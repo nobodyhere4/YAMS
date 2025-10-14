@@ -1,6 +1,9 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -111,7 +114,8 @@ public class SensorConfig
     {
       if (field.getName().equals(fieldName))
       {
-        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+        field.addSimTrigger(SensorData.convert(value), () -> DriverStation.getMatchTime() >= start.in(Seconds) &&
+                                                             DriverStation.getMatchTime() <= end.in(Seconds));
       }
     }
     return this;
@@ -132,7 +136,8 @@ public class SensorConfig
     {
       if (field.getName().equals(fieldName))
       {
-        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+        field.addSimTrigger(SensorData.convert(value), () -> DriverStation.getMatchTime() >= start.in(Seconds) &&
+                                                             DriverStation.getMatchTime() <= end.in(Seconds));
       }
     }
     return this;
@@ -153,7 +158,8 @@ public class SensorConfig
     {
       if (field.getName().equals(fieldName))
       {
-        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+        field.addSimTrigger(SensorData.convert(value), () -> DriverStation.getMatchTime() >= start.in(Seconds) &&
+                                                             DriverStation.getMatchTime() <= end.in(Seconds));
       }
     }
     return this;
@@ -174,7 +180,8 @@ public class SensorConfig
     {
       if (field.getName().equals(fieldName))
       {
-        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+        field.addSimTrigger(SensorData.convert(value), () -> DriverStation.getMatchTime() >= start.in(Seconds) &&
+                                                             DriverStation.getMatchTime() <= end.in(Seconds));
       }
     }
     return this;

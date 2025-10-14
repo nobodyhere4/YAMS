@@ -181,10 +181,6 @@ public class SensorData
    */
   private final HALValue                                         m_defaultValue;
   /**
-   * Values, based off time.
-   */
-  private       Optional<List<Pair<Pair<Time, Time>, HALValue>>> m_matchTimingValues = Optional.empty();
-  /**
    * Values, based off triggers.
    */
   private       Optional<List<Pair<BooleanSupplier, HALValue>>>  m_triggerValues     = Optional.empty();
@@ -344,22 +340,6 @@ public class SensorData
       return m_supplier.get();
     }
 
-    // Override sensor values with timing values during a simulated match
-    if (m_matchTimingValues.isPresent())
-    {
-      var matchTime = Seconds.of(DriverStation.getMatchTime());
-      for (var entry : m_matchTimingValues.get())
-      {
-        var times = entry.getFirst(); // Start and end time
-        // If the match time is within the start and end times return the override.
-        if (times.getFirst().lte(matchTime) && times.getSecond().gte(matchTime))
-        {
-          var value = entry.getSecond();
-          set(value);
-          return value;
-        }
-      }
-    }
     // Override sensor values with trigger values during a simulated match
     if (m_triggerValues.isPresent())
     {
@@ -386,29 +366,10 @@ public class SensorData
   }
 
   /**
-   * Add a value set during match time.
-   *
-   * @param value     Value to add.
-   * @param startTime Start time of value.
-   * @param endTime   End time of value.
-   */
-  public void addSimMatchTimeValue(HALValue value, Time startTime, Time endTime)
-  {
-    var item = new Pair<>(new Pair<>(startTime, endTime), value);
-    if (m_matchTimingValues.isEmpty())
-    {
-      m_matchTimingValues = Optional.of(List.of(item));
-    } else
-    {
-      m_matchTimingValues.get().add(item);
-    }
-  }
-
-  /**
-   * Add a value set based off a trigger.
+   * Add a value set based on a trigger.
    *
    * @param value   {@link HALValue} to set.
-   * @param trigger {@link BooleanSupplier} when to use..
+   * @param trigger {@link BooleanSupplier} when to use.
    */
   public void addSimTrigger(HALValue value, BooleanSupplier trigger)
   {
