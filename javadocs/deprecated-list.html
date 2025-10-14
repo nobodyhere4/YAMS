@@ -51,10 +51,46 @@ loadScripts(document, 'script');</script>
 <h1 title="Deprecated API" class="title">Deprecated API</h1>
 <h2 title="Contents">Contents</h2>
 <ul>
+<li><a href="#for-removal">Terminally Deprecated</a></li>
 <li><a href="#field">Fields</a></li>
 <li><a href="#method">Methods</a></li>
 </ul>
 </div>
+<ul class="block-list">
+<li>
+<div id="for-removal">
+<div class="caption"><span>Terminally Deprecated Elements</span></div>
+<div class="summary-table two-column-summary">
+<div class="table-header col-first">Element</div>
+<div class="table-header col-last">Description</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearbox(double...)">yams.mechanisms.SmartMechanism.gearbox<wbr>(double...)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/GearBox.html#fromReductionStages(double...)"><code>GearBox.fromReductionStages(double...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearbox(java.lang.String...)">yams.mechanisms.SmartMechanism.gearbox<wbr>(String...)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/GearBox.html#fromStages(java.lang.String...)"><code>GearBox.fromStages(String...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearing(yams.gearing.GearBox)">yams.mechanisms.SmartMechanism.gearing<wbr>(GearBox)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(yams.gearing.GearBox)"><code>MechanismGearing(GearBox)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearing(yams.gearing.GearBox,yams.gearing.Sprocket)">yams.mechanisms.SmartMechanism.gearing<wbr>(GearBox, Sprocket)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(yams.gearing.GearBox,yams.gearing.Sprocket)"><code>MechanismGearing(GearBox, Sprocket)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#sprocket(double...)">yams.mechanisms.SmartMechanism.sprocket<wbr>(double...)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/Sprocket.html#fromStages(java.lang.String...)"><code>Sprocket.fromStages(String...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#sprocket(java.lang.String...)">yams.mechanisms.SmartMechanism.sprocket<wbr>(String...)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/Sprocket.html#fromStages(java.lang.String...)"><code>Sprocket.fromStages(String...)</code></a> instead.</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
 <ul class="block-list">
 <li>
 <div id="field">
@@ -125,6 +161,30 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color"></div>
 <div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/positional/DoubleJointedArm.html#sysId(edu.wpi.first.units.measure.Voltage,edu.wpi.first.units.measure.Velocity,edu.wpi.first.units.measure.Time)">yams.mechanisms.positional.DoubleJointedArm.sysId<wbr>(Voltage, Velocity&lt;VoltageUnit&gt;, Time)</a></div>
 <div class="col-last even-row-color"></div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearbox(double...)">yams.mechanisms.SmartMechanism.gearbox<wbr>(double...)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/GearBox.html#fromReductionStages(double...)"><code>GearBox.fromReductionStages(double...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearbox(java.lang.String...)">yams.mechanisms.SmartMechanism.gearbox<wbr>(String...)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/GearBox.html#fromStages(java.lang.String...)"><code>GearBox.fromStages(String...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearing(yams.gearing.GearBox)">yams.mechanisms.SmartMechanism.gearing<wbr>(GearBox)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(yams.gearing.GearBox)"><code>MechanismGearing(GearBox)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#gearing(yams.gearing.GearBox,yams.gearing.Sprocket)">yams.mechanisms.SmartMechanism.gearing<wbr>(GearBox, Sprocket)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(yams.gearing.GearBox,yams.gearing.Sprocket)"><code>MechanismGearing(GearBox, Sprocket)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name odd-row-color"><a href="yams/mechanisms/SmartMechanism.html#sprocket(double...)">yams.mechanisms.SmartMechanism.sprocket<wbr>(double...)</a></div>
+<div class="col-last odd-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/Sprocket.html#fromStages(java.lang.String...)"><code>Sprocket.fromStages(String...)</code></a> instead.</div>
+</div>
+<div class="col-summary-item-name even-row-color"><a href="yams/mechanisms/SmartMechanism.html#sprocket(java.lang.String...)">yams.mechanisms.SmartMechanism.sprocket<wbr>(String...)</a></div>
+<div class="col-last even-row-color">
+<div class="deprecation-comment">Use <a href="yams/gearing/Sprocket.html#fromStages(java.lang.String...)"><code>Sprocket.fromStages(String...)</code></a> instead.</div>
+</div>
 <div class="col-summary-item-name odd-row-color"><a href="yams/motorcontrollers/local/NovaWrapper.html#setOpenLoopRampRate(edu.wpi.first.units.measure.Time)">yams.motorcontrollers.local.NovaWrapper.setOpenLoopRampRate<wbr>(Time)</a></div>
 <div class="col-last odd-row-color"></div>
 <div class="col-summary-item-name even-row-color"><a href="yams/motorcontrollers/local/SparkWrapper.html#getSupplyCurrent()">yams.motorcontrollers.local.SparkWrapper.getSupplyCurrent()</a></div>
