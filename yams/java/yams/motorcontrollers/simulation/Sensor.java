@@ -1,6 +1,5 @@
 package yams.motorcontrollers.simulation;
 
-import edu.wpi.first.hal.HALValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -8,48 +7,60 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import yams.mechanisms.config.SensorConfig;
 
 /**
- * Sensor simulation class using {@link edu.wpi.first.hal.SimDevice}
+ * Sensor class using {@link edu.wpi.first.hal.SimDevice}; All fields will use the given supplier on real robots. Fake
+ * data is only given when connected to simulation.
  */
-public class SensorSim
+public class Sensor
 {
 
   /**
    * Simulated device.
    */
-  private  final     Optional<SimDevice> m_simDevice;
+  private final Optional<SimDevice>     m_simDevice;
   /**
    * Sensor name.
    */
-  private final String              m_sensorName;
+  private final String                  m_sensorName;
   /**
    * Simulated data.
    */
   private final Map<String, SensorData> m_simData;
 
   /**
-   * Sensor simulation constructor.
+   * Sensor constructor, for a sensor that will report the real data when connected to the robot or Simulation GUI data
+   * when connected to Sim.
    *
    * @param sensorName   Name of the sensor.
    * @param sensorFields List of sensor fields. See {@link SensorData}.
    */
-  public SensorSim(String sensorName, List<SensorData> sensorFields)
+  public Sensor(String sensorName, List<SensorData> sensorFields)
   {
     m_sensorName = sensorName;
     m_simData = sensorFields.stream().collect(Collectors.toMap(SensorData::getName, entry -> entry));
     if (RobotBase.isSimulation())
     {
-      m_simDevice = Optional.of(SimDevice.create("Sensor["+sensorName+"]"));
+      m_simDevice = Optional.of(SimDevice.create("Sensor[" + sensorName + "]"));
       for (var field : sensorFields)
       {
         field.createValue(m_simDevice.get(), Direction.kBidir);
       }
-    }
-    else
+    } else
     {
       m_simDevice = Optional.empty();
     }
+  }
+
+  /**
+   * Sensor simulation constructor.
+   *
+   * @param cfg {@link SensorConfig} class
+   */
+  public Sensor(SensorConfig cfg)
+  {
+    this(cfg.getName(), cfg.getFields());
   }
 
   /**

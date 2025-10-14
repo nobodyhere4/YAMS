@@ -181,13 +181,17 @@ public class SensorData
    */
   private final HALValue                                         m_defaultValue;
   /**
-   * Autonomous values, based off time.
+   * Values, based off time.
    */
-  private       Optional<List<Pair<Pair<Time, Time>, HALValue>>> m_autonomousValues = Optional.empty();
+  private       Optional<List<Pair<Pair<Time, Time>, HALValue>>> m_matchTimingValues = Optional.empty();
+  /**
+   * Values, based off triggers.
+   */
+  private       Optional<List<Pair<BooleanSupplier, HALValue>>>  m_triggerValues     = Optional.empty();
   /**
    * Sim value from Glass.
    */
-  private       Optional<SimValue>                               m_glassValue       = Optional.empty();
+  private       Optional<SimValue>                               m_glassValue        = Optional.empty();
 
   /**
    * Sensor data constructor.
@@ -332,11 +336,11 @@ public class SensorData
       return m_supplier.get();
     }
 
-    // If the robot is in Autonomous mode and has autonomous overrides apply them and return the override.
-    if (m_autonomousValues.isPresent() && DriverStation.isAutonomous())
+    // Override sensor values with timing values during a simulated match
+    if (m_matchTimingValues.isPresent())
     {
       var matchTime = Seconds.of(DriverStation.getMatchTime());
-      for (var entry : m_autonomousValues.get())
+      for (var entry : m_matchTimingValues.get())
       {
         var times = entry.getFirst(); // Start and end time
         // If the match time is within the start and end times return the override.
@@ -348,27 +352,57 @@ public class SensorData
         }
       }
     }
+    // Override sensor values with trigger values during a simulated match
+    if (m_triggerValues.isPresent())
+    {
+      for (var entry : m_triggerValues.get())
+      {
+        if (entry.getFirst().getAsBoolean())
+        {
+          set(entry.getSecond());
+          return entry.getSecond();
+        }
+      }
+    }
 
     // If no glassValue is present, return the supplier value.
     return m_glassValue.isPresent() ? m_glassValue.get().getValue() : m_supplier.get();
   }
 
   /**
-   * Add an autonomous value.
+   * Add a value set during match time.
    *
    * @param value     Value to add.
    * @param startTime Start time of value.
    * @param endTime   End time of value.
    */
-  public void addAutonomousData(HALValue value, Time startTime, Time endTime)
+  public void addSimMatchTimeValue(HALValue value, Time startTime, Time endTime)
   {
     var item = new Pair<>(new Pair<>(startTime, endTime), value);
-    if (m_autonomousValues.isEmpty())
+    if (m_matchTimingValues.isEmpty())
     {
-      m_autonomousValues = Optional.of(List.of(item));
+      m_matchTimingValues = Optional.of(List.of(item));
     } else
     {
-      m_autonomousValues.get().add(item);
+      m_matchTimingValues.get().add(item);
+    }
+  }
+
+  /**
+   * Add a value set based off a trigger.
+   *
+   * @param value   {@link HALValue} to set.
+   * @param trigger {@link BooleanSupplier} when to use..
+   */
+  public void addSimTrigger(HALValue value, BooleanSupplier trigger)
+  {
+    var item = new Pair<>(trigger, value);
+    if (m_triggerValues.isEmpty())
+    {
+      m_triggerValues = Optional.of(List.of(item));
+    } else
+    {
+      m_triggerValues.get().add(item);
     }
   }
 

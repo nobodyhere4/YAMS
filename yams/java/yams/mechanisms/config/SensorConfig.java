@@ -1,5 +1,6 @@
 package yams.mechanisms.config;
 
+import edu.wpi.first.units.measure.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +9,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import yams.motorcontrollers.simulation.SensorData;
-import yams.motorcontrollers.simulation.SensorSim;
+import yams.motorcontrollers.simulation.Sensor;
 
 /**
  * Sensor configuration for simulated and real sensors.
@@ -23,11 +24,11 @@ public class SensorConfig
   /**
    * List of {@link SensorData} to display in the simulation window.
    */
-  private       List<SensorData>    data   = new ArrayList<>();
+  private       List<SensorData> data   = new ArrayList<>();
   /**
    * Sensor
    */
-  private       Optional<SensorSim> sensor = Optional.empty();
+  private       Optional<Sensor> sensor = Optional.empty();
 
   /**
    * Sensor configuration.
@@ -96,17 +97,201 @@ public class SensorConfig
   }
 
   /**
-   * Get the {@link SensorSim} for this sensor.
+   * Add a simulated value to the sensor at a given match time.
    *
-   * @return {@link SensorSim} for fetching real and simulated values.
+   * @param fieldName Name of the field to change.
+   * @param start     {@link Time} at which to start the data simulation.
+   * @param end       {@link Time} at which to end the data simulation.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
    */
-  public SensorSim getSensor()
+  public SensorConfig withSimulatedValue(String fieldName, Time start, Time end, double value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given match time.
+   *
+   * @param fieldName Name of the field to change.
+   * @param start     {@link Time} at which to start the data simulation.
+   * @param end       {@link Time} at which to end the data simulation.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, Time start, Time end, int value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given match time.
+   *
+   * @param fieldName Name of the field to change.
+   * @param start     {@link Time} at which to start the data simulation.
+   * @param end       {@link Time} at which to end the data simulation.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, Time start, Time end, long value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given match time.
+   *
+   * @param fieldName Name of the field to change.
+   * @param start     {@link Time} at which to start the data simulation.
+   * @param end       {@link Time} at which to end the data simulation.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, Time start, Time end, boolean value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimMatchTimeValue(SensorData.convert(value), start, end);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given trigger.
+   *
+   * @param fieldName Name of the field to change.
+   * @param trigger   {@link BooleanSupplier} for when data should be simulated.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, BooleanSupplier trigger, double value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimTrigger(SensorData.convert(value), trigger);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given trigger.
+   *
+   * @param fieldName Name of the field to change.
+   * @param trigger   {@link BooleanSupplier} for when data should be simulated.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, BooleanSupplier trigger, int value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimTrigger(SensorData.convert(value), trigger);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given trigger.
+   *
+   * @param fieldName Name of the field to change.
+   * @param trigger   {@link BooleanSupplier} for when data should be simulated.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, BooleanSupplier trigger, long value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimTrigger(SensorData.convert(value), trigger);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Add a simulated value to the sensor at a given trigger.
+   *
+   * @param fieldName Name of the field to change.
+   * @param trigger   {@link BooleanSupplier} for when data should be simulated.
+   * @param value     Value to simulate.
+   * @return {@link SensorConfig}
+   */
+  public SensorConfig withSimulatedValue(String fieldName, BooleanSupplier trigger, boolean value)
+  {
+    for (var field : data)
+    {
+      if (field.getName().equals(fieldName))
+      {
+        field.addSimTrigger(SensorData.convert(value), trigger);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Get the {@link Sensor} for this sensor.
+   *
+   * @return {@link Sensor} for fetching real and simulated values.
+   */
+  public Sensor getSensor()
   {
     if (sensor.isEmpty())
     {
-      sensor = Optional.of(new SensorSim(name, data));
+      sensor = Optional.of(new Sensor(name, data));
     }
     return sensor.get();
+  }
+
+  /**
+   * Get the name of the sensor.
+   *
+   * @return Name of the sensor.
+   */
+  public String getName()
+  {
+    return name;
+  }
+
+  /**
+   * Get the list of Fields ({@link SensorData}) for this sensor.
+   *
+   * @return list of {@link SensorData} for this sensor
+   */
+  public List<SensorData> getFields()
+  {
+    return data;
   }
 
 }
