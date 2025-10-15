@@ -1,11 +1,14 @@
 package yams.motorcontrollers.simulation;
 
+import edu.wpi.first.hal.HALValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import yams.mechanisms.config.SensorConfig;
 
@@ -131,4 +134,17 @@ public class Sensor
   {
     return m_simDevice;
   }
+
+  /**
+   * Set a simulated value based on a trigger.
+   *
+   * @param field   Field name to set.
+   * @param value   {@link HALValue} to set.
+   * @param trigger {@link BooleanSupplier} when to use.
+   */
+  public void addSimTrigger(String field, HALValue value, BooleanSupplier trigger)
+  {
+    getField(field).addSimTrigger(value, trigger);
+  }
+
 }
