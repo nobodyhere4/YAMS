@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
+import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.SmartMechanism;
 import yams.mechanisms.config.SwerveDriveConfig;
@@ -40,8 +41,8 @@ public class SwerveSubsystem extends SubsystemBase
   public SwerveModule createModule(SparkMax drive, SparkMax azimuth, CANcoder absoluteEncoder, String moduleName,
                                    Translation2d location)
   {
-    MechanismGearing driveGearing         = SmartMechanism.gearing(SmartMechanism.gearbox("12:1", "2:1"));
-    MechanismGearing azimuthGearing       = SmartMechanism.gearing(SmartMechanism.gearbox("21:1"));
+    MechanismGearing driveGearing         = new MechanismGearing(GearBox.fromStages("12:1", "2:1"));
+    MechanismGearing azimuthGearing       = new MechanismGearing(GearBox.fromStages("21:1"));
     PIDController    azimuthPIDController = new PIDController(1, 0, 0);
     SmartMotorControllerConfig driveCfg = new SmartMotorControllerConfig(this)
         .withWheelDiameter(Inches.of(4))

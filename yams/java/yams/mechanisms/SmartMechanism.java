@@ -111,7 +111,7 @@ public abstract class SmartMechanism
    *
    * @param gearBox {@link GearBox} created using {@link SmartMechanism#gearbox(double...)}.
    * @return {@link MechanismGearing} with the {@link GearBox}.
-   * @deprecated Use {@link MechanismGearing#MechanismGearing(GearBox)} instead.
+   * @deprecated Use {@link MechanismGearing} instead.
    */
   @Deprecated(forRemoval = true)
   public static MechanismGearing gearing(GearBox gearBox)
