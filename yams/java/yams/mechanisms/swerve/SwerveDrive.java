@@ -40,10 +40,6 @@ public class SwerveDrive
    */
   private final SwerveModule[]                          m_modules;
   /**
-   * The config for the drive.
-   */
-  private       SwerveDriveConfig                       m_config;
-  /**
    * The pose estimator for the drive.
    */
   private final SwerveDrivePoseEstimator                m_poseEstimator;
@@ -51,10 +47,6 @@ public class SwerveDrive
    * The kinematics for the drive.
    */
   private final SwerveDriveKinematics                   m_kinematics;
-  /**
-   * Mechanism telemetry.
-   */
-  private       MechanismTelemetry                      m_telemetry    = new MechanismTelemetry();
   /**
    * Desired swerve module states.
    */
@@ -84,44 +76,21 @@ public class SwerveDrive
    */
   private final DoublePublisher                         m_gyroPublisher;
   /**
-   * Simulated Gyro Angle. Used for simulation purposes only. Not used in real robot code.
-   */
-  private       Angle                                   m_simGyroAngle = Rotations.of(0);
-  /**
    * Timer for simulation purposes only. Not used in real robot code.
    */
-  private final Timer                                   m_simTimer     = new Timer();
-
+  private final Timer              m_simTimer     = new Timer();
   /**
-   * Cube the {@link Translation2d} magnitude given in Polar coordinates.
-   *
-   * @param translation {@link Translation2d} to manipulate.
-   * @return Cubed magnitude from {@link Translation2d}.
+   * The config for the drive.
    */
-  public static Translation2d cubeTranslation(Translation2d translation)
-  {
-    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
-    {
-      return translation;
-    }
-    return new Translation2d(Math.pow(translation.getNorm(), 3), translation.getAngle());
-  }
-
+  private final SwerveDriveConfig  m_config;
   /**
-   * Scale the {@link Translation2d} Polar coordinate magnitude.
-   *
-   * @param translation {@link Translation2d} to use.
-   * @param scalar      Multiplier for the Polar coordinate magnitude to use.
-   * @return {@link Translation2d} scaled by given magnitude scalar.
+   * Mechanism telemetry.
    */
-  public static Translation2d scaleTranslation(Translation2d translation, double scalar)
-  {
-    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
-    {
-      return translation;
-    }
-    return new Translation2d(translation.getNorm() * scalar, translation.getAngle());
-  }
+  private final MechanismTelemetry m_telemetry    = new MechanismTelemetry();
+  /**
+   * Simulated Gyro Angle. Used for simulation purposes only. Not used in real robot code.
+   */
+  private       Angle              m_simGyroAngle = Rotations.of(0);
 
   /**
    * Create a SwerveDrive.
@@ -165,6 +134,36 @@ public class SwerveDrive
     HAL.report(kResourceType_RobotDrive, kRobotDriveSwerve_YAGSL);
   }
 
+  /**
+   * Cube the {@link Translation2d} magnitude given in Polar coordinates.
+   *
+   * @param translation {@link Translation2d} to manipulate.
+   * @return Cubed magnitude from {@link Translation2d}.
+   */
+  public static Translation2d cubeTranslation(Translation2d translation)
+  {
+    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
+    {
+      return translation;
+    }
+    return new Translation2d(Math.pow(translation.getNorm(), 3), translation.getAngle());
+  }
+
+  /**
+   * Scale the {@link Translation2d} Polar coordinate magnitude.
+   *
+   * @param translation {@link Translation2d} to use.
+   * @param scalar      Multiplier for the Polar coordinate magnitude to use.
+   * @return {@link Translation2d} scaled by given magnitude scalar.
+   */
+  public static Translation2d scaleTranslation(Translation2d translation, double scalar)
+  {
+    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
+    {
+      return translation;
+    }
+    return new Translation2d(translation.getNorm() * scalar, translation.getAngle());
+  }
 
   /**
    * Create a {@link RunCommand} to drive the swerve drive with robot relative chassis speeds.

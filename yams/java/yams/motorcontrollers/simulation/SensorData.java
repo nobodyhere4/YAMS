@@ -1,14 +1,10 @@
 package yams.motorcontrollers.simulation;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.hal.HALValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.hal.SimValue;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.List;
 import java.util.Optional;
@@ -25,55 +21,94 @@ public class SensorData
 {
 
   /**
-   * HALValue type enum.
+   * Sensor name.
    */
-  public enum HALValueType
+  private final String                                          m_name;
+  /**
+   * Sensor value supplier.
+   */
+  private final Supplier<HALValue>                              m_supplier;
+  /**
+   * {@link HALValueType} Type of data.
+   */
+  private final HALValueType                                    m_type;
+  /**
+   * {@link HALValue} default value.
+   */
+  private final HALValue                                        m_defaultValue;
+  /**
+   * Values, based off triggers.
+   */
+  private       Optional<List<Pair<BooleanSupplier, HALValue>>> m_triggerValues = Optional.empty();
+  /**
+   * Sim value from Glass.
+   */
+  private       Optional<SimValue>                              m_glassValue    = Optional.empty();
+  /**
+   * Previous sensor value when override takes place.
+   */
+  private       Optional<HALValue>                              m_prev          = Optional.empty();
+
+  /**
+   * Sensor data constructor.
+   *
+   * @param name         Name of sensor.
+   * @param supplier     {@link Supplier<HALValue>} of sensor. Use {@link #convert} to convert primitive suppliers.
+   * @param defaultValue Default value of sensor.
+   * @param type         {@link HALValueType} of sensor.
+   */
+  public SensorData(String name, Supplier<HALValue> supplier, HALValue defaultValue, HALValueType type)
   {
-    /**
-     * Boolean type {@link HALValue#kBoolean}
-     */
-    kBoolean(HALValue.kBoolean),
-    /**
-     * Double type type {@link HALValue#kDouble}
-     */
-    kDouble(HALValue.kDouble),
-    /**
-     * Enum type type {@link HALValue#kEnum}
-     */
-    kEnum(HALValue.kEnum),
-    /**
-     * Int type type {@link HALValue#kInt}
-     */
-    kInt(HALValue.kInt),
-    /**
-     * Long type type {@link HALValue#kLong}
-     */
-    kLong(HALValue.kLong);
+    m_supplier = supplier;
+    m_name = name;
+    m_defaultValue = defaultValue;
+    m_type = type;
+  }
 
-    /**
-     * {@link HALValue} type
-     */
-    private final int m_type;
+  /**
+   * Sensor data constructor.
+   *
+   * @param name       Name of sensor.
+   * @param supplier   {@link DoubleSupplier} supplier
+   * @param defaultVal Double default value.
+   */
+  public SensorData(String name, DoubleSupplier supplier, double defaultVal)
+  {
+    this(name, convert(supplier), convert(defaultVal), HALValueType.kDouble);
+  }
 
-    /**
-     * HALValue type enum.
-     *
-     * @param type HALValue type.
-     */
-    HALValueType(int type)
-    {
-      m_type = type;
-    }
-
-    /**
-     * Get the HALValue type.
-     *
-     * @return {@link HALValue}
-     */
-    public int getType()
-    {
-      return m_type;
-    }
+  /**
+   * Sensor data constructor.
+   *
+   * @param name       Name of sensor.
+   * @param supplier   {@link IntSupplier}
+   * @param defaultVal Int default value.
+   */
+  public SensorData(String name, IntSupplier supplier, int defaultVal)
+  {
+    this(name, convert(supplier), convert(defaultVal), HALValueType.kInt);
+  }
+  /**
+   * Sensor data constructor.
+   *
+   * @param name       Name of sensor.
+   * @param supplier   {@link BooleanSupplier}
+   * @param defaultVal Boolean default value.
+   */
+  public SensorData(String name, BooleanSupplier supplier, boolean defaultVal)
+  {
+    this(name, convert(supplier), convert(defaultVal), HALValueType.kBoolean);
+  }
+  /**
+   * Sensor data constructor.
+   *
+   * @param name       Name of sensor.
+   * @param supplier   {@link LongSupplier}
+   * @param defaultVal Long default value.
+   */
+  public SensorData(String name, LongSupplier supplier, long defaultVal)
+  {
+    this(name, convert(supplier), convert(defaultVal), HALValueType.kLong);
   }
 
   /**
@@ -162,99 +197,6 @@ public class SensorData
   public static HALValue convert(long value)
   {
     return HALValue.makeLong(value);
-  }
-
-  /**
-   * Sensor name.
-   */
-  private final String                                           m_name;
-  /**
-   * Sensor value supplier.
-   */
-  private final Supplier<HALValue>                               m_supplier;
-  /**
-   * {@link HALValueType} Type of data.
-   */
-  private final HALValueType                                     m_type;
-  /**
-   * {@link HALValue} default value.
-   */
-  private final HALValue                                         m_defaultValue;
-  /**
-   * Values, based off triggers.
-   */
-  private       Optional<List<Pair<BooleanSupplier, HALValue>>>  m_triggerValues     = Optional.empty();
-  /**
-   * Sim value from Glass.
-   */
-  private       Optional<SimValue>                               m_glassValue        = Optional.empty();
-  /**
-   * Previous sensor value when override takes place.
-   */
-  private       Optional<HALValue>                               m_prev              = Optional.empty();
-
-  /**
-   * Sensor data constructor.
-   *
-   * @param name         Name of sensor.
-   * @param supplier     {@link Supplier<HALValue>} of sensor. Use {@link #convert} to convert primitive suppliers.
-   * @param defaultValue Default value of sensor.
-   * @param type         {@link HALValueType} of sensor.
-   */
-  public SensorData(String name, Supplier<HALValue> supplier, HALValue defaultValue, HALValueType type)
-  {
-    m_supplier = supplier;
-    m_name = name;
-    m_defaultValue = defaultValue;
-    m_type = type;
-  }
-
-  /**
-   * Sensor data constructor.
-   *
-   * @param name       Name of sensor.
-   * @param supplier   {@link DoubleSupplier} supplier
-   * @param defaultVal Double default value.
-   */
-  public SensorData(String name, DoubleSupplier supplier, double defaultVal)
-  {
-    this(name, convert(supplier), convert(defaultVal), HALValueType.kDouble);
-  }
-
-  /**
-   * Sensor data constructor.
-   *
-   * @param name       Name of sensor.
-   * @param supplier   {@link IntSupplier}
-   * @param defaultVal Int default value.
-   */
-  public SensorData(String name, IntSupplier supplier, int defaultVal)
-  {
-    this(name, convert(supplier), convert(defaultVal), HALValueType.kInt);
-  }
-
-  /**
-   * Sensor data constructor.
-   *
-   * @param name       Name of sensor.
-   * @param supplier   {@link BooleanSupplier}
-   * @param defaultVal Boolean default value.
-   */
-  public SensorData(String name, BooleanSupplier supplier, boolean defaultVal)
-  {
-    this(name, convert(supplier), convert(defaultVal), HALValueType.kBoolean);
-  }
-
-  /**
-   * Sensor data constructor.
-   *
-   * @param name       Name of sensor.
-   * @param supplier   {@link LongSupplier}
-   * @param defaultVal Long default value.
-   */
-  public SensorData(String name, LongSupplier supplier, long defaultVal)
-  {
-    this(name, convert(supplier), convert(defaultVal), HALValueType.kLong);
   }
 
   /**
@@ -428,5 +370,57 @@ public class SensorData
       m_glassValue = Optional.of(simVal);
     }
     return simVal;
+  }
+
+  /**
+   * HALValue type enum.
+   */
+  public enum HALValueType
+  {
+    /**
+     * Boolean type {@link HALValue#kBoolean}
+     */
+    kBoolean(HALValue.kBoolean),
+    /**
+     * Double type type {@link HALValue#kDouble}
+     */
+    kDouble(HALValue.kDouble),
+    /**
+     * Enum type type {@link HALValue#kEnum}
+     */
+    kEnum(HALValue.kEnum),
+    /**
+     * Int type type {@link HALValue#kInt}
+     */
+    kInt(HALValue.kInt),
+    /**
+     * Long type type {@link HALValue#kLong}
+     */
+    kLong(HALValue.kLong);
+
+    /**
+     * {@link HALValue} type
+     */
+    private final int m_type;
+
+    /**
+     * HALValue type enum.
+     *
+     * @param type HALValue type.
+     */
+    HALValueType(int type)
+    {
+      m_type = type;
+    }
+
+    /**
+     * Get the HALValue type.
+     *
+     * @return {@link HALValue}
+     */
+    public int getType()
+    {
+      return m_type;
+    }
   }
 }

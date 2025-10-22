@@ -29,13 +29,13 @@ public class SwerveDriveConfig
 {
 
   /**
-   * Telemetry verbosity
-   */
-  private       Optional<TelemetryVerbosity>        telemetryVerbosity            = Optional.empty();
-  /**
    * {@link SwerveModule}s for the {@link yams.mechanisms.swerve.SwerveDrive}.
    */
   private final SwerveModule[]                      modules;
+  /**
+   * Telemetry verbosity
+   */
+  private       Optional<TelemetryVerbosity>        telemetryVerbosity            = Optional.empty();
   /**
    * Gyro supplier.
    */
@@ -107,7 +107,7 @@ public class SwerveDriveConfig
   /**
    * Swerve drive subsystem.
    */
-  private       Subsystem                           subsystem;
+  private final Subsystem                           subsystem;
 
   /**
    * Create the {@link SwerveDriveConfig} for the {@link yams.mechanisms.swerve.SwerveDrive}
@@ -434,7 +434,8 @@ public class SwerveDriveConfig
   {
     var angularVelocity = new Rotation2d(gyroAngularVelocitySupplier.orElseThrow().get().in(RadiansPerSecond) *
                                          (RobotBase.isSimulation() ?
-                                          simAngularVelocityScaleFactor.orElse(angularVelocityScaleFactor.orElseThrow()) :
+                                          simAngularVelocityScaleFactor.orElse(angularVelocityScaleFactor.orElseThrow())
+                                                                   :
                                           angularVelocityScaleFactor.orElseThrow()));
     if (angularVelocity.getRadians() != 0.0)
     {

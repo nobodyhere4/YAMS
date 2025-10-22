@@ -11,8 +11,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
-import yams.motorcontrollers.simulation.SensorData;
 import yams.motorcontrollers.simulation.Sensor;
+import yams.motorcontrollers.simulation.SensorData;
 
 /**
  * Sensor configuration for simulated and real sensors.
@@ -23,11 +23,11 @@ public class SensorConfig
   /**
    * Sensor name to display in the simulation window.
    */
-  private final String              name;
+  private final String           name;
   /**
    * List of {@link SensorData} to display in the simulation window.
    */
-  private       List<SensorData> data   = new ArrayList<>();
+  private final List<SensorData> data = new ArrayList<>();
   /**
    * Sensor
    */

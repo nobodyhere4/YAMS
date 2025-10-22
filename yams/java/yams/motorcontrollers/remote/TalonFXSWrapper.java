@@ -102,10 +102,6 @@ public class TalonFXSWrapper extends SmartMotorController
    */
   private final MotionMagicVoltage            m_trapPositionReq = new MotionMagicVoltage(0).withSlot(0);
   /**
-   * Exponent profile enabled.
-   */
-  private       boolean                       expEnabled        = false;
-  /**
    * Position with exponential profiling request.
    */
   private final MotionMagicExpoVoltage        m_expoPositionReq = new MotionMagicExpoVoltage(0).withSlot(0);
@@ -157,6 +153,10 @@ public class TalonFXSWrapper extends SmartMotorController
    * {@link CANdi} to use as external feedback sensor.
    */
   private final Optional<CANdi>               m_candi           = Optional.empty();
+  /**
+   * Exponent profile enabled.
+   */
+  private       boolean                       expEnabled        = false;
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */

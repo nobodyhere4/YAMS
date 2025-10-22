@@ -36,7 +36,7 @@ public abstract class SmartMechanism
   /**
    * Mechanism Window.
    */
-  protected Mechanism2d        m_mechanismWindow;
+  protected Mechanism2d m_mechanismWindow;
 
   /**
    * Create the {@link Sprocket} class easily for use within the mechanism.

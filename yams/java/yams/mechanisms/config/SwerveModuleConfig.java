@@ -54,15 +54,15 @@ public class SwerveModuleConfig
    * Swerve module state optimization using
    * {@link edu.wpi.first.math.kinematics.SwerveModuleState#optimize(Rotation2d)}.
    */
-  private       boolean                      swerveModuleStateOptimization = true;
+  private       boolean                  swerveModuleStateOptimization = true;
   /**
    * Swerve module cosine compensation.
    */
-  private       boolean                      cosineCompensation            = false;
+  private final boolean                  cosineCompensation            = false;
   /**
    * Swerve module minimum velocity.
    */
-  private       Optional<LinearVelocity>     minimumVelocity               = Optional.empty();
+  private       Optional<LinearVelocity> minimumVelocity               = Optional.empty();
   /**
    * Distance from the center of rotation for the {@link yams.mechanisms.swerve.SwerveModule}.
    */

@@ -52,146 +52,14 @@ public class SmartMotorControllerConfig
 {
 
   /**
-   * Basic Options that should be applied to every {@link SmartMotorController}
+   * Subsystem that the {@link SmartMotorController} controls.
    */
-  private enum BasicOptions
-  {
-    /**
-     * Control Mode
-     */
-    ControlMode,
-    /**
-     * Feedback Synchronization for encoder seeding.
-     */
-    FeedbackSynchronizationThreshold,
-    /**
-     * Closed loop controller maximum voltage
-     */
-    ClosedLoopControllerMaximumVoltage,
-    /**
-     * Starting mechanism position of the {@link SmartMotorController}
-     */
-    StartingPosition,
-    /**
-     * Integrated Encoder Inverted
-     */
-    EncoderInverted,
-    /**
-     * Motor inversion state
-     */
-    MotorInverted,
-    /**
-     * Temperature Cutoff
-     */
-    TemperatureCutoff,
-    /**
-     * Continuous Wrapping
-     */
-    DiscontinuityPoint,
-    /**
-     * Closed Loop Tolerance
-     */
-    ClosedLoopTolerance,
-
-//    Telemetry,
-//    TelemetryVerbosity,
-//    SpecifiedTelemetryConfig,
-    /**
-     * Closed loop controller upper limit.
-     */
-    UpperLimit,
-    /**
-     * Closed loop controller lower limit.
-     */
-    LowerLimit,
-//    MomentOfInertia,
-    /**
-     * Motor idle mode.
-     */
-    IdleMode,
-    /**
-     * Voltage compensation.
-     */
-    VoltageCompensation,
-    /**
-     * Follower motors
-     */
-    Followers,
-    /**
-     * Stator current limits.
-     */
-    StatorCurrentLimit,
-    /**
-     * Supply current limits.
-     */
-    SupplyCurrentLimit,
-    /**
-     * Closed loop ramp rate.
-     */
-    ClosedLoopRampRate,
-    /**
-     * Open loop ramp rate.
-     */
-    OpenLoopRampRate,
-    /**
-     * External encoder used.
-     */
-    ExternalEncoder,
-    /**
-     * Mechanism gearing from rotor to mechanisms.
-     */
-    Gearing,
-    //    MechanismCircumference,
-    /**
-     * Closed loop control period
-     */
-    ClosedLoopControlPeriod,
-    /**
-     * Simple motor feedforward
-     */
-    SimpleFeedforward,
-    /**
-     * Arm feedforward.
-     */
-    ArmFeedforward,
-    /**
-     * Elevator feedforward
-     */
-    ElevatorFeedforward,
-    /**
-     * Simple closed loop controller.
-     */
-    SimpleClosedLoopController,
-    /**
-     * Motion profiled closed loop controller.
-     */
-    ClosedLoopController,
-
-  }
-
+  private final Subsystem                                 subsystem;
   /**
-   * External encoder options
+   * Missing options that would be decremented for each motor application.
    */
-  private enum ExternalEncoderOptions
-  {
-    /**
-     * External encoder offset.
-     */
-    ZeroOffset,
-    /**
-     * Use the encoder as a feedback device.
-     */
-    UseExternalFeedbackEncoder,
-    /**
-     * External gearing.
-     */
-    ExternalGearing,
-    /**
-     * External encoder inversion.
-     */
-    ExternalEncoderInverted
-  }
-
+  private final List<SmartMotorControllerOptions>         missingOptions   = Arrays.asList(
+      SmartMotorControllerOptions.values());
   /**
    * Validation set to confirm all options have been applied to the Smart Motor Controller.
    */
@@ -202,15 +70,6 @@ public class SmartMotorControllerConfig
    */
   private       Set<ExternalEncoderOptions>                   externalEncoderOptions             = EnumSet.allOf(
       ExternalEncoderOptions.class);
-  /**
-   * Subsystem that the {@link SmartMotorController} controls.
-   */
-  private final Subsystem                                     subsystem;
-  /**
-   * Missing options that would be decremented for each motor application.
-   */
-  private final List<SmartMotorControllerOptions>             missingOptions                     = Arrays.asList(
-      SmartMotorControllerOptions.values());
   /**
    * External encoder.
    */
@@ -387,7 +246,6 @@ public class SmartMotorControllerConfig
   private       Double                                        moi                                = SingleJointedArmSim
       .estimateMOI(Inches.of(4).in(Meters),
                    Pounds.of(1).in(Kilograms));
-
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
    *
@@ -1326,9 +1184,6 @@ public class SmartMotorControllerConfig
     return this;
   }
 
-  // TODO: Add exp profile where the user defines max vel, and max accel.
-
-
   /**
    * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
    * Meters if Mechanism Circumference is configured), the outputs are in Volts.
@@ -1364,6 +1219,8 @@ public class SmartMotorControllerConfig
     this.simpleController = Optional.ofNullable(controller);
     return this;
   }
+
+  // TODO: Add exp profile where the user defines max vel, and max accel.
 
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
@@ -1903,6 +1760,147 @@ public class SmartMotorControllerConfig
   {
     externalEncoderOptions.remove(ExternalEncoderOptions.ExternalEncoderInverted);
     return externalEncoderInverted;
+  }
+
+  /**
+   * Basic Options that should be applied to every {@link SmartMotorController}
+   */
+  private enum BasicOptions
+  {
+    /**
+     * Control Mode
+     */
+    ControlMode,
+    /**
+     * Feedback Synchronization for encoder seeding.
+     */
+    FeedbackSynchronizationThreshold,
+    /**
+     * Closed loop controller maximum voltage
+     */
+    ClosedLoopControllerMaximumVoltage,
+    /**
+     * Starting mechanism position of the {@link SmartMotorController}
+     */
+    StartingPosition,
+    /**
+     * Integrated Encoder Inverted
+     */
+    EncoderInverted,
+    /**
+     * Motor inversion state
+     */
+    MotorInverted,
+    /**
+     * Temperature Cutoff
+     */
+    TemperatureCutoff,
+    /**
+     * Continuous Wrapping
+     */
+    DiscontinuityPoint,
+    /**
+     * Closed Loop Tolerance
+     */
+    ClosedLoopTolerance,
+
+//    Telemetry,
+//    TelemetryVerbosity,
+//    SpecifiedTelemetryConfig,
+    /**
+     * Closed loop controller upper limit.
+     */
+    UpperLimit,
+    /**
+     * Closed loop controller lower limit.
+     */
+    LowerLimit,
+//    MomentOfInertia,
+    /**
+     * Motor idle mode.
+     */
+    IdleMode,
+    /**
+     * Voltage compensation.
+     */
+    VoltageCompensation,
+    /**
+     * Follower motors
+     */
+    Followers,
+    /**
+     * Stator current limits.
+     */
+    StatorCurrentLimit,
+    /**
+     * Supply current limits.
+     */
+    SupplyCurrentLimit,
+    /**
+     * Closed loop ramp rate.
+     */
+    ClosedLoopRampRate,
+    /**
+     * Open loop ramp rate.
+     */
+    OpenLoopRampRate,
+    /**
+     * External encoder used.
+     */
+    ExternalEncoder,
+    /**
+     * Mechanism gearing from rotor to mechanisms.
+     */
+    Gearing,
+    //    MechanismCircumference,
+    /**
+     * Closed loop control period
+     */
+    ClosedLoopControlPeriod,
+    /**
+     * Simple motor feedforward
+     */
+    SimpleFeedforward,
+    /**
+     * Arm feedforward.
+     */
+    ArmFeedforward,
+    /**
+     * Elevator feedforward
+     */
+    ElevatorFeedforward,
+    /**
+     * Simple closed loop controller.
+     */
+    SimpleClosedLoopController,
+    /**
+     * Motion profiled closed loop controller.
+     */
+    ClosedLoopController,
+
+  }
+
+  /**
+   * External encoder options
+   */
+  private enum ExternalEncoderOptions
+  {
+    /**
+     * External encoder offset.
+     */
+    ZeroOffset,
+    /**
+     * Use the encoder as a feedback device.
+     */
+    UseExternalFeedbackEncoder,
+    /**
+     * External gearing.
+     */
+    ExternalGearing,
+    /**
+     * External encoder inversion.
+     */
+    ExternalEncoderInverted
   }
 
   /**

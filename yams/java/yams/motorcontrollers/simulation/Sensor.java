@@ -3,7 +3,6 @@ package yams.motorcontrollers.simulation;
 import edu.wpi.first.hal.HALValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.List;
 import java.util.Map;
