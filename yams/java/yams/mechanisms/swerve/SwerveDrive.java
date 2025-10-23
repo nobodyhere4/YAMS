@@ -300,7 +300,10 @@ public class SwerveDrive
    */
   public Command driveToPose(Pose2d pose)
   {
-    return drive(() -> {
+    return Commands.runOnce(() -> {
+      resetTranslationPID();
+      resetAzimuthPID();
+    }).andThen(drive(() -> {
       var azimuthPID        = m_config.getRotationPID();
       var translationPID    = m_config.getTranslationPID();
       var distance          = getDistanceFromPose(pose);
@@ -315,7 +318,7 @@ public class SwerveDrive
                                                                                             pose.getRotation()
                                                                                                 .getRadians())),
                                                    new Rotation2d(getGyroAngle()));
-    });
+    })).withName("Drive to Pose");
   }
 
   /**
