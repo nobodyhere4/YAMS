@@ -19,6 +19,7 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+/** Swerve Module **/
 public class SwerveModuleConfig
 {
 
@@ -79,6 +80,9 @@ public class SwerveModuleConfig
     this.driveMotor = drive;
     this.azimuthMotor = azimuth;
   }
+
+  // TODO: Add cosine compensation
+  // TODO: Add coupling ratio
 
   /**
    * Set the absolute encoder for the azimuth {@link SmartMotorController} if it's the SAME VENDOR, only.
