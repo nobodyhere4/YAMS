@@ -747,9 +747,9 @@ public class TalonFXSWrapper extends SmartMotorController
           m_talonConfig.ExternalFeedback.AbsoluteSensorOffset = 0;
         }
         // Discontinuity Point
-        if (config.getDiscontinuityPoint().isPresent())
+        if (config.getMaxDiscontinuityPoint().isPresent())
         {
-          cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+          cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
         }
         configurator.apply(cfg);
       } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
@@ -794,9 +794,9 @@ public class TalonFXSWrapper extends SmartMotorController
 
           }
           // Discontinuity point
-          if (config.getDiscontinuityPoint().isPresent())
+          if (config.getMaxDiscontinuityPoint().isPresent())
           {
-            cfg.PWM1.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+            cfg.PWM1.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
           }
         } else if (useCANdiPWM2())
         {
@@ -810,9 +810,9 @@ public class TalonFXSWrapper extends SmartMotorController
             m_talonConfig.ExternalFeedback.AbsoluteSensorOffset = 0;
           }
           // Discontinuity point
-          if (config.getDiscontinuityPoint().isPresent())
+          if (config.getMaxDiscontinuityPoint().isPresent())
           {
-            cfg.PWM2.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+            cfg.PWM2.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
           }
         }
         configurator.apply(cfg);
@@ -860,10 +860,10 @@ public class TalonFXSWrapper extends SmartMotorController
         } while (!applied.equals(StatusCode.OK));
       }
       // Discontinuity point
-      if (config.getDiscontinuityPoint().isPresent())
+      if (config.getMaxDiscontinuityPoint().isPresent())
       {
         m_talonConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        m_talonConfig.ExternalFeedback.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+        m_talonConfig.ExternalFeedback.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
       }
     }
 

@@ -438,6 +438,8 @@ public class SmartMotorControllerConfig
                                                                                     top.in(Rotations)));
     controller.ifPresent(profiledPIDController -> profiledPIDController.enableContinuousInput(bottom.in(Rotations),
                                                                                               top.in(Rotations)));
+    expoController.ifPresent(expoController -> expoController.enableContinuousInput(bottom.in(Rotations),
+                                                                                    top.in(Rotations)));
     if (simpleController.isEmpty() && controller.isEmpty())
     {
       throw new SmartMotorControllerConfigurationException("No PID controller used",
@@ -1691,7 +1693,7 @@ public class SmartMotorControllerConfig
    *
    * @return {@link Angle} where the encoder wraps around.
    */
-  public Optional<Angle> getDiscontinuityPoint()
+  public Optional<Angle> getMaxDiscontinuityPoint()
   {
     if (maxDiscontinuityPoint.isPresent() && minDiscontinuityPoint.isPresent() && !minDiscontinuityPoint.get().equals(
         Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)))
@@ -1705,6 +1707,28 @@ public class SmartMotorControllerConfig
     }
     basicOptions.remove(BasicOptions.DiscontinuityPoint);
     return maxDiscontinuityPoint;
+
+  }
+
+  /**
+   * Get the discontinuity point for the {@link SmartMotorController} encoder.
+   *
+   * @return {@link Angle} where the encoder wraps around.
+   */
+  public Optional<Angle> getMinDiscontinuityPoint()
+  {
+    if (maxDiscontinuityPoint.isPresent() && minDiscontinuityPoint.isPresent() && !minDiscontinuityPoint.get().equals(
+        Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)))
+    {
+      throw new SmartMotorControllerConfigurationException("Bounds are not correct!",
+                                                           "Cannot get the discontinuity point.",
+                                                           "withContinuousWrapping(Rotations.of(" +
+                                                           Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)
+                                                                    .in(Rotations) + "),Rotations.of(" +
+                                                           maxDiscontinuityPoint.get().in(Rotations) + ")) instead ");
+    }
+//    basicOptions.remove(BasicOptions.DiscontinuityPoint);
+    return minDiscontinuityPoint;
 
   }
 

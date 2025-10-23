@@ -701,9 +701,9 @@ public class TalonFXWrapper extends SmartMotorController
           m_talonConfig.Feedback.FeedbackRotorOffset = 0;
         }
         // Discontinuity Point
-        if (config.getDiscontinuityPoint().isPresent())
+        if (config.getMaxDiscontinuityPoint().isPresent())
         {
-          cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+          cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
         }
         configurator.apply(cfg);
       } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
@@ -748,9 +748,9 @@ public class TalonFXWrapper extends SmartMotorController
 
           }
           // Discontinuity point
-          if (config.getDiscontinuityPoint().isPresent())
+          if (config.getMaxDiscontinuityPoint().isPresent())
           {
-            cfg.PWM1.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+            cfg.PWM1.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
           }
         } else if (useCANdiPWM2())
         {
@@ -764,9 +764,9 @@ public class TalonFXWrapper extends SmartMotorController
             m_talonConfig.Feedback.FeedbackRotorOffset = 0;
           }
           // Discontinuity point
-          if (config.getDiscontinuityPoint().isPresent())
+          if (config.getMaxDiscontinuityPoint().isPresent())
           {
-            cfg.PWM2.withAbsoluteSensorDiscontinuityPoint(config.getDiscontinuityPoint().get());
+            cfg.PWM2.withAbsoluteSensorDiscontinuityPoint(config.getMaxDiscontinuityPoint().get());
           }
         }
         configurator.apply(cfg);
@@ -809,9 +809,9 @@ public class TalonFXWrapper extends SmartMotorController
 
       }
       // Discontinuity point
-      if (config.getDiscontinuityPoint().isPresent())
+      if (config.getMaxDiscontinuityPoint().isPresent())
       {
-        if (!config.getDiscontinuityPoint().get().equals(Rotations.of(0.5)))
+        if (!config.getMaxDiscontinuityPoint().get().equals(Rotations.of(0.5)))
         {
           throw new SmartMotorControllerConfigurationException("Invalid wrapping given to TalonFX",
                                                                "Cannot configure TalonFX!",

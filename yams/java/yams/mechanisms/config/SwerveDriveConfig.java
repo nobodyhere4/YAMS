@@ -164,6 +164,10 @@ public class SwerveDriveConfig
    */
   public SwerveDriveConfig withRotationController(PIDController controller)
   {
+    if (controller != null)
+    {
+      controller.enableContinuousInput(-Math.PI, Math.PI);
+    }
     rotationController = Optional.ofNullable(controller);
     return this;
   }

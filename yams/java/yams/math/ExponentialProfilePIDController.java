@@ -464,4 +464,18 @@ public class ExponentialProfilePIDController
   {
     controller.setD(kD);
   }
+
+  /**
+   * Enables continuous input.
+   *
+   * <p>Rather then using the max and min input range as constraints, it considers them to be the
+   * same point and automatically calculates the shortest route to the setpoint.
+   *
+   * @param minimumInput The minimum value expected from the input.
+   * @param maximumInput The maximum value expected from the input.
+   */
+  public void enableContinuousInput(double minimumInput, double maximumInput)
+  {
+    controller.enableContinuousInput(minimumInput, maximumInput);
+  }
 }
