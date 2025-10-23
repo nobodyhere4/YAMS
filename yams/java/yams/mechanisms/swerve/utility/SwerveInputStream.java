@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import yams.mechanisms.config.SwerveDriveConfig;
 import yams.mechanisms.swerve.SwerveDrive;
 
 /**
@@ -784,7 +785,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    */
   private Translation2d applyTranslationScalar(double xAxis, double yAxis)
   {
-    return translationAxisScale.map(aDouble -> SwerveDrive.scaleTranslation(new Translation2d(xAxis, yAxis),
+    return translationAxisScale.map(aDouble -> SwerveDriveConfig.scaleTranslation(new Translation2d(xAxis, yAxis),
                                                                             aDouble)).orElseGet(() -> new Translation2d(
         xAxis,
         yAxis));
@@ -800,7 +801,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   {
     if (translationCube.isPresent() && translationCube.get().getAsBoolean())
     {
-      return SwerveDrive.cubeTranslation(translation);
+      return SwerveDriveConfig.cubeTranslation(translation);
     }
     return translation;
   }

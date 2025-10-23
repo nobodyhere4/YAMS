@@ -501,6 +501,37 @@ public class SwerveDriveConfig
   }
 
   /**
+   * Cube the {@link Translation2d} magnitude given in Polar coordinates.
+   *
+   * @param translation {@link Translation2d} to manipulate.
+   * @return Cubed magnitude from {@link Translation2d}.
+   */
+  public static Translation2d cubeTranslation(Translation2d translation)
+  {
+    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
+    {
+      return translation;
+    }
+    return new Translation2d(Math.pow(translation.getNorm(), 3), translation.getAngle());
+  }
+
+  /**
+   * Scale the {@link Translation2d} Polar coordinate magnitude.
+   *
+   * @param translation {@link Translation2d} to use.
+   * @param scalar      Multiplier for the Polar coordinate magnitude to use.
+   * @return {@link Translation2d} scaled by given magnitude scalar.
+   */
+  public static Translation2d scaleTranslation(Translation2d translation, double scalar)
+  {
+    if (Math.hypot(translation.getX(), translation.getY()) <= 1.0E-6)
+    {
+      return translation;
+    }
+    return new Translation2d(translation.getNorm() * scalar, translation.getAngle());
+  }
+
+  /**
    * Get the swerve drive subsystem.
    *
    * @return Swerve drive subsystem.
