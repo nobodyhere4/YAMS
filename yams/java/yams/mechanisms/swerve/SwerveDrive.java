@@ -3,8 +3,11 @@ package yams.mechanisms.swerve;
 import static edu.wpi.first.hal.FRCNetComm.tInstances.kRobotDriveSwerve_YAGSL;
 import static edu.wpi.first.hal.FRCNetComm.tResourceType.kResourceType_RobotDrive;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
@@ -22,6 +25,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -264,6 +268,54 @@ public class SwerveDrive
   public void resetTranslationPID()
   {
     m_config.getTranslationPID().reset();
+  }
+
+  /**
+   * Get the {@link Distance} from the given pose to the robot.
+   *
+   * @param pose {@link Pose2d} to get the distance from.
+   * @return {@link Distance} from the given pose to the robot.
+   */
+  public Distance getDistanceFromPose(Pose2d pose)
+  {
+    return Meters.of(getPose().getTranslation().getDistance(pose.getTranslation()));
+  }
+
+  /**
+   * Get the angle difference between the robot's current pose and the given pose.
+   *
+   * @param pose {@link Pose2d} to get the angle difference from.
+   * @return {@link Angle} difference between the robot's current pose and the given pose.
+   */
+  public Angle getAngleDifferenceFromPose(Pose2d pose)
+  {
+    return getPose().minus(pose).getRotation().getMeasure();
+  }
+
+  /**
+   * Drive the robot to the given pose.
+   *
+   * @param pose {@link Pose2d} to drive the robot to. Field relative, blue-origin where 0deg is facing towards RED
+   * @return {@link Command} to drive the robot to the given pose.
+   */
+  public Command driveToPose(Pose2d pose)
+  {
+    return drive(() -> {
+      var azimuthPID        = m_config.getRotationPID();
+      var translationPID    = m_config.getTranslationPID();
+      var distance          = getDistanceFromPose(pose);
+      var angleDifference   = getAngleDifferenceFromPose(pose);
+      var translationScalar = translationPID.calculate(distance.in(Meters), 0);
+      var currentPose       = getPose();
+      var poseDifference    = currentPose.minus(pose);
+      return ChassisSpeeds.fromFieldRelativeSpeeds(poseDifference.getMeasureX().per(Second).times(translationScalar),
+                                                   poseDifference.getMeasureY().per(Second).times(translationScalar),
+                                                   RadiansPerSecond.of(azimuthPID.calculate(currentPose.getRotation()
+                                                                                                       .getRadians(),
+                                                                                            pose.getRotation()
+                                                                                                .getRadians())),
+                                                   new Rotation2d(getGyroAngle()));
+    });
   }
 
   /**
