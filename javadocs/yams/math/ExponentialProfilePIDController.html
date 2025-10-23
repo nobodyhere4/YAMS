@@ -331,28 +331,6 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getKv()">
-<h3>getKv</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a></span>&nbsp;<span class="element-name">getKv</span>()</div>
-<div class="block">Get the velocity gain as constant.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>kV with (-A/B)</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getKa()">
-<h3>getKa</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularAcceleration.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularAcceleration</a></span>&nbsp;<span class="element-name">getKa</span>()</div>
-<div class="block">Get the acceleration gain kA</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>kA interpreted as (1.0/B)</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="createElevatorConstraints(edu.wpi.first.units.measure.Voltage,edu.wpi.first.math.system.plant.DCMotor,edu.wpi.first.units.measure.Mass,edu.wpi.first.units.measure.Distance,yams.gearing.MechanismGearing)">
 <h3>createElevatorConstraints</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.Constraints.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link">ExponentialProfile.Constraints</a></span>&nbsp;<span class="element-name">createElevatorConstraints</span><wbr><span class="parameters">(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/Voltage.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">Voltage</a>&nbsp;maxVolts,
@@ -434,6 +412,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getKv()">
+<h3>getKv</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a></span>&nbsp;<span class="element-name">getKv</span>()</div>
+<div class="block">Get the velocity gain as constant.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>kV with (-A/B)</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getKa()">
+<h3>getKa</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularAcceleration.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularAcceleration</a></span>&nbsp;<span class="element-name">getKa</span>()</div>
+<div class="block">Get the acceleration gain kA</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>kA interpreted as (1.0/B)</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="reset(edu.wpi.first.math.trajectory.ExponentialProfile.State)">
 <h3>reset</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">reset</span><wbr><span class="parameters">(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.State.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link">ExponentialProfile.State</a>&nbsp;measurement)</span></div>
@@ -465,39 +465,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/ExponentialProfile.Constraints.html" title="class or interface in edu.wpi.first.math.trajectory" class="external-link"><code>ExponentialProfile.Constraints</code></a></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setP(double)">
-<h3>setP</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setP</span><wbr><span class="parameters">(double&nbsp;kP)</span></div>
-<div class="block">Sets the Proportional coefficient of the PID controller gain.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>kP</code> - The proportional coefficient. Must be &gt;= 0.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setI(double)">
-<h3>setI</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setI</span><wbr><span class="parameters">(double&nbsp;kI)</span></div>
-<div class="block">Sets the Integral coefficient of the PID controller gain.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>kI</code> - The integral coefficient. Must be >= 0.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setD(double)">
-<h3>setD</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setD</span><wbr><span class="parameters">(double&nbsp;kD)</span></div>
-<div class="block">Sets the Differential coefficient of the PID controller gain.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>kD</code> - The differential coefficient. Must be >= 0.</dd>
 </dl>
 </section>
 </li>
@@ -665,6 +632,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="setP(double)">
+<h3>setP</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setP</span><wbr><span class="parameters">(double&nbsp;kP)</span></div>
+<div class="block">Sets the Proportional coefficient of the PID controller gain.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>kP</code> - The proportional coefficient. Must be &gt;= 0.</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getI()">
 <h3>getI</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getI</span>()</div>
@@ -676,6 +654,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="setI(double)">
+<h3>setI</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setI</span><wbr><span class="parameters">(double&nbsp;kI)</span></div>
+<div class="block">Sets the Integral coefficient of the PID controller gain.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>kI</code> - The integral coefficient. Must be >= 0.</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getD()">
 <h3>getD</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getD</span>()</div>
@@ -683,6 +672,17 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>differential coefficient</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setD(double)">
+<h3>setD</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setD</span><wbr><span class="parameters">(double&nbsp;kD)</span></div>
+<div class="block">Sets the Differential coefficient of the PID controller gain.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>kD</code> - The differential coefficient. Must be >= 0.</dd>
 </dl>
 </section>
 </li>
