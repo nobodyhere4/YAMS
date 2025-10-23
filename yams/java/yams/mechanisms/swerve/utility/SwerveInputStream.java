@@ -1,5 +1,6 @@
 package yams.mechanisms.swerve.utility;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -633,13 +634,41 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   }
 
   /**
+   * Get the drive to pose translation distance between the current pose and the target pose.
+   *
+   * @return Distance in meters between the current pose and the target pose.
+   */
+  private double driveToPoseDistance()
+  {
+    Pose2d     swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
+    Pose2d     robotPose          = swerveDrive.getPose();
+    Vector<N2> robotVec           = robotPose.getTranslation().toVector();
+    Vector<N2> targetPoseRelativeToRobotPose = swervePoseSetpoint.getTranslation().toVector().minus(
+        robotVec);
+    return targetPoseRelativeToRobotPose.norm();
+  }
+
+  /**
+   * Get the drive to pose {@link Rotation2d} between the current pose and the target pose.
+   *
+   * @return Difference between the target pose and the current pose {@link Rotation2d} in radians..
+   */
+  private Rotation2d driveToPoseRotation()
+  {
+    Pose2d swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
+    Pose2d robotPose          = swerveDrive.getPose();
+    return swervePoseSetpoint.getRotation().minus(robotPose.getRotation());
+  }
+
+  /**
    * Find {@link SwerveInputMode} based off existing parameters of the {@link SwerveInputStream}
    *
    * @return The calculated {@link SwerveInputMode}, defaults to {@link SwerveInputMode#ANGULAR_VELOCITY}.
    */
   private SwerveInputMode findMode()
   {
-    if (driveToPoseEnabled.isPresent() && driveToPoseEnabled.get().getAsBoolean())
+    if (driveToPoseEnabled.isPresent() && driveToPoseEnabled.get().getAsBoolean() && driveToPoseDistance() >= 0.01 &&
+        driveToPoseRotation().getMeasure().lte(Degrees.of(1)))
     {
       if (driveToPose.isPresent())
       {
@@ -739,14 +768,8 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
       }
       case DRIVE_TO_POSE ->
       {
-        Pose2d     swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
-        Pose2d     robotPose          = swerveDrive.getPose();
-        Vector<N2> robotVec           = robotPose.getTranslation().toVector();
-        Vector<N2> targetPoseRelativeToRobotPose = swervePoseSetpoint.getTranslation().toVector().minus(
-            robotVec);
-        double distanceFromTarget = targetPoseRelativeToRobotPose.norm();
         driveToPoseOmegaPIDController.ifPresent(pid -> pid.reset(swerveDrive.getPose().getRotation().getRadians()));
-        driveToPoseTranslationPIDController.ifPresent(pid -> pid.reset(distanceFromTarget));
+        driveToPoseTranslationPIDController.ifPresent(pid -> pid.reset(driveToPoseDistance()));
 //        swerveDrive.resetAzimuthPID();
 //        swerveDrive.resetTranslationPID();
         break;
