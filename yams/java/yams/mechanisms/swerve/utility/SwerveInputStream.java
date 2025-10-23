@@ -739,8 +739,16 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
       }
       case DRIVE_TO_POSE ->
       {
-        swerveDrive.resetAzimuthPID();
-        swerveDrive.resetTranslationPID();
+        Pose2d     swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
+        Pose2d     robotPose          = swerveDrive.getPose();
+        Vector<N2> robotVec           = robotPose.getTranslation().toVector();
+        Vector<N2> targetPoseRelativeToRobotPose = swervePoseSetpoint.getTranslation().toVector().minus(
+            robotVec);
+        double distanceFromTarget = targetPoseRelativeToRobotPose.norm();
+        driveToPoseOmegaPIDController.ifPresent(pid -> pid.reset(swerveDrive.getPose().getRotation().getRadians()));
+        driveToPoseTranslationPIDController.ifPresent(pid -> pid.reset(distanceFromTarget));
+//        swerveDrive.resetAzimuthPID();
+//        swerveDrive.resetTranslationPID();
         break;
       }
     }
@@ -786,9 +794,10 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   private Translation2d applyTranslationScalar(double xAxis, double yAxis)
   {
     return translationAxisScale.map(aDouble -> SwerveDriveConfig.scaleTranslation(new Translation2d(xAxis, yAxis),
-                                                                            aDouble)).orElseGet(() -> new Translation2d(
-        xAxis,
-        yAxis));
+                                                                                  aDouble))
+                               .orElseGet(() -> new Translation2d(
+                                   xAxis,
+                                   yAxis));
   }
 
   /**
@@ -990,9 +999,9 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
       case DRIVE_TO_POSE ->
       {
         // Written by team 8865!
-        ProfiledPIDController translationPIDController = driveToPoseTranslationPIDController.get();
-        ProfiledPIDController rotationPIDController    = driveToPoseOmegaPIDController.get();
-        Pose2d                swervePoseSetpoint       = driveToPose.get().get();
+        ProfiledPIDController translationPIDController = driveToPoseTranslationPIDController.orElseThrow();
+        ProfiledPIDController rotationPIDController    = driveToPoseOmegaPIDController.orElseThrow();
+        Pose2d                swervePoseSetpoint       = driveToPose.orElse(swerveDrive::getPose).get();
         Pose2d                robotPose                = swerveDrive.getPose();
         Vector<N2>            robotVec                 = robotPose.getTranslation().toVector();
         Vector<N2> targetPoseRelativeToRobotPose = swervePoseSetpoint.getTranslation().toVector().minus(
