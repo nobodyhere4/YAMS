@@ -28,7 +28,7 @@ public class MechanismTelemetry
   /**
    * Loop time timer.
    */
-  private Timer           loopTime = new Timer();
+  private double prevTimestamp = 0;
 
   /**
    * Setup loop time publisher.
@@ -36,7 +36,7 @@ public class MechanismTelemetry
   public void setupLoopTime()
   {
     var loopTimePublisherTopic = networkTable.getDoubleTopic("loopTime");
-    loopTimePublisherTopic.setProperties("{\"unit\":\"seconds\"}");
+    loopTimePublisherTopic.setProperties("{\"unit\":\"second\"}");
     loopTimePublisher = Optional.of(loopTimePublisherTopic.publish());
   }
 
@@ -96,15 +96,11 @@ public class MechanismTelemetry
   public void updateLoopTime()
   {
     loopTimePublisher.ifPresent(publisher -> {
-      if (!loopTime.isRunning())
+      if (prevTimestamp != 0)
       {
-        loopTime.reset();
-        loopTime.start();
-      } else
-      {
-        publisher.set(loopTime.get());
-        loopTime.restart();
+        publisher.set(Timer.getFPGATimestamp() - prevTimestamp);
       }
+      prevTimestamp = Timer.getFPGATimestamp();
     });
   }
 }
