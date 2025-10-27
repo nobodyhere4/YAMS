@@ -32,35 +32,35 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
 import java.util.function.Supplier;
-import yams.exceptions.ShooterConfigurationException;
+import yams.exceptions.FlyWheelConfigurationException;
 import yams.gearing.MechanismGearing;
+import yams.mechanisms.config.FlyWheelConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
-import yams.mechanisms.config.ShooterConfig;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.simulation.DCMotorSimSupplier;
 
 /**
- * Shooter mechanism.
+ * FlyWheel mechanism.
  */
-public class Shooter extends SmartVelocityMechanism
+public class FlyWheel extends SmartVelocityMechanism
 {
 
   /**
-   * Shooter config.
+   * FlyWheel config.
    */
-  private final ShooterConfig        m_config;
+  private final FlyWheelConfig       m_config;
   /**
-   * Simulation for the Shooter.
+   * Simulation for the FlyWheel.
    */
   private       Optional<DCMotorSim> m_dcmotorSim = Optional.empty();
 
   /**
-   * Construct the Shooter class
+   * Construct the FlyWheel class
    *
-   * @param config Shooter configuration.
+   * @param config FlyWheel configuration.
    */
-  public Shooter(ShooterConfig config)
+  public FlyWheel(FlyWheelConfig config)
   {
     m_config = config;
     m_smc = config.getMotor();
@@ -134,7 +134,7 @@ public class Shooter extends SmartVelocityMechanism
    * Greater than or equal to angular velocity.
    *
    * @param speed {@link AngularVelocity} to check against.
-   * @return {@link Trigger} for Shooter.
+   * @return {@link Trigger} for FlyWheel.
    */
   public Trigger gte(AngularVelocity speed)
   {
@@ -153,9 +153,9 @@ public class Shooter extends SmartVelocityMechanism
   }
 
   /**
-   * Get the {@link SmartMotorController} Mechanism velocity representing the Shooter.
+   * Get the {@link SmartMotorController} Mechanism velocity representing the FlyWheel.
    *
-   * @return Shooter {@link AngularVelocity}
+   * @return FlyWheel {@link AngularVelocity}
    */
   public AngularVelocity getSpeed()
   {
@@ -163,11 +163,11 @@ public class Shooter extends SmartVelocityMechanism
   }
 
   /**
-   * Shooter is near a speed.
+   * FlyWheel is near a speed.
    *
    * @param speed  {@link AngularVelocity} to be near.
    * @param within {@link AngularVelocity} within.
-   * @return Trigger on when the Shooter is near another speed.
+   * @return Trigger on when the FlyWheel is near another speed.
    */
   public Trigger isNear(AngularVelocity speed, AngularVelocity within)
   {
@@ -175,10 +175,10 @@ public class Shooter extends SmartVelocityMechanism
   }
 
   /**
-   * Set the Shooter to the given speed.
+   * Set the FlyWheel to the given speed.
    *
-   * @param speed Shooter speed to go to.
-   * @return {@link Command} that sets the Shooter to the desired speed.
+   * @param speed FlyWheel speed to go to.
+   * @return {@link Command} that sets the FlyWheel to the desired speed.
    */
   public Command setSpeed(AngularVelocity speed)
   {
@@ -202,10 +202,10 @@ public class Shooter extends SmartVelocityMechanism
   }
 
   /**
-   * Set the Shooter to the given speed.
+   * Set the FlyWheel to the given speed.
    *
-   * @param speed Shooter speed to go to.
-   * @return {@link Command} that sets the Shooter to the desired speed.
+   * @param speed FlyWheel speed to go to.
+   * @return {@link Command} that sets the FlyWheel to the desired speed.
    */
   public Command setSpeed(Supplier<AngularVelocity> speed)
   {
@@ -221,9 +221,9 @@ public class Shooter extends SmartVelocityMechanism
     {
       return new Trigger(gte(m_config.getUpperSoftLimit().get()));
     }
-    throw new ShooterConfigurationException("Shooter upper soft limit is empty",
-                                            "Cannot create max trigger.",
-                                            "withUpperSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
+    throw new FlyWheelConfigurationException("FlyWheel upper soft limit is empty",
+                                             "Cannot create max trigger.",
+                                             "withUpperSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
   }
 
   @Override
@@ -233,9 +233,9 @@ public class Shooter extends SmartVelocityMechanism
     {
       return new Trigger(gte(m_config.getLowerSoftLimit().get()));
     }
-    throw new ShooterConfigurationException("Shooter upper soft limit is empty",
-                                            "Cannot create max trigger.",
-                                            "withLowerSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
+    throw new FlyWheelConfigurationException("FlyWheel upper soft limit is empty",
+                                             "Cannot create max trigger.",
+                                             "withLowerSoftLimit(AngularVelocity) OR withSoftLimit(AngularVelocity,AngularVelocity)");
   }
 
   @Override
@@ -249,18 +249,18 @@ public class Shooter extends SmartVelocityMechanism
       max = m_config.getUpperSoftLimit().get().minus(RPM.of(1));
     } else
     {
-      throw new ShooterConfigurationException("Shooter upper hard and motor controller soft limit is empty",
-                                              "Cannot create SysIdRoutine.",
-                                              "withSoftLimit(Angle,Angle)");
+      throw new FlyWheelConfigurationException("FlyWheel upper hard and motor controller soft limit is empty",
+                                               "Cannot create SysIdRoutine.",
+                                               "withSoftLimit(Angle,Angle)");
     }
     if (m_config.getLowerSoftLimit().isPresent())
     {
       min = m_config.getLowerSoftLimit().get().plus(RPM.of(1));
     } else
     {
-      throw new ShooterConfigurationException("Shooter lower hard and motor controller soft limit is empty",
-                                              "Cannot create SysIdRoutine.",
-                                              "withSoftLimit(Angle,Angle)");
+      throw new FlyWheelConfigurationException("FlyWheel lower hard and motor controller soft limit is empty",
+                                               "Cannot create SysIdRoutine.",
+                                               "withSoftLimit(Angle,Angle)");
     }
     Trigger maxTrigger = gte(max);
     Trigger minTrigger = lte(min);
@@ -308,7 +308,7 @@ public class Shooter extends SmartVelocityMechanism
   }
 
   /**
-   * Updates the angle of the mechanism ligament to match the current angle of the Shooter.
+   * Updates the angle of the mechanism ligament to match the current angle of the FlyWheel.
    */
   @Override
   public void visualizationUpdate()
@@ -345,15 +345,15 @@ public class Shooter extends SmartVelocityMechanism
   @Override
   public String getName()
   {
-    return m_config.getTelemetryName().orElse("Shooter");
+    return m_config.getTelemetryName().orElse("FlyWheel");
   }
 
   /**
-   * Get the {@link ShooterConfig} object for this {@link Shooter}
+   * Get the {@link FlyWheelConfig} object for this {@link FlyWheel}
    *
-   * @return The {@link ShooterConfig} object for this {@link Shooter}
+   * @return The {@link FlyWheelConfig} object for this {@link FlyWheel}
    */
-  public ShooterConfig getShooterConfig()
+  public FlyWheelConfig getShooterConfig()
   {
     return m_config;
   }

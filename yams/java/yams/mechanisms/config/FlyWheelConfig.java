@@ -13,19 +13,20 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import yams.exceptions.ShooterConfigurationException;
+import yams.exceptions.FlyWheelConfigurationException;
+import yams.mechanisms.velocity.FlyWheel;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 /**
- * Shooter configuration class.
+ * FlyWheel configuration class.
  */
-public class ShooterConfig
+public class FlyWheelConfig
 {
 
   /**
-   * {@link SmartMotorController} for the {@link yams.mechanisms.velocity.Shooter}
+   * {@link SmartMotorController} for the {@link FlyWheel}
    */
   private final SmartMotorController         motor;
   /**
@@ -49,15 +50,15 @@ public class ShooterConfig
    */
   private       Optional<TelemetryVerbosity> telemetryVerbosity      = Optional.empty();
   /**
-   * {@link yams.mechanisms.velocity.Shooter} length for simulation.
+   * {@link FlyWheel} length for simulation.
    */
   private       Optional<Distance>           length                  = Optional.empty();
   /**
-   * {@link yams.mechanisms.velocity.Shooter} mass for simulation.
+   * {@link FlyWheel} mass for simulation.
    */
   private       Optional<Mass>               weight                  = Optional.empty();
   /**
-   * {@link yams.mechanisms.velocity.Shooter} MOI from CAD software. If not given estimated with length and weight.
+   * {@link FlyWheel} MOI from CAD software. If not given estimated with length and weight.
    */
   private       OptionalDouble               moi                     = OptionalDouble.empty();
   /**
@@ -80,9 +81,9 @@ public class ShooterConfig
   /**
    * Arm Configuration class
    *
-   * @param motorController Primary {@link SmartMotorController} for the {@link yams.mechanisms.velocity.Shooter}
+   * @param motorController Primary {@link SmartMotorController} for the {@link FlyWheel}
    */
-  public ShooterConfig(SmartMotorController motorController)
+  public FlyWheelConfig(SmartMotorController motorController)
   {
     motor = motorController;
   }
@@ -91,9 +92,9 @@ public class ShooterConfig
    * Set the minimum velocity of the shooter. Also updates the speedometer simulation max velocity
    *
    * @param speed Minimum velocity of the shooter.
-   * @return {@link ShooterConfig} for chaining
+   * @return {@link FlyWheelConfig} for chaining
    */
-  public ShooterConfig withLowerSoftLimit(AngularVelocity speed)
+  public FlyWheelConfig withLowerSoftLimit(AngularVelocity speed)
   {
     minVelocity = Optional.ofNullable(speed);
     // Set the speedometer max to the highest absolute value of the max and min Velocity
@@ -111,9 +112,9 @@ public class ShooterConfig
    * Set the maximum velocity of the shooter. Also updates the speedometer simulation max velocity
    *
    * @param speed Maximum velocity of the shooter.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withUpperSoftLimit(AngularVelocity speed)
+  public FlyWheelConfig withUpperSoftLimit(AngularVelocity speed)
   {
     maxVelocity = Optional.ofNullable(speed);
     // Set the speedometer max to the highest absolute value of the max and min Velocity
@@ -132,9 +133,9 @@ public class ShooterConfig
    *
    * @param low  Minimum velocity of the shooter.
    * @param high Maximum velocity of the shooter.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withSoftLimit(AngularVelocity low, AngularVelocity high)
+  public FlyWheelConfig withSoftLimit(AngularVelocity low, AngularVelocity high)
   {
     minVelocity = Optional.ofNullable(low);
     maxVelocity = Optional.ofNullable(high);
@@ -151,9 +152,9 @@ public class ShooterConfig
    * This is useful for testing and debugging the shooter without having to physically move it.
    *
    * @param maxVelocity The maximum velocity of the shooter.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withSpeedometerSimulation(AngularVelocity maxVelocity)
+  public FlyWheelConfig withSpeedometerSimulation(AngularVelocity maxVelocity)
   {
     this.useSpeedometer = true;
     this.speedometerMaxVelocity = Optional.ofNullable(maxVelocity);
@@ -166,15 +167,15 @@ public class ShooterConfig
    * The speedometer simulation is a simulation of a speedometer that is used to simulate the behavior of the shooter.
    * This is useful for testing and debugging the shooter without having to physically move it.
    *
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withSpeedometerSimulation()
+  public FlyWheelConfig withSpeedometerSimulation()
   {
     if (!speedometerMaxVelocity.isPresent())
     {
-      throw new ShooterConfigurationException("Speedometer max velocity is not set.",
-                                              "Cannot use speedometer simulation!",
-                                              "Set it with useSpeedometerSimulation(AngularVelocity) or withSoftLimit(AngularVelocity, AngularVelocity)");
+      throw new FlyWheelConfigurationException("Speedometer max velocity is not set.",
+                                               "Cannot use speedometer simulation!",
+                                               "Set it with useSpeedometerSimulation(AngularVelocity) or withSoftLimit(AngularVelocity, AngularVelocity)");
     }
     this.useSpeedometer = true;
     return this;
@@ -186,9 +187,9 @@ public class ShooterConfig
    * The speedometer simulation is a simulation of a speedometer that is used to simulate the behavior of the shooter.
    * This is useful for testing and debugging the shooter without having to physically move it.
    *
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig disableSpeedometerSimulation()
+  public FlyWheelConfig disableSpeedometerSimulation()
   {
     this.useSpeedometer = false;
     return this;
@@ -225,9 +226,9 @@ public class ShooterConfig
    * Publish the color in sim as this.
    *
    * @param simColor {@link Color8Bit} to show.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withSimColor(final Color8Bit simColor)
+  public FlyWheelConfig withSimColor(final Color8Bit simColor)
   {
     this.simColor = simColor;
     return this;
@@ -235,12 +236,12 @@ public class ShooterConfig
 
   /**
    * Configure the MOI directly instead of estimating it with the length and mass of the
-   * {@link yams.mechanisms.velocity.Shooter} for simulation.
+   * {@link FlyWheel} for simulation.
    *
-   * @param MOI Moment of Inertia of the {@link yams.mechanisms.velocity.Shooter}
-   * @return {@link ShooterConfig} for chaining.
+   * @param MOI Moment of Inertia of the {@link FlyWheel}
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withMOI(double MOI)
+  public FlyWheelConfig withMOI(double MOI)
   {
     motor.getConfig().withMomentOfInertia(MOI);
     this.moi = OptionalDouble.of(MOI);
@@ -249,13 +250,13 @@ public class ShooterConfig
 
   /**
    * Configure the MOI directly instead of estimating it with the length and mass of the
-   * {@link yams.mechanisms.velocity.Shooter} for simulation.
+   * {@link FlyWheel} for simulation.
    *
-   * @param length Length of the {@link yams.mechanisms.velocity.Shooter}.
-   * @param weight Weight of the {@link yams.mechanisms.velocity.Shooter}
-   * @return {@link ShooterConfig} for chaining.
+   * @param length Length of the {@link FlyWheel}.
+   * @param weight Weight of the {@link FlyWheel}
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withMOI(Distance length, Mass weight)
+  public FlyWheelConfig withMOI(Distance length, Mass weight)
   {
     motor.getConfig().withMomentOfInertia(length, weight);
     this.moi = OptionalDouble.of(SingleJointedArmSim.estimateMOI(length.in(Meters), weight.in(Kilograms)));
@@ -263,24 +264,24 @@ public class ShooterConfig
   }
 
   /**
-   * Configure the {@link yams.mechanisms.velocity.Shooter}s diameter for simulation.
+   * Configure the {@link FlyWheel}s diameter for simulation.
    *
-   * @param distance Length of the {@link yams.mechanisms.velocity.Shooter}.
-   * @return {@link ShooterConfig} for chaining.
+   * @param distance Length of the {@link FlyWheel}.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withDiameter(Distance distance)
+  public FlyWheelConfig withDiameter(Distance distance)
   {
     this.length = Optional.ofNullable(distance);
     return this;
   }
 
   /**
-   * Configure the {@link yams.mechanisms.velocity.Shooter}s {@link Mass} for simulation.
+   * Configure the {@link FlyWheel}s {@link Mass} for simulation.
    *
-   * @param mass {@link Mass} of the {@link yams.mechanisms.velocity.Shooter}
-   * @return {@link ShooterConfig} for chaining.
+   * @param mass {@link Mass} of the {@link FlyWheel}
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withMass(Mass mass)
+  public FlyWheelConfig withMass(Mass mass)
   {
     this.weight = Optional.ofNullable(mass);
     return this;
@@ -289,23 +290,23 @@ public class ShooterConfig
   /**
    * Set the shooter mechanism position configuration.
    *
-   * @param mechanismPositionConfig {@link MechanismPositionConfig} for the {@link yams.mechanisms.velocity.Shooter}
-   * @return {@link ShooterConfig} for chaining
+   * @param mechanismPositionConfig {@link MechanismPositionConfig} for the {@link FlyWheel}
+   * @return {@link FlyWheelConfig} for chaining
    */
-  public ShooterConfig withMechanismPositionConfig(MechanismPositionConfig mechanismPositionConfig)
+  public FlyWheelConfig withMechanismPositionConfig(MechanismPositionConfig mechanismPositionConfig)
   {
     this.mechanismPositionConfig = mechanismPositionConfig;
     return this;
   }
 
   /**
-   * Configure telemetry for the {@link yams.mechanisms.velocity.Shooter} mechanism.
+   * Configure telemetry for the {@link FlyWheel} mechanism.
    *
    * @param telemetryName      Telemetry NetworkTable name to appear under "SmartDashboard/"
    * @param telemetryVerbosity Telemetry verbosity to apply.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
-  public ShooterConfig withTelemetry(String telemetryName, TelemetryVerbosity telemetryVerbosity)
+  public FlyWheelConfig withTelemetry(String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
     this.telemetryName = Optional.ofNullable(telemetryName);
     this.telemetryVerbosity = Optional.ofNullable(telemetryVerbosity);
@@ -313,15 +314,15 @@ public class ShooterConfig
   }
 
   /**
-   * Configure telemetry for the {@link yams.mechanisms.velocity.Shooter} mechanism.
+   * Configure telemetry for the {@link FlyWheel} mechanism.
    *
    * @param networkRoot        Telemetry NetworkTable
    * @param telemetryName      Telemetry NetworkTable name to appear under _networkTableName_
    * @param telemetryVerbosity Telemetry verbosity to apply.
-   * @return {@link ShooterConfig} for chaining.
+   * @return {@link FlyWheelConfig} for chaining.
    */
   @Deprecated
-  public ShooterConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
+  public FlyWheelConfig withTelemetry(String networkRoot, String telemetryName, TelemetryVerbosity telemetryVerbosity)
   {
     this.networkTableName = Optional.ofNullable(networkRoot);
     this.telemetryName = Optional.ofNullable(telemetryName);
@@ -341,7 +342,7 @@ public class ShooterConfig
   }
 
   /**
-   * Get the Length of the {@link yams.mechanisms.velocity.Shooter}
+   * Get the Length of the {@link FlyWheel}
    *
    * @return {@link Distance} of the Arm.
    */
@@ -351,7 +352,7 @@ public class ShooterConfig
   }
 
   /**
-   * Get the moment of inertia for the {@link yams.mechanisms.velocity.Shooter} simulation.
+   * Get the moment of inertia for the {@link FlyWheel} simulation.
    *
    * @return Moment of Inertia.
    */
@@ -365,15 +366,15 @@ public class ShooterConfig
     {
       return SingleJointedArmSim.estimateMOI(length.get().in(Units.Meters), weight.get().in(Units.Kilograms));
     }
-    throw new ShooterConfigurationException("Shooter diameter and weight or MOI must be set!",
-                                            "Cannot get the MOI!",
-                                            "withDiameter(Distance).withMass(Mass) OR ShooterConfig.withMOI()");
+    throw new FlyWheelConfigurationException("FlyWheel diameter and weight or MOI must be set!",
+                                             "Cannot get the MOI!",
+                                             "withDiameter(Distance).withMass(Mass) OR FlyWheelConfig.withMOI()");
   }
 
   /**
-   * Get the telemetry verbosity of the {@link yams.mechanisms.velocity.Shooter}
+   * Get the telemetry verbosity of the {@link FlyWheel}
    *
-   * @return {@link TelemetryVerbosity} of the {@link yams.mechanisms.velocity.Shooter}
+   * @return {@link TelemetryVerbosity} of the {@link FlyWheel}
    */
   public Optional<TelemetryVerbosity> getTelemetryVerbosity()
   {
@@ -401,7 +402,7 @@ public class ShooterConfig
   }
 
   /**
-   * Network Tables name for the {@link yams.mechanisms.velocity.Shooter}
+   * Network Tables name for the {@link FlyWheel}
    *
    * @return Network Tables name.
    */
@@ -412,9 +413,9 @@ public class ShooterConfig
 
 
   /**
-   * Get the {@link SmartMotorController} of the {@link yams.mechanisms.velocity.Shooter}
+   * Get the {@link SmartMotorController} of the {@link FlyWheel}
    *
-   * @return {@link SmartMotorController} for the {@link yams.mechanisms.velocity.Shooter}
+   * @return {@link SmartMotorController} for the {@link FlyWheel}
    */
   public SmartMotorController getMotor()
   {
@@ -432,7 +433,7 @@ public class ShooterConfig
   }
 
   /**
-   * Get the {@link MechanismPositionConfig} associated with this {@link ShooterConfig}.
+   * Get the {@link MechanismPositionConfig} associated with this {@link FlyWheelConfig}.
    *
    * @return An {@link Optional} containing the {@link MechanismPositionConfig} if present, otherwise an empty
    * {@link Optional}.
