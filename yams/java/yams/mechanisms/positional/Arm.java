@@ -167,6 +167,7 @@ public class Arm extends SmartPositionalMechanism
 //    m_telemetry.updatePosition(getAngle());
 //    m_motor.getMechanismPositionSetpoint().ifPresent(m_setpoint -> m_telemetry.updateSetpoint(m_setpoint));
     m_smc.updateTelemetry();
+    m_telemetry.updateLoopTime();
   }
 
   @Override
