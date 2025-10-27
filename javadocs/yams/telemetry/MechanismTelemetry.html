@@ -117,15 +117,25 @@ loadScripts(document, 'script');</script>
 <div class="block">Get the tuning NetworkTable.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupLoopTime()" class="member-name-link">setupLoopTime</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Setup loop time publisher.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Setup telemetry for the Mechanism and motor controller.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String,yams.motorcontrollers.SmartMotorController)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName,
+ <a href="../motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a>&nbsp;motorController)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Setup telemetry for the Mechanism and motor controller.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setupTelemetry(java.lang.String,yams.motorcontrollers.SmartMotorController)" class="member-name-link">setupTelemetry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mechanismTelemetryName,
- <a href="../motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a>&nbsp;motorController)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateLoopTime()" class="member-name-link">updateLoopTime</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Setup telemetry for the Mechanism and motor controller.</div>
+<div class="block">Update the loop time.</div>
 </div>
 </div>
 </div>
@@ -158,6 +168,13 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="setupLoopTime()">
+<h3>setupLoopTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setupLoopTime</span>()</div>
+<div class="block">Setup loop time publisher.</div>
+</section>
+</li>
 <li>
 <section class="detail" id="setupTelemetry(java.lang.String,yams.motorcontrollers.SmartMotorController)">
 <h3>setupTelemetry</h3>
@@ -202,6 +219,13 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>Tuning NetworkTable.</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="updateLoopTime()">
+<h3>updateLoopTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateLoopTime</span>()</div>
+<div class="block">Update the loop time.</div>
 </section>
 </li>
 </ul>
