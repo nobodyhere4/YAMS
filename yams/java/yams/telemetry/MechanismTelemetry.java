@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import java.util.Optional;
 import yams.motorcontrollers.SmartMotorController;
 
 /**
@@ -23,7 +24,7 @@ public class MechanismTelemetry
   /**
    * Loop time publisher.
    */
-  private DoublePublisher loopTimePublisher;
+  private Optional<DoublePublisher> loopTimePublisher = Optional.empty();
   /**
    * Loop time timer.
    */
@@ -36,7 +37,7 @@ public class MechanismTelemetry
   {
     var loopTimePublisherTopic = networkTable.getDoubleTopic("loopTime");
     loopTimePublisherTopic.setProperties("{\"unit\":\"seconds\"}");
-    loopTimePublisher = loopTimePublisherTopic.publish();
+    loopTimePublisher = Optional.of(loopTimePublisherTopic.publish());
   }
 
   /**
@@ -94,14 +95,16 @@ public class MechanismTelemetry
    */
   public void updateLoopTime()
   {
-    if (!loopTime.isRunning())
-    {
-      loopTime.reset();
-      loopTime.start();
-    } else
-    {
-      loopTimePublisher.set(loopTime.get());
-      loopTime.restart();
-    }
+    loopTimePublisher.ifPresent(publisher -> {
+      if (!loopTime.isRunning())
+      {
+        loopTime.reset();
+        loopTime.start();
+      } else
+      {
+        publisher.set(loopTime.get());
+        loopTime.restart();
+      }
+    });
   }
 }
