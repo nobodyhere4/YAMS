@@ -3,6 +3,8 @@ package yams.motorcontrollers;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -296,12 +298,12 @@ public abstract class SmartMotorController
       {
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMechanismPosition().in(Rotations),
                                                                  setpointPosition.get().in(Rotations)));
-        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Radians),
                                                                    m_expoPidController.get()
                                                                                       .getCurrentVelocitySetpoint()
-                                                                                      .in(RotationsPerSecond),
+                                                                                      .in(RadiansPerSecond),
                                                                    m_expoPidController.get().getNextVelocitySetpoint()
-                                                                                      .in(RotationsPerSecond));
+                                                                                      .in(RadiansPerSecond));
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMeasurementPosition().in(Meters),
@@ -333,11 +335,12 @@ public abstract class SmartMotorController
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
                                                              setpointPosition.get().in(Rotations)));
-        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Radians),
                                                                    getMechanismVelocity().in(
-                                                                       RotationsPerSecond),
-                                                                   m_pidController.get()
-                                                                                  .getSetpoint().velocity);
+                                                                       RadiansPerSecond),
+                                                                   RotationsPerSecond.of(m_pidController.get()
+                                                                                                        .getSetpoint().velocity)
+                                                                                     .in(RadiansPerSecond));
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMeasurementPosition().in(Meters),
