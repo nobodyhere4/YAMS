@@ -479,7 +479,7 @@ public class SparkWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders",
                                                              "Zero offset could not be applied",
-                                                             ".withZeroOffset");
+                                                             ".withExternalEncoderZeroOffset");
       }
 
       if (config.getExternalEncoderInverted())

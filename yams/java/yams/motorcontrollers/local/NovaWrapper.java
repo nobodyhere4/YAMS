@@ -359,7 +359,7 @@ public class NovaWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("Zero offset is unavailable for ThriftyNova",
                                                              "Zero offset could not be applied",
-                                                             ".withZeroOffset");
+                                                             ".withExternalEncoderZeroOffset");
 //        m_nova.setAbsOffset(config.getZeroOffset().get().in(Rotations));
       }
       if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
@@ -373,7 +373,7 @@ public class NovaWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders",
                                                              "Zero offset could not be applied",
-                                                             ".withZeroOffset");
+                                                             ".withExternalEncoderZeroOffset");
       }
 
       if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)

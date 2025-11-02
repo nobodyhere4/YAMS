@@ -218,7 +218,7 @@ public class SwerveModuleConfig
     SmartMotorControllerConfig azimuthConfig = azimuthMotor.getConfig();
     if (azimuthConfig.getExternalEncoder().isPresent())
     {
-      azimuthConfig.withZeroOffset(offset);
+      azimuthConfig.withExternalEncoderZeroOffset(offset);
     }
     return this;
   }
