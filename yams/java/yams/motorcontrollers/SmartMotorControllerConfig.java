@@ -1694,7 +1694,7 @@ public class SmartMotorControllerConfig
    * @param externalEncoderGearing External encoder gearing.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withExternalGearing(MechanismGearing externalEncoderGearing)
+  public SmartMotorControllerConfig withExternalEncoderGearing(MechanismGearing externalEncoderGearing)
   {
     if (externalEncoderGearing.getRotorToMechanismRatio() > 1)
     {
@@ -1715,7 +1715,7 @@ public class SmartMotorControllerConfig
    * @param reductionRatio External encoder gearing. For example, a ratio of "3:1" is 3; "1:2" is 0.5
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withExternalGearing(double reductionRatio)
+  public SmartMotorControllerConfig withExternalEncoderGearing(double reductionRatio)
   {
     if (reductionRatio > 1)
     {

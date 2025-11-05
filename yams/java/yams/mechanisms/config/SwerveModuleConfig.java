@@ -200,7 +200,7 @@ public class SwerveModuleConfig
     absoluteEncoderGearbox = gearing;
     SmartMotorControllerConfig azimuthConfig = azimuthMotor.getConfig();
     if (azimuthConfig.getExternalEncoder().isPresent())
-    {azimuthConfig.withExternalGearing(new MechanismGearing(gearing));}
+    {azimuthConfig.withExternalEncoderGearing(new MechanismGearing(gearing));}
     return this;
   }
 
