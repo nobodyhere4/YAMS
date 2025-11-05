@@ -2156,6 +2156,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Mechanism gearing for conversions from the motor output to the mechanism output.</div>
 </dd>
+<dt><a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(double)" class="member-name-link">MechanismGearing(double)</a> - Constructor for class yams.gearing.<a href="yams/gearing/MechanismGearing.html" title="class in yams.gearing">MechanismGearing</a></dt>
+<dd>
+<div class="block">Construct a <a href="yams/gearing/MechanismGearing.html" title="class in yams.gearing"><code>MechanismGearing</code></a> with a reduction ratio.</div>
+</dd>
 <dt><a href="yams/gearing/MechanismGearing.html#%3Cinit%3E(yams.gearing.GearBox)" class="member-name-link">MechanismGearing(GearBox)</a> - Constructor for class yams.gearing.<a href="yams/gearing/MechanismGearing.html" title="class in yams.gearing">MechanismGearing</a></dt>
 <dd>
 <div class="block">Initialize the <a href="yams/gearing/MechanismGearing.html" title="class in yams.gearing"><code>MechanismGearing</code></a> with only a <a href="yams/gearing/GearBox.html" title="class in yams.gearing"><code>GearBox</code></a> attached to the mechanism motor.</div>
@@ -3939,13 +3943,25 @@ the order they are declared.</div>
 <dd>
 <div class="block">Set the external encoder which is attached to the motor type sent used by <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
 </dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalEncoderGearing(double)" class="member-name-link">withExternalEncoderGearing(double)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the external encoder gearing.</div>
+</dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalEncoderGearing(yams.gearing.MechanismGearing)" class="member-name-link">withExternalEncoderGearing(MechanismGearing)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the external encoder gearing.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalEncoderInverted(boolean)" class="member-name-link">withExternalEncoderInverted(boolean)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Set the external encoder inversion state.</div>
 </dd>
-<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalGearing(yams.gearing.MechanismGearing)" class="member-name-link">withExternalGearing(MechanismGearing)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalEncoderZeroOffset(edu.wpi.first.units.measure.Angle)" class="member-name-link">withExternalEncoderZeroOffset(Angle)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
-<div class="block">Set the external encoder gearing.</div>
+<div class="block">Set the zero offset of the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>'s external Encoder.</div>
+</dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withExternalEncoderZeroOffset(edu.wpi.first.units.measure.Distance)" class="member-name-link">withExternalEncoderZeroOffset(Distance)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the zero offset of the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>'s external Encoder.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withFeedbackSynchronizationThreshold(edu.wpi.first.units.measure.Angle)" class="member-name-link">withFeedbackSynchronizationThreshold(Angle)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -3983,6 +3999,10 @@ the order they are declared.</div>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withFollowers(edu.wpi.first.math.Pair...)" class="member-name-link">withFollowers(Pair&lt;Object, Boolean&gt;...)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Set the follower motors of the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
+</dd>
+<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withGearing(double)" class="member-name-link">withGearing(double)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
+<dd>
+<div class="block">Set the <a href="yams/gearing/MechanismGearing.html" title="class in yams.gearing"><code>MechanismGearing</code></a> for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
 </dd>
 <dt><a href="yams/mechanisms/config/DifferentialMechanismConfig.html#withGearing(yams.gearing.MechanismGearing)" class="member-name-link">withGearing(MechanismGearing)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/DifferentialMechanismConfig.html" title="class in yams.mechanisms.config">DifferentialMechanismConfig</a></dt>
 <dd>
@@ -4576,14 +4596,6 @@ the order they are declared.</div>
 <dt><a href="yams/mechanisms/config/PivotConfig.html#withWrapping(edu.wpi.first.units.measure.Angle,edu.wpi.first.units.measure.Angle)" class="member-name-link">withWrapping(Angle, Angle)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/PivotConfig.html" title="class in yams.mechanisms.config">PivotConfig</a></dt>
 <dd>
 <div class="block">Wrap the pivot around these angles.</div>
-</dd>
-<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withZeroOffset(edu.wpi.first.units.measure.Angle)" class="member-name-link">withZeroOffset(Angle)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
-<dd>
-<div class="block">Set the zero offset of the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
-</dd>
-<dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#withZeroOffset(edu.wpi.first.units.measure.Distance)" class="member-name-link">withZeroOffset(Distance)</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
-<dd>
-<div class="block">Set the zero offset of the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
 </dd>
 </dl>
 <h2 class="title" id="I:X">X</h2>
