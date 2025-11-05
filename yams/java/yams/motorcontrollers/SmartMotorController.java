@@ -738,7 +738,7 @@ public abstract class SmartMotorController
                                           System.out.println(
                                               "=====================================================\nTEST UP\n=====================================================");
                                           System.out.println(
-                                              "Test will end whe Mechanism Velocity exceeds or equals 1°/s OR the Stator current exceeds 60A");
+                                              "Test will end whe Mechanism Velocity exceeds or equals 3°/s OR the Stator current exceeds 40A OR after 0.5 seconds");
                                           stopClosedLoopController();
                                           setDutyCycle(0);
                                           startingAngle.set(getMechanismPosition());
@@ -747,7 +747,8 @@ public abstract class SmartMotorController
                                           setDutyCycle(getDutyCycle() + 0.001);
                                         }, m_config.getSubsystem()).until(() -> velocityDebouncer.calculate(
                                             getMechanismVelocity().abs(DegreesPerSecond) >= 3) ||
-                                                                                currentDebouncer.calculate(getStatorCurrent().gte(Amps.of(60))))
+                                                                                currentDebouncer.calculate(
+                                                                                    getStatorCurrent().gte(Amps.of(40))))
                                         .withTimeout(Seconds.of(0.5))
                                         .finallyDo(() -> {
                                           setDutyCycle(0);
@@ -762,7 +763,7 @@ public abstract class SmartMotorController
                                             System.out.println(
                                                 "=====================================================\nTEST DOWN\n=====================================================");
                                             System.out.println(
-                                                "Test will end whe Mechanism Velocity exceeds or equals 1°/s OR the Stator current exceeds 60A");
+                                                "Test will end whe Mechanism Velocity exceeds or equals 3°/s OR the Stator current exceeds 40A after 0.5seconds");
                                             stopClosedLoopController();
                                             setDutyCycle(0);
                                             startingAngle.set(getMechanismPosition());
@@ -771,7 +772,8 @@ public abstract class SmartMotorController
                                             setDutyCycle(getDutyCycle() - 0.001);
                                           }, m_config.getSubsystem()).until(() -> velocityDebouncer.calculate(
                                               getMechanismVelocity().abs(DegreesPerSecond) >= 3) ||
-                                                                                  currentDebouncer.calculate(getStatorCurrent().gte(Amps.of(60))))
+                                                                                  currentDebouncer.calculate(
+                                                                                      getStatorCurrent().gte(Amps.of(40))))
                                           .withTimeout(Seconds.of(0.5))
                                           .finallyDo(() -> {
                                             setDutyCycle(0);
