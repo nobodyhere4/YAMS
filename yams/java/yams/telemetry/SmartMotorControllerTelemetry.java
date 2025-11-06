@@ -463,7 +463,7 @@ public class SmartMotorControllerTelemetry
     /**
      * Setpoint position
      */
-    SetpointPosition("closedloop/setpoint/position", 0, false, "position"),
+    SetpointPosition("closedloop/setpoint/position", 0, false, "rotations"),
     /**
      * Setpoint velocity
      */
