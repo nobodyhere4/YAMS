@@ -475,67 +475,67 @@ public class SmartMotorControllerTelemetry
     /**
      * Voltage supplied to the motor.
      */
-    OutputVoltage("motor/outputVoltage", 0, false, "voltage_volts"),
+    OutputVoltage("motor/outputVoltage", 0, false, "volts"),
     /**
      * Stator current.
      */
-    StatorCurrent("current/stator", 0, false, "current_amps"),
+    StatorCurrent("current/stator", 0, false, "amps"),
     /**
      * Supply current limit.
      */
-    StatorCurrentLimit("current/limit/stator", 0, true, "current_amps"),
+    StatorCurrentLimit("current/limit/stator", 0, true, "amps"),
     /**
      * Supply current.
      */
-    SupplyCurrent("current/supply", 0, false, "current_amps"),
+    SupplyCurrent("current/supply", 0, false, "amps"),
     /**
      * Supply current limit.
      */
-    SupplyCurrentLimit("current/limit/supply", 0, true, "current_amps"),
+    SupplyCurrentLimit("current/limit/supply", 0, true, "amps"),
     /**
      * Motor temperature
      */
-    MotorTemperature("motor/temperature", 0, false, "temperature_fahrenheit"),
+    MotorTemperature("motor/temperature", 0, false, "fahrenheit"),
     /**
      * Measurement position
      */
-    MeasurementPosition("measurement/position", 0, false, "length_meters"),
+    MeasurementPosition("measurement/position", 0, false, "meters"),
     /**
      * Measurement velocity.
      */
-    MeasurementVelocity("measurement/velocity", 0, false, "velocity_meters_per_second"),
+    MeasurementVelocity("measurement/velocity", 0, false, "meters_per_second"),
     /**
      * Measurement lower limit.
      */
-    MeasurementLowerLimit("measurement/limit/lower", 0, true, "length_meters"),
+    MeasurementLowerLimit("measurement/limit/lower", 0, true, "meters"),
     /**
      * Measurement upper limit.
      */
-    MeasurementUpperLimit("measurement/limit/upper", 0, true, "length_meters"),
+    MeasurementUpperLimit("measurement/limit/upper", 0, true, "meters"),
     /**
      * Mechanism position in rotations.
      */
-    MechanismPosition("mechanism/position", 0, false, "angle_rotations"),
+    MechanismPosition("mechanism/position", 0, false, "rotations"),
     /**
      * Mechanism velocity in rotations per second.
      */
-    MechanismVelocity("mechanism/velocity", 0, false, "angular_velocity_rotations_per_second"),
+    MechanismVelocity("mechanism/velocity", 0, false, "rotations_per_second"),
     /**
      * Mechanism lower limit in rotations.
      */
-    MechanismLowerLimit("mechanism/limit/lower", 0, true, "angular_velocity_rotations"),
+    MechanismLowerLimit("mechanism/limit/lower", 0, true, "rotations"),
     /**
      * Mechanism upper limit in rotations.
      */
-    MechanismUpperLimit("mechanism/limit/upper", 0, true, "angle_rotations"),
+    MechanismUpperLimit("mechanism/limit/upper", 0, true, "rotations"),
     /**
      * Rotor position in rotations.
      */
-    RotorPosition("rotor/position", 0, false, "angle_rotations"),
+    RotorPosition("rotor/position", 0, false, "rotations"),
     /**
      * Rotor velocity in rotations.
      */
-    RotorVelocity("rotor/velocity", 0, false, "angular_velocity_rotations_per_second"),
+    RotorVelocity("rotor/velocity", 0, false, "rotations_per_second"),
     /**
      * Closed loop dutycyle ramp rate.
      */

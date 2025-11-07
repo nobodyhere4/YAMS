@@ -122,7 +122,6 @@ public class DoubleTelemetry
     {
       assert dataTable != null;
       topic = dataTable.getDoubleTopic(key);
-      System.out.println("Setting up publisher for " + key + " with properties " + "{\"units\": \"" + unit + "\"}");
       publisher = Optional.of(!unit.equals("none") ?
                               topic.publishEx("double", "{\"units\": \"" + unit + "\"}") :
                               topic.publish());
@@ -142,18 +141,18 @@ public class DoubleTelemetry
     switch (unit)
     {
       case "tunable_position":
-        unit = cfg.getMechanismCircumference().isPresent() ? "length_meter" : "angle_degrees";
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter" : "degrees";
         break;
       case "position":
-        unit = cfg.getMechanismCircumference().isPresent() ? "length_meter" : "angle_rotations";
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter" : "rotations";
         break;
       case "velocity":
-        unit = cfg.getMechanismCircumference().isPresent() ? "velocity_meter_per_second"
-                                                           : "angular_velocity_rotation_per_second";
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second"
+                                                           : "rotation_per_second";
         break;
       case "acceleration":
-        unit = cfg.getMechanismCircumference().isPresent() ? "acceleration_meter_per_second_per_second"
-                                                           : "angular_acceleration_rotation_per_second_per_second";
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second_per_second"
+                                                           : "rotation_per_second_per_second";
         break;
     }
     return this;
