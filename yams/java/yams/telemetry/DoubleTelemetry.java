@@ -139,14 +139,14 @@ public class DoubleTelemetry
     switch (unit)
     {
       case "position":
-        unit = cfg.getMechanismCircumference().isPresent() ? "position_meters" : "position_rotations";
+        unit = cfg.getMechanismCircumference().isPresent() ? "length_meters" : "angle_rotations";
         break;
       case "velocity":
-        unit = cfg.getMechanismCircumference().isPresent() ? "velocity_meters_per_second" : "velocity_rotations_per_second";
+        unit = cfg.getMechanismCircumference().isPresent() ? "velocity_meters_per_second" : "angular_velocity_rotations_per_second";
         break;
       case "acceleration":
         unit = cfg.getMechanismCircumference().isPresent() ? "acceleration_meters_per_second_per_second"
-                                                           : "acceleration_rotations_per_second_per_second";
+                                                           : "angular_acceleration_rotations_per_second_per_second";
         break;
     }
     return this;
