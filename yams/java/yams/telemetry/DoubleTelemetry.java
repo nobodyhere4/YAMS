@@ -148,9 +148,17 @@ public class DoubleTelemetry
       case "position":
         unit = cfg.getMechanismCircumference().isPresent() ? "meter" : "rotations";
         break;
+      case "tunable_velocity":
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second"
+                                                           : "degrees_per_second";
+        break;
       case "velocity":
         unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second"
                                                            : "rotation_per_second";
+        break;
+      case "tunable_acceleration":
+        unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second_per_second"
+                                                           : "degrees_per_second_per_second";
         break;
       case "acceleration":
         unit = cfg.getMechanismCircumference().isPresent() ? "meter_per_second_per_second"
