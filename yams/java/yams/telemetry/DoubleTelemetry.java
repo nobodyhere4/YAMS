@@ -113,10 +113,12 @@ public class DoubleTelemetry
     if (tuningTable != null && tunable)
     {
       topic = tuningTable.getDoubleTopic(key);
+      subPublisher = !unit.equals("none") ?
+                     topic.publishEx("double", "{\"units\": \"" + unit + "\"}") :
+                     topic.publish();
       subscriber = Optional.of(topic.subscribe(defaultValue));
-      subPublisher = topic.publish();
-      if (!unit.equals("none"))
-      {topic.setProperties("{\"units\":\"" + unit + "\"}");}
+//      if (!unit.equals("none"))
+//      {topic.setProperties("{\"units\":\"" + unit + "\"}");}
       subPublisher.setDefault(defaultValue);
     } else
     {
