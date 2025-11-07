@@ -459,7 +459,7 @@ public class SmartMotorControllerTelemetry
     /**
      * Setpoint position
      */
-    TunableSetpointPosition("closedloop/setpoint/position", 0, true, "position"),
+    TunableSetpointPosition("closedloop/setpoint/position", 0, true, "tunable_position"),
     /**
      * Setpoint position
      */

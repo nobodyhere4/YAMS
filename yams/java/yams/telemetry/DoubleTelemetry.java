@@ -116,15 +116,18 @@ public class DoubleTelemetry
       subscriber = Optional.of(topic.subscribe(defaultValue));
       subPublisher = topic.publish();
       if (!unit.equals("none"))
-      {topic.setProperties("{\"unit\":\"" + unit + "\"}");}
+      {topic.setProperties("{\"units\":\"" + unit + "\"}");}
       subPublisher.setDefault(defaultValue);
     } else
     {
       assert dataTable != null;
       topic = dataTable.getDoubleTopic(key);
-      publisher = Optional.of(topic.publish());
-      if (!unit.equals("none"))
-      {topic.setProperties("{\"unit\": \"" + unit + "\"}");}
+      System.out.println("Setting up publisher for " + key + " with properties " + "{\"units\": \"" + unit + "\"}");
+      publisher = Optional.of(!unit.equals("none") ?
+                              topic.publishEx("double", "{\"units\": \"" + unit + "\"}") :
+                              topic.publish());
+//      if (!unit.equals("none"))
+//      {topic.setProperties("{\"units\": \"" + unit + "\"}");}
       publisher.get().setDefault(defaultValue);
     }
   }
@@ -138,15 +141,19 @@ public class DoubleTelemetry
   {
     switch (unit)
     {
+      case "tunable_position":
+        unit = cfg.getMechanismCircumference().isPresent() ? "length_meter" : "angle_degrees";
+        break;
       case "position":
-        unit = cfg.getMechanismCircumference().isPresent() ? "length_meters" : "angle_rotations";
+        unit = cfg.getMechanismCircumference().isPresent() ? "length_meter" : "angle_rotations";
         break;
       case "velocity":
-        unit = cfg.getMechanismCircumference().isPresent() ? "velocity_meters_per_second" : "angular_velocity_rotations_per_second";
+        unit = cfg.getMechanismCircumference().isPresent() ? "velocity_meter_per_second"
+                                                           : "angular_velocity_rotation_per_second";
         break;
       case "acceleration":
-        unit = cfg.getMechanismCircumference().isPresent() ? "acceleration_meters_per_second_per_second"
-                                                           : "angular_acceleration_rotations_per_second_per_second";
+        unit = cfg.getMechanismCircumference().isPresent() ? "acceleration_meter_per_second_per_second"
+                                                           : "angular_acceleration_rotation_per_second_per_second";
         break;
     }
     return this;
@@ -229,8 +236,8 @@ public class DoubleTelemetry
   public void enable()
   {
     enabled = true;
-    if ((publisher.isEmpty() || subscriber.isEmpty()) && (tuningTable.isPresent() || dataTable.isPresent()))
-    {setupNetworkTables(dataTable.get(), tuningTable.get());}
+//    if ((publisher.isEmpty() || subscriber.isEmpty()) && (tuningTable.isPresent() || dataTable.isPresent()))
+//    {setupNetworkTables(dataTable.get(), tuningTable.get());}
   }
 
   /**
