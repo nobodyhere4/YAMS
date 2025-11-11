@@ -60,7 +60,6 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   private final Angle            softUpperLimit     = Degrees.of(100);
   /*
    * These are the real "limits" of the robot shown in simulation.
-   * It's recommended to have them off by a few degrees that way you can tell when your robot might try to exceed these limits.
    */
   private final Angle            hardLowerLimit     = Degrees.of(-30);
   private final Angle            hardUpperLimit     = Degrees.of(110);
@@ -147,9 +146,12 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   public Command homing(Current threshhold)
   {
     Debouncer currentDebouncer = new Debouncer(0.4); // Current threshold is only detected if exceeded for 0.4 seconds.
-    return armCmd(-0.2) // A timeout may be wise here.
-                        .until(() -> currentDebouncer.calculate(motor.getStatorCurrent().gte(threshhold)))
-                        .andThen(armCmd(0).withTimeout(1));
+    return armCmd(-0.2)
+        .until(() -> currentDebouncer.calculate(motor.getStatorCurrent().gte(threshhold)))
+        .finallyDo(() -> {
+          motor.setDutyCycle(0);
+          motor.setEncoderPosition(hardLowerLimit);
+        });
   }
 
   public Command armCmd(double dutycycle)
