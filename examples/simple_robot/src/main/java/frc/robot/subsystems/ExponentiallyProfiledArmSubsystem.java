@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Second;
@@ -138,7 +139,8 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
 
   /**
    * Reset the encoder to the lowest position when the current threshhold is reached. Should be used when the Arm
-   * position is unreliable, like startup. Threshhold is only detected if exceeded for 0.4 seconds.
+   * position is unreliable, like startup. Threshhold is only detected if exceeded for 0.4 seconds, and the motor moves
+   * less than 2 degrees per second.
    *
    * @param threshhold The current threshhold held when the Arm is at it's hard limit.
    * @return
@@ -146,11 +148,12 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   public Command homing(Current threshhold)
   {
     Debouncer currentDebouncer = new Debouncer(0.4); // Current threshold is only detected if exceeded for 0.4 seconds.
-    return armCmd(-0.2)
-        .until(() -> currentDebouncer.calculate(motor.getStatorCurrent().gte(threshhold)))
+    return arm.setVoltage(Volts.of(2))
+              .until(() -> currentDebouncer.calculate(
+                  motor.getStatorCurrent().gte(threshhold) && motor.getMechanismVelocity().abs(DegreesPerSecond) <= 2))
         .finallyDo(() -> {
           motor.setDutyCycle(0);
-          motor.setEncoderPosition(hardLowerLimit);
+          motor.setEncoderPosition(hardUpperLimit);
         });
   }
 
