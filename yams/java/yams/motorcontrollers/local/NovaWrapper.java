@@ -219,7 +219,8 @@ public class NovaWrapper extends SmartMotorController
       {
         if (m_simplePidController.isEmpty())
         {
-          throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
+          if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+          {throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");}
         }
       } else if (config.getSimpleClosedLoopController().isPresent())
       {
