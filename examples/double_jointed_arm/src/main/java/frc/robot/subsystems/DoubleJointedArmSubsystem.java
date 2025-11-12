@@ -25,6 +25,8 @@ import static yams.mechanisms.SmartMechanism.gearing;
 
 public class DoubleJointedArmSubsystem extends SubsystemBase
 {
+  // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
+
   private final SparkMax                   lowerMotor  = new SparkMax(1, SparkLowLevel.MotorType.kBrushless);
   private final SmartMotorControllerConfig lowerConfig = new SmartMotorControllerConfig(this)
           .withClosedLoopController(16, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))

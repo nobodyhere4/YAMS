@@ -36,6 +36,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
+  // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
   private final Distance            chainPitch      = Inches.of(0.25);
   private final int                 toothCount      = 22;
   private final Distance            circumference   = chainPitch.times(toothCount);

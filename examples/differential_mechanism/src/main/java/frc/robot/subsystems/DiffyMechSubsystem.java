@@ -21,6 +21,8 @@ import static yams.mechanisms.SmartMechanism.gearing;
 
 public class DiffyMechSubsystem extends SubsystemBase
 {
+  // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
+
   private final SparkMax                   leftMotor  = new SparkMax(1, SparkLowLevel.MotorType.kBrushless);
   private final SmartMotorControllerConfig leftConfig = new SmartMotorControllerConfig(this)
           .withClosedLoopController(16, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))

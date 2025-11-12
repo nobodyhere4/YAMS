@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Second;
@@ -46,7 +47,7 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   ///  Configuration Options
   private final DCMotor          dcMotor            = DCMotor.getNEO(1);
   private final MechanismGearing gearing            = new MechanismGearing(7);
-  private final Mass             weight             = Pounds.of(1);
+  private final Mass             weight             = Pounds.of(10);
   private final Distance         length             = Feet.of(2);
   /*
    * Using the protractor, where 0deg on the protractor is when the arm is parallel to the ground,
@@ -65,9 +66,9 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   private final Angle            hardUpperLimit     = Degrees.of(110);
 
   /*
-   * This is the PID Controller for the Arm. If you are using a TalonFX or TalonFXS this will run on the motor controller itself.
+   * This is the STARTING PID Controller for the Arm. If you are using a TalonFX or TalonFXS this will run on the motor controller itself.
    */
-  private final ExponentialProfilePIDController pidController  = new ExponentialProfilePIDController(30,
+  private final ExponentialProfilePIDController pidController  = new ExponentialProfilePIDController(1,
                                                                                                      0,
                                                                                                      0,
                                                                                                      ExponentialProfilePIDController.createArmConstraints(
@@ -138,7 +139,8 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
 
   /**
    * Reset the encoder to the lowest position when the current threshhold is reached. Should be used when the Arm
-   * position is unreliable, like startup. Threshhold is only detected if exceeded for 0.4 seconds.
+   * position is unreliable, like startup. Threshhold is only detected if exceeded for 0.4 seconds, and the motor moves
+   * less than 2 degrees per second.
    *
    * @param threshhold The current threshhold held when the Arm is at it's hard limit.
    * @return
@@ -146,12 +148,13 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
   public Command homing(Current threshhold)
   {
     Debouncer currentDebouncer = new Debouncer(0.4); // Current threshold is only detected if exceeded for 0.4 seconds.
-    return armCmd(-0.2)
-        .until(() -> currentDebouncer.calculate(motor.getStatorCurrent().gte(threshhold)))
-        .finallyDo(() -> {
-          motor.setDutyCycle(0);
-          motor.setEncoderPosition(hardLowerLimit);
-        });
+    return arm.setVoltage(Volts.of(2))
+              .until(() -> currentDebouncer.calculate(
+                  motor.getStatorCurrent().gte(threshhold) && motor.getMechanismVelocity().abs(DegreesPerSecond) <= 2))
+              .finallyDo(() -> {
+                motor.setDutyCycle(0);
+                motor.setEncoderPosition(hardUpperLimit);
+              });
   }
 
   public Command armCmd(double dutycycle)
