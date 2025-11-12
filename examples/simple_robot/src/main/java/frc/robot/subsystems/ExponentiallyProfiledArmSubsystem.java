@@ -16,10 +16,13 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.MechanismGearing;
 import yams.math.ExponentialProfilePIDController;
@@ -147,14 +150,19 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
    */
   public Command homing(Current threshhold)
   {
-    Debouncer currentDebouncer = new Debouncer(0.4); // Current threshold is only detected if exceeded for 0.4 seconds.
-    return arm.setVoltage(Volts.of(2))
-              .until(() -> currentDebouncer.calculate(
-                  motor.getStatorCurrent().gte(threshhold) && motor.getMechanismVelocity().abs(DegreesPerSecond) <= 2))
-        .finallyDo(() -> {
-          motor.setDutyCycle(0);
-          motor.setEncoderPosition(hardUpperLimit);
-        });
+    Debouncer       currentDebouncer  = new Debouncer(0.4); // Current threshold is only detected if exceeded for 0.4 seconds.
+    Voltage         runVolts          = Volts.of(2); // Volts required to run the mechanism up. Could be negative if the mechanism is inverted.
+    Angle           limitHit          = hardUpperLimit;  // Limit which gets hit. Could be the lower limit if the volts makes the arm go down.
+    AngularVelocity velocityThreshold = DegreesPerSecond.of(2); // The maximum amount of movement for the arm to be considered "hitting the hard limit".
+    return Commands.startRun(motor::stopClosedLoopController, // Stop the closed loop controller
+                             () -> motor.setVoltage(runVolts)) // Set the voltage of the motor
+                   .until(() -> currentDebouncer.calculate(motor.getStatorCurrent().gte(threshhold) &&
+                                                           motor.getMechanismVelocity().abs(DegreesPerSecond) <=
+                                                           velocityThreshold.in(DegreesPerSecond)))
+                   .finallyDo(() -> {
+                     motor.setEncoderPosition(limitHit);
+                     motor.startClosedLoopController();
+                   });
   }
 
   public Command armCmd(double dutycycle)
