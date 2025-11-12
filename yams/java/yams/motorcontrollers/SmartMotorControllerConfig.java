@@ -58,7 +58,7 @@ public class SmartMotorControllerConfig
   /**
    * Missing options that would be decremented for each motor application.
    */
-  private final List<SmartMotorControllerOptions>         missingOptions         = Arrays.asList(
+  private final List<SmartMotorControllerOptions>         missingOptions                   = Arrays.asList(
       SmartMotorControllerOptions.values());
   /**
    * Validation set to confirm all options have been applied to the Smart Motor Controller.
@@ -109,15 +109,15 @@ public class SmartMotorControllerConfig
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ProfiledPIDController>           controller             = Optional.empty();
+  private       Optional<ProfiledPIDController>           controller                       = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ExponentialProfilePIDController> expoController         = Optional.empty();
+  private       Optional<ExponentialProfilePIDController> expoController                   = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<PIDController>                   simpleController       = Optional.empty();
+  private       Optional<PIDController>                   simpleController                 = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
@@ -137,7 +137,8 @@ public class SmartMotorControllerConfig
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private       MechanismGearing                          externalEncoderGearing = new MechanismGearing(1);
+  private       MechanismGearing                          externalEncoderGearing           = new MechanismGearing(
+      1);
   /**
    * Mechanism Circumference for distance calculations.
    */
@@ -221,7 +222,7 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private Optional<Angle> feedbackSynchronizationThreshold = Optional.of(Rotations.of(0.1));
+  private       Optional<Angle>                           feedbackSynchronizationThreshold = Optional.empty();
   /**
    * The motor controller mode.
    */

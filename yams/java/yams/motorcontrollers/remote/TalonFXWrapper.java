@@ -215,22 +215,10 @@ public class TalonFXWrapper extends SmartMotorController
   }
 
   @Override
+  @Deprecated
   public void synchronizeRelativeEncoder()
   {
-    if (m_config.getFeedbackSynchronizationThreshold().isPresent())
-    {
-      // if (sparkAbsoluteEncoder.isPresent())
-      // {
-      // if
-      // (!Rotations.of(sparkRelativeEncoder.getPosition()).isNear(Rotations.of(sparkAbsoluteEncoder.get()
-      // .getPosition()),
-      // config.getFeedbackSynchronizationThreshold()
-      // .get()))
-      // {
-      // seedRelativeEncoder();
-      // }
-      // }
-    }
+    // Unused
   }
 
   @Override

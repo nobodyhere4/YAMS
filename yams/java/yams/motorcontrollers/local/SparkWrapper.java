@@ -462,6 +462,8 @@ public class SparkWrapper extends SmartMotorController
             m_sparkAbsoluteEncoderSim.ifPresent(enc -> enc.setZeroOffset(config.getZeroOffset().get().in(Rotations)));
           }
         }
+
+//        seedRelativeEncoder();
       } else
       {
         throw new IllegalArgumentException(
