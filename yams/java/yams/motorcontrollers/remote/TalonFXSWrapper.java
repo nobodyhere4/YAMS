@@ -614,12 +614,8 @@ public class TalonFXSWrapper extends SmartMotorController
                                                            ".withClosedLoopTolerance");
     }
 
-//    if (m_config.getMotorControllerMode() == ControlMode.OPEN_LOOP)
-//    {
-//      throw new SmartMotorControllerConfigurationException("Open loop mode is the same as Closed Loop Mode",
-//                                                           "Cannot set motor controller mode to Open Loop on TalonFX",
-//                                                           ".withOpenLoopMode");
-//    }
+    // Fetch the controller mode to satisfy the requirement of knowing the control mode.
+    config.getMotorControllerMode();
 
     // Feedforwards
     Optional<ArmFeedforward>         armFeedforward         = m_config.getArmFeedforward();
