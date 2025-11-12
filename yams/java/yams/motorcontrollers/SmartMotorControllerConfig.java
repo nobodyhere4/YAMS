@@ -221,7 +221,7 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private       Optional<Angle>                               feedbackSynchronizationThreshold   = Optional.empty();
+  private Optional<Angle> feedbackSynchronizationThreshold = Optional.of(Rotations.of(0.1));
   /**
    * The motor controller mode.
    */
