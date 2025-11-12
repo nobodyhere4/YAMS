@@ -9,33 +9,33 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.ExponentiallyProfiledArmSubsystem;
+import frc.robot.subsystems.DiffyMechSubsystem;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Degrees;
 
 
 public class RobotContainer
 {
-  private ExponentiallyProfiledArmSubsystem arm = new ExponentiallyProfiledArmSubsystem();
+
+  private DiffyMechSubsystem diffyMech = new DiffyMechSubsystem();
   public CommandXboxController xboxController = new CommandXboxController(0);
 
   public RobotContainer()
   {
     DriverStation.silenceJoystickConnectionWarning(true);
-    arm.setDefaultCommand(arm.armCmd(0));
-//    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
+    diffyMech.setDefaultCommand(diffyMech.set(0, 0));
+//    diffyMech.setDefaultCommand(diffyMech.setAngle(Degrees.of(0), Degrees.of(0)));
     configureBindings();
   }
 
 
   private void configureBindings()
   {
-    xboxController.button(1).whileTrue(arm.armCmd(0.5));
-    xboxController.button(2).whileTrue(arm.armCmd(-0.5));
-    xboxController.button(3).whileTrue(arm.setAngle(Degrees.of(30)));
-    xboxController.button(4).whileTrue(arm.setAngle(Degrees.of(80)));
-    xboxController.button(5).whileTrue(arm.sysId());
-    xboxController.button(6).whileTrue(arm.homing(Amps.of(30)));
+    xboxController.button(1).whileTrue(diffyMech.setAngle(Degrees.of(15), Degrees.of(15)));
+    xboxController.button(2).whileTrue(diffyMech.setAngle(Degrees.of(30), Degrees.of(45)));
+    xboxController.button(3).whileTrue(diffyMech.set(0,0));
+    xboxController.button(4).whileTrue(diffyMech.set(0.5,0));
+    xboxController.button(5).whileTrue(diffyMech.set(0,0.5));
   }
 
 
