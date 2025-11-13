@@ -30,14 +30,14 @@ public class RobotContainer
 
   private void configureBindings()
   {
+    //RobotModeTriggers.teleop().onTrue(elevator.homing(Amps.of(1))); // Starting value for homing at the start of teleop.
     xboxController.button(1).whileTrue(arm.armCmd(0.5));
     xboxController.button(2).whileTrue(arm.armCmd(-0.5));
-    xboxController.button(3).whileTrue(arm.setAngle(Degrees.of(30)));
-    xboxController.button(4).whileTrue(arm.setAngle(Degrees.of(80)));
-    xboxController.button(5).whileTrue(arm.sysId());
-    xboxController.button(6).whileTrue(arm.homing(Amps.of(30)));
+    xboxController.button(3).whileTrue(arm.sysId());
+    xboxController.button(4).whileTrue(arm.setAngle(Degrees.of(30)));
+    xboxController.button(5).whileTrue(arm.setAngle(Degrees.of(80)));
   }
-
+  
 
   public Command getAutonomousCommand()
   {
