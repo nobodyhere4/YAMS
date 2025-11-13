@@ -107,7 +107,7 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
       .withFeedforward(armFeedforward)
       .withSoftLimit(softLowerLimit, softUpperLimit);
 
-  /// Generic Smart Motor Controller with out options and vendor motor.
+  /// Generic Smart Motor Controller with our options and vendor motor.
   private final SmartMotorController motor    = new SparkWrapper(armMotor, dcMotor, motorConfig);
   /// Arm-specific options
   private       ArmConfig            m_config = new ArmConfig(motor)
@@ -170,13 +170,13 @@ public class ExponentiallyProfiledArmSubsystem extends SubsystemBase
     return arm.set(dutycycle);
   }
 
-  public Command sysId()
-  {
-    return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30));
-  }
-
   public Command setAngle(Angle angle)
   {
     return arm.setAngle(angle);
   }
+
+  public Command sysId()
+    {
+        return arm.sysId(Volts.of(3), Volts.of(3).per(Second), Second.of(30));
+    }
 }
