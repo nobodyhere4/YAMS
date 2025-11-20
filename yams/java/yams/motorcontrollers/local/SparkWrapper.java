@@ -385,6 +385,8 @@ public class SparkWrapper extends SmartMotorController
     } else
     {
       m_closedLoopControllerThread.stop();
+      // Do nothing because we are not in closed loop mode.
+      config.getClosedLoopControlPeriod();
     }
     // Calculate Spark conversion factors
     double positionConversionFactor = config.getGearing().getRotorToMechanismRatio();

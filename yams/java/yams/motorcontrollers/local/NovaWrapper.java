@@ -279,6 +279,8 @@ public class NovaWrapper extends SmartMotorController
     } else
     {
       m_closedLoopControllerThread.stop();
+      // Do nothing because we are not in closed loop mode.
+      config.getClosedLoopControlPeriod();
     }
 
     // Ramp rates
