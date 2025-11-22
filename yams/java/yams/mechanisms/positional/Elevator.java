@@ -366,6 +366,7 @@ public class Elevator extends SmartPositionalMechanism
   @Override
   public void visualizationUpdate()
   {
+// TODO: Add setpoint ligament
     m_mechanismLigament.setLength(getHeight().in(Meters));
   }
 
