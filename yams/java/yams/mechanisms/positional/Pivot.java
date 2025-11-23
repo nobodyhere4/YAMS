@@ -353,6 +353,7 @@ public class Pivot extends SmartPositionalMechanism
   @Override
   public void visualizationUpdate()
   {
+// TODO: Add setpoint ligament
     m_mechanismLigament.setAngle(getAngle().in(Degrees));
     m_setpointLigament.setAngle(m_smc.getMechanismPositionSetpoint().orElse(getAngle()).in(Degrees));
   }
