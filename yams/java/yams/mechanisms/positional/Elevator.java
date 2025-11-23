@@ -62,7 +62,11 @@ public class Elevator extends SmartPositionalMechanism
   /**
    * Simulation for the elevator
    */
-  private       Optional<ElevatorSim> m_sim = Optional.empty();
+  private Optional<ElevatorSim> m_sim              = Optional.empty();
+  /**
+   * Mechanism ligament for the setpoint.
+   */
+  private MechanismLigament2d   m_setpointLigament = null;
 
   /**
    * Construct the {@link Elevator} class for easy manipulation of an elevator.
@@ -325,6 +329,11 @@ public class Elevator extends SmartPositionalMechanism
                                                                            config.getAngle().in(Degrees),
                                                                            6,
                                                                            config.getSimColor()));
+      m_setpointLigament = m_mechanismRoot.append(new MechanismLigament2d("Setpoint",
+                                                                          config.getStartingHeight().get().in(Meters),
+                                                                          config.getAngle().in(Degrees),
+                                                                          3,
+                                                                          new Color8Bit(Color.kWhite)));
       SmartDashboard.putData(getName() + "/mechanism", m_mechanismWindow);
     }
   }
@@ -367,6 +376,12 @@ public class Elevator extends SmartPositionalMechanism
   public void visualizationUpdate()
   {
     m_mechanismLigament.setLength(getHeight().in(Meters));
+    if (getMotor().getMechanismPositionSetpoint().isPresent())
+    {
+      m_setpointLigament.setLength(m_config.getMotor().getConfig()
+                                           .convertFromMechanism(getMotor().getMechanismPositionSetpoint().get())
+                                           .in(Meters));
+    }
   }
 
   /**
