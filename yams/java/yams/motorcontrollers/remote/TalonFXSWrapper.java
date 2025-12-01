@@ -718,13 +718,13 @@ public class TalonFXSWrapper extends SmartMotorController
                                                 : SensorDirectionValue.CounterClockwise_Positive);
 
         // Configure feedback source for CANCoder
-        if (encoder.getIsProLicensed().getValue())
-        {
-          m_talonConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.SyncCANcoder;
-        } else
-        {
+        //if (encoder.getIsProLicensed().getValue())
+        //{
+        //  m_talonConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.SyncCANcoder;
+        //} else
+        //{
           m_talonConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
-        }
+        //}
         // Zero offset
         if (config.getZeroOffset().isPresent())
         {
