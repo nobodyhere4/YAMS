@@ -144,19 +144,19 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * Temperature status
    */
-  private final StatusSignal<Temperature>     m_deviceTemperature;
+  private final StatusSignal<Temperature> m_deviceTemperature;
   /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private final Optional<CANcoder>            m_cancoder        = Optional.empty();
+  private       Optional<CANcoder>        m_cancoder = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private final Optional<CANdi>               m_candi           = Optional.empty();
+  private       Optional<CANdi>           m_candi    = Optional.empty();
   /**
    * Exponent profile enabled.
    */
-  private       boolean                       expEnabled        = false;
+  private       boolean                   expEnabled = false;
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
@@ -708,6 +708,7 @@ public class TalonFXSWrapper extends SmartMotorController
                                                                     .getMechanismToRotorRatio();
       if (config.getExternalEncoder().get() instanceof CANcoder encoder)
       {
+        m_cancoder = Optional.of((CANcoder) config.getExternalEncoder().get());
         var configurator = encoder.getConfigurator();
         var cfg          = new CANcoderConfiguration();
         configurator.refresh(cfg);
@@ -740,6 +741,7 @@ public class TalonFXSWrapper extends SmartMotorController
         configurator.apply(cfg);
       } else if (config.getExternalEncoder().get() instanceof CANdi encoder)
       {
+        m_candi = Optional.of((CANdi) config.getExternalEncoder().get());
         var configurator = encoder.getConfigurator();
         var cfg          = new CANdiConfiguration();
         configurator.refresh(cfg);
