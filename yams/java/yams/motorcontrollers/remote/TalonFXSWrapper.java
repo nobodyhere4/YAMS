@@ -700,7 +700,7 @@ public class TalonFXSWrapper extends SmartMotorController
                                     " because an external encoder is used!", false);
       }
       // Set the gear ratio for external encoders.
-      m_talonConfig.Feedback.RotorToSensorRatio = config.getGearing().getRotorToMechanismRatio() * config.getExternalEncoderGearing()
+      m_talonConfig.ExternalFeedback.RotorToSensorRatio = config.getGearing().getRotorToMechanismRatio() * config.getExternalEncoderGearing()
                                                             .getMechanismToRotorRatio();
       // config.getExternalEncoderGearing().getMechanismToRotorRatio() *
       m_talonConfig.ExternalFeedback.SensorToMechanismRatio = config.getExternalEncoderGearing()
