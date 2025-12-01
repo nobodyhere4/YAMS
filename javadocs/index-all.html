@@ -1041,6 +1041,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the lower soft limit of the shooter.</div>
 </dd>
+<dt><a href="yams/mechanisms/config/SwerveDriveConfig.html#getMapleDriveSim()" class="member-name-link">getMapleDriveSim()</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></dt>
+<dd>
+<div class="block">Get the <code>SelfControlledSwerveDriveSimulation</code> if it is configured.</div>
+</dd>
+<dt><a href="yams/mechanisms/swerve/SwerveDrive.html#getMapleSimPose()" class="member-name-link">getMapleSimPose()</a> - Method in class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve">SwerveDrive</a></dt>
+<dd>
+<div class="block">Gets the actual pose in the <code>SimulatedArena</code> from MapleSim.</div>
+</dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getMaxDiscontinuityPoint()" class="member-name-link">getMaxDiscontinuityPoint()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
 <div class="block">Get the discontinuity point for the <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a> encoder.</div>
@@ -3444,6 +3452,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Create the <a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for the <a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
 </dd>
+<dt><a href="yams/exceptions/SwerveDriveConfigurationException.html" class="type-name-link" title="class in yams.exceptions">SwerveDriveConfigurationException</a> - Exception in <a href="yams/exceptions/package-summary.html">yams.exceptions</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="yams/exceptions/SwerveDriveConfigurationException.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">SwerveDriveConfigurationException(String, String, String)</a> - Constructor for exception yams.exceptions.<a href="yams/exceptions/SwerveDriveConfigurationException.html" title="class in yams.exceptions">SwerveDriveConfigurationException</a></dt>
+<dd>
+<div class="block">SwerveDrive configuration exception.</div>
+</dd>
 <dt><a href="yams/mechanisms/swerve/utility/SwerveInputStream.html" class="type-name-link" title="class in yams.mechanisms.swerve.utility">SwerveInputStream</a> - Class in <a href="yams/mechanisms/swerve/utility/package-summary.html">yams.mechanisms.swerve.utility</a></dt>
 <dd>
 <div class="block">Helper class to easily transform Controller inputs into workable Chassis speeds.</div>
@@ -4087,6 +4101,10 @@ the order they are declared.</div>
 <dt><a href="yams/mechanisms/config/FlyWheelConfig.html#withLowerSoftLimit(edu.wpi.first.units.measure.AngularVelocity)" class="member-name-link">withLowerSoftLimit(AngularVelocity)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/FlyWheelConfig.html" title="class in yams.mechanisms.config">FlyWheelConfig</a></dt>
 <dd>
 <div class="block">Set the minimum velocity of the shooter.</div>
+</dd>
+<dt><a href="yams/mechanisms/config/SwerveDriveConfig.html#withMapleSim(org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig,edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">withMapleSim(DriveTrainSimulationConfig, Pose2d)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></dt>
+<dd>
+<div class="block">Sets up MapleSim Physics Collision support on the simulated <a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a>.</div>
 </dd>
 <dt><a href="yams/mechanisms/config/ArmConfig.html#withMass(edu.wpi.first.units.measure.Mass)" class="member-name-link">withMass(Mass)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/ArmConfig.html" title="class in yams.mechanisms.config">ArmConfig</a></dt>
 <dd>
