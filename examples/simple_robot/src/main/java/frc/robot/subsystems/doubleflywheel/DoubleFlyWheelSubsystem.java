@@ -45,7 +45,8 @@ public class DoubleFlyWheelSubsystem extends SubsystemBase
                                 0,
                                 0) // You generally do not want a profile because its not a position controlled loop.
       .withFeedforward(new SimpleMotorFeedforward(0, 0, 0)) // Helps track changing RPM goals
-      .withMotorInverted(false);
+      .withMotorInverted(false)
+      .withTelemetry("UpperFlyWheel", SmartMotorControllerConfig.TelemetryVerbosity.HIGH);
 
   private SmartMotorControllerConfig lowerFlyWheelConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
@@ -57,7 +58,8 @@ public class DoubleFlyWheelSubsystem extends SubsystemBase
                                 0,
                                 0) // You generally do not want a profile because its not a position controlled loop.
       .withFeedforward(new SimpleMotorFeedforward(0, 0, 0)) // Helps track changing RPM goals
-      .withMotorInverted(false);
+      .withMotorInverted(false)
+      .withTelemetry("LowerFlyWheel", SmartMotorControllerConfig.TelemetryVerbosity.HIGH);
 
 
   private SmartMotorController upperFlyWheel = new TalonFXWrapper(new TalonFX(6),
@@ -146,5 +148,17 @@ public class DoubleFlyWheelSubsystem extends SubsystemBase
     }).withName("Set Speed For Distance");
   }
 
+  @Override
+  public void periodic()
+  {
+    upperFlyWheel.updateTelemetry();
+    lowerFlyWheel.updateTelemetry();
+  }
+
+  public void simulationPeriodic()
+  {
+    upperFlyWheel.simIterate();
+    lowerFlyWheel.simIterate();
+  }
 }
 
