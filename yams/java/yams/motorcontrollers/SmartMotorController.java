@@ -796,13 +796,9 @@ public abstract class SmartMotorController
   {
     if (telemetryTable.isPresent() && m_config.getVerbosity().isPresent())
     {
-//      telemetry.refresh(this);
       telemetry.publish(this);
-      // if(tuningTable.isPresent())
-      //   telemetry.applyChanges(this);
 
     }
-    // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
   }
 
   /**
