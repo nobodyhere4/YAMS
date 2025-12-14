@@ -712,13 +712,9 @@ public abstract class SmartMotorController
                                                                                                                      TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
-        Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
-                                                 m_config.getSubsystem())
-                                            .finallyDo(() -> System.err.println(
-                                                "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
-        liveTuningCommand.setName("LiveTuning");
-        liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/LiveTuning", liveTuningCommand);
+        SmartMotorControllerCommandRegistry.addCommand("Live Tuning",
+                                                       m_config.getSubsystem(),
+                                                       () -> this.telemetry.applyTuningValues(this));
         Command setEncoderToZero = Commands.runOnce(() -> {
           System.out.println(
               "=====================================================\nSET ENCODER TO ZERO\n=====================================================");
@@ -729,7 +725,8 @@ public abstract class SmartMotorController
         }, m_config.getSubsystem());
         setEncoderToZero.setName("ZeroEncoder");
         setEncoderToZero.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/ZeroEncoder", setEncoderToZero);
+        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/ZeroEncoder",
+                               setEncoderToZero);
         Debouncer              currentDebouncer  = new Debouncer(0.1);
         Debouncer              velocityDebouncer = new Debouncer(0.25);
         AtomicReference<Angle> startingAngle     = new AtomicReference<>(Rotations.zero());
@@ -784,7 +781,6 @@ public abstract class SmartMotorController
         testDownCommand.setName("Down");
         testDownCommand.setSubsystem(m_config.getSubsystem().getName());
         SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/Down", testDownCommand);
-
       }
     }
   }
