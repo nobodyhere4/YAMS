@@ -40,7 +40,7 @@ public class SmartMotorControllerCommandRegistry
       }
     }, subsystem).withName(cmdName);
     commands.put(key, cmd);
-    SmartDashboard.putData("Mechanism/Commands/" + key, cmd);
+    SmartDashboard.putData("Mechanisms/Commands/" + key, cmd);
   }
 
   /**

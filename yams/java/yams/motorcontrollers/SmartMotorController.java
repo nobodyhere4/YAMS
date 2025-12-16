@@ -23,6 +23,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -786,6 +787,16 @@ public abstract class SmartMotorController
   }
 
   /**
+   * Setup Telemetry with default NT path
+   */
+  public void setupTelemetry()
+  {
+    var tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning");
+    var networkTable       = NetworkTableInstance.getDefault().getTable("Mechanisms");
+    setupTelemetry(networkTable, tuningNetworkTable);
+  }
+
+  /**
    * Update the telemetry under the motor name under the given {@link NetworkTable}
    */
   public void updateTelemetry()
@@ -793,7 +804,9 @@ public abstract class SmartMotorController
     if (telemetryTable.isPresent() && m_config.getVerbosity().isPresent())
     {
       telemetry.publish(this);
-
+    } else if (m_config.getVerbosity().isPresent())
+    {
+      setupTelemetry();
     }
   }
 
