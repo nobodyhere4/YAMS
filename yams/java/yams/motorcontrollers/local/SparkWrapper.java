@@ -358,7 +358,8 @@ public class SparkWrapper extends SmartMotorController
       {
         if (m_simplePidController.isEmpty())
         {
-          throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
+          if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+          {throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");}
         }
       } else if (config.getSimpleClosedLoopController().isPresent())
       {
@@ -376,17 +377,17 @@ public class SparkWrapper extends SmartMotorController
         // Set closed loop tolerance and profile tolerance to the same thing.
         if (config.getMechanismCircumference().isPresent())
         {
-          m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance)
-                                                                                      .in(Meters)));
-          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
-              tolerance).in(Meters)));
+//          m_pidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(tolerance)
+//                                                                                      .in(Meters)));
+//          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
+//              tolerance).in(Meters)));
           m_expoPidController.ifPresent(pidController -> pidController.setTolerance(config.convertFromMechanism(
                                                                                               tolerance)
                                                                                           .in(Meters)));
         } else
         {
-          m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
-          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+//          m_pidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
+//          m_simplePidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
           m_expoPidController.ifPresent(pidController -> pidController.setTolerance(tolerance.in(Rotations)));
         }
       });
@@ -414,6 +415,10 @@ public class SparkWrapper extends SmartMotorController
       } else
       {
         m_closedLoopControllerThread.stop();
+        if (config.getClosedLoopControlPeriod().isPresent())
+        {
+          throw new IllegalArgumentException("[Error] Closed loop control period is only supported in closed loop mode.");
+        }
       }
     }
 
@@ -585,6 +590,31 @@ public class SparkWrapper extends SmartMotorController
         m_sparkRelativeEncoder.setPosition(m_sparkAbsoluteEncoder.get().getPosition());
       }
 
+    } else
+    {
+
+      if (config.getZeroOffset().isPresent())
+      {
+        throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders",
+                                                             "Zero offset could not be applied",
+                                                             ".withExternalEncoderZeroOffset");
+      }
+
+      if (config.getExternalEncoderInverted())
+      {
+        throw new SmartMotorControllerConfigurationException(
+            "External encoder cannot be inverted because no external encoder exists",
+            "External encoder could not be inverted",
+            "withExternalEncoderInverted");
+      }
+
+      if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
+      {
+        throw new SmartMotorControllerConfigurationException(
+            "External encoder gearing is not supported when there is no external encoder",
+            "External encoder gearing could not be set",
+            "withExternalEncoderGearing");
+      }
     }
 
     // Configure follower motors
@@ -922,7 +952,7 @@ public class SparkWrapper extends SmartMotorController
       expoPidController.setI(kI);
       expoPidController.setD(kD);
     });
-    m_sparkBaseConfig.closedLoop.pid(kP,kI,kD);
+    m_sparkBaseConfig.closedLoop.pid(kP, kI, kD);
     m_spark.configureAsync(m_sparkBaseConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
