@@ -259,6 +259,15 @@ public class SparkWrapper extends SmartMotorController
   }
 
   @Override
+  public void setIdleMode(MotorMode mode)
+  {
+    m_sparkBaseConfig.idleMode(mode == MotorMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
+    configureSpark(() -> m_spark.configure(m_sparkBaseConfig,
+                                           ResetMode.kNoResetSafeParameters,
+                                           PersistMode.kPersistParameters));
+  }
+
+  @Override
   public void setEncoderVelocity(LinearVelocity velocity)
   {
     setEncoderVelocity(m_config.convertToMechanism(velocity));
@@ -518,10 +527,10 @@ public class SparkWrapper extends SmartMotorController
       m_sparkRelativeEncoder.setPosition(config.getStartingPosition().get().in(Rotations));
     }
     // PID Wrapping
-    if (config.getDiscontinuityPoint().isPresent())
+    if (config.getMaxDiscontinuityPoint().isPresent())
     {
       m_sparkBaseConfig.closedLoop
-          .positionWrappingMaxInput(config.getDiscontinuityPoint().get().in(Rotations))
+          .positionWrappingMaxInput(config.getMaxDiscontinuityPoint().get().in(Rotations))
           .positionWrappingEnabled(true);
     }
 
