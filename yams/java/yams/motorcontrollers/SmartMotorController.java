@@ -713,9 +713,8 @@ public abstract class SmartMotorController
                                                                                                                      TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
-        SmartMotorControllerCommandRegistry.addCommand("Live Tuning",
-                                                       m_config.getSubsystem(),
-                                                       () -> this.telemetry.applyTuningValues(this));
+        var telemetryPath    = telemetryTable.get().getPath().substring(1).split("/");
+        var telemetryPathStr = telemetryPath[0] + "/Commands/" + telemetryPath[telemetryPath.length - 1];
         Command setEncoderToZero = Commands.runOnce(() -> {
           System.out.println(
               "=====================================================\nSET ENCODER TO ZERO\n=====================================================");
@@ -726,8 +725,7 @@ public abstract class SmartMotorController
         }, m_config.getSubsystem());
         setEncoderToZero.setName("ZeroEncoder");
         setEncoderToZero.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/ZeroEncoder",
-                               setEncoderToZero);
+
         Debouncer              currentDebouncer  = new Debouncer(0.1);
         Debouncer              velocityDebouncer = new Debouncer(0.25);
         AtomicReference<Angle> startingAngle     = new AtomicReference<>(Rotations.zero());
@@ -756,7 +754,6 @@ public abstract class SmartMotorController
                                         });
         testUpCommand.setName("Up");
         testUpCommand.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/Up", testUpCommand);
         Command testDownCommand = Commands.startRun(() -> {
                                             System.out.println(
                                                 "=====================================================\nTEST DOWN\n=====================================================");
@@ -781,7 +778,12 @@ public abstract class SmartMotorController
                                           });
         testDownCommand.setName("Down");
         testDownCommand.setSubsystem(m_config.getSubsystem().getName());
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/Commands/Down", testDownCommand);
+        SmartMotorControllerCommandRegistry.addCommand("Live Tuning",
+                                                       m_config.getSubsystem(),
+                                                       () -> this.telemetry.applyTuningValues(this));
+        SmartDashboard.putData(telemetryPathStr + "/ZeroEncoder", setEncoderToZero);
+        SmartDashboard.putData(telemetryPathStr + "/Up", testUpCommand);
+        SmartDashboard.putData(telemetryPathStr + "/Down", testDownCommand);
       }
     }
   }

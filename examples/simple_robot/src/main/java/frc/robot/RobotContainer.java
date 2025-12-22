@@ -11,12 +11,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.doubleflywheel.DoubleFlyWheelSubsystem;
 
 public class RobotContainer
 {
 
-  //  private final ArmSubsystem arm = new ArmSubsystem();
+  private final ArmSubsystem arm = new ArmSubsystem();
   private final DoubleFlyWheelSubsystem flyWheelSubsystem = new DoubleFlyWheelSubsystem();
 //  private final DiffyMechSubsystem m_diffyMechSubsystem = new DiffyMechSubsystem();
 //  private final DoubleJointedArmSubsystem jointedArm = new DoubleJointedArmSubsystem();
