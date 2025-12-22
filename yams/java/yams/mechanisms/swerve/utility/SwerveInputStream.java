@@ -1,5 +1,8 @@
 package yams.mechanisms.swerve.utility;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -17,6 +20,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -25,6 +29,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import yams.mechanisms.config.SwerveDriveConfig;
 import yams.mechanisms.swerve.SwerveDrive;
 
 /**
@@ -289,7 +294,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Robot-Relative {@link ChassisSpeeds} output.
    * @return self
    */
-  public SwerveInputStream robotRelative(BooleanSupplier enabled)
+  public SwerveInputStream withRobotRelative(BooleanSupplier enabled)
   {
     robotRelative = Optional.of(enabled);
     return this;
@@ -298,14 +303,13 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   /**
    * Set the stream to output robot relative {@link ChassisSpeeds}
    *
-   * @param enabled Robot-Relative {@link ChassisSpeeds} output.
    * @return self
    */
-  public SwerveInputStream robotRelative(boolean enabled)
+  public SwerveInputStream withRobotRelative()
   {
-    robotRelative = enabled ? Optional.of(() -> enabled) : Optional.empty();
-    return this;
+    return withRobotRelative(() -> true);
   }
+
 
   /**
    * Drive to a given pose with the provided {@link ProfiledPIDController}s
@@ -315,6 +319,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param omegaPIDController PID Controller for rotational axis, units are rad/s.
    * @return self
    */
+  @Deprecated(since = "2025.10.31", forRemoval = true)
   public SwerveInputStream driveToPose(Supplier<Pose2d> pose, ProfiledPIDController xPIDController,
                                        ProfiledPIDController omegaPIDController)
   {
@@ -335,6 +340,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Enable state of drive to pose.
    * @return self.
    */
+  @Deprecated(since = "2025.10.31", forRemoval = true)
   public SwerveInputStream driveToPoseEnabled(BooleanSupplier enabled)
   {
     driveToPoseEnabled = Optional.of(enabled);
@@ -347,6 +353,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Enable state of drive to pose.
    * @return self.
    */
+  @Deprecated(since = "2025.10.31", forRemoval = true)
   public SwerveInputStream driveToPoseEnabled(boolean enabled)
   {
     driveToPoseEnabled = enabled ? Optional.of(() -> enabled) : Optional.empty();
@@ -362,24 +369,14 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   /**
    * Heading offset enabled boolean supplier.
    *
+   * @param angle {@link Rotation2d} offset to apply
    * @param enabled Enable state
    * @return self
    */
-  public SwerveInputStream translationHeadingOffset(BooleanSupplier enabled)
+  public SwerveInputStream withTranslationHeadingOffset(Rotation2d angle, BooleanSupplier enabled)
   {
+    translationHeadingOffset = Optional.of(angle);
     translationHeadingOffsetEnabled = Optional.of(enabled);
-    return this;
-  }
-
-  /**
-   * Heading offset enable
-   *
-   * @param enabled Enable state
-   * @return self
-   */
-  public SwerveInputStream translationHeadingOffset(boolean enabled)
-  {
-    translationHeadingOffsetEnabled = enabled ? Optional.of(() -> enabled) : Optional.empty();
     return this;
   }
 
@@ -389,10 +386,19 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param angle {@link Rotation2d} offset to apply
    * @return self
    */
-  public SwerveInputStream translationHeadingOffset(Rotation2d angle)
+  public SwerveInputStream withTranslationHeadingOffset(Rotation2d angle)
   {
-    translationHeadingOffset = Optional.of(angle);
-    return this;
+    return withTranslationHeadingOffset(angle, () -> true);
+  }
+
+  /**
+   * Modify the output {@link ChassisSpeeds} so that it is always relative to your alliance.
+   *
+   * @return self
+   */
+  public SwerveInputStream withAllianceRelativeControl()
+  {
+    return withAllianceRelativeControl(() -> true);
   }
 
   /**
@@ -401,21 +407,9 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Alliance aware {@link ChassisSpeeds} output.
    * @return self
    */
-  public SwerveInputStream allianceRelativeControl(BooleanSupplier enabled)
+  public SwerveInputStream withAllianceRelativeControl(BooleanSupplier enabled)
   {
-    allianceRelative = Optional.of(enabled);
-    return this;
-  }
-
-  /**
-   * Modify the output {@link ChassisSpeeds} so that it is always relative to your alliance.
-   *
-   * @param enabled Alliance aware {@link ChassisSpeeds} output.
-   * @return self
-   */
-  public SwerveInputStream allianceRelativeControl(boolean enabled)
-  {
-    allianceRelative = enabled ? Optional.of(() -> enabled) : Optional.empty();
+    allianceRelative = Optional.ofNullable(enabled);
     return this;
   }
 
@@ -425,7 +419,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Enabled state for the stream.
    * @return self.
    */
-  public SwerveInputStream cubeRotationControllerAxis(BooleanSupplier enabled)
+  public SwerveInputStream withCubeRotationControllerAxis(BooleanSupplier enabled)
   {
     omegaCube = Optional.of(enabled);
     return this;
@@ -434,13 +428,11 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   /**
    * Cube the angular velocity controller axis for a non-linear controls scheme.
    *
-   * @param enabled Enabled state for the stream.
    * @return self.
    */
-  public SwerveInputStream cubeRotationControllerAxis(boolean enabled)
+  public SwerveInputStream withCubeRotationControllerAxis()
   {
-    omegaCube = Optional.of(() -> enabled);
-    return this;
+    return withCubeRotationControllerAxis(() -> true);
   }
 
   /**
@@ -449,22 +441,20 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param enabled Enabled state for the stream
    * @return self
    */
-  public SwerveInputStream cubeTranslationControllerAxis(BooleanSupplier enabled)
+  public SwerveInputStream withCubeTranslationControllerAxis(BooleanSupplier enabled)
   {
-    translationOnlyEnabled = Optional.of(enabled);
+    translationCube = Optional.of(enabled);
     return this;
   }
 
   /**
    * Cube the translation axis magnitude for a non-linear control scheme
    *
-   * @param enabled Enabled state for the stream
    * @return self
    */
-  public SwerveInputStream cubeTranslationControllerAxis(boolean enabled)
+  public SwerveInputStream withCubeTranslationControllerAxis()
   {
-    translationCube = enabled ? Optional.of(() -> enabled) : Optional.empty();
-    return this;
+    return withCubeTranslationControllerAxis(() -> true);
   }
 
   /**
@@ -505,13 +495,25 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
     return this;
   }
 
+
+  /**
+   * Set a deadband for all controller axis.
+   *
+   * @param deadband Deadband to set, should be between [0, 1)
+   * @return self
+   */
+  public SwerveInputStream withDeadband(double deadband)
+  {
+    return deadband(deadband);
+  }
+
   /**
    * Scale the translation axis for {@link SwerveInputStream} by a constant scalar value.
    *
    * @param scaleTranslation Translation axis scalar value. (0, 1]
    * @return this
    */
-  public SwerveInputStream scaleTranslation(double scaleTranslation)
+  public SwerveInputStream withScaleTranslation(double scaleTranslation)
   {
     translationAxisScale = scaleTranslation == 0 ? Optional.empty() : Optional.of(scaleTranslation);
     return this;
@@ -523,7 +525,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param scaleRotation Angular velocity axis scalar value. (0, 1]
    * @return this
    */
-  public SwerveInputStream scaleRotation(double scaleRotation)
+  public SwerveInputStream withScaleRotation(double scaleRotation)
   {
     omegaAxisScale = scaleRotation == 0 ? Optional.empty() : Optional.of(scaleRotation);
     return this;
@@ -535,69 +537,24 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param trigger Supplier to use.
    * @return this.
    */
-  public SwerveInputStream headingWhile(BooleanSupplier trigger)
+  public SwerveInputStream withHeadingControl(BooleanSupplier trigger)
   {
     headingEnabled = Optional.of(trigger);
     return this;
   }
 
-  /**
-   * Set the heading enable state.
-   *
-   * @param headingState Heading enabled state.
-   * @return this
-   */
-  public SwerveInputStream headingWhile(boolean headingState)
-  {
-    if (headingState)
-    {
-      headingEnabled = Optional.of(() -> true);
-    } else
-    {
-      headingEnabled = Optional.empty();
-    }
-    return this;
-  }
 
   /**
    * Aim the {@link SwerveDrive} at this pose while driving.
    *
+   * @param trigger When True will enable aiming at the current target.
    * @param aimTarget {@link Pose2d} to point at.
    * @return this
    */
-  public SwerveInputStream aim(Pose2d aimTarget)
+  public SwerveInputStream withAim(Pose2d aimTarget, BooleanSupplier trigger)
   {
     this.aimTarget = aimTarget.equals(Pose2d.kZero) ? Optional.empty() : Optional.of(aimTarget);
-    return this;
-  }
-
-  /**
-   * Enable aiming while the trigger is true.
-   *
-   * @param trigger When True will enable aiming at the current target.
-   * @return this.
-   */
-  public SwerveInputStream aimWhile(BooleanSupplier trigger)
-  {
     aimEnabled = Optional.of(trigger);
-    return this;
-  }
-
-  /**
-   * Enable aiming while the trigger is true.
-   *
-   * @param trigger When True will enable aiming at the current target.
-   * @return this.
-   */
-  public SwerveInputStream aimWhile(boolean trigger)
-  {
-    if (trigger)
-    {
-      aimEnabled = Optional.of(() -> true);
-    } else
-    {
-      aimEnabled = Optional.empty();
-    }
     return this;
   }
 
@@ -607,28 +564,46 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    * @param trigger Translation only while returns true.
    * @return this
    */
-  public SwerveInputStream translationOnlyWhile(BooleanSupplier trigger)
+  public SwerveInputStream withTranslationOnly(BooleanSupplier trigger)
   {
     translationOnlyEnabled = Optional.of(trigger);
     return this;
   }
 
+
   /**
-   * Enable locking of rotation and only translating, overrides everything.
-   *
-   * @param translationState Translation only if true.
-   * @return this
+   * Reset the drive to pose PID controllers when switching targets.
    */
-  public SwerveInputStream translationOnlyWhile(boolean translationState)
+  @Deprecated(since = "2025.10.31", forRemoval = true)
+  public void resetDriveToPosePIDControllers()
   {
-    if (translationState)
-    {
-      translationOnlyEnabled = Optional.of(() -> true);
-    } else
-    {
-      translationOnlyEnabled = Optional.empty();
-    }
-    return this;
+    driveToPoseOmegaPIDController.ifPresent(pid -> pid.reset(swerveDrive.getPose().getRotation().getRadians()));
+    driveToPoseTranslationPIDController.ifPresent(pid -> pid.reset(driveToPoseDistance().in(Meters)));
+  }
+
+  /**
+   * Get the drive to pose translation distance between the current pose and the target pose.
+   *
+   * @return {@link Distance} in meters between the current pose and the target pose.
+   */
+  @Deprecated(since = "2025.10.31", forRemoval = true)
+  private Distance driveToPoseDistance()
+  {
+    Pose2d swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
+    return swerveDrive.getDistanceFromPose(swervePoseSetpoint);
+  }
+
+  /**
+   * Get the drive to pose {@link Rotation2d} between the current pose and the target pose.
+   *
+   * @return Difference between the target pose and the current pose {@link Rotation2d} in radians..
+   */
+  @Deprecated(since = "2025.10.31", forRemoval = true)
+  private Rotation2d driveToPoseRotation()
+  {
+    Pose2d swervePoseSetpoint = driveToPose.orElse(swerveDrive::getPose).get();
+    Pose2d robotPose          = swerveDrive.getPose();
+    return swervePoseSetpoint.getRotation().minus(robotPose.getRotation());
   }
 
   /**
@@ -638,7 +613,9 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    */
   private SwerveInputMode findMode()
   {
-    if (driveToPoseEnabled.isPresent() && driveToPoseEnabled.get().getAsBoolean())
+    if (driveToPoseEnabled.isPresent() && driveToPoseEnabled.get().getAsBoolean() && driveToPoseDistance().lte(
+        Centimeters.of(1)) &&
+        driveToPoseRotation().getMeasure().lte(Degrees.of(1)))
     {
       if (driveToPose.isPresent())
       {
@@ -738,8 +715,9 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
       }
       case DRIVE_TO_POSE ->
       {
-        swerveDrive.resetAzimuthPID();
-        swerveDrive.resetTranslationPID();
+        resetDriveToPosePIDControllers();
+//        swerveDrive.resetAzimuthPID();
+//        swerveDrive.resetTranslationPID();
         break;
       }
     }
@@ -753,11 +731,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    */
   private double applyDeadband(double axisValue)
   {
-    if (axisDeadband.isPresent())
-    {
-      return MathUtil.applyDeadband(axisValue, axisDeadband.get());
-    }
-    return axisValue;
+    return axisDeadband.map(aDouble -> MathUtil.applyDeadband(axisValue, aDouble)).orElse(axisValue);
   }
 
   /**
@@ -768,11 +742,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    */
   private double applyRotationalScalar(double axisValue)
   {
-    if (omegaAxisScale.isPresent())
-    {
-      return axisValue * omegaAxisScale.get();
-    }
-    return axisValue;
+    return omegaAxisScale.map(aDouble -> axisValue * aDouble).orElse(axisValue);
   }
 
   /**
@@ -784,10 +754,11 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
    */
   private Translation2d applyTranslationScalar(double xAxis, double yAxis)
   {
-    return translationAxisScale.map(aDouble -> SwerveDrive.scaleTranslation(new Translation2d(xAxis, yAxis),
-                                                                            aDouble)).orElseGet(() -> new Translation2d(
-        xAxis,
-        yAxis));
+    return translationAxisScale.map(aDouble -> SwerveDriveConfig.scaleTranslation(new Translation2d(xAxis, yAxis),
+                                                                                  aDouble))
+                               .orElseGet(() -> new Translation2d(
+                                   xAxis,
+                                   yAxis));
   }
 
   /**
@@ -800,7 +771,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
   {
     if (translationCube.isPresent() && translationCube.get().getAsBoolean())
     {
-      return SwerveDrive.cubeTranslation(translation);
+      return SwerveDriveConfig.cubeTranslation(translation);
     }
     return translation;
   }
@@ -894,7 +865,7 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
     if (currentMode != SwerveInputMode.DRIVE_TO_POSE)
     {
       DriverStation.reportError("SwerveInputStream.atTargetPose called while not set to DriveToPose.", false);
-      if (!driveToPose.isPresent())
+      if (driveToPose.isEmpty())
       {
         return true;
       }
@@ -989,9 +960,9 @@ public class SwerveInputStream implements Supplier<ChassisSpeeds>
       case DRIVE_TO_POSE ->
       {
         // Written by team 8865!
-        ProfiledPIDController translationPIDController = driveToPoseTranslationPIDController.get();
-        ProfiledPIDController rotationPIDController    = driveToPoseOmegaPIDController.get();
-        Pose2d                swervePoseSetpoint       = driveToPose.get().get();
+        ProfiledPIDController translationPIDController = driveToPoseTranslationPIDController.orElseThrow();
+        ProfiledPIDController rotationPIDController    = driveToPoseOmegaPIDController.orElseThrow();
+        Pose2d                swervePoseSetpoint       = driveToPose.orElse(swerveDrive::getPose).get();
         Pose2d                robotPose                = swerveDrive.getPose();
         Vector<N2>            robotVec                 = robotPose.getTranslation().toVector();
         Vector<N2> targetPoseRelativeToRobotPose = swervePoseSetpoint.getTranslation().toVector().minus(

@@ -24,12 +24,14 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -40,7 +42,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import yams.exceptions.SmartMotorControllerConfigurationException;
-import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.math.ExponentialProfilePIDController;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
@@ -52,146 +53,14 @@ public class SmartMotorControllerConfig
 {
 
   /**
-   * Basic Options that should be applied to every {@link SmartMotorController}
+   * Subsystem that the {@link SmartMotorController} controls.
    */
-  private enum BasicOptions
-  {
-    /**
-     * Control Mode
-     */
-    ControlMode,
-    /**
-     * Feedback Synchronization for encoder seeding.
-     */
-    FeedbackSynchronizationThreshold,
-    /**
-     * Closed loop controller maximum voltage
-     */
-    ClosedLoopControllerMaximumVoltage,
-    /**
-     * Starting mechanism position of the {@link SmartMotorController}
-     */
-    StartingPosition,
-    /**
-     * Integrated Encoder Inverted
-     */
-    EncoderInverted,
-    /**
-     * Motor inversion state
-     */
-    MotorInverted,
-    /**
-     * Temperature Cutoff
-     */
-    TemperatureCutoff,
-    /**
-     * Continuous Wrapping
-     */
-    DiscontinuityPoint,
-    /**
-     * Closed Loop Tolerance
-     */
-    ClosedLoopTolerance,
-
-//    Telemetry,
-//    TelemetryVerbosity,
-//    SpecifiedTelemetryConfig,
-    /**
-     * Closed loop controller upper limit.
-     */
-    UpperLimit,
-    /**
-     * Closed loop controller lower limit.
-     */
-    LowerLimit,
-//    MomentOfInertia,
-    /**
-     * Motor idle mode.
-     */
-    IdleMode,
-    /**
-     * Voltage compensation.
-     */
-    VoltageCompensation,
-    /**
-     * Follower motors
-     */
-    Followers,
-    /**
-     * Stator current limits.
-     */
-    StatorCurrentLimit,
-    /**
-     * Supply current limits.
-     */
-    SupplyCurrentLimit,
-    /**
-     * Closed loop ramp rate.
-     */
-    ClosedLoopRampRate,
-    /**
-     * Open loop ramp rate.
-     */
-    OpenLoopRampRate,
-    /**
-     * External encoder used.
-     */
-    ExternalEncoder,
-    /**
-     * Mechanism gearing from rotor to mechanisms.
-     */
-    Gearing,
-    //    MechanismCircumference,
-    /**
-     * Closed loop control period
-     */
-    ClosedLoopControlPeriod,
-    /**
-     * Simple motor feedforward
-     */
-    SimpleFeedforward,
-    /**
-     * Arm feedforward.
-     */
-    ArmFeedforward,
-    /**
-     * Elevator feedforward
-     */
-    ElevatorFeedforward,
-    /**
-     * Simple closed loop controller.
-     */
-    SimpleClosedLoopController,
-    /**
-     * Motion profiled closed loop controller.
-     */
-    ClosedLoopController,
-
-  }
-
+  private final Subsystem                                 subsystem;
   /**
-   * External encoder options
+   * Missing options that would be decremented for each motor application.
    */
-  private enum ExternalEncoderOptions
-  {
-    /**
-     * External encoder offset.
-     */
-    ZeroOffset,
-    /**
-     * Use the encoder as a feedback device.
-     */
-    UseExternalFeedbackEncoder,
-    /**
-     * External gearing.
-     */
-    ExternalGearing,
-    /**
-     * External encoder inversion.
-     */
-    ExternalEncoderInverted
-  }
-
+  private final List<SmartMotorControllerOptions>         missingOptions                   = Arrays.asList(
+      SmartMotorControllerOptions.values());
   /**
    * Validation set to confirm all options have been applied to the Smart Motor Controller.
    */
@@ -202,15 +71,6 @@ public class SmartMotorControllerConfig
    */
   private       Set<ExternalEncoderOptions>                   externalEncoderOptions             = EnumSet.allOf(
       ExternalEncoderOptions.class);
-  /**
-   * Subsystem that the {@link SmartMotorController} controls.
-   */
-  private final Subsystem                                     subsystem;
-  /**
-   * Missing options that would be decremented for each motor application.
-   */
-  private final List<SmartMotorControllerOptions>             missingOptions                     = Arrays.asList(
-      SmartMotorControllerOptions.values());
   /**
    * External encoder.
    */
@@ -250,15 +110,15 @@ public class SmartMotorControllerConfig
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ProfiledPIDController>           controller       = Optional.empty();
+  private       Optional<ProfiledPIDController>           controller                       = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ExponentialProfilePIDController> expoController   = Optional.empty();
+  private       Optional<ExponentialProfilePIDController> expoController                   = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<PIDController>                   simpleController = Optional.empty();
+  private       Optional<PIDController>                   simpleController                 = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
@@ -278,9 +138,8 @@ public class SmartMotorControllerConfig
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private       MechanismGearing                              externalEncoderGearing             = new MechanismGearing(
-      new GearBox(
-          new double[]{1.0}));
+  private       MechanismGearing                          externalEncoderGearing           = new MechanismGearing(
+      1);
   /**
    * Mechanism Circumference for distance calculations.
    */
@@ -364,7 +223,7 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private       Optional<Angle>                               feedbackSynchronizationThreshold   = Optional.empty();
+  private       Optional<Angle>                           feedbackSynchronizationThreshold = Optional.empty();
   /**
    * The motor controller mode.
    */
@@ -526,12 +385,12 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the zero offset of the {@link SmartMotorController}
+   * Set the zero offset of the {@link SmartMotorController}'s external Encoder.
    *
    * @param distance Zero offset in distance.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withZeroOffset(Distance distance)
+  public SmartMotorControllerConfig withExternalEncoderZeroOffset(Distance distance)
   {
     if (mechanismCircumference.isEmpty())
     {
@@ -544,12 +403,12 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the zero offset of the {@link SmartMotorController}
+   * Set the zero offset of the {@link SmartMotorController}'s external Encoder.
    *
    * @param angle {@link Angle} to 0.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withZeroOffset(Angle angle)
+  public SmartMotorControllerConfig withExternalEncoderZeroOffset(Angle angle)
   {
     zeroOffset = Optional.ofNullable(angle);
     return this;
@@ -580,6 +439,8 @@ public class SmartMotorControllerConfig
                                                                                     top.in(Rotations)));
     controller.ifPresent(profiledPIDController -> profiledPIDController.enableContinuousInput(bottom.in(Rotations),
                                                                                               top.in(Rotations)));
+    expoController.ifPresent(expoController -> expoController.enableContinuousInput(bottom.in(Rotations),
+                                                                                    top.in(Rotations)));
     if (simpleController.isEmpty() && controller.isEmpty())
     {
       throw new SmartMotorControllerConfigurationException("No PID controller used",
@@ -998,6 +859,19 @@ public class SmartMotorControllerConfig
   }
 
   /**
+   * Set the {@link MechanismGearing} for the {@link SmartMotorController}.
+   *
+   * @param reductionRatio Reduction ratio, for example, a ratio of "3:1" is 3; a ratio of "1:2" is 0.5.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withGearing(double reductionRatio)
+  {
+    gearing = new MechanismGearing(reductionRatio);
+    return this;
+  }
+
+
+  /**
    * Set the mechanism circumference to allow distance calculations on the {@link SmartMotorController}.
    *
    * @param circumference Circumference of the actuating spool or sprocket+chain attached the mechanism actuator.
@@ -1052,6 +926,18 @@ public class SmartMotorControllerConfig
   public SmartMotorControllerConfig withClosedLoopControlPeriod(Time time)
   {
     controlPeriod = Optional.of(time);
+    return this;
+  }
+
+  /**
+   * Modify the period of the PID controller for the motor controller.
+   *
+   * @param time Period of the motor controller PID.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withClosedLoopControlPeriod(Frequency time)
+  {
+    controlPeriod = Optional.of(time.asPeriod());
     return this;
   }
 
@@ -1326,9 +1212,6 @@ public class SmartMotorControllerConfig
     return this;
   }
 
-  // TODO: Add exp profile where the user defines max vel, and max accel.
-
-
   /**
    * Set the closed loop controller for the {@link SmartMotorController}, the units passed in are in Rotations (or
    * Meters if Mechanism Circumference is configured), the outputs are in Volts.
@@ -1364,6 +1247,8 @@ public class SmartMotorControllerConfig
     this.simpleController = Optional.ofNullable(controller);
     return this;
   }
+
+  // TODO: Add exp profile where the user defines max vel, and max accel.
 
   /**
    * Set the closed loop controller for the {@link SmartMotorController}. Units are Meters.
@@ -1818,14 +1703,44 @@ public class SmartMotorControllerConfig
   }
 
   /**
-   * Set the external encoder gearing. Default is a 1:1 with MAX Planetary.
+   * Set the external encoder gearing.
    *
    * @param externalEncoderGearing External encoder gearing.
    * @return {@link SmartMotorControllerConfig} for chaining.
    */
-  public SmartMotorControllerConfig withExternalGearing(MechanismGearing externalEncoderGearing)
+  public SmartMotorControllerConfig withExternalEncoderGearing(MechanismGearing externalEncoderGearing)
   {
+    if (externalEncoderGearing.getRotorToMechanismRatio() > 1)
+    {
+      DriverStation.reportWarning(
+          "[IMPORTANT] Your gearing is set in a way that the external encoder will exceed the maximum reading, " +
+          "this WILL result in multiple angle's being read as the same 'angle.\n\t" +
+          "Ignore this warning IF your mechanism will never travel outside of the slice you are reading, adjust the offset accordingly.\n\t" +
+          "You have been warned! (^.^) - Rivet",
+          true);
+    }
     this.externalEncoderGearing = externalEncoderGearing;
+    return this;
+  }
+
+  /**
+   * Set the external encoder gearing.
+   *
+   * @param reductionRatio External encoder gearing. For example, a ratio of "3:1" is 3; "1:2" is 0.5
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   */
+  public SmartMotorControllerConfig withExternalEncoderGearing(double reductionRatio)
+  {
+    if (reductionRatio > 1)
+    {
+      DriverStation.reportWarning(
+          "[IMPORTANT] Your gearing is set in a way that the external encoder will exceed the maximum reading, " +
+          "this WILL result in multiple angle's being read as the same 'angle.\n\t" +
+          "Ignore this warning IF your mechanism will never travel outside of the slice you are reading, adjust the offset accordingly.\n\t" +
+          "You have been warned! (^.^) - Rivet",
+          true);
+    }
+    this.externalEncoderGearing = new MechanismGearing(reductionRatio);
     return this;
   }
 
@@ -1834,7 +1749,7 @@ public class SmartMotorControllerConfig
    *
    * @return {@link Angle} where the encoder wraps around.
    */
-  public Optional<Angle> getDiscontinuityPoint()
+  public Optional<Angle> getMaxDiscontinuityPoint()
   {
     if (maxDiscontinuityPoint.isPresent() && minDiscontinuityPoint.isPresent() && !minDiscontinuityPoint.get().equals(
         Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)))
@@ -1848,6 +1763,28 @@ public class SmartMotorControllerConfig
     }
     basicOptions.remove(BasicOptions.DiscontinuityPoint);
     return maxDiscontinuityPoint;
+
+  }
+
+  /**
+   * Get the discontinuity point for the {@link SmartMotorController} encoder.
+   *
+   * @return {@link Angle} where the encoder wraps around.
+   */
+  public Optional<Angle> getMinDiscontinuityPoint()
+  {
+    if (maxDiscontinuityPoint.isPresent() && minDiscontinuityPoint.isPresent() && !minDiscontinuityPoint.get().equals(
+        Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)))
+    {
+      throw new SmartMotorControllerConfigurationException("Bounds are not correct!",
+                                                           "Cannot get the discontinuity point.",
+                                                           "withContinuousWrapping(Rotations.of(" +
+                                                           Rotations.of(maxDiscontinuityPoint.get().in(Rotations) - 1)
+                                                                    .in(Rotations) + "),Rotations.of(" +
+                                                           maxDiscontinuityPoint.get().in(Rotations) + ")) instead ");
+    }
+//    basicOptions.remove(BasicOptions.DiscontinuityPoint);
+    return minDiscontinuityPoint;
 
   }
 
@@ -1903,6 +1840,147 @@ public class SmartMotorControllerConfig
   {
     externalEncoderOptions.remove(ExternalEncoderOptions.ExternalEncoderInverted);
     return externalEncoderInverted;
+  }
+
+  /**
+   * Basic Options that should be applied to every {@link SmartMotorController}
+   */
+  private enum BasicOptions
+  {
+    /**
+     * Control Mode
+     */
+    ControlMode,
+    /**
+     * Feedback Synchronization for encoder seeding.
+     */
+    FeedbackSynchronizationThreshold,
+    /**
+     * Closed loop controller maximum voltage
+     */
+    ClosedLoopControllerMaximumVoltage,
+    /**
+     * Starting mechanism position of the {@link SmartMotorController}
+     */
+    StartingPosition,
+    /**
+     * Integrated Encoder Inverted
+     */
+    EncoderInverted,
+    /**
+     * Motor inversion state
+     */
+    MotorInverted,
+    /**
+     * Temperature Cutoff
+     */
+    TemperatureCutoff,
+    /**
+     * Continuous Wrapping
+     */
+    DiscontinuityPoint,
+    /**
+     * Closed Loop Tolerance
+     */
+    ClosedLoopTolerance,
+
+//    Telemetry,
+//    TelemetryVerbosity,
+//    SpecifiedTelemetryConfig,
+    /**
+     * Closed loop controller upper limit.
+     */
+    UpperLimit,
+    /**
+     * Closed loop controller lower limit.
+     */
+    LowerLimit,
+//    MomentOfInertia,
+    /**
+     * Motor idle mode.
+     */
+    IdleMode,
+    /**
+     * Voltage compensation.
+     */
+    VoltageCompensation,
+    /**
+     * Follower motors
+     */
+    Followers,
+    /**
+     * Stator current limits.
+     */
+    StatorCurrentLimit,
+    /**
+     * Supply current limits.
+     */
+    SupplyCurrentLimit,
+    /**
+     * Closed loop ramp rate.
+     */
+    ClosedLoopRampRate,
+    /**
+     * Open loop ramp rate.
+     */
+    OpenLoopRampRate,
+    /**
+     * External encoder used.
+     */
+    ExternalEncoder,
+    /**
+     * Mechanism gearing from rotor to mechanisms.
+     */
+    Gearing,
+    //    MechanismCircumference,
+    /**
+     * Closed loop control period
+     */
+    ClosedLoopControlPeriod,
+    /**
+     * Simple motor feedforward
+     */
+    SimpleFeedforward,
+    /**
+     * Arm feedforward.
+     */
+    ArmFeedforward,
+    /**
+     * Elevator feedforward
+     */
+    ElevatorFeedforward,
+    /**
+     * Simple closed loop controller.
+     */
+    SimpleClosedLoopController,
+    /**
+     * Motion profiled closed loop controller.
+     */
+    ClosedLoopController,
+
+  }
+
+  /**
+   * External encoder options
+   */
+  private enum ExternalEncoderOptions
+  {
+    /**
+     * External encoder offset.
+     */
+    ZeroOffset,
+    /**
+     * Use the encoder as a feedback device.
+     */
+    UseExternalFeedbackEncoder,
+    /**
+     * External gearing.
+     */
+    ExternalGearing,
+    /**
+     * External encoder inversion.
+     */
+    ExternalEncoderInverted
   }
 
   /**

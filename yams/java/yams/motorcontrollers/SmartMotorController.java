@@ -1,8 +1,13 @@
 package yams.motorcontrollers;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -15,8 +20,10 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -43,6 +50,7 @@ import yams.exceptions.SmartMotorControllerConfigurationException;
 import yams.gearing.MechanismGearing;
 import yams.math.ExponentialProfilePIDController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.telemetry.SmartMotorControllerTelemetry;
 import yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField;
@@ -88,10 +96,6 @@ public abstract class SmartMotorController
    */
   protected Notifier                                      m_closedLoopControllerThread  = null;
   /**
-   * Running status of the closed loop controller.
-   */
-  private   boolean                                       m_closedLoopControllerRunning = false;
-  /**
    * Parent table for telemetry.
    */
   protected Optional<NetworkTable>                        parentTable                   = Optional.empty();
@@ -111,7 +115,10 @@ public abstract class SmartMotorController
    * {@link SimSupplier} for the mechanism.
    */
   protected Optional<SimSupplier>                         m_simSupplier                 = Optional.empty();
-
+  /**
+   * Running status of the closed loop controller.
+   */
+  private boolean m_closedLoopControllerRunning = false;
 
   /**
    * Create a {@link SmartMotorController} wrapper from the provided motor controller object.
@@ -296,12 +303,12 @@ public abstract class SmartMotorController
       {
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMechanismPosition().in(Rotations),
                                                                  setpointPosition.get().in(Rotations)));
-        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Radians),
                                                                    m_expoPidController.get()
                                                                                       .getCurrentVelocitySetpoint()
-                                                                                      .in(RotationsPerSecond),
+                                                                                      .in(RadiansPerSecond),
                                                                    m_expoPidController.get().getNextVelocitySetpoint()
-                                                                                      .in(RotationsPerSecond));
+                                                                                      .in(RadiansPerSecond));
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_expoPidController.get().calculate(getMeasurementPosition().in(Meters),
@@ -333,11 +340,12 @@ public abstract class SmartMotorController
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMechanismPosition().in(Rotations),
                                                              setpointPosition.get().in(Rotations)));
-        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Rotations),
+        feedforward = armFeedforward.get().calculateWithVelocities(getMechanismPosition().in(Radians),
                                                                    getMechanismVelocity().in(
-                                                                       RotationsPerSecond),
-                                                                   m_pidController.get()
-                                                                                  .getSetpoint().velocity);
+                                                                       RadiansPerSecond),
+                                                                   RotationsPerSecond.of(m_pidController.get()
+                                                                                                        .getSetpoint().velocity)
+                                                                                     .in(RadiansPerSecond));
       } else if (elevatorFeedforward.isPresent())
       {
         pidOutputVoltage.set(m_pidController.get().calculate(getMeasurementPosition().in(Meters),
@@ -376,6 +384,11 @@ public abstract class SmartMotorController
           pidOutputVoltage.set(pid.calculate(getMechanismVelocity().in(RotationsPerSecond),
                                              setpointVelocity.get().in(RotationsPerSecond)));
         });
+        if (simpleMotorFeedforward.isPresent())
+        {
+          feedforward = simpleMotorFeedforward.get().calculateWithVelocities(getMechanismVelocity().in(
+              RotationsPerSecond), setpointVelocity.get().in(RotationsPerSecond));
+        }
       }
     }
     if (mechUpperLimit.isPresent())
@@ -433,6 +446,13 @@ public abstract class SmartMotorController
    * Simulation iteration.
    */
   public abstract void simIterate();
+
+  /**
+   * Set the motor idle mode from COAST or BRAKE.
+   *
+   * @param mode {@link MotorMode} selected.
+   */
+  public abstract void setIdleMode(MotorMode mode);
 
   /**
    * Set the encoder velocity
@@ -693,16 +713,89 @@ public abstract class SmartMotorController
                                                                                                                      TelemetryVerbosity.HIGH)));
         }
         updateTelemetry();
-        Command liveTuningCommand = Commands.run(() -> this.telemetry.applyTuningValues(this),
-                                                 m_config.getSubsystem())
-                                            .finallyDo(() -> System.err.println(
-                                                "=====================================================\nLIVE TUNING MODE STOP\n====================================================="));
-        liveTuningCommand.setName("LiveTuning");
-        liveTuningCommand.setSubsystem(m_config.getSubsystem().getName());
-        System.out.println("SmartDashboard/" + telemetryTable.get().getPath().substring(1));
-        SmartDashboard.putData(telemetryTable.get().getPath().substring(1) + "/LiveTuning", liveTuningCommand);
+        var telemetryPath    = telemetryTable.get().getPath().substring(1).split("/");
+        var telemetryPathStr = telemetryPath[0] + "/Commands/" + telemetryPath[telemetryPath.length - 1];
+        Command setEncoderToZero = Commands.runOnce(() -> {
+          System.out.println(
+              "=====================================================\nSET ENCODER TO ZERO\n=====================================================");
+          System.out.println(
+              "Current Mechanism Position: " + getMechanismPosition().in(Degrees) + "° Current Velocity: " +
+              getRotorVelocity());
+          setEncoderPosition(Rotations.zero());
+        }, m_config.getSubsystem());
+        setEncoderToZero.setName("ZeroEncoder");
+        setEncoderToZero.setSubsystem(m_config.getSubsystem().getName());
+
+        Debouncer              currentDebouncer  = new Debouncer(0.1);
+        Debouncer              velocityDebouncer = new Debouncer(0.25);
+        AtomicReference<Angle> startingAngle     = new AtomicReference<>(Rotations.zero());
+        Command testUpCommand = Commands.startRun(() -> {
+
+                                          System.out.println(
+                                              "=====================================================\nTEST UP\n=====================================================");
+                                          System.out.println(
+                                              "Test will end whe Mechanism Velocity exceeds or equals 3°/s OR the Stator current exceeds 40A OR after 0.5 seconds");
+                                          stopClosedLoopController();
+                                          setDutyCycle(0);
+                                          startingAngle.set(getMechanismPosition());
+                                        }, () -> {
+
+                                          setDutyCycle(getDutyCycle() + 0.001);
+                                        }, m_config.getSubsystem()).until(() -> velocityDebouncer.calculate(
+                                            getMechanismVelocity().abs(DegreesPerSecond) >= 3) ||
+                                                                                currentDebouncer.calculate(
+                                                                                    getStatorCurrent().gte(Amps.of(40))))
+                                        .withTimeout(Seconds.of(0.5))
+                                        .finallyDo(() -> {
+                                          setDutyCycle(0);
+                                          if (getMechanismPosition().lte(startingAngle.get()))
+                                          {System.out.println(getName() + " needs to be inverted");}
+                                          startClosedLoopController();
+                                        });
+        testUpCommand.setName("Up");
+        testUpCommand.setSubsystem(m_config.getSubsystem().getName());
+        Command testDownCommand = Commands.startRun(() -> {
+                                            System.out.println(
+                                                "=====================================================\nTEST DOWN\n=====================================================");
+                                            System.out.println(
+                                                "Test will end whe Mechanism Velocity exceeds or equals 3°/s OR the Stator current exceeds 40A after 0.5seconds");
+                                            stopClosedLoopController();
+                                            setDutyCycle(0);
+                                            startingAngle.set(getMechanismPosition());
+                                          }, () -> {
+
+                                            setDutyCycle(getDutyCycle() - 0.001);
+                                          }, m_config.getSubsystem()).until(() -> velocityDebouncer.calculate(
+                                              getMechanismVelocity().abs(DegreesPerSecond) >= 3) ||
+                                                                                  currentDebouncer.calculate(
+                                                                                      getStatorCurrent().gte(Amps.of(40))))
+                                          .withTimeout(Seconds.of(0.5))
+                                          .finallyDo(() -> {
+                                            setDutyCycle(0);
+                                            if (getMechanismPosition().gte(startingAngle.get()))
+                                            {System.out.println(getName() + " needs to be inverted");}
+                                            startClosedLoopController();
+                                          });
+        testDownCommand.setName("Down");
+        testDownCommand.setSubsystem(m_config.getSubsystem().getName());
+        SmartMotorControllerCommandRegistry.addCommand("Live Tuning",
+                                                       m_config.getSubsystem(),
+                                                       () -> this.telemetry.applyTuningValues(this));
+        SmartDashboard.putData(telemetryPathStr + "/ZeroEncoder", setEncoderToZero);
+        SmartDashboard.putData(telemetryPathStr + "/Up", testUpCommand);
+        SmartDashboard.putData(telemetryPathStr + "/Down", testDownCommand);
       }
     }
+  }
+
+  /**
+   * Setup Telemetry with default NT path
+   */
+  public void setupTelemetry()
+  {
+    var tuningNetworkTable = NetworkTableInstance.getDefault().getTable("Tuning");
+    var networkTable       = NetworkTableInstance.getDefault().getTable("Mechanisms");
+    setupTelemetry(networkTable, tuningNetworkTable);
   }
 
   /**
@@ -712,13 +805,11 @@ public abstract class SmartMotorController
   {
     if (telemetryTable.isPresent() && m_config.getVerbosity().isPresent())
     {
-//      telemetry.refresh(this);
       telemetry.publish(this);
-      // if(tuningTable.isPresent())
-      //   telemetry.applyChanges(this);
-
+    } else if (m_config.getVerbosity().isPresent())
+    {
+      setupTelemetry();
     }
-    // TODO: Update PID, Feedforward, current limits, soft limits, ramp rate, motor inversion, encoder inversion
   }
 
   /**

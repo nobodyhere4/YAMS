@@ -1,16 +1,11 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
-import static yams.mechanisms.SmartMechanism.gearbox;
-import static yams.mechanisms.SmartMechanism.gearing;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -20,8 +15,10 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
-import yams.mechanisms.config.ShooterConfig;
-import yams.mechanisms.velocity.Shooter;
+import yams.gearing.GearBox;
+import yams.gearing.MechanismGearing;
+import yams.mechanisms.config.FlyWheelConfig;
+import yams.mechanisms.velocity.FlyWheel;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -39,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase
 //          .withMechanismUpperLimit();
   private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withClosedLoopController(1, 0, 0, RPM.of(10000), RPM.per(Second).of(60))
-      .withGearing(gearing(gearbox(3, 4)))
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.COAST)
       .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
@@ -51,21 +48,21 @@ public class ShooterSubsystem extends SubsystemBase
       .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController       motor       = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
-  private final ShooterConfig shooterConfig = new ShooterConfig(motor)
+  private final SmartMotorController motor         = new SparkWrapper(armMotor, DCMotor.getNEO(1), motorConfig);
+  private final FlyWheelConfig       shooterConfig = new FlyWheelConfig(motor)
       // Diameter of the flywheel.
       .withDiameter(Inches.of(4))
       // Mass of the flywheel.
       .withMass(Pounds.of(1))
       .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
-  private final Shooter       shooter       = new Shooter(shooterConfig);
+  private final FlyWheel             shooter       = new FlyWheel(shooterConfig);
 
   public ShooterSubsystem() {}
 
   /**
    * Gets the current velocity of the shooter.
    *
-   * @return Shooter velocity.
+   * @return FlyWheel velocity.
    */
   public AngularVelocity getVelocity() {return shooter.getSpeed();}
 

@@ -146,6 +146,12 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
+  public void setIdleMode(MotorMode mode)
+  {
+    m_nova.setBrakeMode(mode == MotorMode.BRAKE);
+  }
+
+  @Override
   public void setEncoderVelocity(AngularVelocity velocity)
   {
 //    m_sim.ifPresent(dcMotorSim -> dcMotorSim.setAngularVelocity(velocity.in(RadiansPerSecond)));
@@ -213,7 +219,8 @@ public class NovaWrapper extends SmartMotorController
       {
         if (m_simplePidController.isEmpty())
         {
-          throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");
+          if (config.getMotorControllerMode() == ControlMode.CLOSED_LOOP)
+          {throw new IllegalArgumentException("[ERROR] closed loop controller must not be empty");}
         }
       } else if (config.getSimpleClosedLoopController().isPresent())
       {
@@ -272,6 +279,10 @@ public class NovaWrapper extends SmartMotorController
     } else
     {
       m_closedLoopControllerThread.stop();
+      if (config.getClosedLoopControlPeriod().isPresent())
+      {
+        throw new IllegalArgumentException("[Error] Closed loop control period is only supported in closed loop mode.");
+      }
     }
 
     // Ramp rates
@@ -353,7 +364,7 @@ public class NovaWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("Zero offset is unavailable for ThriftyNova",
                                                              "Zero offset could not be applied",
-                                                             ".withZeroOffset");
+                                                             ".withExternalEncoderZeroOffset");
 //        m_nova.setAbsOffset(config.getZeroOffset().get().in(Rotations));
       }
       if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
@@ -367,7 +378,7 @@ public class NovaWrapper extends SmartMotorController
       {
         throw new SmartMotorControllerConfigurationException("Zero offset is only available for external encoders",
                                                              "Zero offset could not be applied",
-                                                             ".withZeroOffset");
+                                                             ".withExternalEncoderZeroOffset");
       }
 
       if (config.getExternalEncoderGearing().getRotorToMechanismRatio() != 1.0)
@@ -403,10 +414,19 @@ public class NovaWrapper extends SmartMotorController
       }
     }
 
-    if (config.getDiscontinuityPoint().isPresent())
+    if (config.getMaxDiscontinuityPoint().isPresent() &&
+        !(m_expoPidController.isPresent() || m_pidController.isPresent() || m_simplePidController.isPresent()))
     {
       throw new IllegalArgumentException(
           "[ERROR] ThriftyNova does not support discontinuity points, or we have not implemented this.");
+    } else if (config.getMaxDiscontinuityPoint().isPresent() && config.getMinDiscontinuityPoint().isPresent())
+    {
+      var max = config.getMaxDiscontinuityPoint().get().in(Rotations);
+      var min = config.getMinDiscontinuityPoint().get().in(Rotations);
+
+      m_pidController.ifPresent(pidController -> {pidController.enableContinuousInput(min, max);});
+      m_expoPidController.ifPresent(pidController -> {pidController.enableContinuousInput(min, max);});
+      m_simplePidController.ifPresent(pidController -> {pidController.enableContinuousInput(min, max);});
     }
 
     config.validateBasicOptions();

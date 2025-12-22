@@ -21,6 +21,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import yams.gearing.GearBox;
+import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.positional.Arm;
@@ -33,6 +35,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase
 {
+  // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
 
   private final SparkMax                   armMotor         = new SparkMax(1, MotorType.kBrushless);
   //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
@@ -43,7 +46,7 @@ public class ArmSubsystem extends SubsystemBase
   private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
       .withSoftLimit(Degrees.of(-30), Degrees.of(100))
-      .withGearing(gearing(gearbox(3, 4)))
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
 //      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
