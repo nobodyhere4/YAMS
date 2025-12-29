@@ -783,7 +783,7 @@ public class SmartMotorControllerConfig
    * Set the follower motors of the {@link SmartMotorController}
    *
    * @param followers Base motor types (NOT {@link SmartMotorController}!) to configure as followers, must be same brand
-   *                  as the {@link SmartMotorController} with inversion..
+   *                  as the {@link SmartMotorController} with inversion from the base motor.
    * @return {@link SmartMotorControllerConfig} for chaining
    */
   @SafeVarargs
