@@ -55,7 +55,7 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private final Subsystem                                 subsystem;
+  private       Optional<Subsystem>                       subsystem                        = Optional.empty();
   /**
    * Missing options that would be decremented for each motor application.
    */
@@ -254,7 +254,37 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig(Subsystem subsystem)
   {
-    this.subsystem = subsystem;
+    this.subsystem = Optional.of(subsystem);
+  }
+
+  /**
+   * Construct the {@link SmartMotorControllerConfig} with a {@link Subsystem} added later.
+   *
+   * @implNote You must use {@link #withSubsystem(Subsystem)} before passing off to {@link SmartMotorController}
+   */
+  public SmartMotorControllerConfig()
+  {
+  }
+
+
+  /**
+   * Sets the {@link Subsystem} for the {@link SmartMotorControllerConfig} to pass along to {@link SmartMotorController}
+   * and {@link yams.mechanisms.SmartMechanism}s. Must be set if a {@link Subsystem} was not defined previously.
+   *
+   * @param subsystem {@link Subsystem} to use.
+   * @return {@link SmartMotorControllerConfig} for chaining.
+   * @implNote Does not copy the entire config, should NEVER be reused.
+   */
+  public SmartMotorControllerConfig withSubsystem(Subsystem subsystem)
+  {
+    if (this.subsystem.isPresent())
+    {
+      throw new SmartMotorControllerConfigurationException("Subsystem has already been set",
+                                                           "Cannot set subsystem",
+                                                           "withSubsystem(Subsystem subsystem) should only be called once");
+    }
+    this.subsystem = Optional.of(subsystem);
+    return this;
   }
 
   /**
@@ -1478,7 +1508,13 @@ public class SmartMotorControllerConfig
    */
   public Subsystem getSubsystem()
   {
-    return subsystem;
+    if (subsystem.isEmpty())
+    {
+      throw new SmartMotorControllerConfigurationException("Subsystem is undefined",
+                                                           "Subsystem cannot be created.",
+                                                           "withSubsystem(Subsystem)");
+    }
+    return subsystem.orElseThrow();
   }
 
   /**
