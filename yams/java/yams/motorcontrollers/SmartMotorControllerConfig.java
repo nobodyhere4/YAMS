@@ -254,7 +254,7 @@ public class SmartMotorControllerConfig
    */
   public SmartMotorControllerConfig(Subsystem subsystem)
   {
-    this.subsystem = Optional.of(subsystem);
+    this.subsystem = Optional.ofNullable(subsystem);
   }
 
   /**
