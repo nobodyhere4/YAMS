@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
-import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -23,7 +22,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class DiffDriveSubsystem extends SubsystemBase
 {
 
-  private MechanismGearing gearing       = new MechanismGearing(GearBox.fromReductionStages(3, 4));
+  private MechanismGearing gearing = new MechanismGearing(3, 4);
   private Distance         wheelDiameter = Inches.of(4);
 
   private SparkMax leftMotor  = new SparkMax(21, SparkMax.MotorType.kBrushless);
