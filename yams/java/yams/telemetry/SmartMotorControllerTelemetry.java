@@ -330,6 +330,18 @@ public class SmartMotorControllerTelemetry
   }
 
   /**
+   * Whether or not tuning is enabled.
+   *
+   * @return Checks if {@link DoubleTelemetryField#TunableSetpointPosition} or
+   * {@link DoubleTelemetryField#TunableSetpointVelocity} are enabled.
+   */
+  public boolean tuningEnabled()
+  {
+    return doubleFields.get(DoubleTelemetryField.TunableSetpointPosition).enabled || doubleFields.get(
+        DoubleTelemetryField.TunableSetpointVelocity).enabled;
+  }
+
+  /**
    * Boolean telemetry for {@link SmartMotorController}s
    */
   public enum BooleanTelemetryField
