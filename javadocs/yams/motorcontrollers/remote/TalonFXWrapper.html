@@ -129,7 +129,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://api.ctr-electronics.com/phoenix6/release/java/com/ctre/phoenix6/StatusCode.html" title="class or interface in com.ctre.phoenix6" class="external-link">StatusCode</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forceConfigApply()" class="member-name-link">forceConfigApply</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Ensure setting is applied.</div>
+<div class="block">Ensure setting is applied, retries every 10ms.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getConfig()" class="member-name-link">getConfig</a>()</code></div>
@@ -972,7 +972,11 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="forceConfigApply()">
 <h3>forceConfigApply</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://api.ctr-electronics.com/phoenix6/release/java/com/ctre/phoenix6/StatusCode.html" title="class or interface in com.ctre.phoenix6" class="external-link">StatusCode</a></span>&nbsp;<span class="element-name">forceConfigApply</span>()</div>
-<div class="block">Ensure setting is applied.</div>
+<div class="block">Ensure setting is applied, retries every 10ms.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><a href="https://api.ctr-electronics.com/phoenix6/release/java/com/ctre/phoenix6/StatusCode.html" title="class or interface in com.ctre.phoenix6" class="external-link"><code>StatusCode</code></a> from the device.</dd>
+</dl>
 </section>
 </li>
 <li>

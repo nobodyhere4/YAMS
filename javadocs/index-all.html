@@ -618,11 +618,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="yams/motorcontrollers/remote/TalonFXSWrapper.html#forceConfigApply()" class="member-name-link">forceConfigApply()</a> - Method in class yams.motorcontrollers.remote.<a href="yams/motorcontrollers/remote/TalonFXSWrapper.html" title="class in yams.motorcontrollers.remote">TalonFXSWrapper</a></dt>
 <dd>
-<div class="block">Ensure setting is applied.</div>
+<div class="block">Ensure setting is applied, retries every 10ms.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/remote/TalonFXWrapper.html#forceConfigApply()" class="member-name-link">forceConfigApply()</a> - Method in class yams.motorcontrollers.remote.<a href="yams/motorcontrollers/remote/TalonFXWrapper.html" title="class in yams.motorcontrollers.remote">TalonFXWrapper</a></dt>
 <dd>
-<div class="block">Ensure setting is applied.</div>
+<div class="block">Ensure setting is applied, retries every 10ms.</div>
 </dd>
 <dt><a href="yams/units/YUnits.html#Fortnight" class="member-name-link">Fortnight</a> - Static variable in class yams.units.<a href="yams/units/YUnits.html" title="class in yams.units">YUnits</a></dt>
 <dd>
@@ -1060,14 +1060,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="yams/mechanisms/config/FlyWheelConfig.html#getLowerSoftLimit()" class="member-name-link">getLowerSoftLimit()</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/FlyWheelConfig.html" title="class in yams.mechanisms.config">FlyWheelConfig</a></dt>
 <dd>
 <div class="block">Get the lower soft limit of the shooter.</div>
-</dd>
-<dt><a href="yams/mechanisms/config/SwerveDriveConfig.html#getMapleDriveSim()" class="member-name-link">getMapleDriveSim()</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></dt>
-<dd>
-<div class="block">Get the <code>SelfControlledSwerveDriveSimulation</code> if it is configured.</div>
-</dd>
-<dt><a href="yams/mechanisms/swerve/SwerveDrive.html#getMapleSimPose()" class="member-name-link">getMapleSimPose()</a> - Method in class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve">SwerveDrive</a></dt>
-<dd>
-<div class="block">Gets the actual pose in the <code>SimulatedArena</code> from MapleSim.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#getMaxDiscontinuityPoint()" class="member-name-link">getMaxDiscontinuityPoint()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
 <dd>
@@ -1688,6 +1680,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the supply stall current limit.</div>
 </dd>
+<dt><a href="yams/motorcontrollers/local/SparkWrapper.html#getSysIdConfig(edu.wpi.first.units.measure.Voltage,edu.wpi.first.units.measure.Velocity,edu.wpi.first.units.measure.Time)" class="member-name-link">getSysIdConfig(Voltage, Velocity&lt;VoltageUnit&gt;, Time)</a> - Method in class yams.motorcontrollers.local.<a href="yams/motorcontrollers/local/SparkWrapper.html" title="class in yams.motorcontrollers.local">SparkWrapper</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="yams/motorcontrollers/remote/TalonFXSWrapper.html#getSysIdConfig(edu.wpi.first.units.measure.Voltage,edu.wpi.first.units.measure.Velocity,edu.wpi.first.units.measure.Time)" class="member-name-link">getSysIdConfig(Voltage, Velocity&lt;VoltageUnit&gt;, Time)</a> - Method in class yams.motorcontrollers.remote.<a href="yams/motorcontrollers/remote/TalonFXSWrapper.html" title="class in yams.motorcontrollers.remote">TalonFXSWrapper</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="yams/motorcontrollers/remote/TalonFXWrapper.html#getSysIdConfig(edu.wpi.first.units.measure.Voltage,edu.wpi.first.units.measure.Velocity,edu.wpi.first.units.measure.Time)" class="member-name-link">getSysIdConfig(Voltage, Velocity&lt;VoltageUnit&gt;, Time)</a> - Method in class yams.motorcontrollers.remote.<a href="yams/motorcontrollers/remote/TalonFXWrapper.html" title="class in yams.motorcontrollers.remote">TalonFXWrapper</a></dt>
@@ -2366,7 +2360,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Nova wrapper for <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a></div>
 </dd>
-<dt><a href="yams/motorcontrollers/local/NovaWrapper.html#%3Cinit%3E(com.thethriftybot.ThriftyNova,edu.wpi.first.math.system.plant.DCMotor,yams.motorcontrollers.SmartMotorControllerConfig)" class="member-name-link">NovaWrapper(ThriftyNova, DCMotor, SmartMotorControllerConfig)</a> - Constructor for class yams.motorcontrollers.local.<a href="yams/motorcontrollers/local/NovaWrapper.html" title="class in yams.motorcontrollers.local">NovaWrapper</a></dt>
+<dt><a href="yams/motorcontrollers/local/NovaWrapper.html#%3Cinit%3E(com.thethriftybot.devices.ThriftyNova,edu.wpi.first.math.system.plant.DCMotor,yams.motorcontrollers.SmartMotorControllerConfig)" class="member-name-link">NovaWrapper(ThriftyNova, DCMotor, SmartMotorControllerConfig)</a> - Constructor for class yams.motorcontrollers.local.<a href="yams/motorcontrollers/local/NovaWrapper.html" title="class in yams.motorcontrollers.local">NovaWrapper</a></dt>
 <dd>
 <div class="block">Construct the Nova Wrapper for the generic <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a>.</div>
 </dd>
@@ -3485,7 +3479,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Supply current limit.</div>
 </dd>
 <dt><a href="yams/mechanisms/swerve/SwerveDrive.html" class="type-name-link" title="class in yams.mechanisms.swerve">SwerveDrive</a> - Class in <a href="yams/mechanisms/swerve/package-summary.html">yams.mechanisms.swerve</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Swerve Drive mechanism</div>
+</dd>
 <dt><a href="yams/mechanisms/swerve/SwerveDrive.html#%3Cinit%3E(yams.mechanisms.config.SwerveDriveConfig)" class="member-name-link">SwerveDrive(SwerveDriveConfig)</a> - Constructor for class yams.mechanisms.swerve.<a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve">SwerveDrive</a></dt>
 <dd>
 <div class="block">Create a SwerveDrive.</div>
@@ -3499,7 +3495,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Create the <a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for the <a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
 </dd>
 <dt><a href="yams/exceptions/SwerveDriveConfigurationException.html" class="type-name-link" title="class in yams.exceptions">SwerveDriveConfigurationException</a> - Exception in <a href="yams/exceptions/package-summary.html">yams.exceptions</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">SwerveDrive Config Exception</div>
+</dd>
 <dt><a href="yams/exceptions/SwerveDriveConfigurationException.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">SwerveDriveConfigurationException(String, String, String)</a> - Constructor for exception yams.exceptions.<a href="yams/exceptions/SwerveDriveConfigurationException.html" title="class in yams.exceptions">SwerveDriveConfigurationException</a></dt>
 <dd>
 <div class="block">SwerveDrive configuration exception.</div>
@@ -3724,7 +3722,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Validate all required options are at least fetched and handled in each <a href="yams/motorcontrollers/SmartMotorController.html" title="class in yams.motorcontrollers"><code>SmartMotorController</code></a> wrapper.</div>
 </dd>
 <dt><a href="yams/motorcontrollers/SmartMotorControllerConfig.html#validateExternalEncoderOptions()" class="member-name-link">validateExternalEncoderOptions()</a> - Method in class yams.motorcontrollers.<a href="yams/motorcontrollers/SmartMotorControllerConfig.html" title="class in yams.motorcontrollers">SmartMotorControllerConfig</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Validate external encoder config options for the config.</div>
+</dd>
 <dt><a href="yams/mechanisms/config/MechanismPositionConfig.Plane.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class yams.mechanisms.config.<a href="yams/mechanisms/config/MechanismPositionConfig.Plane.html" title="enum class in yams.mechanisms.config">MechanismPositionConfig.Plane</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
@@ -4151,10 +4151,6 @@ the order they are declared.</div>
 <dt><a href="yams/mechanisms/config/FlyWheelConfig.html#withLowerSoftLimit(edu.wpi.first.units.measure.AngularVelocity)" class="member-name-link">withLowerSoftLimit(AngularVelocity)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/FlyWheelConfig.html" title="class in yams.mechanisms.config">FlyWheelConfig</a></dt>
 <dd>
 <div class="block">Set the minimum velocity of the shooter.</div>
-</dd>
-<dt><a href="yams/mechanisms/config/SwerveDriveConfig.html#withMapleSim(org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig,edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">withMapleSim(DriveTrainSimulationConfig, Pose2d)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></dt>
-<dd>
-<div class="block">Sets up MapleSim Physics Collision support on the simulated <a href="yams/mechanisms/swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a>.</div>
 </dd>
 <dt><a href="yams/mechanisms/config/ArmConfig.html#withMass(edu.wpi.first.units.measure.Mass)" class="member-name-link">withMass(Mass)</a> - Method in class yams.mechanisms.config.<a href="yams/mechanisms/config/ArmConfig.html" title="class in yams.mechanisms.config">ArmConfig</a></dt>
 <dd>
