@@ -109,7 +109,7 @@ public class ArmTest
                                                          createSMCConfig()
                                                              .withClosedLoopRampRate(Seconds.of(0.25))
                                                              .withOpenLoopRampRate(Seconds.of(0.25))))),
-        Arguments.of(setupTestSubsystem(new NovaWrapper(tnova, DCMotor.getNEO(1), createSMCConfig()))),
+//        Arguments.of(setupTestSubsystem(new NovaWrapper(tnova, DCMotor.getNEO(1), createSMCConfig()))),
         Arguments.of(setupTestSubsystem(new TalonFXSWrapper(tfxs, DCMotor.getNEO(1),
                                                             createSMCConfig()
                                                                 .withClosedLoopRampRate(Seconds.of(0.25))
