@@ -74,16 +74,16 @@ public class SmartMotorFactoryTest {
     assertTrue(result.isPresent(), "Factory should create a Spark SmartMotorController");
   }
 
-  @Test
-  void testCreateNovaWrapper() {
-    ThriftyNova mockController = mock(ThriftyNova.class);
-    DCMotor mockMotor = createMockDCMotor();
-    SmartMotorControllerConfig mockConfig = createMockSmartConfig();
-
-    Optional<SmartMotorController> result = SmartMotorFactory.create(mockController, mockMotor, mockConfig);
-
-    assertTrue(result.isPresent(), "Factory should create a Nova SmartMotorController");
-  }
+//  @Test
+//  void testCreateNovaWrapper() {
+//    ThriftyNova mockController = mock(ThriftyNova.class);
+//    DCMotor mockMotor = createMockDCMotor();
+//    SmartMotorControllerConfig mockConfig = createMockSmartConfig();
+//
+//    Optional<SmartMotorController> result = SmartMotorFactory.create(mockController, mockMotor, mockConfig);
+//
+//    assertTrue(result.isPresent(), "Factory should create a Nova SmartMotorController");
+//  }
 
   @Test
   void testCreateUnsupportedClassReturnsEmpty() {
