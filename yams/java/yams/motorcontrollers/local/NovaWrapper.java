@@ -12,10 +12,11 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.thethriftybot.ThriftyNova;
-import com.thethriftybot.ThriftyNova.CurrentType;
-import com.thethriftybot.ThriftyNova.EncoderType;
-import com.thethriftybot.ThriftyNova.ExternalEncoder;
+import com.thethriftybot.devices.ThriftyNova.CurrentType;
+import com.thethriftybot.devices.ThriftyNova.ExternalEncoder;
+import com.thethriftybot.devices.ThriftyNova.EncoderType;
+import com.thethriftybot.devices.ThriftyNova;
+import com.thethriftybot.devices.ThriftyNova.ThriftyNovaConfig;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -58,6 +59,10 @@ public class NovaWrapper extends SmartMotorController
    * Thrifty Nova controller.
    */
   private final ThriftyNova          m_nova;
+    /**
+     * ThriftyNova Config object
+     */
+  private ThriftyNovaConfig m_nova_config;
   /**
    * Motor characteristics controlled by the {@link ThriftyNova}.
    */
@@ -81,6 +86,7 @@ public class NovaWrapper extends SmartMotorController
   public NovaWrapper(ThriftyNova controller, DCMotor motor, SmartMotorControllerConfig config)
   {
     m_nova = controller;
+    m_nova_config = new ThriftyNovaConfig();
     this.m_motor = motor;
     this.m_config = config;
     setupSimulation();
@@ -293,6 +299,9 @@ public class NovaWrapper extends SmartMotorController
       throw new IllegalArgumentException(
           "[Error] ThriftyNova does not support separate closed loop and open loop ramp rates, using the SmartMotorControllerConfig.withClosedLoopRampRate() as both.");
     }
+
+    // Gearing
+    // Do nothing since not supported yet.
 
     // Inversions
     m_nova.setInverted(config.getMotorInverted());

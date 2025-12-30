@@ -24,12 +24,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MagnetHealthValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -814,13 +809,13 @@ public class TalonFXWrapper extends SmartMotorController
           if (follower.getFirst() instanceof TalonFXS)
           {
             applied = ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                               follower.getSecond()));
+                                                                               follower.getSecond() ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
 
 
           } else if (follower.getFirst() instanceof TalonFX)
           {
             applied = ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfx.getDeviceID(),
-                                                                              follower.getSecond()));
+                    follower.getSecond() ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
           } else
           {
             throw new IllegalArgumentException(
@@ -1026,7 +1021,8 @@ public class TalonFXWrapper extends SmartMotorController
   }
 
   /**
-   * Ensure setting is applied.
+   * Ensure setting is applied, retries every 10ms.
+   * @return {@link StatusCode} from the device.
    */
   public StatusCode forceConfigApply()
   {

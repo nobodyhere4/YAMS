@@ -407,7 +407,7 @@ public class ExponentialProfilePIDController
    * @param measurementPosition Measurement position to set as the current state..
    * @param setpointVelocity    Setpoint velocity.
    * @param setpointPosition    Setpoint position.
-   * @return
+   * @return Profile calculation
    */
   public double calculate(double measurementPosition, double setpointVelocity, double setpointPosition)
   {
@@ -430,7 +430,7 @@ public class ExponentialProfilePIDController
    *
    * @param measurementPosition Measurement position to set as the current state.
    * @param setpointPosition    Setpoint position.
-   * @return
+   * @return Profile calculation where setpoint velocity is 0.
    */
   public double calculate(double measurementPosition, double setpointPosition)
   {

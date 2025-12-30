@@ -1852,6 +1852,9 @@ public class SmartMotorControllerConfig
     }
   }
 
+  /**
+   * Validate external encoder config options for the config.
+   */
   public void validateExternalEncoderOptions()
   {
     if (!externalEncoderOptions.isEmpty())

@@ -20,10 +20,10 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SelfControlledSwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+//import org.ironmaple.simulation.SimulatedArena;
+//import org.ironmaple.simulation.drivesims.SelfControlledSwerveDriveSimulation;
+//import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+//import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import yams.exceptions.SwerveDriveConfigurationException;
 import yams.mechanisms.swerve.SwerveModule;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -113,7 +113,7 @@ public class SwerveDriveConfig
   /**
    *  MapleSim Drive Simulation.
    */
-  private       Optional<SelfControlledSwerveDriveSimulation>   mapleDriveSim                   = Optional.empty();
+//  private       Optional<SelfControlledSwerveDriveSimulation>   mapleDriveSim                   = Optional.empty();
   /**
    * Swerve drive subsystem.
    */
@@ -123,6 +123,7 @@ public class SwerveDriveConfig
    * Create the {@link SwerveDriveConfig} for the {@link yams.mechanisms.swerve.SwerveDrive}
    *
    * @param modules {@link SwerveModule}s for the {@link yams.mechanisms.swerve.SwerveDrive}
+   * @param swerveSubsystem SwerveDrive subsystem.
    */
   public SwerveDriveConfig(Subsystem swerveSubsystem, SwerveModule... modules)
   {
@@ -341,26 +342,26 @@ public class SwerveDriveConfig
     return this;
   }
 
-  /**
-   * Sets up MapleSim Physics Collision support on the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
-   * This integration is simplified and may result in slight differences compared to the real robot.
-   * For more information read these
-   * <a href="https://shenzhen-robotics-alliance.github.io/maple-sim/swerve-simulation-overview">MapleSim Docs</a>
-   *
-   * @param mapleConfig {@link DriveTrainSimulationConfig} for the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
-   * @param startingPose initial pose of the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
-   * @return {@link SwerveDriveConfig} for chaining.
-   */
-  public SwerveDriveConfig withMapleSim(DriveTrainSimulationConfig mapleConfig, Pose2d startingPose)
-  {
-      if (RobotBase.isSimulation()) {
-          this.mapleDriveSim = Optional.of(new SelfControlledSwerveDriveSimulation(new SwerveDriveSimulation(mapleConfig, startingPose)));
-          this.initialPose = startingPose;
-          // Register the drivetrain sim with the SimulatedArena
-          SimulatedArena.getInstance().addDriveTrainSimulation(mapleDriveSim.get().getDriveTrainSimulation());
-      }
-      return this;
-  }
+//  /**
+//   * Sets up MapleSim Physics Collision support on the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
+//   * This integration is simplified and may result in slight differences compared to the real robot.
+//   * For more information read these
+//   * <a href="https://shenzhen-robotics-alliance.github.io/maple-sim/swerve-simulation-overview">MapleSim Docs</a>
+//   *
+//   * @param mapleConfig {@link DriveTrainSimulationConfig} for the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
+//   * @param startingPose initial pose of the simulated {@link yams.mechanisms.swerve.SwerveDrive}.
+//   * @return {@link SwerveDriveConfig} for chaining.
+//   */
+//  public SwerveDriveConfig withMapleSim(DriveTrainSimulationConfig mapleConfig, Pose2d startingPose)
+//  {
+//      if (RobotBase.isSimulation()) {
+//          this.mapleDriveSim = Optional.of(new SelfControlledSwerveDriveSimulation(new SwerveDriveSimulation(mapleConfig, startingPose)));
+//          this.initialPose = startingPose;
+//          // Register the drivetrain sim with the SimulatedArena
+//          SimulatedArena.getInstance().addDriveTrainSimulation(mapleDriveSim.get().getDriveTrainSimulation());
+//      }
+//      return this;
+//  }
 
   /**
    * Configure telemetry for the {@link yams.mechanisms.swerve.SwerveModule} mechanism.
@@ -566,17 +567,17 @@ public class SwerveDriveConfig
     return new Translation2d(translation.getNorm() * scalar, translation.getAngle());
   }
 
-  /**
-   * Get the {@link SelfControlledSwerveDriveSimulation} if it is configured.
-   *
-   * @return the {@link SelfControlledSwerveDriveSimulation} if it is configured, otherwise throws an exception.
-   */
-  public Optional<SelfControlledSwerveDriveSimulation> getMapleDriveSim() {
-      if (RobotBase.isSimulation()) {
-          return mapleDriveSim;
-      }
-      throw new IllegalStateException("RobotBase is not in Simulation, MapleDriveSim is empty!");
-  }
+//  /**
+//   * Get the {@link SelfControlledSwerveDriveSimulation} if it is configured.
+//   *
+//   * @return the {@link SelfControlledSwerveDriveSimulation} if it is configured, otherwise throws an exception.
+//   */
+//  public Optional<SelfControlledSwerveDriveSimulation> getMapleDriveSim() {
+//      if (RobotBase.isSimulation()) {
+//          return mapleDriveSim;
+//      }
+//      throw new IllegalStateException("RobotBase is not in Simulation, MapleDriveSim is empty!");
+//  }
 
   /**
    * Get the swerve drive subsystem.

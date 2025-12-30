@@ -135,6 +135,7 @@ public class DoubleTelemetry
 
   /**
    * Set the unit.
+   * @param cfg {@link SmartMotorControllerConfig} used to determine the unit. If the MechanismCircumference is set it will be in meters, else it will be in degrees.
    *
    * @return {@link DoubleTelemetry} for chaining.
    */

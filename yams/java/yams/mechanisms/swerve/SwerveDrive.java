@@ -36,6 +36,9 @@ import java.util.function.Supplier;
 import yams.mechanisms.config.SwerveDriveConfig;
 import yams.telemetry.MechanismTelemetry;
 
+/**
+ * Swerve Drive mechanism
+ */
 public class SwerveDrive
 {
 
@@ -152,15 +155,16 @@ public class SwerveDrive
 
   /**
    * Get the Gyro Angle.
+   * @return Gyro angle, or maple sim odometry gyro angle.
    */
   public Angle getGyroAngle()
   {
     if (RobotBase.isSimulation())
     {
-      if (m_config.getMapleDriveSim().isPresent())
-      {
-        return m_config.getMapleDriveSim().get().getOdometryEstimatedPose().getRotation().getMeasure();
-      }
+//      if (m_config.getMapleDriveSim().isPresent())
+//      {
+//        return m_config.getMapleDriveSim().get().getOdometryEstimatedPose().getRotation().getMeasure();
+//      }
       return m_simGyroAngle;
     }
     return m_config.getGyroAngle();
@@ -198,10 +202,10 @@ public class SwerveDrive
     for (int i = 0; i < states.length; i++)
     {
       // if MapleSim is configured, run the swerve states through it.
-      if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
-      {
-        m_config.getMapleDriveSim().get().runSwerveStates(states);
-      }
+//      if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
+//      {
+//        m_config.getMapleDriveSim().get().runSwerveStates(states);
+//      }
       m_modules[i].setSwerveModuleState(states[i]);
     }
     m_desiredModuleStatesPublisher.accept(states);
@@ -250,10 +254,10 @@ public class SwerveDrive
    */
   public Pose2d getPose()
   {
-    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
-    {
-      return m_config.getMapleDriveSim().get().getOdometryEstimatedPose();
-    }
+//    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
+//    {
+//      return m_config.getMapleDriveSim().get().getOdometryEstimatedPose();
+//    }
     return m_poseEstimator.getEstimatedPosition();
   }
 
@@ -269,20 +273,20 @@ public class SwerveDrive
                                            .toArray(Translation2d[]::new));
   }
 
-  /**
-   * Gets the actual pose in the {@link org.ironmaple.simulation.SimulatedArena} from MapleSim.
-   *
-   * @return the robot's real pose.
-   * @implNote Not compatible with AdvantageKit
-   */
-  public Pose2d getMapleSimPose()
-  {
-    if (RobotBase.isSimulation())
-    {
-      return m_config.getMapleDriveSim().get().getActualPoseInSimulationWorld();
-    }
-    throw new IllegalStateException("getMapleSimPose() is only available in simulation.");
-  }
+//  /**
+//   * Gets the actual pose in the {@link org.ironmaple.simulation.SimulatedArena} from MapleSim.
+//   *
+//   * @return the robot's real pose.
+//   * @implNote Not compatible with AdvantageKit
+//   */
+//  public Pose2d getMapleSimPose()
+//  {
+//    if (RobotBase.isSimulation())
+//    {
+//      return m_config.getMapleDriveSim().get().getActualPoseInSimulationWorld();
+//    }
+//    throw new IllegalStateException("getMapleSimPose() is only available in simulation.");
+//  }
 
   /**
    * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0 (red alliance
@@ -293,8 +297,9 @@ public class SwerveDrive
   {
     m_config.withGyroOffset(getGyroAngle().plus(m_config.getGyroOffset()));
     // If in sim reset to the simulated drive.
-    resetOdometry(
-        RobotBase.isSimulation() ? getMapleSimPose() : new Pose2d(getPose().getTranslation(), Rotation2d.kZero));
+//    resetOdometry(
+//        RobotBase.isSimulation() ? getMapleSimPose() : new Pose2d(getPose().getTranslation(), Rotation2d.kZero));
+      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.kZero));
   }
 
   /**
@@ -317,11 +322,11 @@ public class SwerveDrive
    */
   public void resetOdometry(Pose2d pose)
   {
-    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
-    {
-      m_config.getMapleDriveSim().get().resetOdometry(pose);
-      m_config.getMapleDriveSim().get().setSimulationWorldPose(pose);
-    }
+//    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
+//    {
+//      m_config.getMapleDriveSim().get().resetOdometry(pose);
+//      m_config.getMapleDriveSim().get().setSimulationWorldPose(pose);
+//    }
     m_poseEstimator.resetPosition(new Rotation2d(getGyroAngle()), getModulePositions(), pose);
     ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(new ChassisSpeeds(0, 0, 0),
                                                                               new Rotation2d(getGyroAngle()));
@@ -471,10 +476,10 @@ public class SwerveDrive
   public void simIterate()
   {
     // If MapleSim is configured, update it.
-    if (m_config.getMapleDriveSim().isPresent())
-    {
-      m_config.getMapleDriveSim().get().periodic();
-    }
+//    if (m_config.getMapleDriveSim().isPresent())
+//    {
+//      m_config.getMapleDriveSim().get().periodic();
+//    }
     if (!m_simTimer.isRunning())
     {m_simTimer.start();}
     Arrays.stream(m_modules).forEach(SwerveModule::simIterate);
@@ -511,10 +516,10 @@ public class SwerveDrive
   public SwerveModulePosition[] getModulePositions()
   {
     // If MapleSim is configured, return the simulated positions.
-    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
-    {
-      return m_config.getMapleDriveSim().get().getLatestModulePositions();
-    }
+//    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
+//    {
+//      return m_config.getMapleDriveSim().get().getLatestModulePositions();
+//    }
     return Arrays.stream(m_modules)
                  .map(SwerveModule::getPosition)
                  .toArray(SwerveModulePosition[]::new);
@@ -528,10 +533,10 @@ public class SwerveDrive
   public SwerveModuleState[] getModuleStates()
   {
     // If MapleSim is configured, return the simulated states.
-    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
-    {
-      return m_config.getMapleDriveSim().get().getMeasuredStates();
-    }
+//    if (RobotBase.isSimulation() && m_config.getMapleDriveSim().isPresent())
+//    {
+//      return m_config.getMapleDriveSim().get().getMeasuredStates();
+//    }
     return Arrays.stream(m_modules)
                  .map(SwerveModule::getState)
                  .toArray(SwerveModuleState[]::new);
