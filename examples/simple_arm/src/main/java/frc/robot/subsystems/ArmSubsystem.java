@@ -37,46 +37,31 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase
 {
-  // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
 
   private final ThriftyNova                armMotor    = new ThriftyNova(1);
-  //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
-//          .withMechanismPosition()
-//          .withRotorPosition()
-//          .withMechanismLowerLimit()
-//          .withMechanismUpperLimit();
+  
   private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
       .withSoftLimit(Degrees.of(-30), Degrees.of(100))
       .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
-//      .withExternalEncoder(armMotor.getAbsoluteEncoder())
       .withIdleMode(MotorMode.BRAKE)
       .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
-//      .withSpecificTelemetry("ArmMotor", motorTelemetryConfig)
       .withStatorCurrentLimit(Amps.of(40))
-//      .withVoltageCompensation(Volts.of(12))
       .withMotorInverted(false)
       .withClosedLoopRampRate(Seconds.of(0.25))
-//      .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
   private final SmartMotorController       motor            = new NovaWrapper(armMotor,
                                                                               DCMotor.getNEO(1),
                                                                               motorConfig);
-  private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
-      .withMaxRobotHeight(Meters.of(1.5))
-      .withMaxRobotLength(Meters.of(0.75))
-      .withRelativePosition(new Translation3d(Meters.of(0.25), Meters.of(0), Meters.of(0.5)));
-
-
+  
   private       ArmConfig m_config = new ArmConfig(motor)
       .withLength(Meters.of(0.135))
       .withHardLimit(Degrees.of(-100), Degrees.of(200))
       .withTelemetry("ArmExample", TelemetryVerbosity.HIGH)
       .withMass(Pounds.of(1))
-      .withStartingPosition(Degrees.of(0))
-      //.withHorizontalZero(Degrees.of(0))
-      .withMechanismPositionConfig(robotToMechanism);
+      .withStartingPosition(Degrees.of(0));
+
   private final Arm       arm      = new Arm(m_config);
 
   public ArmSubsystem()
