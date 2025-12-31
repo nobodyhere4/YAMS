@@ -412,6 +412,7 @@ public class TalonFXWrapper extends SmartMotorController
     if (angle != null)
     {
       m_talonfx.setControl(expEnabled ? m_expoPositionReq.withPosition(angle) : m_trapPositionReq.withPosition(angle));
+      m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setPosition(angle);}});
     }
   }
 
@@ -428,12 +429,13 @@ public class TalonFXWrapper extends SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity angle)
+  public void setVelocity(AngularVelocity angularVelocity)
   {
-    setpointVelocity = Optional.ofNullable(angle);
-    if (angle != null)
+    setpointVelocity = Optional.ofNullable(angularVelocity);
+    if (angularVelocity != null)
     {
-      m_talonfx.setControl(m_velocityReq.withVelocity(angle));
+      m_talonfx.setControl(m_velocityReq.withVelocity(angularVelocity));
+      m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setVelocity(angularVelocity);}});
     }
   }
 
@@ -456,6 +458,7 @@ public class TalonFXWrapper extends SmartMotorController
     config.resetValidationCheck();
     m_configurator.refresh(m_talonConfig);
     this.m_config = config;
+    this.m_looseFollowers = config.getLooselyCoupledFollowers();
     // Closed loop controllers.
     if (config.getClosedLoopController().isPresent() && config.getSimpleClosedLoopController().isPresent())
     {

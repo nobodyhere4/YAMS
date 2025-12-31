@@ -187,6 +187,7 @@ public class NovaWrapper extends SmartMotorController
   public void setPosition(Angle angle)
   {
     setpointPosition = Optional.ofNullable(angle);
+    m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setPosition(angle);}});
   }
 
   @Override
@@ -202,9 +203,10 @@ public class NovaWrapper extends SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity angle)
+  public void setVelocity(AngularVelocity angularVelocity)
   {
-    setpointVelocity = Optional.ofNullable(angle);
+    setpointVelocity = Optional.ofNullable(angularVelocity);
+    m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setVelocity(angularVelocity);}});
   }
 
   @Override
@@ -217,6 +219,7 @@ public class NovaWrapper extends SmartMotorController
     m_expoPidController = config.getExponentiallyProfiledClosedLoopController();
     m_pidController = config.getClosedLoopController();
     m_simplePidController = config.getSimpleClosedLoopController();
+    m_looseFollowers = config.getLooselyCoupledFollowers();
 
     // Handle simple pid vs profile pid controller.
     if (m_expoPidController.isEmpty())

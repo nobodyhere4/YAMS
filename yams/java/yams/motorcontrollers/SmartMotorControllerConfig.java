@@ -55,11 +55,11 @@ public class SmartMotorControllerConfig
   /**
    * Subsystem that the {@link SmartMotorController} controls.
    */
-  private       Optional<Subsystem>                       subsystem                        = Optional.empty();
+  private       Optional<Subsystem>                           subsystem                          = Optional.empty();
   /**
    * Missing options that would be decremented for each motor application.
    */
-  private final List<SmartMotorControllerOptions>         missingOptions                   = Arrays.asList(
+  private final List<SmartMotorControllerOptions>             missingOptions                     = Arrays.asList(
       SmartMotorControllerOptions.values());
   /**
    * Validation set to confirm all options have been applied to the Smart Motor Controller.
@@ -110,15 +110,15 @@ public class SmartMotorControllerConfig
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ProfiledPIDController>           controller                       = Optional.empty();
+  private       Optional<ProfiledPIDController>               controller                         = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<ExponentialProfilePIDController> expoController                   = Optional.empty();
+  private       Optional<ExponentialProfilePIDController>     expoController                     = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
-  private       Optional<PIDController>                   simpleController                 = Optional.empty();
+  private       Optional<PIDController>                       simpleController                   = Optional.empty();
   /**
    * Controller for the {@link SmartMotorController}.
    */
@@ -138,7 +138,7 @@ public class SmartMotorControllerConfig
   /**
    * External encoder gearing, defaults to 1:1.
    */
-  private       MechanismGearing                          externalEncoderGearing           = new MechanismGearing(
+  private       MechanismGearing                              externalEncoderGearing             = new MechanismGearing(
       1);
   /**
    * Mechanism Circumference for distance calculations.
@@ -223,7 +223,7 @@ public class SmartMotorControllerConfig
   /**
    * Feedback synchronization threshhold.
    */
-  private       Optional<Angle>                           feedbackSynchronizationThreshold = Optional.empty();
+  private       Optional<Angle>                               feedbackSynchronizationThreshold   = Optional.empty();
   /**
    * The motor controller mode.
    */
@@ -246,6 +246,10 @@ public class SmartMotorControllerConfig
   private       Double                                        moi                                = SingleJointedArmSim
       .estimateMOI(Inches.of(4).in(Meters),
                    Pounds.of(1).in(Kilograms));
+  /**
+   * Loosely coupled followers.
+   */
+  private       Optional<SmartMotorController[]>              looselyCoupledFollowers            = Optional.empty();
 
   /**
    * Construct the {@link SmartMotorControllerConfig} for the {@link Subsystem}
@@ -270,15 +274,14 @@ public class SmartMotorControllerConfig
    * Duplicate the SmartMotorControllerConfig.
    *
    * @param cfg Config to duplicate.
-   * @implNote Does not copy subsystem, missing options, basic options, and external encoder options.
    */
   private SmartMotorControllerConfig(SmartMotorControllerConfig cfg)
   {
-//    this.subsystem = cfg.subsystem;
-//    this.missingOptions.clear();
-//    this.missingOptions.addAll(cfg.missingOptions);
-//    this.basicOptions = EnumSet.copyOf(cfg.basicOptions);
-//    this.externalEncoderOptions = EnumSet.copyOf(cfg.externalEncoderOptions);
+    this.subsystem = cfg.subsystem;
+    this.missingOptions.clear();
+    this.missingOptions.addAll(cfg.missingOptions);
+    this.basicOptions = EnumSet.copyOf(cfg.basicOptions);
+    this.externalEncoderOptions = EnumSet.copyOf(cfg.externalEncoderOptions);
     this.externalEncoder = cfg.externalEncoder;
     this.externalEncoderInverted = cfg.externalEncoderInverted;
     this.followers = cfg.followers;
@@ -322,6 +325,7 @@ public class SmartMotorControllerConfig
     this.minDiscontinuityPoint = cfg.minDiscontinuityPoint;
     this.closedLoopTolerance = cfg.closedLoopTolerance;
     this.moi = cfg.moi;
+    this.looselyCoupledFollowers = cfg.looselyCoupledFollowers;
   }
 
   @Override
@@ -854,6 +858,20 @@ public class SmartMotorControllerConfig
   public final SmartMotorControllerConfig withFollowers(Pair<Object, Boolean>... followers)
   {
     this.followers = Optional.ofNullable(followers);
+    return this;
+  }
+
+  /**
+   * Applies loosely coupled follower motors to the {@link SmartMotorController}.
+   *
+   * @param followers {@link SmartMotorController}s to configure as followers.
+   * @return {@link SmartMotorControllerConfig} for chaining
+   * @implNote ONLY the position and velocity requests will be forwarded.
+   * @implSpec Configurations are not transferred!
+   */
+  public final SmartMotorControllerConfig withLooselyCoupledFollowers(SmartMotorController... followers)
+  {
+    this.looselyCoupledFollowers = Optional.ofNullable(followers);
     return this;
   }
 
@@ -1889,6 +1907,17 @@ public class SmartMotorControllerConfig
   }
 
   /**
+   * Get the loosely coupled follower motors.
+   *
+   * @return {@link SmartMotorController} list of loosely coupled followers.
+   */
+  public Optional<SmartMotorController[]> getLooselyCoupledFollowers()
+  {
+    basicOptions.remove(BasicOptions.LooselyCoupledFollowers);
+    return looselyCoupledFollowers;
+  }
+
+  /**
    * Reset the validation checks for all required options to be applied to {@link SmartMotorController} from
    * {@link SmartMotorController#applyConfig(SmartMotorControllerConfig)}.
    */
@@ -2011,6 +2040,10 @@ public class SmartMotorControllerConfig
      * Follower motors
      */
     Followers,
+    /**
+     * Loosely Coupled Follower Motors
+     */
+    LooselyCoupledFollowers,
     /**
      * Stator current limits.
      */

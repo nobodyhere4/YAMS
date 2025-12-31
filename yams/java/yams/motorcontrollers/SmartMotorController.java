@@ -116,6 +116,10 @@ public abstract class SmartMotorController
    */
   protected Optional<SimSupplier>                         m_simSupplier                 = Optional.empty();
   /**
+   * Loosely coupled followers.
+   */
+  protected Optional<SmartMotorController[]> m_looseFollowers = Optional.empty();
+  /**
    * Running status of the closed loop controller.
    */
   private boolean m_closedLoopControllerRunning = false;

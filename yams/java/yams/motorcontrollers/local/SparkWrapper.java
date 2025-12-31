@@ -311,6 +311,7 @@ public class SparkWrapper extends SmartMotorController
                                        ControlType.kMAXMotionPositionControl,
                                        ClosedLoopSlot.kSlot0);
     }
+    m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setPosition(angle);}});
   }
 
   @Override
@@ -326,15 +327,16 @@ public class SparkWrapper extends SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity angle)
+  public void setVelocity(AngularVelocity angularVelocity)
   {
-    setpointVelocity = Optional.ofNullable(angle);
-    if (m_expoPidController.isEmpty() && angle != null)
+    setpointVelocity = Optional.ofNullable(angularVelocity);
+    if (m_expoPidController.isEmpty() && angularVelocity != null)
     {
-      m_sparkPidController.setSetpoint(angle.in(RotationsPerSecond),
+      m_sparkPidController.setSetpoint(angularVelocity.in(RotationsPerSecond),
                                        ControlType.kVelocity,
                                        ClosedLoopSlot.kSlot0);
     }
+    m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setVelocity(angularVelocity);}});
   }
 
   @Override
@@ -350,6 +352,7 @@ public class SparkWrapper extends SmartMotorController
     m_expoPidController = config.getExponentiallyProfiledClosedLoopController();
     m_pidController = config.getClosedLoopController();
     m_simplePidController = config.getSimpleClosedLoopController();
+    m_looseFollowers = config.getLooselyCoupledFollowers();
 
     // Handle simple pid vs profile pid controller.
     if (m_expoPidController.isEmpty())

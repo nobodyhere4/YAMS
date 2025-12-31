@@ -27,7 +27,16 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.*;
+import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
+import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.SensorPhaseValue;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -136,19 +145,19 @@ public class TalonFXSWrapper extends SmartMotorController
   /**
    * Temperature status
    */
-  private final StatusSignal<Temperature> m_deviceTemperature;
+  private final StatusSignal<Temperature>     m_deviceTemperature;
   /**
    * {@link CANcoder} to use as external feedback sensor.
    */
-  private       Optional<CANcoder>        m_cancoder = Optional.empty();
+  private       Optional<CANcoder>            m_cancoder        = Optional.empty();
   /**
    * {@link CANdi} to use as external feedback sensor.
    */
-  private       Optional<CANdi>           m_candi    = Optional.empty();
+  private       Optional<CANdi>               m_candi           = Optional.empty();
   /**
    * Exponent profile enabled.
    */
-  private       boolean                   expEnabled = false;
+  private       boolean                       expEnabled        = false;
   /**
    * {@link DCMotorSim} for the {@link TalonFXS}.
    */
@@ -443,6 +452,8 @@ public class TalonFXSWrapper extends SmartMotorController
     if (angle != null)
     {
       m_talonfxs.setControl(expEnabled ? m_expoPositionReq.withPosition(angle) : m_trapPositionReq.withPosition(angle));
+      m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setPosition(angle);}});
+
     }
   }
 
@@ -459,12 +470,13 @@ public class TalonFXSWrapper extends SmartMotorController
   }
 
   @Override
-  public void setVelocity(AngularVelocity angle)
+  public void setVelocity(AngularVelocity angularVelocity)
   {
-    setpointVelocity = Optional.ofNullable(angle);
-    if (angle != null)
+    setpointVelocity = Optional.ofNullable(angularVelocity);
+    if (angularVelocity != null)
     {
-      m_talonfxs.setControl(m_velocityReq.withVelocity(angle));
+      m_talonfxs.setControl(m_velocityReq.withVelocity(angularVelocity));
+      m_looseFollowers.ifPresent(smcs -> {for (var f : smcs) {f.setVelocity(angularVelocity);}});
     }
   }
 
@@ -489,6 +501,7 @@ public class TalonFXSWrapper extends SmartMotorController
 
     m_configurator.refresh(m_talonConfig);
     this.m_config = config;
+    this.m_looseFollowers = config.getLooselyCoupledFollowers();
     // Closed loop controllers.
     if (config.getClosedLoopController().isPresent() && config.getSimpleClosedLoopController().isPresent())
     {
@@ -848,12 +861,16 @@ public class TalonFXSWrapper extends SmartMotorController
           if (follower.getFirst() instanceof TalonFXS)
           {
             applied = ((TalonFXS) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
-                    follower.getSecond() ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
+                                                                               follower.getSecond()
+                                                                               ? MotorAlignmentValue.Opposed
+                                                                               : MotorAlignmentValue.Aligned));
 
           } else if (follower.getFirst() instanceof TalonFX)
           {
             applied = ((TalonFX) follower.getFirst()).setControl(new Follower(m_talonfxs.getDeviceID(),
-                    follower.getSecond() ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
+                                                                              follower.getSecond()
+                                                                              ? MotorAlignmentValue.Opposed
+                                                                              : MotorAlignmentValue.Aligned));
           } else
           {
             throw new IllegalArgumentException(
@@ -1298,6 +1315,7 @@ public class TalonFXSWrapper extends SmartMotorController
 
   /**
    * Ensure setting is applied, retries every 10ms.
+   *
    * @return {@link StatusCode} from CTRE
    */
   public StatusCode forceConfigApply()
