@@ -90,7 +90,7 @@ loadScripts(document, 'script');</script>
 <h2>Field Summary</h2>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-yams.motorcontrollers.SmartMotorController">Fields inherited from class&nbsp;yams.motorcontrollers.<a href="../SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></h3>
-<code><a href="../SmartMotorController.html#m_closedLoopControllerThread">m_closedLoopControllerThread</a>, <a href="../SmartMotorController.html#m_config">m_config</a>, <a href="../SmartMotorController.html#m_expoPidController">m_expoPidController</a>, <a href="../SmartMotorController.html#m_pidController">m_pidController</a>, <a href="../SmartMotorController.html#m_simplePidController">m_simplePidController</a>, <a href="../SmartMotorController.html#m_simSupplier">m_simSupplier</a>, <a href="../SmartMotorController.html#parentTable">parentTable</a>, <a href="../SmartMotorController.html#setpointPosition">setpointPosition</a>, <a href="../SmartMotorController.html#setpointVelocity">setpointVelocity</a>, <a href="../SmartMotorController.html#telemetry">telemetry</a>, <a href="../SmartMotorController.html#telemetryConfig">telemetryConfig</a>, <a href="../SmartMotorController.html#telemetryTable">telemetryTable</a>, <a href="../SmartMotorController.html#tuningTable">tuningTable</a></code></div>
+<code><a href="../SmartMotorController.html#m_closedLoopControllerThread">m_closedLoopControllerThread</a>, <a href="../SmartMotorController.html#m_config">m_config</a>, <a href="../SmartMotorController.html#m_expoPidController">m_expoPidController</a>, <a href="../SmartMotorController.html#m_looseFollowers">m_looseFollowers</a>, <a href="../SmartMotorController.html#m_pidController">m_pidController</a>, <a href="../SmartMotorController.html#m_simplePidController">m_simplePidController</a>, <a href="../SmartMotorController.html#m_simSupplier">m_simSupplier</a>, <a href="../SmartMotorController.html#parentTable">parentTable</a>, <a href="../SmartMotorController.html#setpointPosition">setpointPosition</a>, <a href="../SmartMotorController.html#setpointVelocity">setpointVelocity</a>, <a href="../SmartMotorController.html#telemetry">telemetry</a>, <a href="../SmartMotorController.html#telemetryConfig">telemetryConfig</a>, <a href="../SmartMotorController.html#telemetryTable">telemetryTable</a>, <a href="../SmartMotorController.html#tuningTable">tuningTable</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -391,7 +391,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Setup the simulation for the wrapper.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setVelocity(edu.wpi.first.units.measure.AngularVelocity)" class="member-name-link">setVelocity</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a>&nbsp;angle)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setVelocity(edu.wpi.first.units.measure.AngularVelocity)" class="member-name-link">setVelocity</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a>&nbsp;angularVelocity)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the Mechanism <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link"><code>AngularVelocity</code></a> using the PID and feedforward from <a href="../SmartMotorControllerConfig.html" title="class in yams.motorcontrollers"><code>SmartMotorControllerConfig</code></a>.</div>
 </div>
@@ -622,14 +622,14 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="setVelocity(edu.wpi.first.units.measure.AngularVelocity)">
 <h3>setVelocity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setVelocity</span><wbr><span class="parameters">(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a>&nbsp;angle)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setVelocity</span><wbr><span class="parameters">(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">AngularVelocity</a>&nbsp;angularVelocity)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../SmartMotorController.html#setVelocity(edu.wpi.first.units.measure.AngularVelocity)">SmartMotorController</a></code></span></div>
 <div class="block">Set the Mechanism <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link"><code>AngularVelocity</code></a> using the PID and feedforward from <a href="../SmartMotorControllerConfig.html" title="class in yams.motorcontrollers"><code>SmartMotorControllerConfig</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../SmartMotorController.html#setVelocity(edu.wpi.first.units.measure.AngularVelocity)">setVelocity</a></code>&nbsp;in class&nbsp;<code><a href="../SmartMotorController.html" title="class in yams.motorcontrollers">SmartMotorController</a></code></dd>
 <dt>Parameters:</dt>
-<dd><code>angle</code> - Mechanism <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link"><code>AngularVelocity</code></a> to target.</dd>
+<dd><code>angularVelocity</code> - Mechanism <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/AngularVelocity.html" title="class or interface in edu.wpi.first.units.measure" class="external-link"><code>AngularVelocity</code></a> to target.</dd>
 </dl>
 </section>
 </li>
