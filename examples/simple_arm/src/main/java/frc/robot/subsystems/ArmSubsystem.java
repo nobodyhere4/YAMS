@@ -15,6 +15,7 @@ import static yams.mechanisms.SmartMechanism.gearing;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.thethriftybot.devices.ThriftyNova;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -31,13 +32,14 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase
 {
   // TODO: Add detailed comments explaining the example, similar to the ExponentiallyProfiledArmSubsystem
 
-  private final SparkMax                   armMotor         = new SparkMax(1, MotorType.kBrushless);
+  private final ThriftyNova                armMotor    = new ThriftyNova(1);
   //  private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new SmartMotorControllerTelemetryConfig()
 //          .withMechanismPosition()
 //          .withRotorPosition()
@@ -55,12 +57,12 @@ public class ArmSubsystem extends SubsystemBase
 //      .withVoltageCompensation(Volts.of(12))
       .withMotorInverted(false)
       .withClosedLoopRampRate(Seconds.of(0.25))
-      .withOpenLoopRampRate(Seconds.of(0.25))
+//      .withOpenLoopRampRate(Seconds.of(0.25))
       .withFeedforward(new ArmFeedforward(0, 0, 0, 0))
       .withControlMode(ControlMode.CLOSED_LOOP);
-  private final SmartMotorController       motor            = new SparkWrapper(armMotor,
-                                                                               DCMotor.getNEO(1),
-                                                                               motorConfig);
+  private final SmartMotorController       motor            = new NovaWrapper(armMotor,
+                                                                              DCMotor.getNEO(1),
+                                                                              motorConfig);
   private final MechanismPositionConfig    robotToMechanism = new MechanismPositionConfig()
       .withMaxRobotHeight(Meters.of(1.5))
       .withMaxRobotLength(Meters.of(0.75))

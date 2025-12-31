@@ -266,6 +266,70 @@ public class SmartMotorControllerConfig
   {
   }
 
+  /**
+   * Duplicate the SmartMotorControllerConfig.
+   *
+   * @param cfg Config to duplicate.
+   * @implNote Does not copy subsystem, missing options, basic options, and external encoder options.
+   */
+  private SmartMotorControllerConfig(SmartMotorControllerConfig cfg)
+  {
+//    this.subsystem = cfg.subsystem;
+//    this.missingOptions.clear();
+//    this.missingOptions.addAll(cfg.missingOptions);
+//    this.basicOptions = EnumSet.copyOf(cfg.basicOptions);
+//    this.externalEncoderOptions = EnumSet.copyOf(cfg.externalEncoderOptions);
+    this.externalEncoder = cfg.externalEncoder;
+    this.externalEncoderInverted = cfg.externalEncoderInverted;
+    this.followers = cfg.followers;
+    this.simpleFeedforward = cfg.simpleFeedforward;
+    this.elevatorFeedforward = cfg.elevatorFeedforward;
+    this.armFeedforward = cfg.armFeedforward;
+    this.sim_simpleFeedforward = cfg.sim_simpleFeedforward;
+    this.sim_elevatorFeedforward = cfg.sim_elevatorFeedforward;
+    this.sim_armFeedforward = cfg.sim_armFeedforward;
+    this.controller = cfg.controller;
+    this.expoController = cfg.expoController;
+    this.simpleController = cfg.simpleController;
+    this.sim_expoController = cfg.sim_expoController;
+    this.sim_controller = cfg.sim_controller;
+    this.sim_simpleController = cfg.sim_simpleController;
+    this.gearing = cfg.gearing;
+    this.externalEncoderGearing = cfg.externalEncoderGearing;
+    this.mechanismCircumference = cfg.mechanismCircumference;
+    this.controlPeriod = cfg.controlPeriod;
+    this.openLoopRampRate = cfg.openLoopRampRate;
+    this.closeLoopRampRate = cfg.closeLoopRampRate;
+    this.statorStallCurrentLimit = cfg.statorStallCurrentLimit;
+    this.supplyStallCurrentLimit = cfg.supplyStallCurrentLimit;
+    this.voltageCompensation = cfg.voltageCompensation;
+    this.idleMode = cfg.idleMode;
+    this.mechanismLowerLimit = cfg.mechanismLowerLimit;
+    this.mechanismUpperLimit = cfg.mechanismUpperLimit;
+    this.telemetryName = cfg.telemetryName;
+    this.verbosity = cfg.verbosity;
+    this.specifiedTelemetryConfig = cfg.specifiedTelemetryConfig;
+    this.zeroOffset = cfg.zeroOffset;
+    this.temperatureCutoff = cfg.temperatureCutoff;
+    this.encoderInverted = cfg.encoderInverted;
+    this.motorInverted = cfg.motorInverted;
+    this.useExternalEncoder = cfg.useExternalEncoder;
+    this.startingPosition = cfg.startingPosition;
+    this.closedLoopControllerMaximumVoltage = cfg.closedLoopControllerMaximumVoltage;
+    this.feedbackSynchronizationThreshold = cfg.feedbackSynchronizationThreshold;
+    this.motorControllerMode = cfg.motorControllerMode;
+    this.maxDiscontinuityPoint = cfg.maxDiscontinuityPoint;
+    this.minDiscontinuityPoint = cfg.minDiscontinuityPoint;
+    this.closedLoopTolerance = cfg.closedLoopTolerance;
+    this.moi = cfg.moi;
+  }
+
+  @Override
+  public SmartMotorControllerConfig clone()
+  {
+    return new SmartMotorControllerConfig(this);
+  }
+
 
   /**
    * Sets the {@link Subsystem} for the {@link SmartMotorControllerConfig} to pass along to {@link SmartMotorController}
