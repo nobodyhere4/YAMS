@@ -30,11 +30,11 @@ public class DifferentialMechanismConfig
   /**
    * {@link SmartMotorController} for the {@link DifferentialMechanism}
    */
-  private final SmartMotorController         leftMotorController;
+  private Optional<SmartMotorController>         leftMotorController = Optional.empty();
   /**
    * {@link SmartMotorController} for the {@link DifferentialMechanism}
    */
-  private final SmartMotorController         rightMotorController;
+  private Optional<SmartMotorController>         rightMotorController = Optional.empty();
   /**
    * The network root of the mechanism (Optional).
    */
@@ -97,9 +97,66 @@ public class DifferentialMechanismConfig
    */
   public DifferentialMechanismConfig(SmartMotorController left, SmartMotorController right)
   {
-    leftMotorController = left;
-    rightMotorController = right;
+    leftMotorController = Optional.ofNullable(left);
+    rightMotorController = Optional.ofNullable(right);
     mechanismPositionConfig.withMovementPlane(Plane.XY);
+  }
+
+  /**
+   * Differential Mechanism configuration class. Required call to
+   * {@link #withSmartMotorControllers(SmartMotorController, SmartMotorController)} before usage.
+   */
+  public DifferentialMechanismConfig()
+  {
+    mechanismPositionConfig.withMovementPlane(Plane.XY);
+  }
+
+  /**
+   * Copy constructor.
+   *
+   * @param cfg Configuration to copy.
+   */
+  private DifferentialMechanismConfig(DifferentialMechanismConfig cfg)
+  {
+    this.leftMotorController = cfg.leftMotorController;
+    this.rightMotorController = cfg.rightMotorController;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.twistGearing = cfg.twistGearing;
+    this.twistAngle = cfg.twistAngle;
+    this.tiltAngle = cfg.tiltAngle;
+    this.startingTwistAngle = cfg.startingTwistAngle;
+    this.startingTiltAngle = cfg.startingTiltAngle;
+    this.MOI = cfg.MOI;
+    this.length = cfg.length;
+    this.simColor = cfg.simColor;
+    this.mechanismPositionConfig = cfg.mechanismPositionConfig;
+    this.networkRoot = cfg.networkRoot;
+  }
+
+  @Override
+  public DifferentialMechanismConfig clone()
+  {
+    return new DifferentialMechanismConfig(this);
+  }
+
+  /**
+   * Add the smart motor controllers to the configuration.
+   *
+   * @param left  Left {@link SmartMotorController}
+   * @param right Right {@link SmartMotorController}
+   * @return {@link DifferentialMechanismConfig} for chaining.
+   */
+  public DifferentialMechanismConfig withSmartMotorControllers(SmartMotorController left, SmartMotorController right)
+  {
+    if(leftMotorController.isPresent())
+      throw new DifferentialMechanismConfigurationException("Left motor controller already defined.","Cannot redefine left motor controller!", ".withSmartMotorControllers");
+    if(rightMotorController.isPresent())
+      throw new DifferentialMechanismConfigurationException("Right motor controller already defined.","Cannot redefine right motor controller!", ".withSmartMotorControllers");
+    leftMotorController = Optional.ofNullable(left);
+    rightMotorController = Optional.ofNullable(right);
+    setStartingEncoderPositions();
+    return this;
   }
 
   /**
@@ -161,8 +218,8 @@ public class DifferentialMechanismConfig
       var tilt  = startingTiltAngle.get();
       var left  = getLeftMechanismPosition(tilt, twist);
       var right = getRightMechanismPosition(tilt, twist);
-      leftMotorController.getConfig().withStartingPosition(left);
-      rightMotorController.getConfig().withStartingPosition(right);
+      leftMotorController.ifPresent(leftMotorController ->leftMotorController.getConfig().withStartingPosition(left));
+      rightMotorController.ifPresent(rightMotorController -> rightMotorController.getConfig().withStartingPosition(right));
     }
   }
 
@@ -319,8 +376,8 @@ public class DifferentialMechanismConfig
    */
   public boolean applyConfig()
   {
-    return leftMotorController.applyConfig(leftMotorController.getConfig()) && rightMotorController.applyConfig(
-        rightMotorController.getConfig());
+    return leftMotorController.orElseThrow().applyConfig(leftMotorController.orElseThrow().getConfig()) &&
+           rightMotorController.orElseThrow().applyConfig(rightMotorController.orElseThrow().getConfig());
   }
 
 
@@ -448,7 +505,7 @@ public class DifferentialMechanismConfig
    */
   public SmartMotorController getLeftMotorController()
   {
-    return leftMotorController;
+    return leftMotorController.orElseThrow();
   }
 
   /**
@@ -458,7 +515,7 @@ public class DifferentialMechanismConfig
    */
   public SmartMotorController getRightMotorController()
   {
-    return rightMotorController;
+    return rightMotorController.orElseThrow();
   }
 
   /**
