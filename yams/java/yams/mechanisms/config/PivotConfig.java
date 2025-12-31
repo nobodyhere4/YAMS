@@ -96,6 +96,33 @@ public class PivotConfig
   }
 
   /**
+   * Copy constructor.
+   *
+   * @param cfg Config to copy.
+   */
+  public PivotConfig(PivotConfig cfg)
+  {
+    this.motor = cfg.motor;
+    this.networkRoot = cfg.networkRoot;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.lowerHardLimit = cfg.lowerHardLimit;
+    this.upperHardLimit = cfg.upperHardLimit;
+    this.moi = cfg.moi;
+    this.simColor = cfg.simColor;
+    this.mechanismPositionConfig = cfg.mechanismPositionConfig;
+    this.startingPosition = cfg.startingPosition;
+    this.softLimits = cfg.softLimits;
+    this.continuousWrapping = cfg.continuousWrapping;
+  }
+
+  @Override
+  public PivotConfig clone()
+  {
+    return new PivotConfig(this);
+  }
+
+  /**
    * Configure the {@link SmartMotorController} for the {@link yams.mechanisms.positional.Pivot}
    *
    * @param motorController {@link SmartMotorController} for the {@link yams.mechanisms.positional.Pivot}.

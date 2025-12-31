@@ -112,6 +112,35 @@ public class DifferentialMechanismConfig
   }
 
   /**
+   * Copy constructor.
+   *
+   * @param cfg Configuration to copy.
+   */
+  private DifferentialMechanismConfig(DifferentialMechanismConfig cfg)
+  {
+    this.leftMotorController = cfg.leftMotorController;
+    this.rightMotorController = cfg.rightMotorController;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.twistGearing = cfg.twistGearing;
+    this.twistAngle = cfg.twistAngle;
+    this.tiltAngle = cfg.tiltAngle;
+    this.startingTwistAngle = cfg.startingTwistAngle;
+    this.startingTiltAngle = cfg.startingTiltAngle;
+    this.MOI = cfg.MOI;
+    this.length = cfg.length;
+    this.simColor = cfg.simColor;
+    this.mechanismPositionConfig = cfg.mechanismPositionConfig;
+    this.networkRoot = cfg.networkRoot;
+  }
+
+  @Override
+  public DifferentialMechanismConfig clone()
+  {
+    return new DifferentialMechanismConfig(this);
+  }
+
+  /**
    * Add the smart motor controllers to the configuration.
    *
    * @param left  Left {@link SmartMotorController}

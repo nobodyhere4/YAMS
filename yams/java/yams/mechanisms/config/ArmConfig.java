@@ -99,6 +99,36 @@ public class ArmConfig
   {}
 
   /**
+   * Copy constructor.
+   *
+   * @param cfg Configuration to copy from.
+   */
+  private ArmConfig(ArmConfig cfg)
+  {
+    motor = cfg.motor;
+    networkTableName = cfg.networkTableName;
+    telemetryName = cfg.telemetryName;
+    telemetryVerbosity = cfg.telemetryVerbosity;
+    lowerHardLimit = cfg.lowerHardLimit;
+    upperHardLimit = cfg.upperHardLimit;
+    length = cfg.length;
+    weight = cfg.weight;
+    moi = cfg.moi;
+    simColor = cfg.simColor;
+    mechanismPositionConfig = cfg.mechanismPositionConfig;
+    startingPosition = cfg.startingPosition;
+    softLimits = cfg.softLimits;
+    continuousWrapping = cfg.continuousWrapping;
+    horizantalZero = cfg.horizantalZero;
+  }
+
+  @Override
+  public ArmConfig clone()
+  {
+    return new ArmConfig(this);
+  }
+
+  /**
    * Configure the {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
    *
    * @param motorController Primary {@link SmartMotorController} for the {@link yams.mechanisms.positional.Arm}
@@ -107,7 +137,11 @@ public class ArmConfig
   public ArmConfig withSmartMotorController(SmartMotorController motorController)
   {
     if (motor.isPresent())
-      throw new ArmConfigurationException("Arm already has a SmartMotorController!", "Cannot set a new one!", ".withSmartMotorController(SmartMotorController)");
+    {
+      throw new ArmConfigurationException("Arm already has a SmartMotorController!",
+                                          "Cannot set a new one!",
+                                          ".withSmartMotorController(SmartMotorController)");
+    }
     motor = Optional.of(motorController);
     moi.ifPresent(moi -> motorController.getConfig().withMomentOfInertia(moi));
     if (length.isPresent() && weight.isPresent() && moi.isEmpty())

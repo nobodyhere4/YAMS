@@ -96,6 +96,29 @@ public class FlyWheelConfig
    */
   public FlyWheelConfig() {}
 
+  private FlyWheelConfig(FlyWheelConfig cfg)
+  {
+    this.motor = cfg.motor;
+    this.networkTableName = cfg.networkTableName;
+    this.minVelocity = cfg.minVelocity;
+    this.maxVelocity = cfg.maxVelocity;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.length = cfg.length;
+    this.weight = cfg.weight;
+    this.moi = cfg.moi;
+    this.simColor = cfg.simColor;
+    this.mechanismPositionConfig = cfg.mechanismPositionConfig;
+    this.useSpeedometer = cfg.useSpeedometer;
+    this.speedometerMaxVelocity = cfg.speedometerMaxVelocity;
+  }
+
+  @Override
+  public FlyWheelConfig clone()
+  {
+    return new FlyWheelConfig(this);
+  }
+
   /**
    * Set the {@link SmartMotorController} for the {@link FlyWheel}
    *

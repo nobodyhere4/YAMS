@@ -98,6 +98,35 @@ public class ElevatorConfig
   public ElevatorConfig() {}
 
   /**
+   * Copy constructor.
+   *
+   * @param cfg Configuration to copy from.
+   */
+  private ElevatorConfig(ElevatorConfig cfg)
+  {
+    this.motor = cfg.motor;
+    this.drumCircumference = cfg.drumCircumference;
+    this.stages = cfg.stages;
+    this.startingHeight = cfg.startingHeight;
+    this.softLimits = cfg.softLimits;
+    this.simColor = cfg.simColor;
+    this.angle = cfg.angle;
+    this.carriageWeight = cfg.carriageWeight;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.networkRoot = cfg.networkRoot;
+    this.mechanismPositionConfig = cfg.mechanismPositionConfig;
+    this.lowerHardLimit = cfg.lowerHardLimit;
+    this.upperHardLimit = cfg.upperHardLimit;
+  }
+
+  @Override
+  public ElevatorConfig clone()
+  {
+    return new ElevatorConfig(this);
+  }
+
+  /**
    * Set the {@link SmartMotorController} for the {@link yams.mechanisms.positional.Elevator}
    *
    * @param motorController Primary {@link SmartMotorController} for the {@link yams.mechanisms.positional.Elevator}

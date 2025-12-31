@@ -103,6 +103,35 @@ public class SwerveModuleConfig
   public SwerveModuleConfig() {}
 
   /**
+   * Copy constructor.
+   *
+   * @param cfg Config to copy.
+   */
+  private SwerveModuleConfig(SwerveModuleConfig cfg)
+  {
+    this.driveMotor = cfg.driveMotor;
+    this.azimuthMotor = cfg.azimuthMotor;
+    this.telemetryName = cfg.telemetryName;
+    this.telemetryVerbosity = cfg.telemetryVerbosity;
+    this.absoluteEncoderSupplier = cfg.absoluteEncoderSupplier;
+    this.absoluteEncoderOffset = cfg.absoluteEncoderOffset;
+    this.absoluteEncoderGearbox = cfg.absoluteEncoderGearbox;
+    this.swerveModuleStateOptimization = cfg.swerveModuleStateOptimization;
+    this.cosineCompensation = cfg.cosineCompensation;
+    this.couplingRatio = cfg.couplingRatio;
+    this.minimumVelocity = cfg.minimumVelocity;
+    this.distanceFromCenterOfRotation = cfg.distanceFromCenterOfRotation;
+    this.absoluteEncoder = cfg.absoluteEncoder;
+    this.wheelCircumference = cfg.wheelCircumference;
+  }
+
+  @Override
+  public SwerveModuleConfig clone()
+  {
+    return new SwerveModuleConfig(this);
+  }
+
+  /**
    * Set the {@link SmartMotorController} for the {@link yams.mechanisms.swerve.SwerveModule}.
    *
    * @param driveMotor   {@link SmartMotorController} for the drive motor.
