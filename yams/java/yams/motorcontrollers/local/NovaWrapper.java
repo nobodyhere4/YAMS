@@ -12,10 +12,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.thethriftybot.devices.ThriftyNova.CurrentType;
-import com.thethriftybot.devices.ThriftyNova.ExternalEncoder;
-import com.thethriftybot.devices.ThriftyNova.EncoderType;
 import com.thethriftybot.devices.ThriftyNova;
+import com.thethriftybot.devices.ThriftyNova.CurrentType;
+import com.thethriftybot.devices.ThriftyNova.EncoderType;
+import com.thethriftybot.devices.ThriftyNova.ExternalEncoder;
 import com.thethriftybot.devices.ThriftyNova.ThriftyNovaConfig;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -59,10 +59,10 @@ public class NovaWrapper extends SmartMotorController
    * Thrifty Nova controller.
    */
   private final ThriftyNova          m_nova;
-    /**
-     * ThriftyNova Config object
-     */
-  private ThriftyNovaConfig m_nova_config;
+  /**
+   * ThriftyNova Config object
+   */
+  private       ThriftyNovaConfig    m_nova_config;
   /**
    * Motor characteristics controlled by the {@link ThriftyNova}.
    */
@@ -346,24 +346,9 @@ public class NovaWrapper extends SmartMotorController
     if (config.getExternalEncoder().isPresent() && useExt)
     {
       Object externalEncoder = config.getExternalEncoder().get();
-      if (externalEncoder instanceof EncoderType)
+      if (externalEncoder instanceof ExternalEncoder)
       {
-        if (externalEncoder == EncoderType.QUAD)
-        {
-          m_nova.useEncoderType(EncoderType.QUAD);
-        } else if (externalEncoder == EncoderType.ABS)
-        {
-          m_nova.useEncoderType(EncoderType.ABS);
-        }
-        if (config.getStartingPosition().isEmpty())
-        {
-          if (externalEncoder == EncoderType.ABS)
-          {
-            m_nova.setEncoderPosition(m_nova.getPositionAbs());
-          }
-        }
-      } else if (externalEncoder instanceof ExternalEncoder)
-      {
+        m_nova.useEncoderType(EncoderType.ABS);
         m_nova.setExternalEncoder((ExternalEncoder) externalEncoder);
       } else
       {
