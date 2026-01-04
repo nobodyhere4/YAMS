@@ -90,9 +90,13 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(edu.wpi.first.wpilibj2.command.Subsystem,yams.mechanisms.swerve.SwerveModule...)" class="member-name-link">SwerveDriveConfig</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link">Subsystem</a>&nbsp;swerveSubsystem,
- <a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a>...&nbsp;modules)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">SwerveDriveConfig</a>()</code></div>
 <div class="col-last even-row-color">
+<div class="block">Create the <a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(edu.wpi.first.wpilibj2.command.Subsystem,yams.mechanisms.swerve.SwerveModule...)" class="member-name-link">SwerveDriveConfig</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link">Subsystem</a>&nbsp;swerveSubsystem,
+ <a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a>...&nbsp;modules)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Create the <a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
 </div>
 </div>
@@ -238,34 +242,44 @@ loadScripts(document, 'script');</script>
 <div class="block">Set the maximum speed of the modules to desaturate towards.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withRotationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withRotationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withModules(yams.mechanisms.swerve.SwerveModule...)" class="member-name-link">withModules</a><wbr>(<a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a>...&nbsp;modules)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Set the rotation PID controller.</div>
+<div class="block">Set the <a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve"><code>SwerveModule</code></a>s for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimDiscretizationTime(edu.wpi.first.units.measure.Time)" class="member-name-link">withSimDiscretizationTime</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/Time.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">Time</a>&nbsp;dt)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withRotationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withRotationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Set the rotation PID controller.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimDiscretizationTime(edu.wpi.first.units.measure.Time)" class="member-name-link">withSimDiscretizationTime</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/measure/Time.html" title="class or interface in edu.wpi.first.units.measure" class="external-link">Time</a>&nbsp;dt)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the discretization time for the pose estimation.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimGyroAngularVelocityScaleFactor(double)" class="member-name-link">withSimGyroAngularVelocityScaleFactor</a><wbr>(double&nbsp;scaleFactor)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimGyroAngularVelocityScaleFactor(double)" class="member-name-link">withSimGyroAngularVelocityScaleFactor</a><wbr>(double&nbsp;scaleFactor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the angular velocity scale factor to improve the accuracy of the pose estimation.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimRotationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withSimRotationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimRotationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withSimRotationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the rotation PID controller.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimTranslationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withSimTranslationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSimTranslationController(edu.wpi.first.math.controller.PIDController)" class="member-name-link">withSimTranslationController</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html" title="class or interface in edu.wpi.first.math.controller" class="external-link">PIDController</a>&nbsp;controller)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the translation PID controller.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withStartingPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">withStartingPose</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/geometry/Pose2d.html" title="class or interface in edu.wpi.first.math.geometry" class="external-link">Pose2d</a>&nbsp;pose)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withStartingPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">withStartingPose</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/geometry/Pose2d.html" title="class or interface in edu.wpi.first.math.geometry" class="external-link">Pose2d</a>&nbsp;pose)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the starting pose of the robot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withSubsystem(edu.wpi.first.wpilibj2.command.Subsystem)" class="member-name-link">withSubsystem</a><wbr>(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link">Subsystem</a>&nbsp;subsystem)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Define a <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link"><code>Subsystem</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withTelemetry(yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity)" class="member-name-link">withTelemetry</a><wbr>(<a href="../../motorcontrollers/SmartMotorControllerConfig.TelemetryVerbosity.html" title="enum class in yams.motorcontrollers">SmartMotorControllerConfig.TelemetryVerbosity</a>&nbsp;telemetryVerbosity)</code></div>
@@ -307,6 +321,18 @@ loadScripts(document, 'script');</script>
 </dl>
 </section>
 </li>
+<li>
+<section class="detail" id="&lt;init&gt;()">
+<h3>SwerveDriveConfig</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">SwerveDriveConfig</span>()</div>
+<div class="block">Create the <a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
+<dl class="notes">
+<dt>Implementation Note:</dt>
+<dd>Must define a Subsystem with <a href="#withSubsystem(edu.wpi.first.wpilibj2.command.Subsystem)"><code>withSubsystem(Subsystem)</code></a> and modules with
+ <a href="#withModules(yams.mechanisms.swerve.SwerveModule...)"><code>withModules(SwerveModule...)</code></a></dd>
+</dl>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -315,6 +341,32 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="withSubsystem(edu.wpi.first.wpilibj2.command.Subsystem)">
+<h3>withSubsystem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></span>&nbsp;<span class="element-name">withSubsystem</span><wbr><span class="parameters">(<a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link">Subsystem</a>&nbsp;subsystem)</span></div>
+<div class="block">Define a <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link"><code>Subsystem</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>subsystem</code> - <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Subsystem.html" title="class or interface in edu.wpi.first.wpilibj2.command" class="external-link"><code>Subsystem</code></a> for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a></dd>
+<dt>Returns:</dt>
+<dd><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for chaining.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="withModules(yams.mechanisms.swerve.SwerveModule...)">
+<h3>withModules</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config">SwerveDriveConfig</a></span>&nbsp;<span class="element-name">withModules</span><wbr><span class="parameters">(<a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve">SwerveModule</a>...&nbsp;modules)</span></div>
+<div class="block">Set the <a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve"><code>SwerveModule</code></a>s for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>modules</code> - <a href="../swerve/SwerveModule.html" title="class in yams.mechanisms.swerve"><code>SwerveModule</code></a>s for the <a href="../swerve/SwerveDrive.html" title="class in yams.mechanisms.swerve"><code>SwerveDrive</code></a>.</dd>
+<dt>Returns:</dt>
+<dd><a href="SwerveDriveConfig.html" title="class in yams.mechanisms.config"><code>SwerveDriveConfig</code></a> for chaining.</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="withSimTranslationController(edu.wpi.first.math.controller.PIDController)">
 <h3>withSimTranslationController</h3>
