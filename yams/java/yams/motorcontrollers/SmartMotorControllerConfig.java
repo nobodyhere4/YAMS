@@ -2,6 +2,7 @@ package yams.motorcontrollers;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.MomentOfInertiaUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -28,6 +30,7 @@ import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -738,6 +741,19 @@ public class SmartMotorControllerConfig
   public SmartMotorControllerConfig withMomentOfInertia(double MOI)
   {
     moi = MOI;
+    return this;
+  }
+
+  /**
+   * Add the mechanism moment of inertia to the {@link SmartMotorController}s simulation when not run under a formal
+   * mechanism.
+   *
+   * @param MOI Known moment of inertia.
+   * @return {@link SmartMotorControllerConfig} for chaining
+   */
+  public SmartMotorControllerConfig withMomentOfInertia(MomentOfInertia MOI)
+  {
+    moi = MOI.in(KilogramSquareMeters);
     return this;
   }
 
