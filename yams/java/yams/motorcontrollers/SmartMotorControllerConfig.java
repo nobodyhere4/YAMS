@@ -735,9 +735,11 @@ public class SmartMotorControllerConfig
    * Add the mechanism moment of inertia to the {@link SmartMotorController}s simulation when not run under a formal
    * mechanism.
    *
-   * @param MOI Known moment of inertia.
+   * @param MOI Known moment of inertia. In {@link edu.wpi.first.units.Units#KilogramSquareMeters}
    * @return {@link SmartMotorControllerConfig} for chaining
+   * @implNote Please use {@link #withMomentOfInertia(MomentOfInertia)} instead. Default unit is KilogramSquareMeters
    */
+  @Deprecated(since = "2026", forRemoval = true)
   public SmartMotorControllerConfig withMomentOfInertia(double MOI)
   {
     moi = MOI;

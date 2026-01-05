@@ -1,11 +1,13 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -239,12 +241,27 @@ public class DifferentialMechanismConfig
    * Configure the MOI directly instead of estimating it with the length and mass of the {@link DifferentialMechanism}
    * for simulation.
    *
-   * @param MOI Moment of Inertia of the {@link DifferentialMechanism}
+   * @param MOI Moment of Inertia of the {@link DifferentialMechanism}. In {@link edu.wpi.first.units.Units#KilogramSquareMeters}
    * @return {@link DifferentialMechanismConfig} for chaining.
+   * @implNote Please use {@link #withMOI(MomentOfInertia)} instead. Default unit is KilogramSquareMeters
    */
+  @Deprecated(since = "2026", forRemoval = true)
   public DifferentialMechanismConfig withMOI(double MOI)
   {
     this.MOI = OptionalDouble.of(MOI);
+    return this;
+  }
+
+  /**
+   * Configure the MOI directly instead of estimating it with the length and mass of the {@link DifferentialMechanism}
+   * for simulation.
+   *
+   * @param MOI Moment of Inertia of the {@link DifferentialMechanism}
+   * @return {@link DifferentialMechanismConfig} for chaining.
+   */
+  public DifferentialMechanismConfig withMOI(MomentOfInertia MOI)
+  {
+    this.MOI = OptionalDouble.of(MOI.in(KilogramSquareMeters));
     return this;
   }
 

@@ -1,5 +1,6 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
@@ -8,6 +9,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -288,13 +290,29 @@ public class FlyWheelConfig
    * Configure the MOI directly instead of estimating it with the length and mass of the {@link FlyWheel} for
    * simulation.
    *
+   * @param MOI Moment of Inertia of the {@link FlyWheel}. in {@link Units#KilogramSquareMeters}
+   * @return {@link FlyWheelConfig} for chaining.
+   * @implNote Please use {@link #withMOI(MomentOfInertia)} instead. Default unit is KilogramSquareMeters
+   */
+  @Deprecated(since = "2026", forRemoval = true)
+  public FlyWheelConfig withMOI(double MOI)
+  {
+    motor.ifPresent(motor -> motor.getConfig().withMomentOfInertia(KilogramSquareMeters.of(MOI)));
+    this.moi = OptionalDouble.of(MOI);
+    return this;
+  }
+
+  /**
+   * Configure the MOI directly instead of estimating it with the length and mass of the {@link FlyWheel} for
+   * simulation.
+   *
    * @param MOI Moment of Inertia of the {@link FlyWheel}
    * @return {@link FlyWheelConfig} for chaining.
    */
-  public FlyWheelConfig withMOI(double MOI)
+  public FlyWheelConfig withMOI(MomentOfInertia MOI)
   {
     motor.ifPresent(motor -> motor.getConfig().withMomentOfInertia(MOI));
-    this.moi = OptionalDouble.of(MOI);
+    this.moi = OptionalDouble.of(MOI.in(KilogramSquareMeters));
     return this;
   }
 

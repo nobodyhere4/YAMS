@@ -1,5 +1,6 @@
 package yams.mechanisms.config;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 
@@ -7,6 +8,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -160,13 +162,29 @@ public class PivotConfig
    * Configure the MOI directly instead of estimating it with the length and mass of the
    * {@link yams.mechanisms.positional.Pivot} for simulation.
    *
+   * @param MOI Moment of Inertia of the {@link yams.mechanisms.positional.Pivot}. in {@link edu.wpi.first.units.Units#KilogramSquareMeters}
+   * @return {@link PivotConfig} for chaining.
+   * @implNote Please use {@link #withMOI(MomentOfInertia)} instead. Default unit is KilogramSquareMeters
+   */
+  @Deprecated(since = "2026", forRemoval = true)
+  public PivotConfig withMOI(double MOI)
+  {
+    motor.ifPresent(motor -> motor.getConfig().withMomentOfInertia(KilogramSquareMeters.of(MOI)));
+    this.moi = OptionalDouble.of(MOI);
+    return this;
+  }
+
+  /**
+   * Configure the MOI directly instead of estimating it with the length and mass of the
+   * {@link yams.mechanisms.positional.Pivot} for simulation.
+   *
    * @param MOI Moment of Inertia of the {@link yams.mechanisms.positional.Pivot}
    * @return {@link PivotConfig} for chaining.
    */
-  public PivotConfig withMOI(double MOI)
+  public PivotConfig withMOI(MomentOfInertia MOI)
   {
     motor.ifPresent(motor -> motor.getConfig().withMomentOfInertia(MOI));
-    this.moi = OptionalDouble.of(MOI);
+    this.moi = OptionalDouble.of(MOI.in(KilogramSquareMeters));
     return this;
   }
 
