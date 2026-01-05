@@ -31,7 +31,7 @@ public class YUnits
   public static final LinearMomentumUnit PoundFeetPerSecond = Pound.mult(FeetPerSecond);
   public static final LinearMomentumUnit PoundInchesPerSecond = Pound.mult(InchesPerSecond);
   // Linear Momentum Units
-  public static final AngularMomentumUnit PoundFeetSquaredPerSecond = PoundInchesPerSecond.mult(Feet);
+  public static final AngularMomentumUnit PoundFeetSquaredPerSecond = PoundFeetPerSecond.mult(Feet);
   public static final AngularMomentumUnit PoundInchesSquaredPerSecond = PoundInchesPerSecond.mult(Inches);
   // Moment of Inertia Units
   public static final MomentOfInertiaUnit PoundSquareFeet = MomentOfInertiaUnit.combine(PoundFeetSquaredPerSecond,RadiansPerSecond);
