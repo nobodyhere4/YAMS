@@ -1,6 +1,7 @@
 package yams.units;
 
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Minutes;
@@ -27,13 +28,13 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 public class YUnits
 {
   // Angular Momentum Units
-  public static final LinearMomentumUnit FootInchesPerSecond = Pound.mult(InchesPerSecond);
+  public static final LinearMomentumUnit PoundFeetPerSecond = Pound.mult(FeetPerSecond);
   public static final LinearMomentumUnit PoundInchesPerSecond = Pound.mult(InchesPerSecond);
   // Linear Momentum Units
-  public static final AngularMomentumUnit FootInchesSquaredPerSecond = PoundInchesPerSecond.mult(Inches);
+  public static final AngularMomentumUnit PoundFeetSquaredPerSecond = PoundInchesPerSecond.mult(Feet);
   public static final AngularMomentumUnit PoundInchesSquaredPerSecond = PoundInchesPerSecond.mult(Inches);
   // Moment of Inertia Units
-  public static final MomentOfInertiaUnit FootSquareInches = MomentOfInertiaUnit.combine(FootInchesSquaredPerSecond,RadiansPerSecond);
+  public static final MomentOfInertiaUnit PoundSquareFeet = MomentOfInertiaUnit.combine(PoundFeetSquaredPerSecond,RadiansPerSecond);
   public static final MomentOfInertiaUnit PoundSquareInches = MomentOfInertiaUnit.combine(PoundInchesSquaredPerSecond,RadiansPerSecond);
 
   /**
